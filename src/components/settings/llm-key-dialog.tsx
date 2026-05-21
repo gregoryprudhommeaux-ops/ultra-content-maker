@@ -1,29 +1,36 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui/nextstep";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+const LLM_SETUP_PATH = "/setup/llm";
+
 export function LlmKeyDialog() {
   const { user, loading: authLoading } = useAuth();
+  const pathname = usePathname();
   const t = useTranslations("settings.llmKeyDialog");
-  const [open, setOpen] = useState(false);
+  const [missingKey, setMissingKey] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [checked, setChecked] = useState(false);
+  const onLlmSetupPage = pathname === LLM_SETUP_PATH;
 
   useEffect(() => {
     if (authLoading || !user) {
       setChecked(false);
-      setOpen(false);
+      setMissingKey(false);
       return;
     }
     let cancelled = false;
     getUserLlmProfile(user.uid)
       .then((profile) => {
         if (cancelled) return;
-        setOpen(!profile?.apiKey);
+        const needsKey = !profile?.apiKey;
+        setMissingKey(needsKey);
+        if (!needsKey) setDismissed(false);
         setChecked(true);
       })
       .catch(() => {
@@ -32,9 +39,11 @@ export function LlmKeyDialog() {
     return () => {
       cancelled = true;
     };
-  }, [user, authLoading]);
+  }, [user, authLoading, pathname]);
 
-  if (!checked || !open) return null;
+  const showDialog = checked && missingKey && !onLlmSetupPage && !dismissed;
+
+  if (!showDialog) return null;
 
   return (
     <div
@@ -55,11 +64,11 @@ export function LlmKeyDialog() {
           <button
             type="button"
             className={BTN_SECONDARY}
-            onClick={() => setOpen(false)}
+            onClick={() => setDismissed(true)}
           >
             {t("dismiss")}
           </button>
-          <Link href="/setup/llm" className={`text-center ${BTN_PRIMARY}`}>
+          <Link href={LLM_SETUP_PATH} className={`text-center ${BTN_PRIMARY}`}>
             {t("updateKey")}
           </Link>
         </div>

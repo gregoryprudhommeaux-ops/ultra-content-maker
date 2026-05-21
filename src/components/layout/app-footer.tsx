@@ -2,7 +2,7 @@
 
 import { NsMark } from "@/components/brand/ns-mark";
 import { MARKETING_LANDING_HREF } from "@/lib/brand/marketing";
-import { NS_SUITE_NAME, NS_SUITE_URL, NEXTSTEP_COMPANY } from "@/lib/brand/ns-suite";
+import { NEXTSTEP_COMPANY } from "@/lib/brand/ns-suite";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -44,31 +44,6 @@ export function AppFooter({
                 className={`text-sm font-bold ${isDark ? "text-white" : "text-ns-tertiary"}`}
               >
                 {NEXTSTEP_COMPANY}
-              </p>
-              <p
-                className={`text-[11px] font-semibold uppercase tracking-wide ${
-                  isDark ? "text-ns-primary" : "text-ns-secondary"
-                }`}
-              >
-                {NS_SUITE_URL ? (
-                  <a
-                    href={NS_SUITE_URL}
-                    className={isDark ? "hover:text-ns-primary/80" : "hover:text-ns-tertiary"}
-                    rel="noopener noreferrer"
-                  >
-                    {NS_SUITE_NAME}
-                  </a>
-                ) : (
-                  <span>{NS_SUITE_NAME}</span>
-                )}
-                <span
-                  className={`font-medium normal-case tracking-normal ${
-                    isDark ? "text-white/50" : "text-ns-secondary/80"
-                  }`}
-                >
-                  {" "}
-                  · {t("productName")}
-                </span>
               </p>
               <p
                 className={`text-xs font-medium leading-relaxed ${
