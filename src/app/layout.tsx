@@ -1,4 +1,4 @@
-import { getSiteUrl } from "@/lib/brand/site-url";
+import { getOgImageUrl, getSiteUrl } from "@/lib/brand/site-url";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 const siteUrl = getSiteUrl();
-const ogImageUrl = `${siteUrl}/og-image.png`;
+const ogImageUrl = getOgImageUrl();
 
 const siteDescription =
   "Ultra Content Maker: AI ghostwriter for LinkedIn";

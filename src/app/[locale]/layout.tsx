@@ -1,5 +1,5 @@
 import { AuthProvider } from "@/components/auth/auth-provider";
-import { getSiteUrl } from "@/lib/brand/site-url";
+import { getOgImageUrl } from "@/lib/brand/site-url";
 import { routing } from "@/i18n/routing";
 import type { AppLocale } from "@/i18n/routing";
 import type { Metadata } from "next";
