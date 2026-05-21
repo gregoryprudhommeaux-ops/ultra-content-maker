@@ -1,0 +1,425 @@
+{
+  "app": {
+    "name": "ULTRA CONTENT MAKER",
+    "tagline": "De l'onboarding au Content Brain validé — puis du contenu LinkedIn aligné avec la marque."
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Utilisez votre e-mail ou votre compte Google",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "google": "Continuer avec Google",
+      "googleRedirecting": "Redirection vers Google…",
+      "googleWait": "Finalisation de la connexion Google…",
+      "googleCancel": "Annuler et revenir au formulaire",
+      "redirecting": "Connexion réussie, redirection…",
+      "noAccount": "Pas de compte ?",
+      "signUp": "S'inscrire"
+    },
+    "signup": {
+      "title": "Créer un compte",
+      "subtitle": "Commencez avec votre premier persona client",
+      "submit": "Créer le compte",
+      "hasAccount": "Déjà un compte ?",
+      "signIn": "Se connecter"
+    },
+    "errors": {
+      "config": "Firebase n'est pas configuré. Ajoutez les clés dans .env.local (voir .env.example).",
+      "generic": "Échec de l'authentification. Réessayez.",
+      "invalidCredential": "E-mail ou mot de passe incorrect. Si vous n'avez pas de compte, créez-en un via S'inscrire.",
+      "userNotFound": "Aucun compte avec cet e-mail. Créez un compte via S'inscrire.",
+      "wrongPassword": "Mot de passe incorrect.",
+      "invalidEmail": "Adresse e-mail invalide.",
+      "emailInUse": "Cet e-mail est déjà utilisé. Connectez-vous.",
+      "weakPassword": "Mot de passe trop faible (6 caractères minimum).",
+      "tooManyRequests": "Trop de tentatives. Réessayez dans quelques minutes.",
+      "popupClosed": "Connexion Google annulée.",
+      "popupBlocked": "Fenêtre Google bloquée. Autorisez les popups pour 127.0.0.1, fermez tout onglet firebaseapp.com, rechargez la page de connexion et réessayez.",
+      "providerDisabled": "Ce mode de connexion n'est pas activé dans Firebase (Authentication → Sign-in method).",
+      "unauthorizedDomain": "Ce domaine n'est pas autorisé. Dans Firebase → Authentication → Settings → Authorized domains, ajoutez « localhost » et « 127.0.0.1 » (sans http ni port).",
+      "networkFailed": "Réseau indisponible. Vérifiez votre connexion et réessayez.",
+      "unavailable": "Service d'authentification indisponible. Redémarrez le serveur de dev (npm run dev) après avoir modifié .env.local.",
+      "googleRedirectTimeout": "La connexion Google a expiré. Cliquez sur Annuler, puis réessayez avec le bouton Google (fenêtre popup) ou connectez-vous par e-mail."
+    }
+  },
+  "nav": {
+    "setup": "Moi",
+    "persona": "Persona",
+    "articles": "Articles",
+    "settings": "Settings",
+    "signOut": "Déconnexion"
+  },
+  "settings": {
+    "llmKeyDialog": {
+      "title": "Clé API requise",
+      "body": "Ajoutez votre clé Perplexity ou OpenAI pour générer le Persona et les posts LinkedIn.",
+      "updateKey": "Mettre à jour la clé API",
+      "dismiss": "Plus tard"
+    }
+  },
+  "setup": {
+    "steps": {
+      "llm": "Clé API",
+      "author": "Moi",
+      "audience": "Cible",
+      "persona": "Persona",
+      "articles": "Posts"
+    },
+    "llm": {
+      "title": "Votre clé API",
+      "subtitle": "Chaque compte utilise sa propre clé. Elle est stockée dans votre espace Firestore (accessible uniquement par vous) et sert à générer le Persona et les posts.",
+      "privacyNote": "Ne partagez jamais votre clé. Vous pouvez la révoquer ou la régénérer à tout moment chez votre fournisseur.",
+      "provider": "Fournisseur IA",
+      "howToGetKey": "Comment obtenir votre clé",
+      "apiKey": "Clé API",
+      "showKey": "Afficher",
+      "hideKey": "Masquer",
+      "modelHint": "Modèle utilisé par défaut : {model}",
+      "continue": "Continuer vers Moi →",
+      "errors": {
+        "keyTooShort": "La clé API semble trop courte. Vérifiez que vous avez copié la clé complète.",
+        "invalidKey": "Cette clé API est refusée par le fournisseur. Vérifiez qu'elle est active et correspond au bon service.",
+        "verifyFailed": "Test de la clé échoué : {detail}",
+        "saveFailed": "Impossible d'enregistrer la clé. Réessayez."
+      },
+      "providers": {
+        "openai": {
+          "name": "OpenAI (ChatGPT)",
+          "keyPlaceholder": "sk-…",
+          "link": "https://platform.openai.com/api-keys",
+          "linkLabel": "Console OpenAI — API keys",
+          "steps": [
+            "Connectez-vous sur platform.openai.com",
+            "Menu « API keys » → « Create new secret key »",
+            "Copiez la clé (affichée une seule fois) et collez-la ci-dessous"
+          ]
+        },
+        "perplexity": {
+          "name": "Perplexity",
+          "keyPlaceholder": "pplx-…",
+          "link": "https://www.perplexity.ai/settings/api",
+          "linkLabel": "Paramètres Perplexity — API",
+          "steps": [
+            "Compte Perplexity → Settings → API",
+            "Générez une clé API",
+            "Copiez la clé commençant par pplx-"
+          ]
+        },
+        "anthropic": {
+          "name": "Anthropic (Claude)",
+          "keyPlaceholder": "sk-ant-…",
+          "link": "https://console.anthropic.com/settings/keys",
+          "linkLabel": "Console Anthropic — API keys",
+          "steps": [
+            "Créez un compte sur console.anthropic.com",
+            "Settings → API Keys → Create Key",
+            "Copiez la clé sk-ant-…"
+          ]
+        },
+        "google": {
+          "name": "Google Gemini",
+          "keyPlaceholder": "AIza…",
+          "link": "https://aistudio.google.com/apikey",
+          "linkLabel": "Google AI Studio — API key",
+          "steps": [
+            "Ouvrez aistudio.google.com",
+            "« Get API key » → créer une clé pour votre projet Google Cloud",
+            "Copiez la clé AIza…"
+          ]
+        }
+      }
+    },
+    "author": {
+      "title": "Qui je suis",
+      "subtitle": "Ajoutez des liens vers votre présence professionnelle. Pas de copier-coller — des URLs pour les exemples.",
+      "linkedin": "URL profil LinkedIn",
+      "website": "URL site web",
+      "blog": "URL blog",
+      "role": "Rôle / titre",
+      "positioning": "Positionnement en une ligne",
+      "contentLanguage": "Langue des posts LinkedIn générés",
+      "optionalNote": "Tous les champs sont optionnels : vous pouvez continuer sans rien remplir et compléter plus tard.",
+      "save": "Enregistrer le brouillon",
+      "continue": "Continuer vers la cible",
+      "invalidUrl": "Entrez une URL http(s) valide.",
+      "saveFailed": "Enregistrement impossible. Vérifiez les règles Firestore.",
+      "sources": {
+        "title": "Exemples de contenu (liens)",
+        "description": "Posts LinkedIn, articles de blog, ou toute page qui montre comment vous écrivez.",
+        "type": "Type de lien",
+        "url": "URL",
+        "labelOptional": "Libellé",
+        "add": "Ajouter le lien",
+        "remove": "Supprimer",
+        "empty": "Aucun lien pour l'instant.",
+        "invalidUrl": "URL invalide.",
+        "addFailed": "Impossible d'ajouter le lien.",
+        "types": {
+          "linkedin_profile": "Profil LinkedIn",
+          "linkedin_post": "Post LinkedIn",
+          "blog": "Blog / article",
+          "website": "Page web",
+          "other": "Autre"
+        }
+      }
+    },
+    "audience": {
+      "title": "Pour qui vous écrivez",
+      "subtitle": "Une esquisse légère de votre lecteur idéal.",
+      "targetLabel": "Type de cible général",
+      "targetPlaceholder": "ex. dirigeants de PME françaises qui s'internationalisent",
+      "contentFocus": "Ce qu'il faut mettre en avant dans le contenu",
+      "focusPlaceholder": "Thèmes, angles — pas un catalogue de prestations",
+      "notes": "Notes (optionnel)",
+      "optionalNote": "Tous les champs sont optionnels — vous pouvez passer cette étape sans rien remplir.",
+      "skip": "Passer pour l'instant",
+      "continue": "Continuer vers le Persona",
+      "back": "← Retour à Moi",
+      "saveFailed": "Enregistrement impossible."
+    },
+    "persona": {
+      "title": "Votre Persona expert",
+      "subtitle": "Ce long prompt est votre assistant rédactionnel LinkedIn. Générez-le à partir de vos liens et de la cible, puis éditez et validez.",
+      "generate": "Générer le Persona",
+      "generating": "Génération du Persona en cours…",
+      "generatingHint": "L’IA analyse vos liens et votre cible. Cela peut prendre 30 à 90 secondes.",
+      "regenerate": "Régénérer",
+      "regenerating": "Régénération…",
+      "validate": "Valider le Persona",
+      "goArticles": "Continuer vers les posts exemples →",
+      "back": "← Retour à la cible",
+      "gapsTitle": "Hypothèses / manques",
+      "gaps": {
+        "title": "Complétez votre profil",
+        "subtitle": "Répondez à ces questions pour affiner votre Persona et vos futurs posts LinkedIn. Vous pouvez enregistrer partiellement et revenir plus tard.",
+        "textPlaceholder": "Votre réponse…",
+        "save": "Enregistrer les réponses",
+        "saving": "Enregistrement…",
+        "saved": "Profil et Persona mis à jour — les prochaines générations utiliseront ces infos.",
+        "saveFailed": "Impossible d'enregistrer les réponses."
+      },
+      "noOpenAi": "Ajoutez OPENAI_API_KEY dans .env.local pour générer.",
+      "noLlmKey": "Configurez votre clé API avant de générer.",
+      "invalidApiKey": "Votre clé API est refusée par le fournisseur. Mettez à jour la clé dans l'étape « Clé API ».",
+      "goLlmSetup": "Configurer ma clé API",
+      "loadFailed": "Impossible de charger la page Persona. Vérifiez votre connexion et réessayez.",
+      "generateTimeout": "La génération a pris trop de temps (plus de 2 minutes). Réessayez.",
+      "generateFailed": "Échec de la génération. Réessayez.",
+      "generateFailedDetail": "Échec de la génération : {detail}",
+      "saveFailed": "Impossible d'enregistrer le Persona."
+    },
+    "articles": {
+      "title": "Posts exemples",
+      "titlePending": "Posts à publier",
+      "descriptionPending": "Brouillons et posts en affinage — pas encore validés pour LinkedIn.",
+      "filter": {
+        "pending": "À publier",
+        "all": "Tous les posts"
+      },
+      "emptyPending": "Aucun post en attente. Générez un lot ou consultez les posts validés.",
+      "needPersona": "Validez votre Persona avant de générer des posts.",
+      "goPersona": "Aller au Persona →",
+      "description": "Générez 3–4 posts LinkedIn, affinez avec des questions, choisissez un CTA, copiez sur LinkedIn.",
+      "generateBatch": "Générer 4 posts",
+      "generating": "Génération des posts…",
+      "generatingHint": "L’IA rédige 4 posts selon votre Persona (30–90 s).",
+      "generateFailed": "Échec de la génération. Réessayez.",
+      "generateTimeout": "Délai dépassé. Réessayez.",
+      "noLlmKey": "Configurez votre clé API avant de générer.",
+      "invalidApiKey": "Clé API refusée. Mettez à jour dans Clé API.",
+      "empty": "Aucun post pour l’instant. Cliquez sur « Générer 4 posts ».",
+      "batchLabel": "Lot du {date}",
+      "untitled": "Sans titre",
+      "emoji": {
+        "label": "Emojis dans les posts",
+        "none": "Pas du tout",
+        "light": "Un peu",
+        "heavy": "Beaucoup",
+        "hint": {
+          "none": "Aucun emoji dans le texte généré.",
+          "light": "1 à 3 emojis visibles par post (obligatoire).",
+          "heavy": "Emojis fréquents, ton vivant mais pro."
+        }
+      },
+      "cta": {
+        "title": "Choisir votre CTA",
+        "subtitle": "3 propositions basées sur votre Persona et ce post — choisissez l’intensité qui vous convient.",
+        "loading": "Génération des CTA…",
+        "regenerate": "Régénérer les 3 CTA",
+        "loadFailed": "Impossible de générer les CTA. Réessayez.",
+        "pickOne": "Sélectionnez un CTA (doux, moyen ou pushy).",
+        "styles": {
+          "soft": "Doux",
+          "medium": "Moyen",
+          "pushy": "Pushy"
+        }
+      },
+      "status": {
+        "draft": "Brouillon",
+        "refining": "En affinage",
+        "validated": "Validé"
+      },
+      "scope": {
+        "generalist": "Généraliste",
+        "niche": "Niche"
+      },
+      "scopeLegend": "2 posts généralistes · 2 posts niche",
+      "scopeMix": "{generalist} généraliste · {niche} niche",
+      "postIndex": "Post {index}",
+      "refinement": {
+        "title": "Affiner ce post",
+        "tone": "Le ton correspond-il à votre voix ?",
+        "theme": "Le thème / angle vous convient-il ?",
+        "length": "La longueur est-elle adaptée à LinkedIn ?",
+        "hook": "L’accroche est-elle assez forte ?",
+        "currentNews": "Rendre ce post plus en phase avec l’actualité du moment ?",
+        "currentNewsDetailPlaceholder": "Détails : titre, thème ou URL d’une actu à intégrer",
+        "answers": {
+          "yes": "Oui",
+          "no": "Non",
+          "partial": "Partiel"
+        },
+        "commentPlaceholder": "Précision (optionnel)",
+        "globalComment": "Commentaire global"
+      },
+      "detail": {
+        "back": "Retour aux posts",
+        "notFound": "Post introuvable.",
+        "applyFeedback": "Appliquer les retours et régénérer",
+        "reviseFailed": "Échec de la révision. Réessayez.",
+        "needRefinement": "Répondez à au moins une question, ajoutez un commentaire, ou précisez une actu si vous choisissez Oui.",
+        "validateFailed": "Impossible de valider le post.",
+        "ctaTitle": "Signature / CTA",
+        "ctaOrCreate": "Choisissez un CTA existant ou créez-en un :",
+        "ctaLabel": "Nom du CTA",
+        "ctaText": "Texte du CTA",
+        "validate": "Valider et préparer la copie LinkedIn",
+        "validating": "Validation en cours…",
+        "validatingHint": "Génération des hashtags et préparation du texte LinkedIn (10–30 s).",
+        "revising": "Révision en cours…",
+        "revisingHint": "L’IA applique vos retours au post (20–60 s).",
+        "exportPreview": "Texte final",
+        "hashtagsHint": "4 hashtags LinkedIn seront ajoutés en fin de post (contenu + profil) à la validation.",
+        "characterCount": "{count} / {max} caractères (LinkedIn)",
+        "copyLinkedIn": "Copier pour LinkedIn",
+        "copied": "Copié !"
+      }
+    }
+  },
+  "dashboard": {
+    "clients": {
+      "title": "Personas clients",
+      "empty": {
+        "title": "Créez votre premier persona client",
+        "description": "Définissez un type de cible général pour lequel vous publiez sur LinkedIn et les autres plateformes. Complétez l'onboarding, validez le Content Brain, puis générez idées et brouillons.",
+        "cta": "Créer un persona"
+      },
+      "create": {
+        "title": "Nouveau persona client",
+        "name": "Nom du persona",
+        "typeLabel": "Type de persona (texte libre)",
+        "typeLabelHint": "ex. PME française en expansion au Mexique, fondateur SaaS B2B, coach export",
+        "contentLanguage": "Langue du contenu (posts générés)",
+        "sector": "Secteur (optionnel)",
+        "notes": "Notes (optionnel)",
+        "submit": "Créer le persona",
+        "errors": {
+          "permissionDenied": "Accès Firestore refusé. Déployez firestore.rules sur le projet ultra-content-maker.",
+          "generic": "Impossible de créer le persona. Vérifiez la connexion Firestore.",
+          "withCode": "Impossible de créer le persona ({code})."
+        }
+      },
+      "card": {
+        "onboarding": "Onboarding",
+        "brain": "Content Brain",
+        "generations": "Générations"
+      }
+    }
+  },
+  "client": {
+    "hub": {
+      "backToList": "← Personas clients",
+      "backToPersona": "← Retour au persona",
+      "onboarding": "Onboarding",
+      "brain": "Content Brain",
+      "generate": "Générer",
+      "history": "Historique",
+      "continueOnboarding": "Continuer l'onboarding →"
+    },
+    "sections": {
+      "brain": {
+        "description": "Génération et validation du Content Brain pour ce persona. Disponible à la prochaine phase.",
+        "backCta": "Retour au hub persona"
+      },
+      "generate": {
+        "description": "Idées, calendrier et brouillons LinkedIn pour ce persona. Bientôt disponible.",
+        "backCta": "Retour au hub persona"
+      },
+      "history": {
+        "description": "Historique des générations et exports pour ce persona. Bientôt disponible.",
+        "backCta": "Retour au hub persona"
+      }
+    }
+  },
+  "onboarding": {
+    "title": "Onboarding persona",
+    "progress": "Étape {current} sur {total}",
+    "back": "Retour",
+    "next": "Enregistrer et continuer",
+    "finish": "Terminer l'onboarding",
+    "errors": {
+      "clientNotFound": "Persona introuvable.",
+      "loadFailed": "Impossible de charger l'onboarding.",
+      "saveFailed": "Enregistrement impossible. Vérifiez les règles Firestore."
+    },
+    "steps": {
+      "1": {
+        "title": "Identité & business",
+        "hint": "Type de persona : {type}",
+        "role": "Rôle / titre",
+        "offer": "Offre principale",
+        "positioning": "Positionnement en une phrase"
+      },
+      "2": {
+        "title": "Cibles & problèmes",
+        "icp": "Profil de cible idéale (ICP)",
+        "pains": "Douleurs principales",
+        "objections": "Objections fréquentes",
+        "proof": "Crédibilité & preuves"
+      },
+      "3": {
+        "title": "Voix & style",
+        "tone": "Ton & voix",
+        "wordsToAvoid": "Mots ou thèmes à éviter",
+        "largeNiche": "Ratio Large / Niche",
+        "cta": "CTA préférés",
+        "ps": "Règle PS / signature (optionnel)"
+      },
+      "4": {
+        "title": "Langue du contenu",
+        "description": "Langue des posts LinkedIn générés (pas l'interface).",
+        "language": "Langue des posts"
+      },
+      "5": {
+        "title": "Sources",
+        "description": "URLs et textes pour le Content Brain.",
+        "linkedin": "URL profil LinkedIn",
+        "website": "URL site web",
+        "bio": "Bio (coller)",
+        "posts": "Exemples de posts (coller)",
+        "postsPlaceholder": "Collez 1 à 3 posts…",
+        "googleDoc": "URL Google Doc (optionnel)",
+        "pdfNote": "Upload PDF bientôt disponible — utilisez le collage ou Google Doc."
+      }
+    }
+  },
+  "common": {
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "comingSoon": "Bientôt disponible",
+    "optional": "(optionnel)"
+  }
+}

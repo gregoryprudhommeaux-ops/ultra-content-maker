@@ -1,0 +1,156 @@
+"use client";
+
+import { addSource, listSources, removeSource } from "@/lib/workspace/sources";
+import { isValidUrl } from "@/lib/workspace/firestore-utils";
+import type { SourceType } from "@/types/workspace";
+import { OptionalLabel } from "@/components/setup/optional-label";
+import { INPUT_CLASS } from "@/types/workspace";
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+
+const SOURCE_TYPES: SourceType[] = [
+  "linkedin_post",
+  "linkedin_profile",
+  "blog",
+  "website",
+  "other",
+];
+
+type Props = { userId: string };
+
+export function SourceLinksEditor({ userId }: Props) {
+  const t = useTranslations("setup.author.sources");
+  const [sources, setSources] = useState<Awaited<ReturnType<typeof listSources>>>([]);
+  const [type, setType] = useState<SourceType>("linkedin_post");
+  const [url, setUrl] = useState("");
+  const [label, setLabel] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setSources(await listSources(userId));
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function onAdd() {
+    setError(null);
+    if (!url.trim()) return;
+    if (!isValidUrl(url.trim())) {
+      setError(t("invalidUrl"));
+      return;
+    }
+    try {
+      await addSource(userId, {
+        type,
+        url: url.trim(),
+        label: label.trim() || undefined,
+      });
+      setUrl("");
+      setLabel("");
+      await load();
+    } catch {
+      setError(t("addFailed"));
+    }
+  }
+
+  return (
+    <div className="space-y-4 rounded-xl border border-gray-100 bg-ns-brand-light/50 p-4">
+      <h3 className="text-sm font-semibold text-ns-tertiary">{t("title")}</h3>
+      <p className="text-sm text-ns-secondary">{t("description")}</p>
+
+      {loading ? (
+        <p className="text-sm text-ns-secondary">…</p>
+      ) : sources.length > 0 ? (
+        <ul className="space-y-2">
+          {sources.map((s) => (
+            <li
+              key={s.id}
+              className="flex items-start justify-between gap-2 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm"
+            >
+              <div className="min-w-0">
+                <span className="font-medium text-ns-tertiary">
+                  {t(`types.${s.type}`)}
+                </span>
+                {s.label && (
+                  <span className="ml-2 text-ns-secondary">{s.label}</span>
+                )}
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-0.5 block truncate text-ns-secondary underline"
+                >
+                  {s.url}
+                </a>
+              </div>
+              <button
+                type="button"
+                onClick={() => removeSource(userId, s.id).then(load)}
+                className="shrink-0 text-ns-secondary hover:text-red-600"
+              >
+                {t("remove")}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-ns-secondary">{t("empty")}</p>
+      )}
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <OptionalLabel htmlFor="source-type">{t("type")}</OptionalLabel>
+          <select
+            id="source-type"
+            value={type}
+            onChange={(e) => setType(e.target.value as SourceType)}
+            className={INPUT_CLASS}
+          >
+            {SOURCE_TYPES.map((st) => (
+              <option key={st} value={st}>
+                {t(`types.${st}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="sm:col-span-2">
+          <OptionalLabel htmlFor="source-url">{t("url")}</OptionalLabel>
+          <input
+            id="source-url"
+            type="text"
+            inputMode="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://"
+            className={INPUT_CLASS}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <OptionalLabel htmlFor="source-label">{t("labelOptional")}</OptionalLabel>
+          <input
+            id="source-label"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            className={INPUT_CLASS}
+          />
+        </div>
+        {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
+        <button
+          type="button"
+          onClick={onAdd}
+          className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light sm:col-span-2"
+        >
+          {t("add")}
+        </button>
+      </div>
+    </div>
+  );
+}
