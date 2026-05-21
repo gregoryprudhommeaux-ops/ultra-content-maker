@@ -48,12 +48,30 @@ icons[0].save(
 )
 draw_mark(180).save(f"{public_dir}/apple-touch-icon.png")
 
-# Open Graph / WhatsApp preview (1200x630)
+# Open Graph / WhatsApp preview (1200x630) — compact mark + English tagline
 og_w, og_h = 1200, 630
 og = Image.new("RGBA", (og_w, og_h), (0x1A, 0x1A, 0x1A, 255))
-mark_size = 320
+draw_og = ImageDraw.Draw(og)
+mark_size = 140
 mark = draw_mark(mark_size)
-og.paste(mark, ((og_w - mark_size) // 2, (og_h - mark_size) // 2), mark)
+tagline = "Ultra Content Maker: AI ghostwriter for LinkedIn"
+tagline_size = 40
+try:
+    tagline_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", tagline_size)
+except OSError:
+    tagline_font = ImageFont.load_default()
+tb = draw_og.textbbox((0, 0), tagline, font=tagline_font)
+tw, th = tb[2] - tb[0], tb[3] - tb[1]
+gap = 32
+block_h = mark_size + gap + th
+y0 = (og_h - block_h) // 2
+og.paste(mark, ((og_w - mark_size) // 2, y0), mark)
+draw_og.text(
+    ((og_w - tw) // 2, y0 + mark_size + gap),
+    tagline,
+    fill=(255, 255, 255, 255),
+    font=tagline_font,
+)
 og.convert("RGB").save(f"{public_dir}/og-image.png", format="PNG", optimize=True)
 
 import shutil

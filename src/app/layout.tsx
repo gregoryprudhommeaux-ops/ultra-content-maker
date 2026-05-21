@@ -13,7 +13,7 @@ const siteUrl = getSiteUrl();
 const ogImageUrl = `${siteUrl}/og-image.png`;
 
 const siteDescription =
-  "Ultra Content Maker : Ghostwriter IA pour LinkedIn — un outil NS Suite pour les entrepreneurs.";
+  "Ultra Content Maker: AI ghostwriter for LinkedIn";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
