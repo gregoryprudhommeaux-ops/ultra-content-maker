@@ -15,7 +15,8 @@
   "landing": {
     "hero": {
       "brand": "ULTRA CONTENT MAKER",
-      "headline": "Votre voix, amplifiée par l'IA. Des articles LinkedIn qui reflètent votre expertise.",
+      "headline": "Votre voix, amplifiée par l'IA.",
+      "headlineSubtitle": "Des articles LinkedIn qui reflètent votre expertise.",
       "subheadline": "Créez instantanément des contenus pertinents et percutants, adaptés à votre persona et disponibles en plusieurs langues, pour une influence maximale sur les réseaux professionnels.",
       "benefit": "Un Ghostwriter IA qui capte et reproduit fidèlement votre style et votre expertise. Plus jamais de contenu générique.",
       "cta": "Créer mon ghostwriter IA",

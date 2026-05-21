@@ -87,6 +87,9 @@ export function LandingPage() {
           <h1 className="text-3xl font-bold leading-[1.12] tracking-tight md:text-5xl lg:text-6xl">
             {tHero("headline")}
           </h1>
+          <p className="mt-3 max-w-2xl text-xl font-semibold leading-snug text-white/85 md:mt-4 md:text-2xl lg:text-3xl">
+            {tHero("headlineSubtitle")}
+          </p>
           <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-white/80 md:text-lg">
             {tHero("subheadline")}
           </p>
