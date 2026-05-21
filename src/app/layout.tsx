@@ -37,7 +37,7 @@ export const metadata: Metadata = {
         url: ogImageUrl,
         width: 1200,
         height: 630,
-        alt: "Ultra Content Maker — NS Suite",
+        alt: "Ultra Content Maker: AI ghostwriter for LinkedIn",
         type: "image/png",
       },
     ],
