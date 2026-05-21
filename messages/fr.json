@@ -421,6 +421,12 @@
         "characterCount": "{count} / {max} caractères (LinkedIn)",
         "copyLinkedIn": "Copier pour LinkedIn",
         "copied": "Copié !"
+      },
+      "share": {
+        "title": "PARTAGER",
+        "hint": "Envoyez ce post à un collègue par e-mail ou WhatsApp. La mention Ultra Content Maker est ajoutée uniquement pour ce partage (pas dans la copie LinkedIn).",
+        "email": "E-mail",
+        "whatsapp": "WhatsApp"
       }
     }
   },

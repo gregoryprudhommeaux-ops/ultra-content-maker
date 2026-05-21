@@ -1,5 +1,6 @@
 "use client";
 
+import { ArticleShareActions } from "@/components/articles/article-share-actions";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
 import { LinkedInCharCount } from "@/components/articles/linkedin-char-count";
 import {
@@ -388,6 +389,8 @@ export function ArticleEditor({ articleId }: Props) {
           <p className="mt-3 text-xs text-ns-secondary">{t("hashtagsHint")}</p>
         )}
       </div>
+
+      <ArticleShareActions article={article} />
 
       {!isValidated && article.refinement && (
         <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-5 space-y-5">
