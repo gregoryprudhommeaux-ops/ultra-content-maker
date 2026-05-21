@@ -11,7 +11,7 @@ import type { ReactNode } from "react";
 const siteDescription = "Ultra Content Maker: AI ghostwriter for LinkedIn";
 
 export function generateMetadata(): Metadata {
-  const ogImageUrl = `${getSiteUrl()}/og-image.png`;
+  const ogImageUrl = getOgImageUrl();
   return {
     openGraph: {
       type: "website",

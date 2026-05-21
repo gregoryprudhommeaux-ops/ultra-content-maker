@@ -54,23 +54,38 @@ og = Image.new("RGBA", (og_w, og_h), (0x1A, 0x1A, 0x1A, 255))
 draw_og = ImageDraw.Draw(og)
 mark_size = 140
 mark = draw_mark(mark_size)
-tagline = "Ultra Content Maker: AI ghostwriter for LinkedIn"
-tagline_size = 40
+title_line = "ULTRA CONTENT MAKER"
+subtitle_line = "AI Ghostwriter for LinkedIn"
+title_size = 44
+subtitle_size = 34
 try:
-    tagline_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", tagline_size)
+    title_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", title_size)
+    subtitle_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", subtitle_size)
 except OSError:
-    tagline_font = ImageFont.load_default()
-tb = draw_og.textbbox((0, 0), tagline, font=tagline_font)
-tw, th = tb[2] - tb[0], tb[3] - tb[1]
-gap = 32
-block_h = mark_size + gap + th
+    title_font = ImageFont.load_default()
+    subtitle_font = title_font
+tb1 = draw_og.textbbox((0, 0), title_line, font=title_font)
+tb2 = draw_og.textbbox((0, 0), subtitle_line, font=subtitle_font)
+tw1, th1 = tb1[2] - tb1[0], tb1[3] - tb1[1]
+tw2, th2 = tb2[2] - tb2[0], tb2[3] - tb2[1]
+gap_mark = 32
+gap_lines = 10
+text_block_h = th1 + gap_lines + th2
+block_h = mark_size + gap_mark + text_block_h
 y0 = (og_h - block_h) // 2
 og.paste(mark, ((og_w - mark_size) // 2, y0), mark)
+text_y = y0 + mark_size + gap_mark
 draw_og.text(
-    ((og_w - tw) // 2, y0 + mark_size + gap),
-    tagline,
+    ((og_w - tw1) // 2, text_y),
+    title_line,
     fill=(255, 255, 255, 255),
-    font=tagline_font,
+    font=title_font,
+)
+draw_og.text(
+    ((og_w - tw2) // 2, text_y + th1 + gap_lines),
+    subtitle_line,
+    fill=(230, 230, 230, 255),
+    font=subtitle_font,
 )
 og.convert("RGB").save(f"{public_dir}/og-image.png", format="PNG", optimize=True)
 
