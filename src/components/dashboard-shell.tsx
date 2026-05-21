@@ -1,7 +1,8 @@
 "use client";
 
 import { NsMark } from "@/components/brand/ns-mark";
-import { NEXTSTEP_COMPANY, NS_SUITE_NAME } from "@/lib/brand/ns-suite";
+import { AppFooter } from "@/components/layout/app-footer";
+import { MARKETING_LANDING_HREF } from "@/lib/brand/marketing";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useAuth } from "@/components/auth/auth-provider";
 import { META_LABEL } from "@/lib/ui/nextstep";
@@ -54,19 +55,18 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-ns-background">
+    <div className="flex min-h-screen flex-col bg-ns-background">
       <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-4 py-3 text-white shadow-sm md:px-8">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
-          <Link href="/articles" className="flex min-w-0 items-center gap-3">
+          <Link
+            href={MARKETING_LANDING_HREF}
+            className="flex min-w-0 items-center gap-3 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary"
+            aria-label={t("app.footer.home")}
+          >
             <NsMark size="sm" />
-            <div className="min-w-0 leading-tight">
-              <span className="block truncate text-base font-bold tracking-tight text-white md:text-lg">
-                {t("app.name")}
-              </span>
-              <span className="block truncate text-[10px] font-medium text-white/50">
-                {NEXTSTEP_COMPANY} · {NS_SUITE_NAME}
-              </span>
-            </div>
+            <span className="truncate text-base font-bold tracking-tight text-white md:text-lg">
+              {t("app.name")}
+            </span>
           </Link>
           <div className="flex items-center gap-2 md:gap-6">
             <nav className="hidden gap-6 md:flex" aria-label="Main">
@@ -161,7 +161,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="mx-auto max-w-5xl px-4 py-8 md:px-6">{children}</main>
+      <main className="mx-auto max-w-5xl flex-1 px-4 py-8 md:px-6">{children}</main>
+      <AppFooter variant="light" showAppLinks />
     </div>
   );
 }

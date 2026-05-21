@@ -1,7 +1,16 @@
 {
   "app": {
     "name": "ULTRA CONTENT MAKER",
-    "tagline": "De l'onboarding au Content Brain validé — puis du contenu LinkedIn aligné avec la marque."
+    "tagline": "De l'onboarding au Content Brain validé — puis du contenu LinkedIn aligné avec la marque.",
+    "footer": {
+      "productName": "Ultra Content Maker",
+      "tagline": "Ghostwriter IA pour LinkedIn — un outil NS Suite pour les entrepreneurs.",
+      "home": "Page d'accueil",
+      "dashboard": "Articles",
+      "login": "Connexion",
+      "signup": "Créer un compte",
+      "rights": "© {year} NextStep Services"
+    }
   },
   "landing": {
     "hero": {
@@ -54,6 +63,10 @@
       "headline": "Conçu pour les professionnels qui publient sous leur propre nom",
       "points": "Persona validé · Lots structurés · Affinage guidé · Multilingue",
       "cta": "Commencer gratuitement"
+    },
+    "marketing": {
+      "signedIn": "Vous êtes connecté.",
+      "backToApp": "Retour à l'application"
     },
     "footer": {
       "productName": "Ultra Content Maker",

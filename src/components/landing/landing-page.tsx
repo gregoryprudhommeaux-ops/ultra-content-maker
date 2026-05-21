@@ -3,42 +3,49 @@
 import { useAuth } from "@/components/auth/auth-provider";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { NsMark } from "@/components/brand/ns-mark";
-import { LandingFooter } from "@/components/landing/landing-footer";
+import { AppFooter } from "@/components/layout/app-footer";
+import { isMarketingLandingMode, MARKETING_LANDING_HREF } from "@/lib/brand/marketing";
 import { LandingPillars } from "@/components/landing/landing-pillars";
 import { LandingProductMockup } from "@/components/landing/landing-product-mockup";
-import { NS_SUITE_NAME, NEXTSTEP_COMPANY } from "@/lib/brand/ns-suite";
 import { resolveLandingPath } from "@/lib/workspace/landing-path";
 import { ensureUserDoc } from "@/lib/workspace/user";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { BTN_PRIMARY, BTN_PRIMARY_LG, BTN_SECONDARY_ON_DARK } from "@/lib/ui/nextstep";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+
+function LandingLoading() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-ns-hero">
+      <p className="text-sm text-white/70">…</p>
+    </div>
+  );
+}
 
 export function LandingPage() {
   const locale = useLocale() as AppLocale;
+  const searchParams = useSearchParams();
+  const isMarketing = isMarketingLandingMode(searchParams);
   const tHero = useTranslations("landing.hero");
+  const tMarketing = useTranslations("landing.marketing");
   const tProduct = useTranslations("landing.product");
   const tPillars = useTranslations("landing.pillars");
   const tTrust = useTranslations("landing.trust");
   const { user, loading } = useAuth();
-  const year = new Date().getFullYear();
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user || isMarketing) return;
     void (async () => {
       await ensureUserDoc(user.uid, user.email ?? "", user.displayName ?? undefined);
       const path = await resolveLandingPath(user.uid);
       window.location.assign(`/${locale}${path.startsWith("/") ? path : `/${path}`}`);
     })();
-  }, [user, loading, locale]);
+  }, [user, loading, locale, isMarketing]);
 
-  if (loading || user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-ns-hero">
-        <p className="text-sm text-white/70">…</p>
-      </div>
-    );
+  if (loading || (user && !isMarketing)) {
+    return <LandingLoading />;
   }
 
   return (
@@ -50,19 +57,30 @@ export function LandingPage() {
           <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-ns-secondary blur-[120px]" />
         </div>
 
-        <header className="relative z-10 flex items-center justify-between px-4 py-6 md:px-8">
-          <div className="flex items-center gap-3">
-            <NsMark size="md" />
-            <div className="leading-tight">
-              <span className="block text-sm font-bold tracking-tight text-white">
+        <header className="relative z-10 px-4 py-6 md:px-8">
+          {user && isMarketing && (
+            <div className="mb-4 flex flex-wrap items-center justify-center gap-3 rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-center text-sm">
+              <span className="font-medium text-white/80">{tMarketing("signedIn")}</span>
+              <Link
+                href="/articles"
+                className="font-semibold text-ns-primary underline-offset-2 hover:underline"
+              >
+                {tMarketing("backToApp")}
+              </Link>
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              href={MARKETING_LANDING_HREF}
+              className="flex items-center gap-3 rounded-lg transition-opacity hover:opacity-90"
+            >
+              <NsMark size="md" />
+              <span className="text-sm font-bold tracking-tight text-white">
                 {tHero("brand")}
               </span>
-              <span className="block text-[10px] font-medium text-white/50">
-                {NEXTSTEP_COMPANY} · {NS_SUITE_NAME}
-              </span>
-            </div>
+            </Link>
+            <LanguageSwitcher variant="dark" />
           </div>
-          <LanguageSwitcher variant="dark" />
         </header>
 
         <section className="relative z-10 mx-auto max-w-4xl px-4 pb-20 pt-4 md:px-8 md:pb-28">
@@ -143,7 +161,11 @@ export function LandingPage() {
         </div>
       </section>
 
-      <LandingFooter year={year} />
+      <AppFooter
+        variant="dark"
+        showAuthLinks={!user}
+        showAppLinks={!!user && isMarketing}
+      />
     </div>
   );
 }
