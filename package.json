@@ -9,7 +9,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "i18n:sync": "tsx scripts/i18n-sync.ts"
+    "i18n:sync": "tsx scripts/i18n-sync.ts",
+    "icons:generate": "node scripts/generate-brand-icons.mjs"
   },
   "dependencies": {
     "firebase": "^12.13.0",

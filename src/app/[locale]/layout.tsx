@@ -1,10 +1,42 @@
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { getSiteUrl } from "@/lib/brand/site-url";
 import { routing } from "@/i18n/routing";
 import type { AppLocale } from "@/i18n/routing";
+import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+
+const siteDescription =
+  "Ultra Content Maker : Ghostwriter IA pour LinkedIn — un outil NS Suite pour les entrepreneurs.";
+
+export function generateMetadata(): Metadata {
+  const ogImageUrl = `${getSiteUrl()}/og-image.png`;
+  return {
+    openGraph: {
+      type: "website",
+      siteName: "Ultra Content Maker",
+      title: "ULTRA CONTENT MAKER",
+      description: siteDescription,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: "Ultra Content Maker — NS Suite",
+          type: "image/png",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "ULTRA CONTENT MAKER",
+      description: siteDescription,
+      images: [ogImageUrl],
+    },
+  };
+}
 
 type Props = {
   children: ReactNode;

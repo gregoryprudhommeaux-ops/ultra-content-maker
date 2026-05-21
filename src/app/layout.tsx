@@ -1,3 +1,4 @@
+import { getSiteUrl } from "@/lib/brand/site-url";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -8,11 +9,8 @@ const inter = Inter({
   display: "swap",
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "https://ultra-content-maker.vercel.app");
+const siteUrl = getSiteUrl();
+const ogImageUrl = `${siteUrl}/og-image.png`;
 
 const siteDescription =
   "Ultra Content Maker : Ghostwriter IA pour LinkedIn — un outil NS Suite pour les entrepreneurs.";
@@ -22,21 +20,33 @@ export const metadata: Metadata = {
   title: "ULTRA CONTENT MAKER",
   description: siteDescription,
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icon", type: "image/png" }],
-    apple: [{ url: "/apple-icon", type: "image/png" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
   },
   openGraph: {
     type: "website",
     siteName: "Ultra Content Maker",
     title: "ULTRA CONTENT MAKER",
     description: siteDescription,
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Ultra Content Maker" }],
+    images: [
+      {
+        url: ogImageUrl,
+        width: 1200,
+        height: 630,
+        alt: "Ultra Content Maker — NS Suite",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "ULTRA CONTENT MAKER",
     description: siteDescription,
-    images: ["/opengraph-image"],
+    images: [ogImageUrl],
   },
 };
 
