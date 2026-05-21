@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/components/auth/auth-provider";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { PAGE_DESC, PAGE_TITLE } from "@/lib/ui/nextstep";
 import { getTranslations } from "next-intl/server";
@@ -7,6 +8,7 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
   const t = await getTranslations("app");
 
   return (
+    <AuthProvider>
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-ns-hero px-4 py-12">
       <div className="pointer-events-none absolute inset-0 opacity-20">
         <div className="absolute left-1/4 top-1/4 h-64 w-64 rounded-full bg-ns-primary blur-[120px]" />
@@ -26,5 +28,6 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
         {children}
       </div>
     </div>
+    </AuthProvider>
   );
 }

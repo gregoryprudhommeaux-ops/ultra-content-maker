@@ -1,4 +1,3 @@
-import { AuthProvider } from "@/components/auth/auth-provider";
 import { getOgImageUrl } from "@/lib/brand/site-url";
 import { routing } from "@/i18n/routing";
 import type { AppLocale } from "@/i18n/routing";
@@ -59,7 +58,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider locale={appLocale} messages={messages}>
-      <AuthProvider>{children}</AuthProvider>
+      {children}
     </NextIntlClientProvider>
   );
 }
