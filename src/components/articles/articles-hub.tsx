@@ -5,15 +5,15 @@ import {
   resolveArticleScope,
   SCOPE_CARD_CLASS,
 } from "@/lib/articles/scope";
-import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
-import { BTN_PRIMARY, PAGE_DESC, PAGE_TITLE } from "@/lib/ui/nextstep";
-import { SetupStepNav } from "@/components/setup/setup-step-nav";
+import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
+import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
+import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
-import { recordEmojiPreference } from "@/lib/persona/sync-persona-from-feedback";
+import { getLearningProfile } from "@/lib/workspace/learning-profile";
 import { getPersona } from "@/lib/workspace/persona";
 import {
   createArticleBatch,
@@ -50,13 +50,15 @@ export function ArticlesHub() {
 
   const reload = useCallback(async () => {
     if (!user) return;
-    const [p, list] = await Promise.all([
+    const [p, list, learning] = await Promise.all([
       getPersona(user.uid),
       listArticleBatches(user.uid),
+      getLearningProfile(user.uid),
     ]);
     setPersonaOk(p?.status === "validated");
     setPersonaText(p?.promptText ?? "");
     setBatches(list);
+    setEmojiLevel(learning?.emojiLevel ?? "light");
     setLoaded(true);
   }, [user]);
 
@@ -89,10 +91,10 @@ export function ArticlesHub() {
         return;
       }
 
-      const contentLang = author?.contentLanguage ?? locale;
-      await recordEmojiPreference(user.uid, emojiLevel, contentLang);
       const persona = await getPersona(user.uid);
       if (persona?.promptText) setPersonaText(persona.promptText);
+
+      const contentLang = author?.contentLanguage ?? locale;
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 120_000);
@@ -138,6 +140,7 @@ export function ArticlesHub() {
         emojiLevel,
       );
       await reload();
+      notifyOnboardingProgressChanged();
       if (ids[0]) router.push(`/articles/${ids[0]}`);
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
@@ -166,64 +169,16 @@ export function ArticlesHub() {
   }
 
   if (!personaOk) {
-    return (
-      <div className="space-y-4">
-        <SetupStepNav />
-        <p className="text-sm text-ns-secondary">{t("needPersona")}</p>
-        <Link href="/persona" className="font-medium text-ns-tertiary underline">
-          {t("goPersona")}
-        </Link>
-      </div>
-    );
+    return <OnboardingBlockedBanner reason="persona" />;
   }
 
   return (
     <div className="space-y-6">
-      <SetupStepNav />
-      <div className="flex flex-wrap gap-2">
-        <Link
-          href="/articles?pending=1"
-          className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wide ${
-            pendingOnly
-              ? "bg-ns-primary text-black"
-              : "border border-ns-alternate text-ns-secondary hover:border-ns-primary"
-          }`}
-        >
-          {t("filter.pending")}
-        </Link>
-        <Link
-          href="/articles"
-          className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wide ${
-            !pendingOnly
-              ? "bg-ns-primary text-black"
-              : "border border-ns-alternate text-ns-secondary hover:border-ns-primary"
-          }`}
-        >
-          {t("filter.all")}
-        </Link>
-      </div>
-
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className={PAGE_TITLE}>
-            {pendingOnly ? t("titlePending") : t("title")}
-          </h1>
-          <p className={PAGE_DESC}>
-            {pendingOnly ? t("descriptionPending") : t("description")}
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-3">
-          <EmojiLevelPicker value={emojiLevel} onChange={setEmojiLevel} />
-          <button
-            type="button"
-            disabled={pending}
-            onClick={onGenerate}
-            className={BTN_PRIMARY}
-          >
-            {pending ? t("generating") : t("generateBatch")}
-          </button>
-        </div>
-      </div>
+      <ArticlesHubHeader
+        pendingOnly={pendingOnly}
+        onGenerate={onGenerate}
+        generating={pending}
+      />
 
       {pending && (
         <GeneratingIndicator

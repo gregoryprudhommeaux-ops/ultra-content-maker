@@ -58,6 +58,28 @@ export async function getLearningProfile(
   };
 }
 
+/** Default emoji preference set during onboarding (audience step). */
+export async function saveDefaultEmojiLevel(
+  userId: string,
+  emojiLevel: EmojiLevel,
+): Promise<void> {
+  const prev = await getLearningProfile(userId);
+  await setDoc(
+    learningRef(userId),
+    {
+      emojiLevel,
+      preferredCtaStyle: prev?.preferredCtaStyle ?? null,
+      entries: (prev?.entries ?? []).map((e) => ({
+        source: e.source,
+        text: e.text,
+        createdAt: e.createdAt,
+      })),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
+}
+
 export async function appendLearningEntries(
   userId: string,
   newEntries: Omit<LearningEntry, "createdAt">[],

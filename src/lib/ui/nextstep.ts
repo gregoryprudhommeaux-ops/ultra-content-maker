@@ -39,13 +39,43 @@ export const LABEL_CLASS = "mb-1 block text-sm font-bold text-ns-tertiary";
 export const INPUT_CLASS =
   "w-full rounded-lg border border-ns-alternate bg-ns-surface px-3 py-2.5 text-sm font-medium text-ns-tertiary placeholder:text-ns-secondary/60 outline-none transition-colors focus:border-ns-primary focus:ring-1 focus:ring-ns-primary/30";
 
-/** Buttons */
-export const BTN_PRIMARY =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-ns-primary px-8 text-xs font-black uppercase tracking-widest text-black shadow-sm transition-all hover:bg-ns-primary/90 disabled:cursor-not-allowed disabled:opacity-50";
-export const BTN_SECONDARY =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-sm border border-ns-alternate bg-ns-surface px-6 text-xs font-black uppercase tracking-widest text-ns-tertiary transition-all hover:border-ns-primary hover:bg-ns-brand-light disabled:cursor-not-allowed disabled:opacity-50";
+/** Buttons — shared focus ring (WCAG 2.2) */
+const BTN_FOCUS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ns-primary/80 focus-visible:ring-offset-2";
+
+/** Default actions (app surfaces) */
+export const BTN_PRIMARY = [
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-ns-primary px-6 py-2.5",
+  "text-sm font-semibold leading-snug text-black shadow-sm transition-all",
+  "hover:bg-ns-primary/90 disabled:cursor-not-allowed disabled:opacity-50",
+  BTN_FOCUS,
+].join(" ");
+
+/** Hero / marketing CTAs */
+export const BTN_PRIMARY_LG = [
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-ns-primary px-8 py-3",
+  "text-base font-semibold leading-snug text-black shadow-md transition-all",
+  "hover:bg-ns-primary/90",
+  BTN_FOCUS,
+].join(" ");
+
+export const BTN_SECONDARY = [
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-ns-alternate bg-ns-surface px-6 py-2.5",
+  "text-sm font-semibold leading-snug text-ns-tertiary transition-all",
+  "hover:border-ns-primary hover:bg-ns-brand-light disabled:cursor-not-allowed disabled:opacity-50",
+  BTN_FOCUS,
+].join(" ");
+
+/** Secondary on dark hero / auth backdrop */
+export const BTN_SECONDARY_ON_DARK = [
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/25 bg-transparent px-6 py-2.5",
+  "text-sm font-semibold leading-snug text-white transition-all",
+  "hover:border-white/45 hover:bg-white/10",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ns-hero",
+].join(" ");
+
 export const BTN_GHOST =
-  "text-xs font-black uppercase tracking-widest text-ns-secondary transition-colors hover:text-ns-primary";
+  "text-sm font-semibold text-ns-secondary transition-colors hover:text-ns-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ns-primary/80 focus-visible:ring-offset-2";
 
 /** Chips / refinement answers */
 export const CHIP =

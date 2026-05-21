@@ -1,3 +1,4 @@
+import { DashboardOnboardingLayout } from "@/components/dashboard/dashboard-onboarding-layout";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { LlmKeyDialog } from "@/components/settings/llm-key-dialog";
@@ -8,7 +9,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <RequireAuth>
       <DashboardShell>
         <LlmKeyDialog />
-        {children}
+        <DashboardOnboardingLayout>{children}</DashboardOnboardingLayout>
       </DashboardShell>
     </RequireAuth>
   );

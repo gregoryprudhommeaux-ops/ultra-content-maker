@@ -10,7 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "ULTRA CONTENT MAKER",
-  description: "Content Brain for consistent LinkedIn content — NextStep Services",
+  description:
+    "Ultra Content Maker — ghostwriter IA LinkedIn par NextStep Services (NS Suite).",
 };
 
 export default function RootLayout({

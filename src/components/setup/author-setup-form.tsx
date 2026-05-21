@@ -1,6 +1,6 @@
 "use client";
 
-import { SetupStepNav } from "@/components/setup/setup-step-nav";
+import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { SourceLinksEditor } from "@/components/setup/source-links-editor";
 import { useAuth } from "@/components/auth/auth-provider";
 import { completeAuthorStep, getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
@@ -76,7 +76,10 @@ export function AuthorSetupForm() {
     setPending(true);
     try {
       const ok = await persist(false);
-      if (ok) setError(null);
+      if (ok) {
+        setError(null);
+        notifyOnboardingProgressChanged();
+      }
     } catch {
       setError(t("saveFailed"));
     } finally {
@@ -93,6 +96,7 @@ export function AuthorSetupForm() {
       const ok = await persist(true);
       if (!ok) return;
       await updateSetupStep(user.uid, "audience");
+      notifyOnboardingProgressChanged();
       router.push("/setup/audience");
     } catch {
       setError(t("saveFailed"));
@@ -107,7 +111,6 @@ export function AuthorSetupForm() {
 
   return (
     <div className="space-y-8">
-      <SetupStepNav />
       <div>
         <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
         <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>

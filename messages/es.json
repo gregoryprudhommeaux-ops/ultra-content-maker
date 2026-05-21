@@ -9,8 +9,58 @@
       "headline": "Tu voz, amplificada por la IA. Artículos de LinkedIn que reflejan tu experiencia.",
       "subheadline": "Crea al instante contenidos relevantes y contundentes, adaptados a tu persona y disponibles en varios idiomas, para una influencia máxima en las redes profesionales.",
       "benefit": "Un ghostwriter IA que captura y reproduce fielmente tu estilo y tu experiencia. Se acabó el contenido genérico.",
-      "cta": "Descubre Tu Ghostwriter IA Personalizado",
+      "cta": "Crear mi ghostwriter IA",
       "signIn": "Iniciar sesión"
+    },
+    "product": {
+      "title": "De la persona al lote de posts, en un solo flujo",
+      "subtitle": "Valida tu Content Brain, genera cuatro ángulos complementarios y afina cada publicación antes de publicar.",
+      "personaBadge": "Persona validada",
+      "batchLabel": "Lote del día · 4 posts",
+      "generateAction": "Generar lote",
+      "caption": "Vista ilustrativa del espacio Artículos",
+      "scope": {
+        "generalist": "Generalista",
+        "niche": "Nicho"
+      },
+      "status": {
+        "draft": "En refinado",
+        "validated": "Validado"
+      },
+      "posts": {
+        "post1": "Por qué tu experiencia merece una narrativa más clara en LinkedIn…",
+        "post2": "Tres señales de que tu audiencia B2B espera profundidad, no más ruido.",
+        "post3": "La trampa de los posts «inspiradores» cuando vendes transformación.",
+        "post4": "Cómo una persona validada reduce a la mitad el tiempo de edición."
+      }
+    },
+    "pillars": {
+      "title": "Tres pilares para una influencia creíble",
+      "subtitle": "Pensado para directivos, consultores y expertos que publican en su nombre.",
+      "persona": {
+        "title": "Persona y Content Brain",
+        "description": "Captura tu voz, audiencia y ángulos: la IA no parte de una página en blanco."
+      },
+      "batch": {
+        "title": "Lotes de 4 posts",
+        "description": "Dos ángulos generalistas y dos de nicho por lote, con variedad sin perder tu línea editorial."
+      },
+      "languages": {
+        "title": "FR · EN · ES",
+        "description": "Produce y afina en el idioma de tu mercado, con la misma coherencia de tono."
+      }
+    },
+    "trust": {
+      "headline": "Diseñado para profesionales que publican bajo su propio nombre",
+      "points": "Persona validada · Lotes estructurados · Refinado guiado · Multilingüe",
+      "cta": "Empezar gratis"
+    },
+    "footer": {
+      "productName": "Ultra Content Maker",
+      "tagline": "Ghostwriter IA para LinkedIn — una herramienta NS Suite para emprendedores.",
+      "login": "Iniciar sesión",
+      "signup": "Crear cuenta",
+      "rights": "© {year} NextStep Services"
     }
   },
   "auth": {
@@ -55,11 +105,15 @@
     }
   },
   "nav": {
+    "content": "Contenido",
+    "profile": "Perfil",
     "setup": "Yo",
     "persona": "Persona",
     "articles": "Artículos",
-    "settings": "Settings",
-    "signOut": "Cerrar sesión"
+    "settings": "Ajustes",
+    "signOut": "Cerrar sesión",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
   },
   "settings": {
     "llmKeyDialog": {
@@ -76,6 +130,54 @@
       "audience": "Público",
       "persona": "Persona",
       "articles": "Posts"
+    },
+    "emoji": {
+      "label": "Emojis en los posts",
+      "none": "Ninguno",
+      "light": "Un poco",
+      "heavy": "Muchos",
+      "hint": {
+        "none": "Sin emojis en el texto generado.",
+        "light": "1–3 emojis visibles por post.",
+        "heavy": "Emojis frecuentes — vivo pero profesional."
+      }
+    },
+    "onboarding": {
+      "progressLabel": "Progreso del perfil: {percent} %",
+      "completeSummary": "Perfil completo",
+      "expandSteps": "Mostrar recorrido de configuración",
+      "collapseSteps": "Ocultar recorrido",
+      "continueNext": "Siguiente paso: {step} →",
+      "stepsCompleted": "{done} / {total} pasos",
+      "status": {
+        "complete": "Completado",
+        "locked": "Completa el paso anterior"
+      },
+      "banner": {
+        "persona": {
+          "title": "Valida tu Persona antes de generar",
+          "description": "La Persona es tu Content Brain: una vez validada, podrás crear lotes de posts de LinkedIn con tu voz."
+        },
+        "llm": {
+          "title": "Configura tu clave API",
+          "description": "Se requiere una clave personal para generar la Persona y tus posts."
+        },
+        "author": {
+          "title": "Completa tu perfil « Yo »",
+          "description": "Añade tus enlaces y posicionamiento para que la IA capture tu voz."
+        },
+        "audience": {
+          "title": "Define tu audiencia",
+          "description": "Un boceto de audiencia mejora la relevancia — o omite este paso."
+        },
+        "generic": {
+          "title": "Completa tu perfil",
+          "description": "Unos pasos rápidos para activar tu ghostwriter IA."
+        },
+        "progressHint": "Perfil completado al {percent} %",
+        "cta": "Continuar: {step}",
+        "ctaDefault": "Siguiente paso"
+      }
     },
     "llm": {
       "title": "Tu clave API",
@@ -184,6 +286,7 @@
       "focusPlaceholder": "Temas, ángulos — no un catálogo de servicios",
       "notes": "Notas (opcional)",
       "optionalNote": "Todos los campos son opcionales — puedes omitir este paso sin rellenar nada.",
+      "emojiIntro": "Preferencia por defecto para tus futuros posts (ajustable por artículo al refinar).",
       "skip": "Omitir por ahora",
       "continue": "Continuar a la Persona",
       "back": "← Volver a Yo",
@@ -225,6 +328,7 @@
       "titlePending": "Posts por publicar",
       "descriptionPending": "Borradores y posts en refinamiento — aún no validados para LinkedIn.",
       "filter": {
+        "label": "Filtrar posts",
         "pending": "Por publicar",
         "all": "Todos los posts"
       },
@@ -242,17 +346,6 @@
       "empty": "Sin posts aún. Haz clic en « Generar 4 posts ».",
       "batchLabel": "Lote del {date}",
       "untitled": "Sin título",
-      "emoji": {
-        "label": "Emojis en los posts",
-        "none": "Ninguno",
-        "light": "Un poco",
-        "heavy": "Muchos",
-        "hint": {
-          "none": "Sin emojis en el texto generado.",
-          "light": "1–3 emojis visibles por post (obligatorio).",
-          "heavy": "Emojis frecuentes — vivo pero profesional."
-        }
-      },
       "cta": {
         "title": "Elige tu CTA",
         "subtitle": "3 propuestas según tu Persona y este post — elige la intensidad.",

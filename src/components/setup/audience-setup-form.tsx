@@ -1,9 +1,15 @@
 "use client";
 
-import { SetupStepNav } from "@/components/setup/setup-step-nav";
+import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
+import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { useAuth } from "@/components/auth/auth-provider";
 import { getAudienceProfile, saveAudienceProfile, skipAudienceStep } from "@/lib/workspace/audience";
+import {
+  getLearningProfile,
+  saveDefaultEmojiLevel,
+} from "@/lib/workspace/learning-profile";
 import { updateSetupStep } from "@/lib/workspace/user";
+import type { EmojiLevel } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import { INPUT_CLASS } from "@/types/workspace";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -17,16 +23,22 @@ export function AudienceSetupForm() {
   const [targetLabel, setTargetLabel] = useState("");
   const [contentFocus, setContentFocus] = useState("");
   const [optionalNotes, setOptionalNotes] = useState("");
+  const [emojiLevel, setEmojiLevel] = useState<EmojiLevel>("light");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    getAudienceProfile(user.uid).then((p) => {
-      if (!p) return;
-      setTargetLabel(p.targetLabel ?? "");
-      setContentFocus(p.contentFocus ?? "");
-      setOptionalNotes(p.optionalNotes ?? "");
+    void Promise.all([
+      getAudienceProfile(user.uid),
+      getLearningProfile(user.uid),
+    ]).then(([audience, learning]) => {
+      if (audience) {
+        setTargetLabel(audience.targetLabel ?? "");
+        setContentFocus(audience.contentFocus ?? "");
+        setOptionalNotes(audience.optionalNotes ?? "");
+      }
+      if (learning?.emojiLevel) setEmojiLevel(learning.emojiLevel);
     });
   }, [user]);
 
@@ -45,7 +57,9 @@ export function AudienceSetupForm() {
           skipped: false,
         });
       }
+      await saveDefaultEmojiLevel(user.uid, emojiLevel);
       await updateSetupStep(user.uid, "persona");
+      notifyOnboardingProgressChanged();
       router.push("/persona");
     } catch {
       setError(t("saveFailed"));
@@ -61,7 +75,6 @@ export function AudienceSetupForm() {
 
   return (
     <div className="space-y-8">
-      <SetupStepNav />
       <Link href="/setup/author" className="text-sm text-ns-secondary hover:text-ns-tertiary">
         {t("back")}
       </Link>
@@ -104,6 +117,12 @@ export function AudienceSetupForm() {
         </div>
 
         <p className="text-xs text-ns-secondary">{t("optionalNote")}</p>
+
+        <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-4">
+          <p className="mb-3 text-sm font-medium text-ns-tertiary">{t("emojiIntro")}</p>
+          <EmojiLevelPicker value={emojiLevel} onChange={setEmojiLevel} />
+        </div>
+
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="flex flex-wrap gap-3">

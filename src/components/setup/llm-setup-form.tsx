@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
-import { SetupStepNav } from "@/components/setup/setup-step-nav";
+import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import {
   defaultModelForProvider,
   getUserLlmProfile,
@@ -114,6 +114,7 @@ export function LlmSetupForm() {
         model: defaultModelForProvider(provider),
       });
       await updateSetupStep(user.uid, "author");
+      notifyOnboardingProgressChanged();
       router.push("/setup/author");
     } catch {
       setError(t("errors.saveFailed"));
@@ -126,7 +127,6 @@ export function LlmSetupForm() {
 
   return (
     <div className="space-y-8">
-      <SetupStepNav />
       <div>
         <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
         <p className="mt-2 max-w-2xl text-sm text-ns-secondary">{t("subtitle")}</p>

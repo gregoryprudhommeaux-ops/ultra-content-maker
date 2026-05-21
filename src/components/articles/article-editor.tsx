@@ -392,10 +392,6 @@ export function ArticleEditor({ articleId }: Props) {
       {!isValidated && article.refinement && (
         <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-5 space-y-5">
           <h2 className="text-base font-semibold text-ns-tertiary">{tRef("title")}</h2>
-          <EmojiLevelPicker
-            value={(article.refinement.emojiLevel ?? "light") as EmojiLevel}
-            onChange={(emojiLevel) => updateRefinement({ emojiLevel })}
-          />
           {article.refinement.questions.map((q) => {
             const yesNoOnly = YES_NO_ONLY_QUESTIONS.has(q.id);
             const answerOptions: RefinementAnswer[] = yesNoOnly
@@ -463,6 +459,11 @@ export function ArticleEditor({ articleId }: Props) {
               </div>
             );
           })}
+          <EmojiLevelPicker
+            variant="compact"
+            value={(article.refinement.emojiLevel ?? "light") as EmojiLevel}
+            onChange={(emojiLevel) => updateRefinement({ emojiLevel })}
+          />
           <div>
             <label className={LABEL_CLASS}>{tRef("globalComment")}</label>
             <textarea

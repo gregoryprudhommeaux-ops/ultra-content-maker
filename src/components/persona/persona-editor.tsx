@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/auth/auth-provider";
 import { GapsQuestionnaire } from "@/components/persona/gaps-questionnaire";
-import { SetupStepNav } from "@/components/setup/setup-step-nav";
+import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
@@ -175,6 +175,7 @@ export function PersonaEditor() {
       await validatePersona(user.uid, promptText);
       await updateSetupStep(user.uid, "articles");
       setStatus("validated");
+      notifyOnboardingProgressChanged();
       router.push("/articles");
     } catch {
       setError(t("saveFailed"));
@@ -194,7 +195,6 @@ export function PersonaEditor() {
 
   return (
     <div className="space-y-6">
-      <SetupStepNav />
       <Link href="/setup/audience" className="text-sm text-ns-secondary hover:text-ns-tertiary">
         {t("back")}
       </Link>
