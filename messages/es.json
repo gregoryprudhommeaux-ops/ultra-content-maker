@@ -3,6 +3,16 @@
     "name": "ULTRA CONTENT MAKER",
     "tagline": "Del onboarding al Content Brain validado — y contenido de LinkedIn fiel a la marca."
   },
+  "landing": {
+    "hero": {
+      "brand": "ULTRA CONTENT MAKER",
+      "headline": "Tu voz, amplificada por la IA. Artículos de LinkedIn que reflejan tu experiencia.",
+      "subheadline": "Crea al instante contenidos relevantes y contundentes, adaptados a tu persona y disponibles en varios idiomas, para una influencia máxima en las redes profesionales.",
+      "benefit": "Un ghostwriter IA que captura y reproduce fielmente tu estilo y tu experiencia. Se acabó el contenido genérico.",
+      "cta": "Descubre Tu Ghostwriter IA Personalizado",
+      "signIn": "Iniciar sesión"
+    }
+  },
   "auth": {
     "login": {
       "title": "Iniciar sesión",
