@@ -14,55 +14,120 @@
   "landing": {
     "hero": {
       "brand": "ULTRA CONTENT MAKER",
-      "headline": "Your voice, amplified by AI.",
-      "headlineSubtitle": "LinkedIn posts that reflect your expertise.",
-      "subheadline": "Create relevant, punchy content instantly—tailored to your persona and available in multiple languages—for maximum influence on professional networks.",
-      "benefit": "An AI ghostwriter that faithfully captures and reproduces your style and expertise. No more generic content.",
-      "cta": "Create my AI ghostwriter",
+      "languagesBadge": "FR · EN · ES",
+      "headline": "Your LinkedIn AI ghostwriter.",
+      "headlineSubtitle": "Credible posts in your voice—not generic filler.",
+      "subheadline": "Validate your Persona, generate 4 drafts, refine, and copy to LinkedIn. You publish on your schedule.",
+      "benefit": "Your API key · built-in brief and quality scores · no auto-publishing.",
+      "cta": "Structure my LinkedIn authority",
+      "ctaSecondary": "See the product journey",
       "signIn": "Sign in"
     },
     "product": {
-      "title": "From persona to post batch in one flow",
-      "subtitle": "Validate your Content Brain, generate four complementary angles, and refine each post before you publish.",
-      "personaBadge": "Persona validated",
-      "batchLabel": "Today's batch · 4 posts",
-      "generateAction": "Generate batch",
-      "caption": "Illustrative preview of the Articles workspace",
+      "title": "From brief to LinkedIn export in one flow",
+      "subtitle": "Brief → 4 drafts → refinement. Three steps, one flow.",
+      "mockupAria": "Three-step product journey preview",
+      "mockupSummary": "Brief with objective and proof, four generalist and niche posts, quality panel with scores and anti-slop.",
+      "caption": "Illustrative preview—not contractual",
       "scope": {
         "generalist": "Generalist",
         "niche": "Niche"
       },
-      "status": {
-        "draft": "Refining",
-        "validated": "Validated"
-      },
       "posts": {
-        "post1": "Why your expertise deserves a sharper narrative on LinkedIn…",
-        "post2": "Three signals your B2B audience wants depth, not more noise.",
-        "post3": "The trap of “inspiration” posts when you sell transformation.",
-        "post4": "How a validated persona cuts editing time in half."
+        "post1": "Why your expertise deserves a sharper narrative…",
+        "post2": "Three signals your B2B audience wants depth.",
+        "post3": "The trap of “inspiration” posts in B2B transformation.",
+        "post4": "How a LatAm deal is structured when you've seen the film in China."
+      },
+      "panels": {
+        "brief": {
+          "label": "Batch brief",
+          "nicheOk": "Niche clarity OK",
+          "sampleProblem": "Exporting SMBs: supply chain under strain…",
+          "fields": {
+            "problem": "Audience problem",
+            "pov": "Point of view"
+          },
+          "samplePov": "The lever isn't price—it's end-to-end visibility.",
+          "objectives": {
+            "credibility": "Credibility",
+            "conversation": "Conversation"
+          }
+        },
+        "exploration": {
+          "label": "Exploration · 4 posts"
+        },
+        "refine": {
+          "label": "Quality & refinement",
+          "slopHint": "Low slop · alternative hook available",
+          "scores": {
+            "nicheClarity": "Niche clarity",
+            "proofDensity": "Proof density",
+            "conversationPotential": "Conversation"
+          }
+        },
+        "export": {
+          "label": "LinkedIn export",
+          "copyCta": "Copy to LinkedIn",
+          "signalsHint": "Optional signals after publishing",
+          "sample": "Sharp hook…\n\nBody with case and metric…\n\nPS: Gregory, Guadalajara…"
+        }
       }
     },
-    "pillars": {
-      "title": "Three pillars for credible influence",
-      "subtitle": "Built for leaders, consultants, and subject-matter experts who publish in their own name.",
+    "howItWorks": {
+      "title": "How it works",
+      "subtitle": "A guided path from profile to publication—no surprises at onboarding.",
+      "steps": {
+        "profile": {
+          "title": "Profile & inspirations",
+          "description": "Links, voice, sample posts—the foundation of your Persona."
+        },
+        "persona": {
+          "title": "Validated Persona",
+          "description": "Content Brain + Topic DNA before any generation."
+        },
+        "brief": {
+          "title": "Intent brief",
+          "description": "Objective, problem, POV, proof—every batch is framed."
+        },
+        "generate": {
+          "title": "Generate & choose",
+          "description": "4 posts (2 broad · 2 niche) or 2 from archived news."
+        }
+      }
+    },
+    "capabilities": {
+      "title": "Everything you need for credible LinkedIn authority",
+      "subtitle": "Five building blocks, one flow—for B2B experts who publish in their own name.",
       "persona": {
-        "title": "Persona & Content Brain",
-        "description": "Capture your voice, audience, and angles—AI never starts from a blank slate."
+        "title": "Persona & Topic DNA",
+        "description": "Validated Content Brain: pillars, beliefs, off-limits—AI never starts from a blank slate."
       },
-      "batch": {
-        "title": "Batches of 4 posts",
-        "description": "Two generalist and two niche angles per batch—variety without losing your editorial line."
+      "brief": {
+        "title": "Intent brief",
+        "description": "Objective, problem, POV, required proof—no more vague interchangeable posts."
       },
-      "languages": {
-        "title": "FR · EN · ES",
-        "description": "Create and refine in your market language with the same tone consistency."
+      "exploration": {
+        "title": "Exploration · 4 posts",
+        "description": "Two generalist and two niche angles per batch—reach and depth in alternation."
+      },
+      "quality": {
+        "title": "LinkedIn quality",
+        "description": "Scores, alternative hooks, anti-slop, in-body link warning."
+      },
+      "distribution": {
+        "title": "Distribution & news",
+        "description": "Format, carousel, video script, first comment · fresh news and archives."
+      },
+      "measurement": {
+        "title": "Measurement loop",
+        "description": "After publishing: saves, DMs, qualified comments—synthesis to refine your Persona."
       }
     },
     "trust": {
       "headline": "Built for professionals who publish under their own name",
-      "points": "Validated persona · Structured batches · Guided refinement · Multilingual",
-      "cta": "Get started free"
+      "points": "Persona & Topic DNA · Brief & niche check · 4 broad/niche posts · Quality & LinkedIn export",
+      "cta": "Structure my LinkedIn authority"
     },
     "marketing": {
       "signedIn": "You're signed in.",
@@ -718,7 +783,8 @@
     },
     "news": {
       "title": "Previous news",
-      "subtitle": "Stories archived from your articles hub. Select one to read details and generate 2 posts.",
+      "subtitle": "Stories archived from your posts page — browse details or regenerate 2 posts (brief is set on the posts page).",
+      "briefOnArticles": "Set up the brief on the posts page →",
       "empty": "No archived news yet. Fetch news from the posts page first.",
       "backToArticles": "← Back to posts",
       "unknownSource": "Source",

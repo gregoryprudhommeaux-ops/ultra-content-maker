@@ -1,12 +1,7 @@
 "use client";
 
-import { PostBriefForm } from "@/components/articles/post-brief-form";
 import { NewsCard, formatNewsDate } from "@/components/news/news-card";
-import {
-  loadStoredPostBrief,
-  saveStoredPostBrief,
-} from "@/lib/articles/post-brief-storage";
-import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
+import { loadStoredPostBrief } from "@/lib/articles/post-brief-storage";
 import { isPostBriefComplete } from "@/lib/prompts/post-brief";
 import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
@@ -14,7 +9,6 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { getClientAuth } from "@/lib/firebase/client";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { newsToSource } from "@/lib/news/to-source";
-import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { createArticleBatch } from "@/lib/workspace/articles";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
@@ -28,13 +22,8 @@ import { getPersona } from "@/lib/workspace/persona";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import type {
-  BriefNicheCheck,
-  ContentLanguage,
-  EmojiLevel,
-  PostBrief,
-} from "@/types/workspace";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ContentLanguage, EmojiLevel } from "@/types/workspace";
+import { useCallback, useEffect, useState } from "react";
 
 export function NewsArchiveHub() {
   const t = useTranslations("setup.news");
@@ -50,64 +39,6 @@ export function NewsArchiveHub() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emojiLevel, setEmojiLevel] = useState<EmojiLevel>("light");
-  const [postBrief, setPostBrief] = useState<PostBrief>(() => loadStoredPostBrief());
-  const [nicheCheck, setNicheCheck] = useState<BriefNicheCheck | null>(null);
-  const [nicheLoading, setNicheLoading] = useState(false);
-
-  const heuristicNiche = useMemo(
-    () => heuristicBriefNicheCheck(postBrief),
-    [postBrief],
-  );
-
-  useEffect(() => {
-    saveStoredPostBrief(postBrief);
-  }, [postBrief]);
-
-  useEffect(() => {
-    if (isPostBriefComplete(postBrief)) setNicheCheck(heuristicNiche);
-    else setNicheCheck(null);
-  }, [postBrief, heuristicNiche]);
-
-  const onAnalyzeNiche = useCallback(async () => {
-    if (!user || !isPostBriefComplete(postBrief) || !personaText) return;
-    setNicheLoading(true);
-    try {
-      const auth = getClientAuth();
-      const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const llmProfile = await getUserLlmProfile(user.uid);
-      if (!token || !llmProfile?.apiKey) return;
-      const author = await getAuthorProfile(user.uid);
-      const res = await fetch("/api/articles/brief-check", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          postBrief,
-          contentLanguage: author?.contentLanguage ?? locale,
-          personaPromptText: personaText,
-          useLlm: true,
-          llm: {
-            provider: llmProfile.provider,
-            apiKey: llmProfile.apiKey,
-            model: llmProfile.model,
-          },
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && typeof data.score === "number") {
-        setNicheCheck({
-          score: data.score,
-          isTooGeneric: !!data.isTooGeneric,
-          feedback: data.feedback ?? heuristicNiche.feedback,
-          suggestions: data.suggestions ?? heuristicNiche.suggestions,
-        });
-      }
-    } finally {
-      setNicheLoading(false);
-    }
-  }, [user, postBrief, personaText, locale, heuristicNiche]);
 
   const reload = useCallback(async () => {
     if (!user) return;
@@ -137,10 +68,13 @@ export function NewsArchiveHub() {
       setError(t("pickOne"));
       return;
     }
+
+    const postBrief = loadStoredPostBrief();
     if (!isPostBriefComplete(postBrief)) {
       setError(tArticles("briefIncomplete"));
       return;
     }
+
     setError(null);
     setPending(true);
     try {
@@ -247,14 +181,6 @@ export function NewsArchiveHub() {
         </Link>
       </header>
 
-      <PostBriefForm
-        brief={postBrief}
-        onChange={setPostBrief}
-        nicheCheck={nicheCheck}
-        onAnalyzeNiche={onAnalyzeNiche}
-        nicheLoading={nicheLoading}
-      />
-
       {archived.length === 0 && (
         <p className="text-sm text-ns-secondary">{t("empty")}</p>
       )}
@@ -324,7 +250,19 @@ export function NewsArchiveHub() {
         />
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="space-y-1">
+          <p className="text-sm text-red-600">{error}</p>
+          {error === tArticles("briefIncomplete") && (
+            <Link
+              href="/articles"
+              className="text-sm font-medium text-ns-tertiary underline"
+            >
+              {t("briefOnArticles")}
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

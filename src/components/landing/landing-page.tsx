@@ -20,25 +20,37 @@ const LandingProductMockup = dynamic(
   {
     loading: () => (
       <div
-        className="mx-auto h-64 w-full max-w-4xl animate-pulse rounded-2xl bg-white/40 md:h-80"
+        className="mx-auto h-96 w-full max-w-5xl animate-pulse rounded-2xl bg-white/40"
         aria-hidden
       />
     ),
   },
 );
 
-const LandingPillars = dynamic(
+const LandingCapabilities = dynamic(
   () =>
-    import("@/components/landing/landing-pillars").then((m) => ({
-      default: m.LandingPillars,
+    import("@/components/landing/landing-capabilities").then((m) => ({
+      default: m.LandingCapabilities,
     })),
   {
     loading: () => (
-      <div className="grid gap-4 sm:grid-cols-3" aria-hidden>
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="h-40 animate-pulse rounded-2xl bg-gray-100" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-hidden>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-28 animate-pulse rounded-2xl bg-gray-100" />
         ))}
       </div>
+    ),
+  },
+);
+
+const LandingHowItWorks = dynamic(
+  () =>
+    import("@/components/landing/landing-how-it-works").then((m) => ({
+      default: m.LandingHowItWorks,
+    })),
+  {
+    loading: () => (
+      <div className="h-32 animate-pulse rounded-2xl bg-gray-100" aria-hidden />
     ),
   },
 );
@@ -60,7 +72,8 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
   const tHero = useTranslations("landing.hero");
   const tMarketing = useTranslations("landing.marketing");
   const tProduct = useTranslations("landing.product");
-  const tPillars = useTranslations("landing.pillars");
+  const tCapabilities = useTranslations("landing.capabilities");
+  const tHow = useTranslations("landing.howItWorks");
   const tTrust = useTranslations("landing.trust");
   const { user, ready } = useLazyAuthUser();
 
@@ -110,23 +123,32 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
         </header>
 
         <section className="relative z-10 mx-auto max-w-4xl px-4 pb-20 pt-4 md:px-8 md:pb-28">
-          <h1 className="text-3xl font-bold leading-[1.12] tracking-tight md:text-5xl lg:text-6xl">
+          <p className="text-xs font-bold uppercase tracking-widest text-ns-primary">
+            {tHero("languagesBadge")}
+          </p>
+          <h1 className="mt-3 text-3xl font-bold leading-[1.12] tracking-tight md:text-5xl lg:text-6xl">
             {tHero("headline")}
           </h1>
-          <p className="mt-3 max-w-2xl text-xl font-semibold leading-snug text-white/85 md:mt-4 md:text-2xl lg:text-3xl">
+          <p className="mt-3 max-w-2xl text-xl font-semibold leading-snug text-white/85 md:mt-4 md:text-2xl">
             {tHero("headlineSubtitle")}
           </p>
-          <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-white/80 md:text-lg">
+          <p className="mt-5 max-w-2xl text-base font-medium leading-relaxed text-white/80 md:text-lg">
             {tHero("subheadline")}
           </p>
           <p className="mt-6 max-w-2xl border-l-4 border-ns-primary bg-white/5 py-3 pl-5 text-sm font-medium leading-relaxed text-white/90 md:text-base">
             {tHero("benefit")}
           </p>
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link href="/signup" className={BTN_PRIMARY_LG}>
               {tHero("cta")}
             </Link>
-            <Link href="/login" className={BTN_SECONDARY_ON_DARK}>
+            <a href="#landing-product" className={BTN_SECONDARY_ON_DARK}>
+              {tHero("ctaSecondary")}
+            </a>
+            <Link
+              href="/login"
+              className="text-center text-sm font-semibold text-white/80 underline-offset-2 hover:text-white hover:underline"
+            >
               {tHero("signIn")}
             </Link>
           </div>
@@ -134,10 +156,11 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
       </div>
 
       <section
-        className="relative bg-ns-brand-light px-4 py-16 md:px-8 md:py-24"
+        id="landing-product"
+        className="relative scroll-mt-20 bg-ns-brand-light px-4 py-16 md:px-8 md:py-24"
         aria-labelledby="landing-product-title"
       >
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <div className="relative z-10 mx-auto max-w-2xl text-center">
             <h2
               id="landing-product-title"
@@ -149,7 +172,7 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
               {tProduct("subtitle")}
             </p>
           </div>
-          <div className="relative z-0 mt-10 md:mt-14">
+          <div className="relative z-0 mt-8 md:mt-12">
             <LandingProductMockup />
           </div>
         </div>
@@ -157,28 +180,48 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
 
       <section
         className="bg-ns-background px-4 py-16 md:px-8 md:py-20"
-        aria-labelledby="landing-pillars-title"
+        aria-labelledby="landing-how-title"
       >
         <div className="mx-auto max-w-5xl">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2
-              id="landing-pillars-title"
+              id="landing-how-title"
               className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl"
             >
-              {tPillars("title")}
+              {tHow("title")}
             </h2>
             <p className="mt-4 text-sm font-medium leading-relaxed text-ns-secondary md:text-base">
-              {tPillars("subtitle")}
+              {tHow("subtitle")}
             </p>
           </div>
-          <LandingPillars />
+          <LandingHowItWorks />
+        </div>
+      </section>
+
+      <section
+        className="bg-ns-brand-light px-4 py-16 md:px-8 md:py-20"
+        aria-labelledby="landing-capabilities-title"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mx-auto mb-8 max-w-2xl text-center md:mb-10">
+            <h2
+              id="landing-capabilities-title"
+              className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl"
+            >
+              {tCapabilities("title")}
+            </h2>
+            <p className="mt-4 text-sm font-medium leading-relaxed text-ns-secondary md:text-base">
+              {tCapabilities("subtitle")}
+            </p>
+          </div>
+          <LandingCapabilities />
         </div>
       </section>
 
       <section className="bg-ns-hero px-4 py-14 text-white md:px-8 md:py-16">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
           <h2 className="text-xl font-bold leading-snug md:text-2xl">{tTrust("headline")}</h2>
-          <p className="text-sm font-medium tracking-wide text-white/70 md:text-base">
+          <p className="max-w-2xl text-sm font-medium leading-relaxed tracking-wide text-white/70 md:text-base">
             {tTrust("points")}
           </p>
           <Link href="/signup" className={BTN_PRIMARY}>

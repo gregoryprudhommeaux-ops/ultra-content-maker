@@ -14,55 +14,120 @@
   "landing": {
     "hero": {
       "brand": "ULTRA CONTENT MAKER",
-      "headline": "Tu voz, amplificada por la IA.",
-      "headlineSubtitle": "Artículos de LinkedIn que reflejan tu experiencia.",
-      "subheadline": "Crea al instante contenidos relevantes y contundentes, adaptados a tu persona y disponibles en varios idiomas, para una influencia máxima en las redes profesionales.",
-      "benefit": "Un ghostwriter IA que captura y reproduce fielmente tu estilo y tu experiencia. Se acabó el contenido genérico.",
-      "cta": "Crear mi ghostwriter IA",
+      "languagesBadge": "FR · EN · ES",
+      "headline": "Tu ghostwriter IA para LinkedIn.",
+      "headlineSubtitle": "Artículos creíbles, con tu voz — no contenido genérico.",
+      "subheadline": "Valida tu Persona, genera 4 borradores, afina y copia en LinkedIn. Publicas cuando quieras.",
+      "benefit": "Tu clave API · brief y puntuaciones integrados · sin publicación automática.",
+      "cta": "Estructurar mi autoridad en LinkedIn",
+      "ctaSecondary": "Ver el recorrido del producto",
       "signIn": "Iniciar sesión"
     },
     "product": {
-      "title": "De la persona al lote de posts, en un solo flujo",
-      "subtitle": "Valida tu Content Brain, genera cuatro ángulos complementarios y afina cada publicación antes de publicar.",
-      "personaBadge": "Persona validada",
-      "batchLabel": "Lote del día · 4 posts",
-      "generateAction": "Generar lote",
-      "caption": "Vista ilustrativa del espacio Artículos",
+      "title": "Del brief a la exportación en LinkedIn, en un flujo",
+      "subtitle": "Brief → 4 borradores → refinado. Tres pasos, un solo flujo.",
+      "mockupAria": "Vista previa del recorrido en tres pasos",
+      "mockupSummary": "Brief con objetivo y prueba, lote de cuatro artículos generalista y nicho, panel de calidad con puntuaciones y anti-slop.",
+      "caption": "Vista ilustrativa — no contractual",
       "scope": {
         "generalist": "Generalista",
         "niche": "Nicho"
       },
-      "status": {
-        "draft": "En refinado",
-        "validated": "Validado"
-      },
       "posts": {
-        "post1": "Por qué tu experiencia merece una narrativa más clara en LinkedIn…",
-        "post2": "Tres señales de que tu audiencia B2B espera profundidad, no más ruido.",
-        "post3": "La trampa de los posts «inspiradores» cuando vendes transformación.",
-        "post4": "Cómo una persona validada reduce a la mitad el tiempo de edición."
+        "post1": "Por qué tu experiencia merece una narrativa más clara…",
+        "post2": "Tres señales de que tu audiencia B2B espera profundidad.",
+        "post3": "La trampa de los artículos «inspiradores» en transformación B2B.",
+        "post4": "Cómo se estructura un deal en LatAm cuando ya viste la película en China."
+      },
+      "panels": {
+        "brief": {
+          "label": "Brief del lote",
+          "nicheOk": "Claridad de nicho OK",
+          "sampleProblem": "PYME exportadoras: cadena de suministro tensa…",
+          "fields": {
+            "problem": "Problema de audiencia",
+            "pov": "Punto de vista"
+          },
+          "samplePov": "La palanca no es el precio: es la visibilidad de extremo a extremo.",
+          "objectives": {
+            "credibility": "Credibilidad",
+            "conversation": "Conversación"
+          }
+        },
+        "exploration": {
+          "label": "Exploración · 4 artículos"
+        },
+        "refine": {
+          "label": "Calidad y refinado",
+          "slopHint": "Slop bajo · hook alternativo disponible",
+          "scores": {
+            "nicheClarity": "Claridad nicho",
+            "proofDensity": "Densidad de prueba",
+            "conversationPotential": "Conversación"
+          }
+        },
+        "export": {
+          "label": "Export LinkedIn",
+          "copyCta": "Copiar a LinkedIn",
+          "signalsHint": "Señales opcionales tras publicar",
+          "sample": "Hook contundente…\n\nCuerpo con caso y cifra…\n\nPS: Gregory, Guadalajara…"
+        }
       }
     },
-    "pillars": {
-      "title": "Tres pilares para una influencia creíble",
-      "subtitle": "Pensado para directivos, consultores y expertos que publican en su nombre.",
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "subtitle": "Un recorrido guiado, del perfil a la publicación — sin sorpresas en el onboarding.",
+      "steps": {
+        "profile": {
+          "title": "Perfil e inspiraciones",
+          "description": "Enlaces, voz, artículos ejemplo — la base de tu Persona."
+        },
+        "persona": {
+          "title": "Persona validada",
+          "description": "Content Brain + Topic DNA antes de cualquier generación."
+        },
+        "brief": {
+          "title": "Brief intencional",
+          "description": "Objetivo, problema, POV, prueba — cada lote está enmarcado."
+        },
+        "generate": {
+          "title": "Generar y elegir",
+          "description": "4 artículos (2 amplio · 2 nicho) o 2 desde noticia archivada."
+        }
+      }
+    },
+    "capabilities": {
+      "title": "Todo lo necesario para una autoridad LinkedIn creíble",
+      "subtitle": "Cinco piezas, un flujo — para expertos B2B que publican en su nombre.",
       "persona": {
-        "title": "Persona y Content Brain",
-        "description": "Captura tu voz, audiencia y ángulos: la IA no parte de una página en blanco."
+        "title": "Persona y Topic DNA",
+        "description": "Content Brain validado: pilares, creencias, fuera de tema — la IA no parte de cero."
       },
-      "batch": {
-        "title": "Lotes de 4 posts",
-        "description": "Dos ángulos generalistas y dos de nicho por lote, con variedad sin perder tu línea editorial."
+      "brief": {
+        "title": "Brief intencional",
+        "description": "Objetivo, problema, POV, prueba obligatoria — se acabaron los artículos vagos."
       },
-      "languages": {
-        "title": "FR · EN · ES",
-        "description": "Produce y afina en el idioma de tu mercado, con la misma coherencia de tono."
+      "exploration": {
+        "title": "Exploración · 4 artículos",
+        "description": "Dos ángulos generalistas y dos de nicho por lote — alcance y profundidad."
+      },
+      "quality": {
+        "title": "Calidad LinkedIn",
+        "description": "Puntuaciones, hooks alternativos, anti-slop, alerta de enlace en el cuerpo."
+      },
+      "distribution": {
+        "title": "Distribución y noticias",
+        "description": "Formato, carrusel, guion vídeo, primer comentario · noticias y archivos."
+      },
+      "measurement": {
+        "title": "Bucle de medición",
+        "description": "Tras publicar: guardados, DMs, comentarios cualificados — síntesis para afinar tu Persona."
       }
     },
     "trust": {
       "headline": "Diseñado para profesionales que publican bajo su propio nombre",
-      "points": "Persona validada · Lotes estructurados · Refinado guiado · Multilingüe",
-      "cta": "Empezar gratis"
+      "points": "Persona y Topic DNA · Brief y niche check · 4 artículos amplio/nicho · Calidad y export LinkedIn",
+      "cta": "Estructurar mi autoridad en LinkedIn"
     },
     "marketing": {
       "signedIn": "Has iniciado sesión.",
@@ -718,7 +783,8 @@
     },
     "news": {
       "title": "Noticias anteriores",
-      "subtitle": "Noticias archivadas desde la página de posts. Selecciona una para ver el detalle y generar 2 posts.",
+      "subtitle": "Noticias archivadas desde la página de posts — consulta el detalle o regenera 2 posts (brief en la página de posts).",
+      "briefOnArticles": "Configurar el brief en la página de posts →",
       "empty": "No hay noticias archivadas. Carga noticias desde la página de posts.",
       "backToArticles": "← Volver a posts",
       "unknownSource": "Fuente",
