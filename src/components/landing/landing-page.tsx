@@ -157,7 +157,7 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
 
       <section
         id="landing-product"
-        className="relative scroll-mt-20 bg-ns-brand-light px-4 py-16 md:px-8 md:py-24"
+        className="relative scroll-mt-20 bg-ns-brand-light px-4 pt-12 pb-10 md:px-8 md:pt-16 md:pb-12"
         aria-labelledby="landing-product-title"
       >
         <div className="mx-auto max-w-6xl">
@@ -172,18 +172,18 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
               {tProduct("subtitle")}
             </p>
           </div>
-          <div className="relative z-0 mt-8 md:mt-12">
+          <div className="relative z-0 mt-6 md:mt-8">
             <LandingProductMockup />
           </div>
         </div>
       </section>
 
       <section
-        className="bg-ns-background px-4 py-16 md:px-8 md:py-20"
+        className="bg-ns-background px-4 pt-10 pb-14 md:px-8 md:pt-12 md:pb-16"
         aria-labelledby="landing-how-title"
       >
         <div className="mx-auto max-w-5xl">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
+          <div className="mx-auto mb-8 max-w-2xl text-center">
             <h2
               id="landing-how-title"
               className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl"

@@ -10,7 +10,7 @@ export function LandingProductMockup() {
   const t = useTranslations("landing.product");
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-5" role="group" aria-label={t("mockupAria")}>
+    <div className="mx-auto w-full max-w-6xl" role="group" aria-label={t("mockupAria")}>
       <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:gap-2">
         <Panel label={t("panels.brief.label")} step="1" className="lg:flex-1">
           <div className="flex min-h-[200px] flex-col justify-between gap-3">
@@ -89,7 +89,6 @@ export function LandingProductMockup() {
         </Panel>
       </div>
 
-      <p className="text-center text-[11px] font-medium text-ns-secondary/80">{t("caption")}</p>
       <p className="sr-only">{t("mockupSummary")}</p>
     </div>
   );
