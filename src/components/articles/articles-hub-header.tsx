@@ -45,14 +45,22 @@ export function ArticlesHubHeader({ pendingOnly, onGenerate, generating }: Props
             {t("filter.all")}
           </Link>
         </div>
-        <button
-          type="button"
-          disabled={generating}
-          onClick={onGenerate}
-          className={`w-full shrink-0 sm:w-auto ${BTN_PRIMARY}`}
-        >
-          {generating ? t("generating") : t("generateBatch")}
-        </button>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <Link
+            href="/setup/inspirations"
+            className="w-full rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-center text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light sm:w-auto"
+          >
+            {t("updateInspirations")}
+          </Link>
+          <button
+            type="button"
+            disabled={generating}
+            onClick={onGenerate}
+            className={`w-full shrink-0 sm:w-auto ${BTN_PRIMARY}`}
+          >
+            {generating ? t("generating") : t("generateBatch")}
+          </button>
+        </div>
       </div>
 
       <header className="px-4 py-5 md:px-6 md:py-6">

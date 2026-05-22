@@ -6,6 +6,7 @@ import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-
 import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
+import { PersonaHistoryPanel } from "@/components/persona/persona-history-panel";
 import { getPersona, savePersonaDraft, validatePersona } from "@/lib/workspace/persona";
 import { listSources } from "@/lib/workspace/sources";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
@@ -219,6 +220,23 @@ export function PersonaEditor() {
         >
           {t("generate")}
         </button>
+      )}
+
+      {user && promptText && (
+        <PersonaHistoryPanel
+          userId={user.uid}
+          currentPromptText={promptText}
+          onRestored={(text, nextStatus) => {
+            setPromptText(text);
+            setStatus(
+              nextStatus === "validated"
+                ? "validated"
+                : text
+                  ? "draft"
+                  : "none",
+            );
+          }}
+        />
       )}
 
       {promptText && (

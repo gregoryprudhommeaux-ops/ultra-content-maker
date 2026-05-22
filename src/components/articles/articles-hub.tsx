@@ -6,10 +6,15 @@ import {
   SCOPE_CARD_CLASS,
 } from "@/lib/articles/scope";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
+import {
+  NewsPickerPanel,
+  newsToSource,
+} from "@/components/articles/news-picker-panel";
 import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
+import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
@@ -24,7 +29,12 @@ import { getClientAuth } from "@/lib/firebase/client";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import type { ArticleDoc, ContentLanguage, EmojiLevel } from "@/types/workspace";
+import type {
+  ArticleDoc,
+  ContentLanguage,
+  EmojiLevel,
+  NewsSuggestion,
+} from "@/types/workspace";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -35,6 +45,7 @@ function filterArticles(articles: ArticleDoc[], pendingOnly: boolean): ArticleDo
 
 export function ArticlesHub() {
   const t = useTranslations("setup.articles");
+  const tNews = useTranslations("setup.articles.news");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -47,6 +58,11 @@ export function ArticlesHub() {
   const [error, setError] = useState<string | null>(null);
   const [emojiLevel, setEmojiLevel] = useState<EmojiLevel>("light");
   const [loaded, setLoaded] = useState(false);
+  const [newsItems, setNewsItems] = useState<NewsSuggestion[]>([]);
+  const [selectedNews, setSelectedNews] = useState<NewsSuggestion | null>(null);
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [newsHintPerplexity, setNewsHintPerplexity] = useState(false);
+  const [newsLoadedOnce, setNewsLoadedOnce] = useState(false);
 
   const reload = useCallback(async () => {
     if (!user) return;
@@ -71,8 +87,79 @@ export function ArticlesHub() {
     reload().catch(() => setLoaded(true));
   }, [user, authLoading, reload]);
 
-  async function onGenerate() {
+  const loadNews = useCallback(async () => {
     if (!user || !personaText) return;
+    setNewsLoading(true);
+    setError(null);
+    try {
+      const auth = getClientAuth();
+      const token = auth ? await auth.currentUser?.getIdToken() : null;
+      if (!token) return;
+
+      const [author, audience, enrichment, llmProfile] = await Promise.all([
+        getAuthorProfile(user.uid),
+        getAudienceProfile(user.uid),
+        getProfileEnrichment(user.uid),
+        getUserLlmProfile(user.uid),
+      ]);
+      if (!llmProfile?.apiKey) {
+        setError(t("noLlmKey"));
+        return;
+      }
+
+      const res = await fetch("/api/news/suggestions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentLanguage: author?.contentLanguage ?? locale,
+          author,
+          audience,
+          profileEnrichment: enrichment?.details ?? {},
+          personaExcerpt: personaText.slice(0, 1200),
+          llm: {
+            provider: llmProfile.provider,
+            apiKey: llmProfile.apiKey,
+            model: llmProfile.model,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error === "no_recent_news") {
+          setError(tNews("noResults"));
+          setNewsItems([]);
+        } else {
+          setError(tNews("loadFailed"));
+        }
+        return;
+      }
+      setNewsItems(data.news ?? []);
+      setNewsHintPerplexity(!!data.perplexityRecommended);
+      setNewsLoadedOnce(true);
+      if (data.news?.length === 1) {
+        setSelectedNews(data.news[0]);
+      }
+    } catch {
+      setError(tNews("loadFailed"));
+    } finally {
+      setNewsLoading(false);
+    }
+  }, [user, personaText, locale, t, tNews]);
+
+  useEffect(() => {
+    if (!loaded || !personaOk || newsLoadedOnce || !personaText) return;
+    loadNews();
+  }, [loaded, personaOk, newsLoadedOnce, personaText, loadNews]);
+
+  async function runGenerate(fromNews: boolean) {
+    if (!user || !personaText) return;
+    if (fromNews && !selectedNews) {
+      setError(tNews("pickOne"));
+      return;
+    }
     setError(null);
     setPending(true);
     try {
@@ -95,6 +182,7 @@ export function ArticlesHub() {
       if (persona?.promptText) setPersonaText(persona.promptText);
 
       const contentLang = author?.contentLanguage ?? locale;
+      const newsSource = fromNews && selectedNews ? newsToSource(selectedNews) : undefined;
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 120_000);
@@ -112,6 +200,7 @@ export function ArticlesHub() {
             contentLanguage: contentLang,
             emojiLevel,
             profileEnrichment: enrichment?.details ?? {},
+            newsSource,
             llm: {
               provider: llmProfile.provider,
               apiKey: llmProfile.apiKey,
@@ -138,6 +227,7 @@ export function ArticlesHub() {
         data.articles,
         author?.contentLanguage ?? locale,
         emojiLevel,
+        newsSource,
       );
       await reload();
       notifyOnboardingProgressChanged();
@@ -151,6 +241,14 @@ export function ArticlesHub() {
     } finally {
       setPending(false);
     }
+  }
+
+  async function onGenerate() {
+    await runGenerate(false);
+  }
+
+  async function onGenerateFromNews() {
+    await runGenerate(true);
   }
 
   const visibleBatches = useMemo(
@@ -179,6 +277,29 @@ export function ArticlesHub() {
         onGenerate={onGenerate}
         generating={pending}
       />
+
+      <NewsPickerPanel
+        news={newsItems}
+        selectedId={selectedNews?.id ?? null}
+        onSelect={setSelectedNews}
+        loading={newsLoading}
+        onRefresh={loadNews}
+        perplexityHint={newsHintPerplexity}
+      />
+
+      {selectedNews && (
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onGenerateFromNews}
+            className="rounded-sm bg-ns-tertiary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-sm hover:bg-ns-tertiary/90 disabled:opacity-50"
+          >
+            {pending ? tNews("generatingFromNews") : tNews("generateFromNews")}
+          </button>
+          <p className="text-xs text-ns-secondary">{tNews("generateFromNewsHint")}</p>
+        </div>
+      )}
 
       {pending && (
         <GeneratingIndicator

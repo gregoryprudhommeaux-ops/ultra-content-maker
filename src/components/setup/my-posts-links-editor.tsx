@@ -1,6 +1,6 @@
 "use client";
 
-import { addSource, listSources, removeSource } from "@/lib/workspace/sources";
+import { addSource, listSourcesByCategory, removeSource } from "@/lib/workspace/sources";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import type { SourceType } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
@@ -8,19 +8,13 @@ import { INPUT_CLASS } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
-const SOURCE_TYPES: SourceType[] = [
-  "linkedin_post",
-  "linkedin_profile",
-  "blog",
-  "website",
-  "other",
-];
+const MY_POST_TYPES: SourceType[] = ["linkedin_post", "blog", "website", "other"];
 
 type Props = { userId: string };
 
-export function SourceLinksEditor({ userId }: Props) {
+export function MyPostsLinksEditor({ userId }: Props) {
   const t = useTranslations("setup.author.sources");
-  const [sources, setSources] = useState<Awaited<ReturnType<typeof listSources>>>([]);
+  const [sources, setSources] = useState<Awaited<ReturnType<typeof listSourcesByCategory>>>([]);
   const [type, setType] = useState<SourceType>("linkedin_post");
   const [url, setUrl] = useState("");
   const [label, setLabel] = useState("");
@@ -30,7 +24,7 @@ export function SourceLinksEditor({ userId }: Props) {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setSources(await listSources(userId));
+      setSources(await listSourcesByCategory(userId, "my_post"));
     } finally {
       setLoading(false);
     }
@@ -52,6 +46,7 @@ export function SourceLinksEditor({ userId }: Props) {
         type,
         url: url.trim(),
         label: label.trim() || undefined,
+        category: "my_post",
       });
       setUrl("");
       setLabel("");
@@ -107,14 +102,14 @@ export function SourceLinksEditor({ userId }: Props) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <OptionalLabel htmlFor="source-type">{t("type")}</OptionalLabel>
+          <OptionalLabel htmlFor="my-source-type">{t("type")}</OptionalLabel>
           <select
-            id="source-type"
+            id="my-source-type"
             value={type}
             onChange={(e) => setType(e.target.value as SourceType)}
             className={INPUT_CLASS}
           >
-            {SOURCE_TYPES.map((st) => (
+            {MY_POST_TYPES.map((st) => (
               <option key={st} value={st}>
                 {t(`types.${st}`)}
               </option>
@@ -122,9 +117,9 @@ export function SourceLinksEditor({ userId }: Props) {
           </select>
         </div>
         <div className="sm:col-span-2">
-          <OptionalLabel htmlFor="source-url">{t("url")}</OptionalLabel>
+          <OptionalLabel htmlFor="my-source-url">{t("url")}</OptionalLabel>
           <input
-            id="source-url"
+            id="my-source-url"
             type="text"
             inputMode="url"
             value={url}
@@ -134,9 +129,9 @@ export function SourceLinksEditor({ userId }: Props) {
           />
         </div>
         <div className="sm:col-span-2">
-          <OptionalLabel htmlFor="source-label">{t("labelOptional")}</OptionalLabel>
+          <OptionalLabel htmlFor="my-source-label">{t("labelOptional")}</OptionalLabel>
           <input
-            id="source-label"
+            id="my-source-label"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             className={INPUT_CLASS}

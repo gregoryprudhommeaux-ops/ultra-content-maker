@@ -1,5 +1,6 @@
 "use client";
 
+import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper";
 import { useAuth } from "@/components/auth/auth-provider";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import {
@@ -132,6 +133,8 @@ export function LlmSetupForm() {
         <p className="mt-2 max-w-2xl text-sm text-ns-secondary">{t("subtitle")}</p>
         <p className="mt-2 text-xs text-amber-800">{t("privacyNote")}</p>
       </div>
+
+      <OnboardingStepper placement="settings" />
 
       <form onSubmit={onSubmit} className="max-w-xl space-y-6">
         <div>

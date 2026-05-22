@@ -17,6 +17,20 @@ export type SourceType =
   | "website"
   | "other";
 
+/** How this URL is used for Persona / content generation */
+export type SourceCategory =
+  | "my_post"
+  | "inspiration_post"
+  | "inspiration_profile";
+
+export type InspirationAspect =
+  | "tone"
+  | "angle"
+  | "subject"
+  | "approach"
+  | "content"
+  | "format";
+
 export interface UserLlmProfile {
   provider: LlmProvider;
   apiKey: string;
@@ -58,6 +72,9 @@ export interface SourceLink {
   type: SourceType;
   url: string;
   label?: string;
+  category: SourceCategory;
+  likedAspects?: InspirationAspect[];
+  whyLike?: string;
   sortOrder: number;
   createdAt: Date;
 }
@@ -90,6 +107,23 @@ export interface PersonaDoc {
   gapQuestions?: ProfileGapQuestion[];
   validatedAt?: Date;
   updatedAt: Date;
+}
+
+export type PersonaHistoryReason =
+  | "generate"
+  | "feedback_sync"
+  | "validate"
+  | "restore"
+  | "before_restore";
+
+export interface PersonaHistoryEntry {
+  id: string;
+  promptText: string;
+  status: PersonaStatus;
+  model?: string;
+  gapQuestions?: ProfileGapQuestion[];
+  reason: PersonaHistoryReason;
+  createdAt: Date;
 }
 
 export interface CtaDoc {
@@ -125,11 +159,54 @@ export interface RefinementQuestion {
   comment?: string;
 }
 
+/** Per-article editorial tone shift (revision only, not global Persona default). */
+export type ToneEdge = "default" | "corrosive";
+
 export interface ArticleRefinement {
   questions: RefinementQuestion[];
   emojiLevel?: EmojiLevel;
+  /** Corrosive / contrarian rewrite for this post */
+  toneEdge?: ToneEdge;
   globalComment?: string;
   lastRegeneratedAt?: Date;
+}
+
+export type IllustrationFormat =
+  | "photo"
+  | "illustration"
+  | "drawing"
+  | "chart"
+  | "graph"
+  | "infographic"
+  | "diagram"
+  | "quote_card"
+  | "screenshot_mockup";
+
+export interface NewsSuggestion {
+  id: string;
+  title: string;
+  summary: string;
+  url: string;
+  sourceName?: string;
+  /** ISO date YYYY-MM-DD */
+  publishedAt: string;
+}
+
+export interface ArticleNewsSource {
+  title: string;
+  summary: string;
+  url: string;
+  publishedAt: string;
+  sourceName?: string;
+}
+
+export interface ArticleIllustration {
+  format: IllustrationFormat;
+  rationale: string;
+  /** Three short prompts for GenAI or image search engines */
+  imagePrompts: [string, string, string];
+  searchKeywords?: string;
+  alternativeFormats?: IllustrationFormat[];
 }
 
 export interface ArticleDoc {
@@ -140,6 +217,8 @@ export interface ArticleDoc {
   hook: string;
   body: string;
   ps?: string;
+  illustration?: ArticleIllustration;
+  newsSource?: ArticleNewsSource;
   /** generalist = broad angle; niche = vertical / ICP-specific */
   scope?: ArticleScope;
   /** Up to 4 LinkedIn hashtags (without #), appended on export */

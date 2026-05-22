@@ -1,0 +1,321 @@
+"use client";
+
+import { INSPIRATION_ASPECTS, type InspirationAspect } from "@/lib/inspiration/aspects";
+import {
+  addSource,
+  listSourcesByCategory,
+  removeSource,
+} from "@/lib/workspace/sources";
+import { isValidUrl } from "@/lib/workspace/firestore-utils";
+import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
+import { OptionalLabel } from "@/components/setup/optional-label";
+import { INPUT_CLASS } from "@/types/workspace";
+import type { SourceCategory } from "@/types/workspace";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+
+type Props = {
+  userId: string;
+  /** Show "your posts" section (dedicated inspirations page) */
+  showMyPosts?: boolean;
+  /** Link to regenerate persona after saving */
+  showPersonaHint?: boolean;
+  /** Hide page title when embedded in author onboarding */
+  hidePageHeader?: boolean;
+};
+
+function aspectLabel(
+  t: ReturnType<typeof useTranslations<"setup.inspirations">>,
+  aspect: InspirationAspect,
+) {
+  return t(`aspects.${aspect}`);
+}
+
+function SourceList({
+  sources,
+  onRemove,
+  t,
+  tAspects,
+}: {
+  sources: Awaited<ReturnType<typeof listSourcesByCategory>>;
+  onRemove: (id: string) => void;
+  t: ReturnType<typeof useTranslations<"setup.inspirations">>;
+  tAspects: ReturnType<typeof useTranslations<"setup.inspirations">>;
+}) {
+  if (sources.length === 0) return null;
+  return (
+    <ul className="space-y-2">
+      {sources.map((s) => (
+        <li
+          key={s.id}
+          className="flex items-start justify-between gap-2 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm"
+        >
+          <div className="min-w-0">
+            <a
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block truncate font-medium text-ns-tertiary underline"
+            >
+              {s.label || s.url}
+            </a>
+            {s.likedAspects && s.likedAspects.length > 0 && (
+              <p className="mt-1 text-xs text-ns-secondary">
+                {t("liked")}:{" "}
+                {s.likedAspects.map((a) => tAspects(`aspects.${a}`)).join(" · ")}
+              </p>
+            )}
+            {s.whyLike && (
+              <p className="mt-1 text-xs italic text-ns-secondary">{s.whyLike}</p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => onRemove(s.id)}
+            className="shrink-0 text-ns-secondary hover:text-red-600"
+          >
+            {t("remove")}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function InspirationSection({
+  userId,
+  category,
+  titleKey,
+  descKey,
+  urlPlaceholderKey,
+}: {
+  userId: string;
+  category: Extract<SourceCategory, "inspiration_post" | "inspiration_profile">;
+  titleKey: "postsTitle" | "profilesTitle";
+  descKey: "postsDescription" | "profilesDescription";
+  urlPlaceholderKey: "postUrlPlaceholder" | "profileUrlPlaceholder";
+}) {
+  const t = useTranslations("setup.inspirations");
+  const [sources, setSources] = useState<Awaited<ReturnType<typeof listSourcesByCategory>>>([]);
+  const [url, setUrl] = useState("");
+  const [whyLike, setWhyLike] = useState("");
+  const [aspects, setAspects] = useState<InspirationAspect[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setSources(await listSourcesByCategory(userId, category));
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, category]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  function toggleAspect(a: InspirationAspect) {
+    setAspects((prev) =>
+      prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a],
+    );
+  }
+
+  async function onAdd() {
+    setError(null);
+    if (!url.trim()) return;
+    if (!isValidUrl(url.trim())) {
+      setError(t("invalidUrl"));
+      return;
+    }
+    if (aspects.length === 0 && !whyLike.trim()) {
+      setError(t("needAspectOrWhy"));
+      return;
+    }
+    try {
+      await addSource(userId, {
+        type: category === "inspiration_profile" ? "linkedin_profile" : "linkedin_post",
+        url: url.trim(),
+        category,
+        likedAspects: aspects.length ? aspects : undefined,
+        whyLike: whyLike.trim() || undefined,
+      });
+      setUrl("");
+      setWhyLike("");
+      setAspects([]);
+      await load();
+    } catch {
+      setError(t("addFailed"));
+    }
+  }
+
+  return (
+    <section className="space-y-4 rounded-xl border border-gray-100 bg-ns-brand-light/50 p-4">
+      <h3 className="text-sm font-semibold text-ns-tertiary">{t(titleKey)}</h3>
+      <p className="text-sm text-ns-secondary">{t(descKey)}</p>
+
+      {loading ? (
+        <p className="text-sm text-ns-secondary">…</p>
+      ) : sources.length > 0 ? (
+        <SourceList
+          sources={sources}
+          onRemove={(id) => removeSource(userId, id).then(load)}
+          t={t}
+          tAspects={t}
+        />
+      ) : (
+        <p className="text-sm text-ns-secondary">{t("empty")}</p>
+      )}
+
+      <div className="space-y-3">
+        <div>
+          <OptionalLabel htmlFor={`${category}-url`}>{t("url")}</OptionalLabel>
+          <input
+            id={`${category}-url`}
+            type="text"
+            inputMode="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder={t(urlPlaceholderKey)}
+            className={INPUT_CLASS}
+          />
+        </div>
+
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-ns-tertiary">
+            {t("aspectsLabel")}
+          </legend>
+          <p className="mb-2 text-xs text-ns-secondary">{t("aspectsHint")}</p>
+          <div className="flex flex-wrap gap-2">
+            {INSPIRATION_ASPECTS.map((a) => {
+              const on = aspects.includes(a);
+              return (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => toggleAspect(a)}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    on
+                      ? "border-ns-primary bg-ns-primary/20 text-ns-tertiary"
+                      : "border-ns-alternate bg-white text-ns-secondary hover:border-ns-primary/50"
+                  }`}
+                >
+                  {aspectLabel(t, a)}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <div>
+          <OptionalLabel htmlFor={`${category}-why`}>{t("whyOptional")}</OptionalLabel>
+          <textarea
+            id={`${category}-why`}
+            rows={2}
+            value={whyLike}
+            onChange={(e) => setWhyLike(e.target.value)}
+            placeholder={t("whyPlaceholder")}
+            className={INPUT_CLASS}
+          />
+        </div>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <button
+          type="button"
+          onClick={onAdd}
+          className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light"
+        >
+          {t("add")}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+export function InspirationsEditor({
+  userId,
+  showMyPosts = false,
+  showPersonaHint = true,
+  hidePageHeader = false,
+}: Props) {
+  const t = useTranslations("setup.inspirations");
+
+  return (
+    <div className="space-y-6">
+      {!hidePageHeader ? (
+        <div>
+          <h2 className="text-xl font-semibold text-ns-tertiary">{t("pageTitle")}</h2>
+          <p className="mt-2 text-sm text-ns-secondary">{t("pageSubtitle")}</p>
+        </div>
+      ) : (
+        <div>
+          <h3 className="text-sm font-semibold text-ns-tertiary">{t("embeddedTitle")}</h3>
+          <p className="mt-1 text-sm text-ns-secondary">
+            {t("embeddedSubtitle")}{" "}
+            <Link
+              href="/setup/inspirations"
+              className="font-medium text-ns-tertiary underline"
+            >
+              {t("embeddedManageLink")}
+            </Link>
+          </p>
+        </div>
+      )}
+
+      <details className="rounded-xl border border-ns-alternate bg-white p-4 open:shadow-sm">
+        <summary className="cursor-pointer text-sm font-semibold text-ns-tertiary">
+          {t("guide.title")}
+        </summary>
+        <div className="mt-4 space-y-4 text-sm text-ns-secondary">
+          <div>
+            <h4 className="font-medium text-ns-tertiary">{t("guide.postTitle")}</h4>
+            <ol className="mt-2 list-decimal space-y-1 pl-5">
+              <li>{t("guide.postStep1")}</li>
+              <li>{t("guide.postStep2")}</li>
+              <li>{t("guide.postStep3")}</li>
+              <li>{t("guide.postStep4")}</li>
+            </ol>
+          </div>
+          <div>
+            <h4 className="font-medium text-ns-tertiary">{t("guide.profileTitle")}</h4>
+            <ol className="mt-2 list-decimal space-y-1 pl-5">
+              <li>{t("guide.profileStep1")}</li>
+              <li>{t("guide.profileStep2")}</li>
+              <li>{t("guide.profileStep3")}</li>
+            </ol>
+          </div>
+          <p className="text-xs">{t("guide.tip")}</p>
+        </div>
+      </details>
+
+      {showMyPosts && <MyPostsLinksEditor userId={userId} />}
+
+      <InspirationSection
+        userId={userId}
+        category="inspiration_post"
+        titleKey="postsTitle"
+        descKey="postsDescription"
+        urlPlaceholderKey="postUrlPlaceholder"
+      />
+
+      <InspirationSection
+        userId={userId}
+        category="inspiration_profile"
+        titleKey="profilesTitle"
+        descKey="profilesDescription"
+        urlPlaceholderKey="profileUrlPlaceholder"
+      />
+
+      {showPersonaHint && (
+        <p className="rounded-lg border border-ns-alternate bg-ns-brand-light/80 px-4 py-3 text-sm text-ns-secondary">
+          {t("personaHint")}{" "}
+          <Link href="/setup/persona" className="font-medium text-ns-tertiary underline">
+            {t("personaLink")}
+          </Link>
+        </p>
+      )}
+    </div>
+  );
+}

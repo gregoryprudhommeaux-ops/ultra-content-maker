@@ -1,3 +1,4 @@
+import { serializeSourcesForPersona } from "@/lib/workspace/serialize-sources";
 import type {
   AudienceProfile,
   AuthorProfile,
@@ -47,6 +48,8 @@ gapQuestions rules:
 
 Prioritize gaps that would materially improve LinkedIn content (sectors, ICP size, markets, CTA style, posting frequency, case study policy, topics to avoid).
 
+When the user provides inspirationPosts or inspirationProfiles, weave them into the expert prompt as explicit creative references (not plagiarism): mirror the ASPECTS they marked (tone, angle, subject, approach, content, format) and optional whyLike notes. Never copy text from URLs. myPosts define the author's own voice baseline; inspirations are external models to borrow structure and energy from.
+
 Return JSON only:
 {
   "promptText": string,
@@ -62,6 +65,8 @@ export function buildPersonaUserPrompt(
   enrichment?: ProfileEnrichment | null,
 ): string {
   const labels = LANGUAGE_LABELS[contentLanguage] ?? LANGUAGE_LABELS.en;
+  const { myPosts, inspirationPosts, inspirationProfiles } =
+    serializeSourcesForPersona(sources);
 
   return JSON.stringify(
     {
@@ -71,12 +76,10 @@ export function buildPersonaUserPrompt(
       author: author ?? {},
       audience: audience?.skipped ? { skipped: true } : (audience ?? {}),
       profileEnrichment: enrichment?.details ?? {},
-      sources: sources.map((s) => ({
-        type: s.type,
-        url: s.url,
-        label: s.label,
-      })),
-      note: "URLs are references only; page content was not scraped. Infer carefully from URL paths and types. Use profileEnrichment as confirmed facts.",
+      myPosts,
+      inspirationPosts,
+      inspirationProfiles,
+      note: "URLs are references only; page content was not scraped. Infer carefully from URL paths and types. Use profileEnrichment as confirmed facts. For each inspiration, honor likedAspects and whyLike when present.",
     },
     null,
     2,

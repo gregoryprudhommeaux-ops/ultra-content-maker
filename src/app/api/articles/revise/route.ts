@@ -3,6 +3,7 @@ import { chatCompletionJson } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import { normalizeArticleScope } from "@/lib/articles/scope";
 import { normalizeHashtags } from "@/lib/linkedin/hashtags";
+import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
 import {
   buildReviseSystemPrompt,
   buildReviseUserPrompt,
@@ -67,10 +68,11 @@ export async function POST(request: Request) {
 
   try {
     const emojiLevel = body.refinement.emojiLevel ?? "light";
+    const corrosiveTone = isCorrosiveToneEdge(body.refinement);
     const raw = await chatCompletionJson(llm, [
       {
         role: "system",
-        content: buildReviseSystemPrompt(contentLanguage, emojiLevel),
+        content: buildReviseSystemPrompt(contentLanguage, emojiLevel, corrosiveTone),
       },
       {
         role: "user",
@@ -78,6 +80,7 @@ export async function POST(request: Request) {
           body.personaPromptText,
           body.article,
           body.refinement,
+          contentLanguage,
         )}`,
       },
     ]);

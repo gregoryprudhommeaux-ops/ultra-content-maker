@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 export function DashboardOnboardingLayout({ children }: { children: ReactNode }) {
   return (
     <OnboardingProgressProvider>
-      <OnboardingStepper />
+      <OnboardingStepper placement="dashboard" />
       {children}
     </OnboardingProgressProvider>
   );

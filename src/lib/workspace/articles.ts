@@ -20,7 +20,9 @@ import type {
   EmojiLevel,
   RefinementAnswer,
 } from "@/types/workspace";
-import { createDefaultRefinement } from "@/lib/articles/refinement";
+import { normalizeArticleIllustration } from "@/lib/articles/illustration";
+import { createDefaultRefinement, hasReviseInput as hasRefinementInputImpl } from "@/lib/articles/refinement";
+import type { ArticleIllustration, ArticleNewsSource } from "@/types/workspace";
 import { normalizeArticleScope } from "@/lib/articles/scope";
 import { formatHashtagsLine, normalizeHashtags } from "@/lib/linkedin/hashtags";
 import { getClientFirestore } from "@/lib/firebase/client";
@@ -51,6 +53,10 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     selectedCtaText: d.selectedCtaText as string | undefined,
     contentLanguage: d.contentLanguage as ContentLanguage,
     refinement: d.refinement as ArticleRefinement | undefined,
+    illustration: normalizeArticleIllustration(d.illustration),
+    newsSource: d.newsSource
+      ? (d.newsSource as ArticleNewsSource)
+      : undefined,
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),
     validatedAt: d.validatedAt ? toDate(d.validatedAt) : undefined,
@@ -103,6 +109,7 @@ export async function createArticleBatch(
   }[],
   contentLanguage: ContentLanguage,
   emojiLevel: EmojiLevel = "light",
+  newsSource?: ArticleNewsSource,
 ): Promise<string[]> {
   const refinement = { ...createDefaultRefinement(), emojiLevel };
   const ids: string[] = [];
@@ -116,6 +123,7 @@ export async function createArticleBatch(
       ps: items[i].ps ?? null,
       scope: items[i].scope ?? (i < 2 ? "generalist" : "niche"),
       hashtags: items[i].hashtags?.length ? items[i].hashtags : null,
+      newsSource: newsSource ?? null,
       exportText: null,
       selectedCtaId: null,
       selectedCtaStyle: null,
@@ -129,6 +137,25 @@ export async function createArticleBatch(
     ids.push(ref.id);
   }
   return ids;
+}
+
+export async function saveArticleIllustration(
+  userId: string,
+  articleId: string,
+  illustration: ArticleIllustration,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    illustration: {
+      format: illustration.format,
+      rationale: illustration.rationale,
+      imagePrompts: illustration.imagePrompts,
+      searchKeywords: illustration.searchKeywords ?? null,
+      alternativeFormats: illustration.alternativeFormats ?? null,
+    },
+    updatedAt: serverTimestamp(),
+  });
 }
 
 export async function updateArticleContent(
@@ -223,15 +250,9 @@ export function buildExportText(
   return parts.join("\n\n");
 }
 
+/** @deprecated Use hasReviseInput from refinement module */
 export function hasRefinementInput(refinement: ArticleRefinement): boolean {
-  if (refinement.globalComment?.trim()) return true;
-  return refinement.questions.some((q) => {
-    if (q.id === "currentNews") {
-      if (q.answer === "yes") return !!q.comment?.trim();
-      return q.answer === "no";
-    }
-    return q.answer || q.comment?.trim();
-  });
+  return hasRefinementInputImpl(refinement);
 }
 
 export type { RefinementAnswer };

@@ -119,8 +119,8 @@
   },
   "nav": {
     "content": "Content",
-    "profile": "Profile",
-    "setup": "Me",
+    "profile": "My profile",
+    "setup": "My profile",
     "persona": "Persona",
     "articles": "Articles",
     "settings": "Settings",
@@ -139,7 +139,7 @@
   "setup": {
     "steps": {
       "llm": "API key",
-      "author": "Me",
+      "author": "My profile",
       "audience": "Target",
       "persona": "Persona",
       "articles": "Posts"
@@ -158,6 +158,7 @@
     "onboarding": {
       "progressLabel": "Profile progress: {percent}%",
       "completeSummary": "Profile complete",
+      "settingsSectionTitle": "Profile progress",
       "expandSteps": "Show setup journey",
       "collapseSteps": "Collapse setup journey",
       "continueNext": "Next step: {step} →",
@@ -176,7 +177,7 @@
           "description": "A personal API key is required to generate your Persona and posts."
         },
         "author": {
-          "title": "Complete your « Me » profile",
+          "title": "Complete My profile",
           "description": "Add your links and positioning so the AI can capture your voice."
         },
         "audience": {
@@ -202,7 +203,7 @@
       "showKey": "Show",
       "hideKey": "Hide",
       "modelHint": "Default model: {model}",
-      "continue": "Continue to Me →",
+      "continue": "Continue to My profile →",
       "errors": {
         "keyTooShort": "The API key looks too short. Make sure you copied the full key.",
         "invalidKey": "This API key was rejected by the provider. Check that it is active and matches the selected service.",
@@ -257,7 +258,7 @@
       }
     },
     "author": {
-      "title": "Who you are",
+      "title": "My profile",
       "subtitle": "Add links to your professional presence. No copy-paste — URLs only for examples.",
       "linkedin": "LinkedIn profile URL",
       "website": "Website URL",
@@ -271,8 +272,8 @@
       "invalidUrl": "Please enter a valid http(s) URL.",
       "saveFailed": "Could not save. Check Firestore rules.",
       "sources": {
-        "title": "Example content (links)",
-        "description": "LinkedIn posts, blog articles, or any page that shows how you write.",
+        "title": "Your posts (for tone)",
+        "description": "Links to your own LinkedIn posts or articles — the AI uses them to match your voice.",
         "type": "Link type",
         "url": "URL",
         "labelOptional": "Label",
@@ -290,6 +291,54 @@
         }
       }
     },
+    "inspirations": {
+      "pageTitle": "My inspirations",
+      "pageSubtitle": "Posts and profiles you admire — with what you like (tone, angle, format…). This enriches your Persona.",
+      "embeddedTitle": "Inspirations",
+      "embeddedSubtitle": "LinkedIn posts or profiles you like, with the traits you want to borrow.",
+      "embeddedManageLink": "Full page →",
+      "postsTitle": "Inspiration posts",
+      "postsDescription": "A LinkedIn post (yours or someone else’s) whose energy you want — not the wording.",
+      "profilesTitle": "Inspiration profiles",
+      "profilesDescription": "A creator whose LinkedIn feed inspires you.",
+      "url": "URL",
+      "postUrlPlaceholder": "https://www.linkedin.com/posts/…",
+      "profileUrlPlaceholder": "https://www.linkedin.com/in/…",
+      "aspectsLabel": "What I like about this link",
+      "aspectsHint": "Pick one or more traits, or explain why below.",
+      "aspects": {
+        "tone": "Tone",
+        "angle": "Angle",
+        "subject": "Subject",
+        "approach": "Approach",
+        "content": "Content",
+        "format": "Format"
+      },
+      "whyOptional": "Why I like it (optional)",
+      "whyPlaceholder": "e.g. personal storytelling, concrete numbers, soft CTA…",
+      "add": "Add inspiration",
+      "remove": "Remove",
+      "empty": "No inspirations yet.",
+      "liked": "Traits",
+      "invalidUrl": "Invalid URL.",
+      "needAspectOrWhy": "Select at least one trait or describe why you like this link.",
+      "addFailed": "Could not add.",
+      "personaHint": "After adding inspirations, regenerate your Persona to apply them:",
+      "personaLink": "Go to Persona →",
+      "guide": {
+        "title": "How to copy a LinkedIn link?",
+        "postTitle": "Post link",
+        "postStep1": "Open the post on LinkedIn (app or browser).",
+        "postStep2": "Click « … » (More) at the top right of the post.",
+        "postStep3": "Choose « Copy link to post ».",
+        "postStep4": "Paste the URL here — it often starts with linkedin.com/posts/ or linkedin.com/feed/update/.",
+        "profileTitle": "Profile link",
+        "profileStep1": "Open the person’s LinkedIn profile.",
+        "profileStep2": "Copy the URL from the address bar (linkedin.com/in/name).",
+        "profileStep3": "Paste the URL in the profile field below.",
+        "tip": "On mobile: share the post to « Copy link », or open the profile in the browser to copy the URL."
+      }
+    },
     "audience": {
       "title": "Who you write for",
       "subtitle": "A light sketch of your ideal reader — keep it simple.",
@@ -302,7 +351,7 @@
       "emojiIntro": "Default preference for future posts (you can adjust per article when refining).",
       "skip": "Skip for now",
       "continue": "Continue to Persona",
-      "back": "← Back to Me",
+      "back": "← Back to My profile",
       "saveFailed": "Could not save."
     },
     "persona": {
@@ -334,7 +383,32 @@
       "generateTimeout": "Generation took too long (over 2 minutes). Try again.",
       "generateFailed": "Generation failed. Try again.",
       "generateFailedDetail": "Generation failed: {detail}",
-      "saveFailed": "Could not save Persona."
+      "saveFailed": "Could not save Persona.",
+      "history": {
+        "title": "Version history",
+        "subtitle": "The 10 most recent prompt updates (up to 3 months). Restore an earlier version if an automatic update does not fit.",
+        "empty": "No archived versions yet — history fills in when the Persona changes.",
+        "loadFailed": "Could not load history.",
+        "restore": "Restore",
+        "restoring": "Restoring…",
+        "restoreFailed": "Could not restore.",
+        "restoreConfirm": "Replace the current Persona with the version from {date}? The current version will be archived too.",
+        "view": "View text",
+        "hide": "Hide",
+        "current": "Current version",
+        "reason": {
+          "generate": "Generate / regenerate",
+          "feedback_sync": "Auto-update (refinement & preferences)",
+          "validate": "Before validation",
+          "restore": "Restore",
+          "before_restore": "Before restore"
+        },
+        "status": {
+          "none": "Draft",
+          "draft": "Draft",
+          "validated": "Validated"
+        }
+      }
     },
     "articles": {
       "title": "Sample posts",
@@ -349,6 +423,24 @@
       "needPersona": "Validate your Persona before generating posts.",
       "goPersona": "Go to Persona →",
       "description": "Generate 3–4 LinkedIn posts, refine with guided questions, pick a CTA, and copy to LinkedIn.",
+      "updateInspirations": "Update my inspirations",
+      "news": {
+        "title": "News of the moment",
+        "subtitle": "4 stories from the last 7 days, matched to your domain (role, audience, Persona). Pick one to base 4 posts on.",
+        "refresh": "Refresh",
+        "loading": "Searching for recent news…",
+        "empty": "No recent news found. Try again or complete your profile.",
+        "loadFailed": "Could not load news.",
+        "noResults": "No stories dated within the last 7 days for your domain. Try again later.",
+        "perplexityHint": "For reliable web results, a Perplexity (Sonar) API key is recommended in Settings.",
+        "unknownSource": "Source",
+        "select": "Select",
+        "selected": "Selected",
+        "pickOne": "Select a news item before generating.",
+        "generateFromNews": "Generate 4 posts from this story",
+        "generatingFromNews": "Generating from story…",
+        "generateFromNewsHint": "2 generalist + 2 niche posts, all anchored on this news."
+      },
       "generateBatch": "Generate 4 posts",
       "generating": "Generating posts…",
       "generatingHint": "AI is writing 4 posts from your Persona (30–90 s).",
@@ -372,6 +464,40 @@
           "pushy": "Pushy"
         }
       },
+      "illustration": {
+        "title": "LinkedIn illustration",
+        "subtitle": "Recommended visual type for this post + 3 short prompts to copy.",
+        "regenerate": "Regenerate suggestions",
+        "loading": "Analyzing the post for visual ideas…",
+        "loadFailed": "Could not generate visual suggestions.",
+        "recommendedFormat": "Recommended format",
+        "alternatives": "Other possible formats",
+        "search": "Stock search",
+        "promptsTitle": "3 image prompts (GenAI or search)",
+        "promptsHint": "Paste a prompt into DALL·E, Midjourney, Ideogram, Adobe Firefly, or a stock site.",
+        "promptLabel": "Prompt {n}",
+        "copy": "Copy",
+        "copied": "Copied",
+        "limitsTitle": "In-app image generation — limits",
+        "limits": {
+          "noNativeGen": "No built-in image generation yet: your API key powers text (Persona, posts), not image files inside Ultra Content Maker.",
+          "providers": "OpenAI (DALL·E), Google (Imagen), and other configured providers are not wired to an image engine in this version.",
+          "storage": "Would require cloud storage (Firebase Storage / Vercel Blob), per-image cost, and preview — not included today.",
+          "linkedin": "LinkedIn does not allow automatic upload from a third-party app: you add the image manually when publishing.",
+          "cost": "Each visual suggestion uses one text LLM call (like CTAs); creating the image elsewhere is on your side."
+        },
+        "formats": {
+          "photo": "Realistic photo",
+          "illustration": "Illustration",
+          "drawing": "Drawing / sketch",
+          "chart": "Chart / data viz",
+          "graph": "Graph / plot",
+          "infographic": "Infographic",
+          "diagram": "Diagram",
+          "quote_card": "Quote card",
+          "screenshot_mockup": "Screenshot / product mockup"
+        }
+      },
       "status": {
         "draft": "Draft",
         "refining": "Refining",
@@ -384,8 +510,19 @@
       "scopeLegend": "2 generalist posts · 2 niche posts",
       "scopeMix": "{generalist} generalist · {niche} niche",
       "postIndex": "Post {index}",
+      "toneEdge": {
+        "label": "Post editorial line",
+        "default": "Standard",
+        "corrosive": "Contrarian",
+        "hint": {
+          "default": "Tone aligned with your Persona — balanced and professional.",
+          "corrosive": "Challenges a received idea or an \"obvious\" angle (including news). Forbidden: insults, politics, racism — even as humor."
+        }
+      },
       "refinement": {
         "title": "Refine this post",
+        "toneEdgeApply": "Rewrite as contrarian",
+        "toneEdgeApplying": "Rewriting…",
         "tone": "Does the tone match your voice?",
         "theme": "Does the theme / angle work for you?",
         "length": "Is the length right for LinkedIn?",
@@ -405,7 +542,7 @@
         "notFound": "Post not found.",
         "applyFeedback": "Apply feedback and regenerate",
         "reviseFailed": "Revision failed. Try again.",
-        "needRefinement": "Answer at least one question, add a comment, or provide news details if you choose Yes.",
+        "needRefinement": "Answer at least one question, enable contrarian tone, add a comment, or provide news details if you choose Yes.",
         "validateFailed": "Could not validate the post.",
         "ctaTitle": "Signature / CTA",
         "ctaOrCreate": "Pick an existing CTA or create one:",
@@ -419,8 +556,12 @@
         "exportPreview": "Final text",
         "hashtagsHint": "4 LinkedIn hashtags will be appended at the end (content + profile) when you validate.",
         "characterCount": "{count} / {max} characters (LinkedIn)",
-        "copyLinkedIn": "Copy for LinkedIn",
-        "copied": "Copied!"
+        "copyLinkedIn": "Copy & open LinkedIn",
+        "copied": "Copied — LinkedIn opened",
+        "copyLinkedInHint": "Text is on your clipboard. If LinkedIn’s composer is empty, paste with Ctrl+V (Cmd+V on Mac). Auto-publishing requires a LinkedIn connection (coming later).",
+        "copyFailed": "Could not copy. Allow clipboard access or copy the text manually.",
+        "newsAnchor": "Batch generated from this news story",
+        "readSource": "Read source article"
       },
       "share": {
         "title": "SHARE",

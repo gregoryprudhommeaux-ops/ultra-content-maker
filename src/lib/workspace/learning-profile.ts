@@ -7,6 +7,7 @@ import type {
   GapAnswerValue,
   ProfileGapQuestion,
 } from "@/types/workspace";
+import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
 import { emojiInstruction } from "@/lib/prompts/emoji-instruction";
 import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
@@ -203,6 +204,18 @@ export function entriesFromRefinement(
     out.push({
       source: "article_refinement",
       text: `Commentaire global: ${refinement.globalComment.trim()}`,
+    });
+  }
+
+  if (isCorrosiveToneEdge(refinement)) {
+    const corrosiveLabels: Record<ContentLanguage, string> = {
+      fr: "Ligne éditoriale parfois utilisée : à contre-pied d'une idée reçue ou d'une actu (jamais politique, racisme, insultes)",
+      en: "Editorial line sometimes used: contrarian to a received idea or news angle (never politics, racism, insults)",
+      es: "Línea editorial a veces usada: contrario a una idea recibida o actu (nunca política, racismo, insultos)",
+    };
+    out.push({
+      source: "article_refinement",
+      text: corrosiveLabels[lang] ?? corrosiveLabels.en,
     });
   }
 

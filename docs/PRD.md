@@ -41,7 +41,7 @@ Human validation at: Persona (optional but recommended), each article before exp
 
 | Term | Meaning |
 |------|---------|
-| **Author (Moi)** | The logged-in user’s professional identity: LinkedIn, site, example post **URLs** |
+| **Mon profil (Author)** | The logged-in user’s professional identity: LinkedIn, site, example post **URLs** |
 | **Audience (Cible)** | A **simple**, mostly optional sketch of the general reader/target and content themes |
 | **Persona** | The generated **expert system prompt** (long text) used for all article generation |
 | **Source link** | Any URL (LinkedIn post, profile, blog article, website page)—**no pasted full articles** in MVP |
@@ -212,7 +212,7 @@ Existing `clients` data may remain in Firestore but is **not used** by v2 UI. No
 
 ## 16. Design principles
 
-1. **Me first** — author before audience.  
+1. **My profile first** — author step before audience.  
 2. **Links over paste** — professional content referenced by URL.  
 3. **Optional by default** — never block on empty optional fields.  
 4. **Persona = product** — the expert prompt is the strategic asset.  

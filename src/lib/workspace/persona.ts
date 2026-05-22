@@ -1,6 +1,12 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import type { PersonaDoc, PersonaStatus, ProfileGapQuestion } from "@/types/workspace";
+import type {
+  PersonaDoc,
+  PersonaHistoryReason,
+  PersonaStatus,
+  ProfileGapQuestion,
+} from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
+import { appendPersonaHistory, getPersonaHistoryEntry } from "./persona-history";
 import { toDate } from "./firestore-utils";
 
 const CURRENT_ID = "current";
@@ -9,6 +15,35 @@ function personaRef(userId: string) {
   const db = getClientFirestore();
   if (!db) throw new Error("Firestore not available");
   return doc(db, "users", userId, "persona", CURRENT_ID);
+}
+
+function promptsEqual(a: string, b: string) {
+  return a.trim() === b.trim();
+}
+
+/** Archive current Persona before replacing prompt text. */
+async function snapshotCurrentPersona(
+  userId: string,
+  reason: PersonaHistoryReason,
+  nextPromptText?: string,
+) {
+  const snap = await getDoc(personaRef(userId));
+  if (!snap.exists()) return;
+  const d = snap.data();
+  const promptText = (d.promptText as string) ?? "";
+  if (!promptText.trim()) return;
+  if (nextPromptText !== undefined && promptsEqual(promptText, nextPromptText)) {
+    return;
+  }
+  await appendPersonaHistory(userId, {
+    promptText,
+    status: (d.status as PersonaStatus) ?? "none",
+    model: (d.model as string) || undefined,
+    gapQuestions: Array.isArray(d.gapQuestions)
+      ? (d.gapQuestions as ProfileGapQuestion[])
+      : undefined,
+    reason,
+  });
 }
 
 export async function getPersona(userId: string): Promise<PersonaDoc | null> {
@@ -33,6 +68,7 @@ export async function savePersonaDraft(
   model?: string,
   gapQuestions?: ProfileGapQuestion[],
 ) {
+  await snapshotCurrentPersona(userId, "generate", promptText);
   await setDoc(
     personaRef(userId),
     {
@@ -49,6 +85,7 @@ export async function savePersonaDraft(
 
 /** Update prompt text only — keeps validated/draft status (for learned-preferences merge). */
 export async function updatePersonaPromptText(userId: string, promptText: string) {
+  await snapshotCurrentPersona(userId, "feedback_sync", promptText);
   await setDoc(
     personaRef(userId),
     { promptText, updatedAt: serverTimestamp() },
@@ -58,6 +95,9 @@ export async function updatePersonaPromptText(userId: string, promptText: string
 
 export async function validatePersona(userId: string, promptText: string) {
   const prev = await getPersona(userId);
+  if (prev && !promptsEqual(prev.promptText, promptText)) {
+    await snapshotCurrentPersona(userId, "validate", promptText);
+  }
   await setDoc(
     personaRef(userId),
     {
@@ -69,4 +109,32 @@ export async function validatePersona(userId: string, promptText: string) {
     },
     { merge: true },
   );
+}
+
+export async function restorePersonaFromHistory(
+  userId: string,
+  historyId: string,
+): Promise<PersonaDoc | null> {
+  const entry = await getPersonaHistoryEntry(userId, historyId);
+  if (!entry) return null;
+
+  await snapshotCurrentPersona(userId, "before_restore");
+
+  const validatedAt =
+    entry.status === "validated" ? serverTimestamp() : null;
+
+  await setDoc(
+    personaRef(userId),
+    {
+      promptText: entry.promptText,
+      status: entry.status,
+      model: entry.model ?? null,
+      gapQuestions: entry.gapQuestions ?? null,
+      validatedAt,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
+
+  return getPersona(userId);
 }

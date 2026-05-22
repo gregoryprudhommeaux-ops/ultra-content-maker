@@ -2,6 +2,9 @@ import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
 import { chatCompletionJson } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
+  buildArticlesFromNewsUserPayload,
+} from "@/lib/prompts/articles-from-news";
+import {
   buildArticlesSystemPrompt,
   buildArticlesUserPrompt,
 } from "@/lib/prompts/articles-generate";
@@ -13,7 +16,12 @@ import {
 } from "@/lib/articles/scope";
 import { normalizeHashtags } from "@/lib/linkedin/hashtags";
 import { postContainsEmoji } from "@/lib/prompts/emoji-instruction";
-import type { ContentLanguage, EmojiLevel, LlmProvider } from "@/types/workspace";
+import type {
+  ArticleNewsSource,
+  ContentLanguage,
+  EmojiLevel,
+  LlmProvider,
+} from "@/types/workspace";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -24,6 +32,7 @@ type GenerateBody = {
   contentLanguage: string;
   emojiLevel?: EmojiLevel;
   profileEnrichment?: Record<string, unknown>;
+  newsSource?: ArticleNewsSource;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -63,19 +72,39 @@ export async function POST(request: Request) {
   }
 
   try {
+    const baseUserPrompt = buildArticlesUserPrompt(
+      body.personaPromptText,
+      contentLanguage,
+      body.profileEnrichment,
+      emojiLevel,
+    );
+    const userContent = body.newsSource
+      ? buildArticlesFromNewsUserPayload(
+          baseUserPrompt,
+          {
+            id: "anchor",
+            title: body.newsSource.title,
+            summary: body.newsSource.summary,
+            url: body.newsSource.url,
+            publishedAt: body.newsSource.publishedAt,
+            sourceName: body.newsSource.sourceName,
+          },
+          contentLanguage,
+        )
+      : baseUserPrompt;
+
+    const systemExtra = body.newsSource
+      ? "\n\nAll posts MUST anchor on the news story in the user message."
+      : "";
+
     const raw = await chatCompletionJson(llm, [
       {
         role: "system",
-        content: buildArticlesSystemPrompt(contentLanguage, emojiLevel),
+        content: `${buildArticlesSystemPrompt(contentLanguage, emojiLevel)}${systemExtra}`,
       },
       {
         role: "user",
-        content: `${body.personaPromptText}\n\n---\n\n${buildArticlesUserPrompt(
-          body.personaPromptText,
-          contentLanguage,
-          body.profileEnrichment,
-          emojiLevel,
-        )}`,
+        content: `${body.personaPromptText}\n\n---\n\n${userContent}`,
       },
     ]);
 
@@ -125,12 +154,7 @@ export async function POST(request: Request) {
         },
         {
           role: "user",
-          content: `${body.personaPromptText}\n\n---\n\n${buildArticlesUserPrompt(
-            body.personaPromptText,
-            contentLanguage,
-            body.profileEnrichment,
-            emojiLevel,
-          )}`,
+          content: `${body.personaPromptText}\n\n---\n\n${userContent}`,
         },
       ]);
       const retryParsed = parseLlmJson<{

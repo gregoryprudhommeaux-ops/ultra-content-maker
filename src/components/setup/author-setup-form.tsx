@@ -1,7 +1,8 @@
 "use client";
 
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
-import { SourceLinksEditor } from "@/components/setup/source-links-editor";
+import { InspirationsEditor } from "@/components/setup/inspirations-editor";
+import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { useAuth } from "@/components/auth/auth-provider";
 import { completeAuthorStep, getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
@@ -186,7 +187,17 @@ export function AuthorSetupForm() {
           </select>
         </div>
 
-        {user && <SourceLinksEditor userId={user.uid} />}
+        {user && (
+          <>
+            <MyPostsLinksEditor userId={user.uid} />
+            <InspirationsEditor
+              userId={user.uid}
+              showMyPosts={false}
+              showPersonaHint={false}
+              hidePageHeader
+            />
+          </>
+        )}
 
         <p className="text-xs text-ns-secondary">{t("optionalNote")}</p>
         {error && <p className="text-sm text-red-600">{error}</p>}

@@ -1,7 +1,9 @@
 "use client";
 
+import { ArticleIllustrationPanel } from "@/components/articles/article-illustration-panel";
 import { ArticleShareActions } from "@/components/articles/article-share-actions";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
+import { ToneEdgePicker } from "@/components/articles/tone-edge-picker";
 import { LinkedInCharCount } from "@/components/articles/linkedin-char-count";
 import {
   ButtonSpinner,
@@ -13,15 +15,17 @@ import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { getPersona } from "@/lib/workspace/persona";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
+  hasReviseInput,
   mergeRefinementWithDefaults,
   YES_NO_ONLY_QUESTIONS,
 } from "@/lib/articles/refinement";
+import { copyAndOpenLinkedInComposer } from "@/lib/linkedin/composer";
 import { formatHashtagsLine } from "@/lib/linkedin/hashtags";
 import {
   buildExportText,
   getArticle,
-  hasRefinementInput,
   markArticleRegenerated,
+  saveArticleIllustration,
   saveArticleRefinement,
   updateArticleContent,
   validateArticleWithCta,
@@ -35,11 +39,13 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import type {
   ArticleDoc,
+  ArticleIllustration,
   ArticleRefinement,
   CtaIntensity,
   CtaSuggestion,
   EmojiLevel,
   RefinementAnswer,
+  ToneEdge,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -50,6 +56,7 @@ export function ArticleEditor({ articleId }: Props) {
   const t = useTranslations("setup.articles.detail");
   const tRef = useTranslations("setup.articles.refinement");
   const tCta = useTranslations("setup.articles.cta");
+  const tIll = useTranslations("setup.articles.illustration");
   const { user, loading: authLoading } = useAuth();
   const [article, setArticle] = useState<ArticleDoc | null>(null);
   const [personaText, setPersonaText] = useState("");
@@ -58,6 +65,8 @@ export function ArticleEditor({ articleId }: Props) {
     null,
   );
   const [ctaLoading, setCtaLoading] = useState(false);
+  const [illustration, setIllustration] = useState<ArticleIllustration | null>(null);
+  const [illustrationLoading, setIllustrationLoading] = useState(false);
   const [pendingAction, setPendingAction] = useState<"revise" | "validate" | null>(
     null,
   );
@@ -120,6 +129,59 @@ export function ArticleEditor({ articleId }: Props) {
     }
   }, [user, article, personaText, tCta]);
 
+  const loadIllustrationSuggestions = useCallback(
+    async (force = false) => {
+      if (!user || !article) return;
+      if (!force && article.illustration) {
+        setIllustration(article.illustration);
+        return;
+      }
+      setIllustrationLoading(true);
+      setError(null);
+      try {
+        const auth = getClientAuth();
+        const token = auth ? await auth.currentUser?.getIdToken() : null;
+        const llmProfile = await getUserLlmProfile(user.uid);
+        if (!token || !llmProfile?.apiKey) return;
+
+        const res = await fetch("/api/articles/illustration-suggestions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contentLanguage: article.contentLanguage,
+            hook: article.hook,
+            body: article.body,
+            ps: article.ps,
+            scope: article.scope,
+            llm: {
+              provider: llmProfile.provider,
+              apiKey: llmProfile.apiKey,
+              model: llmProfile.model,
+            },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.illustration) {
+          setError(tIll("loadFailed"));
+          return;
+        }
+        await saveArticleIllustration(user.uid, article.id, data.illustration);
+        setIllustration(data.illustration);
+        setArticle((prev) =>
+          prev ? { ...prev, illustration: data.illustration } : prev,
+        );
+      } catch {
+        setError(tIll("loadFailed"));
+      } finally {
+        setIllustrationLoading(false);
+      }
+    },
+    [user, article, tIll],
+  );
+
   const load = useCallback(async () => {
     if (!user) return;
     const [a, p] = await Promise.all([
@@ -138,6 +200,7 @@ export function ArticleEditor({ articleId }: Props) {
     );
     setPersonaText(p?.promptText ?? "");
     if (a?.selectedCtaStyle) setSelectedCtaStyle(a.selectedCtaStyle);
+    setIllustration(a?.illustration ?? null);
     setLoaded(true);
   }, [user, articleId]);
 
@@ -147,8 +210,10 @@ export function ArticleEditor({ articleId }: Props) {
   }, [authLoading, load]);
 
   const ctaFetchedRef = useRef(false);
+  const illustrationFetchedRef = useRef(false);
   useEffect(() => {
     ctaFetchedRef.current = false;
+    illustrationFetchedRef.current = false;
   }, [articleId]);
 
   useEffect(() => {
@@ -164,6 +229,17 @@ export function ArticleEditor({ articleId }: Props) {
     ctaFetchedRef.current = true;
     loadCtaSuggestions();
   }, [loaded, article, personaText, loadCtaSuggestions]);
+
+  useEffect(() => {
+    if (!loaded || !article) return;
+    if (article.illustration) {
+      setIllustration(article.illustration);
+      return;
+    }
+    if (illustrationFetchedRef.current) return;
+    illustrationFetchedRef.current = true;
+    loadIllustrationSuggestions();
+  }, [loaded, article, loadIllustrationSuggestions]);
 
   function updateRefinement(patch: Partial<ArticleRefinement>) {
     if (!article?.refinement) return;
@@ -246,7 +322,9 @@ export function ArticleEditor({ articleId }: Props) {
       );
       const p = await getPersona(user.uid);
       if (p?.promptText) setPersonaText(p.promptText);
+      illustrationFetchedRef.current = false;
       await load();
+      await loadIllustrationSuggestions(true);
     } catch {
       setError(t("reviseFailed"));
     } finally {
@@ -256,7 +334,7 @@ export function ArticleEditor({ articleId }: Props) {
 
   async function onValidate() {
     if (!user || !article) return;
-    if (!article.refinement || !hasRefinementInput(article.refinement)) {
+    if (!article.refinement || !hasReviseInput(article.refinement)) {
       setError(t("needRefinement"));
       return;
     }
@@ -337,11 +415,16 @@ export function ArticleEditor({ articleId }: Props) {
     }
   }
 
-  async function onCopy() {
+  async function onCopyToLinkedIn() {
     if (!article?.exportText) return;
-    await navigator.clipboard.writeText(article.exportText);
+    const ok = await copyAndOpenLinkedInComposer(article.exportText);
+    if (!ok) {
+      setError(t("copyFailed"));
+      return;
+    }
+    setError(null);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 4000);
   }
 
   if (!loaded) {
@@ -370,6 +453,21 @@ export function ArticleEditor({ articleId }: Props) {
         ← {t("back")}
       </Link>
 
+      {article.newsSource && (
+        <div className="rounded-lg border border-sky-200/80 bg-sky-50/80 px-4 py-3 text-sm">
+          <p className="font-medium text-ns-tertiary">{t("newsAnchor")}</p>
+          <p className="mt-1 text-ns-secondary">{article.newsSource.title}</p>
+          <a
+            href={article.newsSource.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-xs font-medium text-sky-800 underline"
+          >
+            {t("readSource")}
+          </a>
+        </div>
+      )}
+
       <div className="rounded-2xl border border-gray-100 bg-ns-surface p-5">
         <p className="text-lg font-semibold text-ns-tertiary whitespace-pre-wrap">
           {article.hook}
@@ -391,6 +489,13 @@ export function ArticleEditor({ articleId }: Props) {
       </div>
 
       <ArticleShareActions article={article} />
+
+      <ArticleIllustrationPanel
+        illustration={illustration}
+        loading={illustrationLoading}
+        regenerateDisabled={isBusy}
+        onRegenerate={() => loadIllustrationSuggestions(true)}
+      />
 
       {!isValidated && article.refinement && (
         <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-5 space-y-5">
@@ -462,11 +567,25 @@ export function ArticleEditor({ articleId }: Props) {
               </div>
             );
           })}
+          <ToneEdgePicker
+            value={(article.refinement.toneEdge ?? "default") as ToneEdge}
+            onChange={(toneEdge) => updateRefinement({ toneEdge })}
+          />
           <EmojiLevelPicker
             variant="compact"
             value={(article.refinement.emojiLevel ?? "light") as EmojiLevel}
             onChange={(emojiLevel) => updateRefinement({ emojiLevel })}
           />
+          {(article.refinement.toneEdge ?? "default") === "corrosive" && (
+            <button
+              type="button"
+              disabled={isBusy}
+              onClick={onApplyFeedback}
+              className="w-full rounded-lg border border-ns-tertiary/30 bg-white px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50 sm:w-auto"
+            >
+              {isRevising ? tRef("toneEdgeApplying") : tRef("toneEdgeApply")}
+            </button>
+          )}
           <div>
             <label className={LABEL_CLASS}>{tRef("globalComment")}</label>
             <textarea
@@ -573,13 +692,18 @@ export function ArticleEditor({ articleId }: Props) {
           <pre className="whitespace-pre-wrap rounded-xl border border-gray-100 bg-ns-brand-light p-4 text-sm text-ns-tertiary">
             {article.exportText}
           </pre>
-          <button
-            type="button"
-            onClick={onCopy}
-            className="rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90"
-          >
-            {copied ? t("copied") : t("copyLinkedIn")}
-          </button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={onCopyToLinkedIn}
+              className="rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90"
+            >
+              {copied ? t("copied") : t("copyLinkedIn")}
+            </button>
+          </div>
+          <p className="text-xs font-medium leading-relaxed text-ns-secondary">
+            {t("copyLinkedInHint")}
+          </p>
         </div>
       )}
 

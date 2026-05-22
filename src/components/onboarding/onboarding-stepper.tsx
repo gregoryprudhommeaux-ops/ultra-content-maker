@@ -63,11 +63,19 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
-export function OnboardingStepper() {
+type Placement = "dashboard" | "settings";
+
+type Props = {
+  /** dashboard: hidden at 100 %. settings: compact block on Réglages only. */
+  placement?: Placement;
+};
+
+export function OnboardingStepper({ placement = "dashboard" }: Props) {
   const t = useTranslations("setup.onboarding");
   const tSteps = useTranslations("setup.steps");
   const { progress, loading } = useOnboardingProgress();
-  const [expanded, setExpanded] = useState(true);
+  const isSettings = placement === "settings";
+  const [expanded, setExpanded] = useState(!isSettings);
   const prevCompleteRef = useRef<boolean | null>(null);
 
   const isComplete =
@@ -78,13 +86,18 @@ export function OnboardingStepper() {
     const complete = progress.completedCount >= progress.steps.length;
     if (prevCompleteRef.current === complete) return;
     prevCompleteRef.current = complete;
-    setExpanded(!complete);
-  }, [progress?.completedCount, progress?.steps.length]);
+    setExpanded(isSettings ? false : !complete);
+  }, [progress?.completedCount, progress?.steps.length, isSettings]);
+
+  if (!isSettings && isComplete) {
+    return null;
+  }
 
   if (loading || !progress) {
+    if (isSettings) return null;
     return (
       <div
-        className="mb-8 h-24 animate-pulse rounded-2xl border border-gray-100 bg-ns-brand-light"
+        className="mb-4 h-16 animate-pulse rounded-xl border border-gray-100/80 bg-ns-brand-light/60"
         aria-hidden
       />
     );
@@ -95,11 +108,90 @@ export function OnboardingStepper() {
     total: progress.steps.length,
   });
 
+  if (isSettings) {
+    return (
+      <div className="mb-6 rounded-lg border border-gray-100/90 bg-ns-brand-light/50">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left hover:bg-ns-brand-light/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ns-primary/60"
+          aria-expanded={expanded}
+          aria-controls="onboarding-settings-panel"
+          onClick={() => setExpanded((o) => !o)}
+        >
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium text-ns-secondary">
+              {t("settingsSectionTitle")}
+            </p>
+            <p className="text-sm font-semibold text-ns-tertiary">
+              {isComplete
+                ? t("completeSummary")
+                : t("progressLabel", { percent: progress.percent })}
+            </p>
+            <p className="text-xs text-ns-secondary">{stepsSummary}</p>
+            <div
+              className="mt-2 h-1 overflow-hidden rounded-full bg-ns-brand-light"
+              role="progressbar"
+              aria-valuenow={progress.percent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className="h-full rounded-full bg-ns-primary/90"
+                style={{ width: `${progress.percent}%` }}
+              />
+            </div>
+          </div>
+          <ChevronIcon open={expanded} />
+        </button>
+        <div
+          id="onboarding-settings-panel"
+          className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+            expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <ol className="flex flex-wrap gap-2 border-t border-gray-100/80 px-3 py-2">
+              {progress.steps.map((step, i) => {
+                const label = tSteps(step.key);
+                const canNavigate =
+                  step.status === "complete" ||
+                  step.status === "current" ||
+                  step.status === "available";
+                const chip = (
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                      step.status === "complete"
+                        ? "bg-ns-primary/20 text-ns-tertiary"
+                        : step.status === "current"
+                          ? "border border-ns-primary/50 bg-white text-ns-tertiary"
+                          : "bg-white/80 text-ns-secondary"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                );
+                return canNavigate ? (
+                  <li key={step.key}>
+                    <Link href={step.href}>{chip}</Link>
+                  </li>
+                ) : (
+                  <li key={step.key} className="opacity-50">
+                    {chip}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mb-8 rounded-2xl border border-gray-100 bg-ns-surface shadow-sm">
+    <div className="mb-4 rounded-xl border border-gray-100/90 bg-ns-surface/80 shadow-sm">
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-ns-brand-light/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ns-primary/80 md:px-5 md:py-4"
+        className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-ns-brand-light/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ns-primary/80 md:px-4 md:py-3"
         aria-expanded={expanded}
         aria-controls="onboarding-stepper-panel"
         onClick={() => setExpanded((o) => !o)}

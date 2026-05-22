@@ -11,7 +11,7 @@ Routes are locale-prefixed: `/en/...`, `/fr/...`, `/es/...`.
 | # | Step | Goal |
 |---|------|------|
 | 1 | Sign up / log in | Firebase Auth |
-| 2 | Author (Moi) | Links: LinkedIn, site, blog, example **post URLs** |
+| 2 | Mon profil (Author) | Links: LinkedIn, site, blog, example **post URLs** |
 | 3 | Audience (Cible) | Short optional sketch — or **Skip** |
 | 4 | Persona | Generate **expert prompt** → edit → validate |
 | 5 | Articles | Generate **3–4** sample posts |
