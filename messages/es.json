@@ -509,6 +509,7 @@
       "emptyPending": "Ningún post pendiente. Genera un lote o consulta los validados.",
       "needPersona": "Valida tu Persona antes de generar posts.",
       "goPersona": "Ir a Persona →",
+      "goLlmSetup": "Configurar mi clave API →",
       "description": "Genera 3–4 posts de LinkedIn, refina con preguntas, elige un CTA y copia a LinkedIn.",
       "updateInspirations": "Actualizar mis inspiraciones",
       "news": {
@@ -608,17 +609,27 @@
         }
       },
       "slop": {
-        "title": "Detector AI-slop",
-        "subtitle": "Heurística local: clichés de LinkedIn / frases genéricas — sin llamada LLM.",
+        "title": "Frases genéricas (estilo IA / LinkedIn)",
+        "intro": "Este panel detecta fórmulas que todo el mundo ve en LinkedIn y que las IA repiten a menudo («game changer», «emocionado de compartir», lecciones numeradas, etc.). No es una nota global de calidad del post: es una señal para hacerlo más personal, concreto y creíble.",
+        "howItWorksTitle": "Cómo funciona",
+        "howItWorks": "La app compara tu texto con una lista integrada de patrones conocidos — análisis al instante, sin usar tu clave API. Las puntuaciones se actualizan al editar el gancho o el cuerpo.",
         "save": "Guardar análisis",
-        "humanScore": "Puntuación humana",
-        "slopScore": "Puntuación slop",
-        "warning": "Slop alto: reescribe con más prueba, nicho y voz personal antes de publicar.",
+        "saved": "Análisis guardado",
+        "humanScoreLabel": "Autenticidad percibida",
+        "humanScoreHelp": "Cuanto más alto (cerca de 10/10), menos clichés genéricos — el texto suena más humano.",
+        "slopScoreLabel": "Nivel de clichés",
+        "slopScoreHelp": "Cuanto más alto (cerca de 10/10), más frases tipo plantilla. Apunta a 1–3 antes de publicar.",
+        "guidanceClean": "Buena señal: sigue y añade prueba concreta (cifra, caso, observación de campo) y tu ángulo personal.",
+        "guidanceMild": "Conviene afinar: sustituye las expresiones listadas por tus palabras, un ejemplo vivido o una frase más directa.",
+        "guidanceHeavy": "Prioridad: reescribe los pasajes genéricos — usa Aplicar comentarios o las palancas de Calidad LinkedIn (más prueba, más nicho…).",
+        "flagsTitle": "Expresiones detectadas en este post",
+        "flagsHint": "Son formulaciones que tu lector ya ha visto muchas veces — reescríbelas con tu voz.",
+        "warning": "Muchos clichés detectados: reescribe con más prueba, un ángulo de nicho y una voz que te represente antes de publicar en LinkedIn.",
         "summary": {
-          "empty": "Texto vacío.",
-          "clean": "Pocas señales de slop.",
-          "mild_slop": "Algo de lenguaje genérico — conviene afinar.",
-          "heavy_slop": "Muchos clichés IA / LinkedIn — reescritura recomendada."
+          "empty": "Texto vacío — aún no hay nada que analizar.",
+          "clean": "Pocas frases genéricas: el tono parece bastante personal.",
+          "mild_slop": "Algo de lenguaje típico LinkedIn / IA — reformula para destacar.",
+          "heavy_slop": "Muchas frases genéricas — se recomienda una reescritura focalizada."
         },
         "flags": {
           "game_changer": "Game changer",
@@ -657,7 +668,9 @@
           "more_niche": "Más nicho",
           "conversation_end": "Cierre conversación",
           "less_generic": "Menos genérico"
-        }
+        },
+        "revising": "Revisando el post…",
+        "revisingHint": "La IA aplica la palanca elegida (30–60 s)."
       },
       "generateBatch": "Generar 4 posts",
       "generating": "Generando posts…",
@@ -726,7 +739,7 @@
         "niche": "Nicho"
       },
       "scopeLegend": "2 posts generalistas · 2 posts nicho",
-      "scopeMix": "{generalist} generalista · {niche} nicho",
+      "scopeMix": "{generalist, plural, one {# post generalista} other {# posts generalistas}} · {niche, plural, one {# post nicho} other {# posts nicho}}",
       "postIndex": "Post {index}",
       "toneEdge": {
         "label": "Línea editorial del post",
@@ -760,8 +773,10 @@
         "notFound": "Post no encontrado.",
         "applyFeedback": "Aplicar feedback y regenerar",
         "reviseFailed": "Error al revisar. Inténtalo de nuevo.",
+        "reviseFailedHint": "Comprueba tu clave API (Ajustes), espera 30–60 s o acorta el comentario global. Usa Aplicar comentarios en Afinar, no Validar.",
         "needRefinement": "Responde al menos una pregunta, activa el tono contrario, añade un comentario o indica la noticia si eliges Sí.",
         "validateFailed": "No se pudo validar el post.",
+        "validateFailedHint": "Elige un CTA, comprueba la clave API e inténtalo de nuevo. Validar prepara el texto para LinkedIn sin reescribir todo el post.",
         "ctaTitle": "Firma / CTA",
         "ctaOrCreate": "Elige un CTA existente o crea uno:",
         "ctaLabel": "Nombre del CTA",

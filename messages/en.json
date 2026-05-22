@@ -509,6 +509,7 @@
       "emptyPending": "No pending posts. Generate a batch or view validated posts.",
       "needPersona": "Validate your Persona before generating posts.",
       "goPersona": "Go to Persona →",
+      "goLlmSetup": "Configure my API key →",
       "description": "Generate 3–4 LinkedIn posts, refine with guided questions, pick a CTA, and copy to LinkedIn.",
       "updateInspirations": "Update my inspirations",
       "news": {
@@ -608,17 +609,27 @@
         }
       },
       "slop": {
-        "title": "AI-slop detector",
-        "subtitle": "Local heuristic: LinkedIn clichés / generic phrasing — no LLM call.",
+        "title": "Generic phrasing (AI / LinkedIn style)",
+        "intro": "This panel flags wording everyone sees on LinkedIn and that AI tools often reuse (“game changer”, “excited to share”, numbered lessons, etc.). It is not an overall quality grade for your post — only a signal to make it more personal, concrete, and credible.",
+        "howItWorksTitle": "How it works",
+        "howItWorks": "The app compares your text to a built-in list of known patterns — instant analysis, no API key used. Scores update as soon as you edit the hook or body.",
         "save": "Save analysis",
-        "humanScore": "Human score",
-        "slopScore": "Slop score",
-        "warning": "High slop: rewrite with more proof, niche, and personal voice before publishing.",
+        "saved": "Analysis saved",
+        "humanScoreLabel": "Perceived authenticity",
+        "humanScoreHelp": "Higher (near 10/10) means fewer generic clichés detected — the post sounds more like a real person wrote it.",
+        "slopScoreLabel": "Cliché level",
+        "slopScoreHelp": "Higher (near 10/10) means more template-style phrases. Aim for 1–3 before you publish.",
+        "guidanceClean": "Good sign: keep going and add concrete proof (metric, case study, field observation) plus your personal angle.",
+        "guidanceMild": "Worth refining: replace flagged phrases with your own words, a lived example, or a more direct line.",
+        "guidanceHeavy": "Priority: rewrite generic passages — use Apply feedback or the LinkedIn Quality levers (more proof, more niche…).",
+        "flagsTitle": "Phrases flagged in this post",
+        "flagsHint": "These are lines readers have already seen many times — rework them in your voice.",
+        "warning": "Many clichés detected: rewrite with more proof, a niche angle, and a voice that sounds like you before posting on LinkedIn.",
         "summary": {
-          "empty": "Empty text.",
-          "clean": "Few slop signals detected.",
-          "mild_slop": "Some generic phrasing — consider tightening.",
-          "heavy_slop": "Many AI / LinkedIn clichés — rewrite recommended."
+          "empty": "Empty text — nothing to analyze yet.",
+          "clean": "Few generic phrases: tone feels fairly personal.",
+          "mild_slop": "Some typical LinkedIn / AI wording — rephrase to stand out.",
+          "heavy_slop": "Many generic phrases — a focused rewrite is recommended."
         },
         "flags": {
           "game_changer": "Game changer",
@@ -657,7 +668,9 @@
           "more_niche": "More niche",
           "conversation_end": "Discussion ending",
           "less_generic": "Less generic"
-        }
+        },
+        "revising": "Revising post…",
+        "revisingHint": "AI is applying the selected lever (30–60 s)."
       },
       "generateBatch": "Generate 4 posts",
       "generating": "Generating posts…",
@@ -726,7 +739,7 @@
         "niche": "Niche"
       },
       "scopeLegend": "2 generalist posts · 2 niche posts",
-      "scopeMix": "{generalist} generalist · {niche} niche",
+      "scopeMix": "{generalist, plural, one {# generalist post} other {# generalist posts}} · {niche, plural, one {# niche post} other {# niche posts}}",
       "postIndex": "Post {index}",
       "toneEdge": {
         "label": "Post editorial line",
@@ -760,8 +773,10 @@
         "notFound": "Post not found.",
         "applyFeedback": "Apply feedback and regenerate",
         "reviseFailed": "Revision failed. Try again.",
+        "reviseFailedHint": "Check your API key (Settings), wait 30–60 s, or shorten the global comment. Use Apply feedback in Refine — not Validate.",
         "needRefinement": "Answer at least one question, enable contrarian tone, add a comment, or provide news details if you choose Yes.",
         "validateFailed": "Could not validate the post.",
+        "validateFailedHint": "Pick a CTA, check your API key, then try again. Validation prepares the LinkedIn copy (hashtags + export) without rewriting the whole post.",
         "ctaTitle": "Signature / CTA",
         "ctaOrCreate": "Pick an existing CTA or create one:",
         "ctaLabel": "CTA name",

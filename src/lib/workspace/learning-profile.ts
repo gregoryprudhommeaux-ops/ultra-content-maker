@@ -238,9 +238,15 @@ export function entriesFromRefinement(
   }
 
   if (refinement.globalComment?.trim()) {
+    const globalLabels: Record<ContentLanguage, string> = {
+      fr: "Commentaire global",
+      en: "Global comment",
+      es: "Comentario global",
+    };
+    const prefix = globalLabels[lang] ?? globalLabels.en;
     out.push({
       source: "article_refinement",
-      text: `Commentaire global: ${refinement.globalComment.trim()}`,
+      text: `${prefix}: ${refinement.globalComment.trim()}`,
     });
   }
 

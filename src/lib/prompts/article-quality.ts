@@ -49,16 +49,5 @@ export function buildArticleQualityUserPrompt(input: {
   );
 }
 
-export const REVISE_INTENT_PROMPTS: Record<
-  "more_proof" | "more_niche" | "conversation_end" | "less_generic",
-  string
-> = {
-  more_proof:
-    "Add a stronger concrete proof element (case, metric, or field observation). Keep voice and scope.",
-  more_niche:
-    "Make the post clearly more niche-specific for the ICP; reduce generic platitudes.",
-  conversation_end:
-    "Rewrite the closing to invite thoughtful comments from the target audience — no engagement bait.",
-  less_generic:
-    "Remove AI slop and clichés; sharpen the human point of view; keep facts and structure.",
-};
+export type { ReviseIntent } from "@/lib/prompts/revise-intent-prompts";
+export { REVISE_INTENTS, getReviseIntentPrompt } from "@/lib/prompts/revise-intent-prompts";

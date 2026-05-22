@@ -6,7 +6,10 @@ import { ArticlePerformancePanel } from "@/components/articles/article-performan
 import { ArticleQualityPanel } from "@/components/articles/article-quality-panel";
 import { ArticleSlopPanel } from "@/components/articles/article-slop-panel";
 import { ArticleShareActions } from "@/components/articles/article-share-actions";
-import { REVISE_INTENT_PROMPTS } from "@/lib/prompts/article-quality";
+import {
+  getReviseIntentPrompt,
+  type ReviseIntent,
+} from "@/lib/prompts/revise-intent-prompts";
 import { bodyContainsExternalLink } from "@/lib/linkedin/body-links";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
 import { ToneEdgePicker } from "@/components/articles/tone-edge-picker";
@@ -44,6 +47,7 @@ import {
   recordArticleValidateFeedback,
 } from "@/lib/persona/sync-persona-from-feedback";
 import { getClientAuth } from "@/lib/firebase/client";
+import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import type {
@@ -51,6 +55,7 @@ import type {
   ArticleIllustration,
   ArticleQualityScores,
   ArticleRefinement,
+  ArticleScope,
   CtaIntensity,
   CtaSuggestion,
   EmojiLevel,
@@ -64,6 +69,7 @@ type Props = { articleId: string };
 
 export function ArticleEditor({ articleId }: Props) {
   const t = useTranslations("setup.articles.detail");
+  const tArticles = useTranslations("setup.articles");
   const tRef = useTranslations("setup.articles.refinement");
   const tCta = useTranslations("setup.articles.cta");
   const tIll = useTranslations("setup.articles.illustration");
@@ -82,6 +88,7 @@ export function ArticleEditor({ articleId }: Props) {
     null,
   );
   const [error, setError] = useState<string | null>(null);
+  const [errorScope, setErrorScope] = useState<"refine" | "cta" | null>(null);
   const [copied, setCopied] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [qualityLoading, setQualityLoading] = useState(false);
@@ -148,14 +155,14 @@ export function ArticleEditor({ articleId }: Props) {
   }, [user, article, personaText, tCta]);
 
   const loadIllustrationSuggestions = useCallback(
-    async (force = false) => {
+    async (force = false, opts?: { quiet?: boolean }) => {
       if (!user || !article) return;
       if (!force && article.illustration) {
         setIllustration(article.illustration);
         return;
       }
       setIllustrationLoading(true);
-      setError(null);
+      if (!opts?.quiet) setError(null);
       try {
         const auth = getClientAuth();
         const token = auth ? await auth.currentUser?.getIdToken() : null;
@@ -183,7 +190,7 @@ export function ArticleEditor({ articleId }: Props) {
         });
         const data = await res.json();
         if (!res.ok || !data.illustration) {
-          setError(tIll("loadFailed"));
+          if (!opts?.quiet) setError(tIll("loadFailed"));
           return;
         }
         await saveArticleIllustration(user.uid, article.id, data.illustration);
@@ -192,7 +199,7 @@ export function ArticleEditor({ articleId }: Props) {
           prev ? { ...prev, illustration: data.illustration } : prev,
         );
       } catch {
-        setError(tIll("loadFailed"));
+        if (!opts?.quiet) setError(tIll("loadFailed"));
       } finally {
         setIllustrationLoading(false);
       }
@@ -210,9 +217,7 @@ export function ArticleEditor({ articleId }: Props) {
       a
         ? {
             ...a,
-            refinement: a.refinement
-              ? mergeRefinementWithDefaults(a.refinement)
-              : a.refinement,
+            refinement: mergeRefinementWithDefaults(a.refinement),
           }
         : null,
     );
@@ -234,6 +239,21 @@ export function ArticleEditor({ articleId }: Props) {
   const illustrationFetchedRef = useRef(false);
   const refinementSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const refinementSyncGenRef = useRef(0);
+  const refineSectionRef = useRef<HTMLDivElement>(null);
+  const ctaSectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToRefineSection = useCallback(() => {
+    refineSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const scrollToCtaSection = useCallback(() => {
+    ctaSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  function getMergedRefinement(): ArticleRefinement | null {
+    if (!article) return null;
+    return mergeRefinementWithDefaults(article.refinement);
+  }
   useEffect(() => {
     ctaFetchedRef.current = false;
     illustrationFetchedRef.current = false;
@@ -300,10 +320,11 @@ export function ArticleEditor({ articleId }: Props) {
   }, [user, article?.id, article?.refinement, article?.status, article?.contentLanguage]);
 
   function updateRefinement(patch: Partial<ArticleRefinement>) {
-    if (!article?.refinement) return;
+    if (!article) return;
+    const base = mergeRefinementWithDefaults(article.refinement);
     setArticle({
       ...article,
-      refinement: { ...article.refinement, ...patch },
+      refinement: { ...base, ...patch },
     });
   }
 
@@ -311,15 +332,17 @@ export function ArticleEditor({ articleId }: Props) {
     qId: string,
     patch: { answer?: RefinementAnswer; comment?: string },
   ) {
-    if (!article?.refinement) return;
-    const questions = article.refinement.questions.map((q) => {
+    if (!article) return;
+    const refinement = mergeRefinementWithDefaults(article.refinement);
+    const questions = refinement.questions.map((q) => {
       if (q.id !== qId) return q;
       const next = { ...q };
       if ("answer" in patch) {
         next.answer = patch.answer;
       }
       if ("comment" in patch) {
-        next.comment = patch.comment?.trim() || undefined;
+        const raw = patch.comment;
+        next.comment = raw === undefined || raw === "" ? undefined : raw;
       }
       return next;
     });
@@ -327,14 +350,21 @@ export function ArticleEditor({ articleId }: Props) {
   }
 
   const loadQualityAnalysis = useCallback(async () => {
-    if (!user || !article || !personaText) return;
+    if (!user || !article) return;
+    if (!personaText.trim()) {
+      setError(tArticles("needPersona"));
+      return;
+    }
     setQualityLoading(true);
     setError(null);
     try {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       const llmProfile = await getUserLlmProfile(user.uid);
-      if (!token || !llmProfile?.apiKey) return;
+      if (!token || !llmProfile?.apiKey) {
+        setError(tArticles("noLlmKey"));
+        return;
+      }
 
       const res = await fetch("/api/articles/quality", {
         method: "POST",
@@ -387,19 +417,47 @@ export function ArticleEditor({ articleId }: Props) {
     } finally {
       setQualityLoading(false);
     }
-  }, [user, article, personaText, tQuality]);
+  }, [user, article, personaText, tQuality, tArticles]);
+
+  function setReviseError(message: string) {
+    setError(message);
+    setErrorScope("refine");
+    scrollToRefineSection();
+  }
+
+  function setValidateError(message: string) {
+    setError(message);
+    setErrorScope("cta");
+    scrollToCtaSection();
+  }
+
+  function clearActionError() {
+    setError(null);
+    setErrorScope(null);
+  }
 
   async function runRevise(refinement: ArticleRefinement) {
-    if (!user || !article || !personaText) return;
+    if (!user || !article) return;
+    if (!hasReviseInput(refinement)) {
+      setReviseError(t("needRefinement"));
+      return;
+    }
+    if (!personaText.trim()) {
+      setReviseError(tArticles("needPersona"));
+      return;
+    }
     setPendingAction("revise");
-    setError(null);
+    clearActionError();
     try {
       await saveArticleRefinement(user.uid, article.id, refinement, "refining");
 
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       const llmProfile = await getUserLlmProfile(user.uid);
-      if (!token || !llmProfile?.apiKey) throw new Error("auth");
+      if (!token || !llmProfile?.apiKey) {
+        setReviseError(tArticles("noLlmKey"));
+        return;
+      }
 
       const res = await fetch("/api/articles/revise", {
         method: "POST",
@@ -425,13 +483,39 @@ export function ArticleEditor({ articleId }: Props) {
           },
         }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as {
+        error?: string;
+        detail?: string;
+        hook?: string;
+        body?: string;
+        ps?: string;
+        scope?: string;
+        hashtags?: string[];
+      };
       if (!res.ok) {
-        setError(t("reviseFailed"));
+        const detail = String(data.detail ?? data.error ?? "");
+        if (data.error === "no_llm_key") {
+          setReviseError(tArticles("noLlmKey"));
+        } else if (isInvalidApiKeyError(detail)) {
+          setReviseError(tArticles("invalidApiKey"));
+        } else {
+          setReviseError(t("reviseFailed"));
+        }
         return;
       }
 
-      await updateArticleContent(user.uid, article.id, data);
+      if (!data.body?.trim()) {
+        setReviseError(t("reviseFailed"));
+        return;
+      }
+
+      await updateArticleContent(user.uid, article.id, {
+        hook: data.hook?.trim() ?? article.hook,
+        body: data.body.trim(),
+        ps: data.ps?.trim() || undefined,
+        scope: (data.scope as ArticleScope | undefined) ?? article.scope,
+        hashtags: Array.isArray(data.hashtags) ? data.hashtags : article.hashtags,
+      });
       await markArticleRegenerated(user.uid, article.id, refinement);
       await recordArticleRefinementFeedback(
         user.uid,
@@ -443,24 +527,25 @@ export function ArticleEditor({ articleId }: Props) {
       if (p?.promptText) setPersonaText(p.promptText);
       illustrationFetchedRef.current = false;
       await load();
-      await loadIllustrationSuggestions(true);
+      void loadIllustrationSuggestions(true, { quiet: true });
     } catch {
-      setError(t("reviseFailed"));
+      setReviseError(t("reviseFailed"));
     } finally {
       setPendingAction(null);
     }
   }
 
   async function onApplyFeedback() {
-    if (!article?.refinement) return;
-    await runRevise(article.refinement);
+    const refinement = getMergedRefinement();
+    if (!refinement) return;
+    await runRevise(refinement);
   }
 
-  async function onReviseIntent(intent: keyof typeof REVISE_INTENT_PROMPTS) {
-    if (!article?.refinement) return;
+  async function onReviseIntent(intent: ReviseIntent) {
+    if (!article) return;
     const refinement: ArticleRefinement = {
-      ...article.refinement,
-      globalComment: REVISE_INTENT_PROMPTS[intent],
+      ...mergeRefinementWithDefaults(article.refinement),
+      globalComment: getReviseIntentPrompt(intent, article.contentLanguage),
     };
     setArticle({ ...article, refinement });
     await runRevise(refinement);
@@ -480,17 +565,22 @@ export function ArticleEditor({ articleId }: Props) {
 
   async function onValidate() {
     if (!user || !article) return;
-    if (!article.refinement || !hasReviseInput(article.refinement)) {
-      setError(t("needRefinement"));
+    const refinement = getMergedRefinement();
+    if (!refinement || !hasReviseInput(refinement)) {
+      setValidateError(t("needRefinement"));
       return;
     }
     const chosen = ctaSuggestions.find((s) => s.style === selectedCtaStyle);
     if (!chosen) {
-      setError(tCta("pickOne"));
+      setValidateError(tCta("pickOne"));
+      return;
+    }
+    if (!personaText.trim()) {
+      setValidateError(tArticles("needPersona"));
       return;
     }
     setPendingAction("validate");
-    setError(null);
+    clearActionError();
     try {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
@@ -498,33 +588,53 @@ export function ArticleEditor({ articleId }: Props) {
         getProfileEnrichment(user.uid),
         getUserLlmProfile(user.uid),
       ]);
-      if (!token || !llmProfile?.apiKey) throw new Error("auth");
+      if (!token) {
+        setValidateError(t("validateFailed"));
+        return;
+      }
 
       let hashtags = article.hashtags ?? [];
-      const tagRes = await fetch("/api/articles/hashtags", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          personaPromptText: personaText,
-          contentLanguage: article.contentLanguage,
-          hook: article.hook,
-          body: article.body,
-          ps: article.ps,
-          ctaText: chosen.text,
-          profileEnrichment: enrichment?.details ?? {},
-          llm: {
-            provider: llmProfile.provider,
-            apiKey: llmProfile.apiKey,
-            model: llmProfile.model,
+      if (llmProfile?.apiKey) {
+        const tagRes = await fetch("/api/articles/hashtags", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-        }),
-      });
-      const tagData = await tagRes.json();
-      if (tagRes.ok && tagData.hashtags?.length) {
-        hashtags = tagData.hashtags;
+          body: JSON.stringify({
+            personaPromptText: personaText,
+            contentLanguage: article.contentLanguage,
+            hook: article.hook,
+            body: article.body,
+            ps: article.ps,
+            ctaText: chosen.text,
+            profileEnrichment: enrichment?.details ?? {},
+            llm: {
+              provider: llmProfile.provider,
+              apiKey: llmProfile.apiKey,
+              model: llmProfile.model,
+            },
+          }),
+        });
+        const tagData = (await tagRes.json()) as {
+          hashtags?: string[];
+          error?: string;
+          detail?: string;
+        };
+        if (tagRes.ok && tagData.hashtags?.length) {
+          hashtags = tagData.hashtags;
+        } else if (!tagRes.ok) {
+          const detail = String(tagData.detail ?? tagData.error ?? "");
+          if (tagData.error === "no_llm_key" || !llmProfile.apiKey) {
+            setValidateError(tArticles("noLlmKey"));
+            return;
+          }
+          if (isInvalidApiKeyError(detail)) {
+            setValidateError(tArticles("invalidApiKey"));
+            return;
+          }
+          /* Hashtags optionnels : on valide quand même avec les tags existants */
+        }
       }
 
       const exportText = buildExportText(
@@ -545,18 +655,21 @@ export function ArticleEditor({ articleId }: Props) {
         },
         hashtags,
       );
-      if (article.refinement) {
+      try {
         await recordArticleValidateFeedback(
           user.uid,
           article.id,
-          article.refinement,
+          refinement,
           article.contentLanguage,
           chosen.style,
         );
+      } catch {
+        /* La validation LinkedIn ne doit pas échouer si la sync Persona rate */
       }
+      clearActionError();
       await load();
     } catch {
-      setError(t("validateFailed"));
+      setValidateError(t("validateFailed"));
     } finally {
       setPendingAction(null);
     }
@@ -593,6 +706,10 @@ export function ArticleEditor({ articleId }: Props) {
   const isRevising = pendingAction === "revise";
   const isValidating = pendingAction === "validate";
   const isBusy = pendingAction !== null;
+  const mergedRefinement = getMergedRefinement();
+  const canApplyFeedback = mergedRefinement
+    ? hasReviseInput(mergedRefinement)
+    : false;
   const hasBodyLink =
     bodyContainsExternalLink(article.body) ||
     (article.ps ? bodyContainsExternalLink(article.ps) : false);
@@ -685,8 +802,36 @@ export function ArticleEditor({ articleId }: Props) {
       />
 
       {!isValidated && article.refinement && (
-        <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-5 space-y-5">
+        <div
+          ref={refineSectionRef}
+          className="rounded-xl border border-gray-100 bg-ns-brand-light p-5 space-y-5"
+        >
           <h2 className="text-base font-semibold text-ns-tertiary">{tRef("title")}</h2>
+          {error && errorScope === "refine" && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <p>{error}</p>
+              {error === t("reviseFailed") && (
+                <p className="mt-1 text-xs font-normal">{t("reviseFailedHint")}</p>
+              )}
+              {(error === tArticles("noLlmKey") ||
+                error === tArticles("invalidApiKey") ||
+                error === tArticles("needPersona")) && (
+                <p className="mt-2">
+                  <Link
+                    href={
+                      error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+                    }
+                    className="font-medium underline"
+                  >
+                    →{" "}
+                    {error === tArticles("needPersona")
+                      ? tArticles("goPersona")
+                      : tArticles("goLlmSetup")}
+                  </Link>
+                </p>
+              )}
+            </div>
+          )}
           {article.refinement.questions.map((q) => {
             const yesNoOnly = YES_NO_ONLY_QUESTIONS.has(q.id);
             const answerOptions: RefinementAnswer[] = yesNoOnly
@@ -791,20 +936,26 @@ export function ArticleEditor({ articleId }: Props) {
           )}
           <button
             type="button"
-            disabled={isBusy}
-            onClick={onApplyFeedback}
-            className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate px-4 py-2 text-sm font-medium hover:bg-white disabled:opacity-50"
+            disabled={isBusy || (!canApplyFeedback && !isRevising)}
+            onClick={() => void onApplyFeedback()}
+            className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isRevising && (
               <ButtonSpinner className="border-ns-alternate border-t-zinc-800" />
             )}
             {isRevising ? t("revising") : t("applyFeedback")}
           </button>
+          {!canApplyFeedback && !isRevising && (
+            <p className="text-xs text-ns-secondary">{t("needRefinement")}</p>
+          )}
         </div>
       )}
 
       {!isValidated && (
-        <div className="rounded-xl border border-gray-100 p-5 space-y-4">
+        <div
+          ref={ctaSectionRef}
+          className="rounded-xl border border-gray-100 p-5 space-y-4"
+        >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-base font-semibold text-ns-tertiary">{tCta("title")}</h2>
             <button
@@ -861,12 +1012,37 @@ export function ArticleEditor({ articleId }: Props) {
           <button
             type="button"
             disabled={isBusy || ctaLoading || !selectedCtaStyle}
-            onClick={onValidate}
+            onClick={() => void onValidate()}
             className="inline-flex items-center gap-2 rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
           >
             {isValidating && <ButtonSpinner />}
             {isValidating ? t("validating") : t("validate")}
           </button>
+          {error && errorScope === "cta" && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <p>{error}</p>
+              {error === t("validateFailed") && (
+                <p className="mt-1 text-xs font-normal">{t("validateFailedHint")}</p>
+              )}
+              {(error === tArticles("noLlmKey") ||
+                error === tArticles("invalidApiKey") ||
+                error === tArticles("needPersona")) && (
+                <p className="mt-2">
+                  <Link
+                    href={
+                      error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+                    }
+                    className="font-medium underline"
+                  >
+                    →{" "}
+                    {error === tArticles("needPersona")
+                      ? tArticles("goPersona")
+                      : tArticles("goLlmSetup")}
+                  </Link>
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -905,7 +1081,11 @@ export function ArticleEditor({ articleId }: Props) {
         />
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && isValidated && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

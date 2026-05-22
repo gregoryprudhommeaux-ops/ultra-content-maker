@@ -370,6 +370,8 @@ export function ArticlesHub() {
         loading={newsLoading}
         onRefresh={loadNews}
         perplexityHint={newsHintPerplexity}
+        onGenerateBatch={onGenerate}
+        generatingBatch={pending}
       />
 
       {selectedNews && (

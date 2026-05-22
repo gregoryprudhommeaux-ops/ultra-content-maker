@@ -509,6 +509,7 @@
       "emptyPending": "Aucun post en attente. Générez un lot ou consultez les posts validés.",
       "needPersona": "Validez votre Persona avant de générer des posts.",
       "goPersona": "Aller au Persona →",
+      "goLlmSetup": "Configurer ma clé API →",
       "description": "Générez 3–4 posts LinkedIn, affinez avec des questions, choisissez un CTA, copiez sur LinkedIn.",
       "updateInspirations": "Mettre à jour mes inspirations",
       "news": {
@@ -526,7 +527,7 @@
         "pickOne": "Choisissez une actualité avant de générer.",
         "generateFromNews": "Générer 4 posts depuis cette actu",
         "generatingFromNews": "Génération depuis l’actu…",
-        "generateFromNewsHint": "2 posts généralistes + 2 niche, tous ancrés sur cette actualité.",
+        "generateFromNewsHint": "2 posts généralistes + 2 posts niches, tous ancrés sur cette actualité.",
         "previousNews": "News précédentes"
       },
       "briefIncomplete": "Complétez le brief post (objectif, problème, point de vue et preuve) avant de générer.",
@@ -608,17 +609,27 @@
         }
       },
       "slop": {
-        "title": "Détecteur AI-slop",
-        "subtitle": "Heuristique locale : clichés LinkedIn / formulations génériques — sans appel LLM.",
+        "title": "Formulations génériques (style IA / LinkedIn)",
+        "intro": "Ce panneau repère les tournures que tout le monde voit sur LinkedIn et que les IA recopient souvent (« game changer », « ravi de partager », leçons numérotées, etc.). Ce n’est pas une note de qualité globale du post : c’est un signal pour le rendre plus personnel, concret et crédible.",
+        "howItWorksTitle": "Comment ça marche",
+        "howItWorks": "L’app compare votre texte à une liste de formules connues — analyse instantanée, sans appel à votre clé API. Les scores se mettent à jour dès que vous modifiez l’accroche ou le corps du post.",
         "save": "Enregistrer l’analyse",
-        "humanScore": "Score humain",
-        "slopScore": "Score slop",
-        "warning": "Slop élevé : réécrivez avec plus de preuve, niche et voix personnelle avant publication.",
+        "saved": "Analyse enregistrée",
+        "humanScoreLabel": "Authenticité perçue",
+        "humanScoreHelp": "Plus ce score est haut (proche de 10/10), moins le texte ressemble à un modèle générique. Il monte quand peu de clichés sont détectés.",
+        "slopScoreLabel": "Niveau de clichés",
+        "slopScoreHelp": "Plus ce score est haut (proche de 10/10), plus le texte contient de formules « template ». Visez 1–3 avant de publier.",
+        "guidanceClean": "Bon signal : continuez en ajoutant une preuve concrète (chiffre, cas, observation terrain) et votre angle personnel.",
+        "guidanceMild": "À affiner : remplacez les expressions listées ci-dessous par vos propres mots, un exemple vécu ou une formulation plus directe.",
+        "guidanceHeavy": "Priorité : réécrivez les passages génériques, utilisez « Appliquer les retours » ou les boutons du panneau Qualité LinkedIn (plus de preuve, plus niche…).",
+        "flagsTitle": "Expressions repérées dans ce post",
+        "flagsHint": "Survolez ou relisez ces passages : ce sont des formulations que votre lecteur a déjà vues des dizaines de fois.",
+        "warning": "Beaucoup de clichés détectés : réécrivez avec plus de preuve, un angle niche et une voix qui vous ressemble avant de publier sur LinkedIn.",
         "summary": {
-          "empty": "Texte vide.",
-          "clean": "Peu de signaux slop détectés.",
-          "mild_slop": "Quelques formules génériques — à alléger.",
-          "heavy_slop": "Nombreux clichés IA / LinkedIn — réécriture recommandée."
+          "empty": "Texte vide — rien à analyser pour l’instant.",
+          "clean": "Peu de formulations génériques : le ton paraît plutôt personnel.",
+          "mild_slop": "Quelques formules type LinkedIn / IA — à reformuler pour vous démarquer.",
+          "heavy_slop": "Nombreuses formules génériques — une réécriture ciblée est recommandée."
         },
         "flags": {
           "game_changer": "Game changer",
@@ -657,7 +668,9 @@
           "more_niche": "Plus niche",
           "conversation_end": "Fin discussion",
           "less_generic": "Moins générique"
-        }
+        },
+        "revising": "Révision du post en cours…",
+        "revisingHint": "L’IA applique le levier choisi (30–60 s)."
       },
       "generateBatch": "Générer 4 posts",
       "generating": "Génération des posts…",
@@ -725,8 +738,8 @@
         "generalist": "Généraliste",
         "niche": "Niche"
       },
-      "scopeLegend": "2 posts généralistes · 2 posts niche",
-      "scopeMix": "{generalist} généraliste · {niche} niche",
+      "scopeLegend": "2 posts généralistes · 2 posts niches",
+      "scopeMix": "{generalist, plural, one {# post généraliste} other {# posts généralistes}} · {niche, plural, one {# post niche} other {# posts niches}}",
       "postIndex": "Post {index}",
       "toneEdge": {
         "label": "Ligne éditoriale du post",
@@ -760,8 +773,10 @@
         "notFound": "Post introuvable.",
         "applyFeedback": "Appliquer les retours et régénérer",
         "reviseFailed": "Échec de la révision. Réessayez.",
+        "reviseFailedHint": "Vérifiez votre clé API (Réglages), attendez 30–60 s, ou simplifiez le commentaire global. Utilisez « Appliquer les retours » dans la section Affiner, pas Valider.",
         "needRefinement": "Répondez à au moins une question, activez le ton à contre-pied, ajoutez un commentaire, ou précisez une actu si vous choisissez Oui.",
         "validateFailed": "Impossible de valider le post.",
+        "validateFailedHint": "Choisissez un CTA, vérifiez la clé API, puis réessayez. La validation prépare le texte LinkedIn (hashtags + export) sans régénérer tout le post.",
         "ctaTitle": "Signature / CTA",
         "ctaOrCreate": "Choisissez un CTA existant ou créez-en un :",
         "ctaLabel": "Nom du CTA",
@@ -800,7 +815,7 @@
       "pickOne": "Choisissez une actualité avant de générer.",
       "generateFromNews": "Générer 2 posts depuis cette actu",
       "generatingFromNews": "Génération depuis l'actu…",
-      "generateFromNewsHint": "1 post généraliste + 1 niche, tous ancrés sur cette actualité.",
+      "generateFromNewsHint": "1 post généraliste + 1 post niche, tous ancrés sur cette actualité.",
       "generatingHint": "L'IA rédige 2 posts selon votre Persona (30–60 s)."
     }
   },

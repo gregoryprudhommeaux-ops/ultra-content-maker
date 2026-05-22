@@ -1,6 +1,10 @@
 "use client";
 
-import { REVISE_INTENT_PROMPTS } from "@/lib/prompts/article-quality";
+import { REVISE_INTENTS, type ReviseIntent } from "@/lib/prompts/revise-intent-prompts";
+import {
+  ButtonSpinner,
+  GeneratingIndicator,
+} from "@/components/ui/generating-indicator";
 import type { ArticleQualityScores, ArticleDoc } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 
@@ -12,7 +16,7 @@ type Props = {
   loading: boolean;
   onAnalyze: () => void;
   onApplyHook: (hook: string) => void;
-  onReviseIntent: (intent: keyof typeof REVISE_INTENT_PROMPTS) => void;
+  onReviseIntent: (intent: ReviseIntent) => void;
   revising: boolean;
 };
 
@@ -112,19 +116,29 @@ export function ArticleQualityPanel({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-3">
-        {(Object.keys(REVISE_INTENT_PROMPTS) as (keyof typeof REVISE_INTENT_PROMPTS)[]).map(
-          (intent) => (
-            <button
-              key={intent}
-              type="button"
-              disabled={revising || loading}
-              onClick={() => onReviseIntent(intent)}
-              className="rounded-lg border border-gray-100 bg-white px-3 py-2 text-xs font-medium text-ns-tertiary hover:border-ns-primary/40 disabled:opacity-50"
-            >
-              {t(`actions.${intent}`)}
-            </button>
-          ),
+      <div className="space-y-3 border-t border-gray-100 pt-3">
+        <div className="flex flex-wrap gap-2">
+          {REVISE_INTENTS.map(
+            (intent) => (
+              <button
+                key={intent}
+                type="button"
+                disabled={revising || loading}
+                onClick={() => onReviseIntent(intent)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-white px-3 py-2 text-xs font-medium text-ns-tertiary hover:border-ns-primary/40 disabled:opacity-50"
+              >
+                {revising && <ButtonSpinner className="h-3 w-3 border-ns-alternate border-t-zinc-700" />}
+                {t(`actions.${intent}`)}
+              </button>
+            ),
+          )}
+        </div>
+        {revising && (
+          <GeneratingIndicator
+            label={t("revising")}
+            hint={t("revisingHint")}
+            className="max-w-xl"
+          />
         )}
       </div>
     </section>

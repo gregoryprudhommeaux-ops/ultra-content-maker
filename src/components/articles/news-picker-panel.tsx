@@ -1,6 +1,7 @@
 "use client";
 
 import { NewsCard } from "@/components/news/news-card";
+import { BTN_PRIMARY_SM } from "@/lib/ui/nextstep";
 import { Link } from "@/i18n/navigation";
 import type { NewsSuggestion } from "@/types/workspace";
 import { useTranslations } from "next-intl";
@@ -12,6 +13,8 @@ type Props = {
   loading: boolean;
   onRefresh: () => void;
   perplexityHint?: boolean;
+  onGenerateBatch?: () => void;
+  generatingBatch?: boolean;
 };
 
 export function NewsPickerPanel({
@@ -21,8 +24,11 @@ export function NewsPickerPanel({
   loading,
   onRefresh,
   perplexityHint,
+  onGenerateBatch,
+  generatingBatch = false,
 }: Props) {
   const t = useTranslations("setup.articles.news");
+  const tArticles = useTranslations("setup.articles");
 
   return (
     <section className="rounded-xl border border-gray-100 bg-ns-brand-light/40 p-4 md:p-5 space-y-4">
@@ -67,7 +73,17 @@ export function NewsPickerPanel({
         </ul>
       )}
 
-      <div className="border-t border-gray-100 pt-3">
+      <div className="flex flex-col gap-3 border-t border-gray-100 pt-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        {onGenerateBatch && (
+          <button
+            type="button"
+            disabled={generatingBatch}
+            onClick={onGenerateBatch}
+            className={BTN_PRIMARY_SM}
+          >
+            {generatingBatch ? tArticles("generating") : tArticles("generateBatch")}
+          </button>
+        )}
         <Link
           href="/news"
           className="text-sm font-medium text-ns-tertiary underline hover:text-ns-primary"

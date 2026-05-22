@@ -51,6 +51,14 @@ export const BTN_PRIMARY = [
   BTN_FOCUS,
 ].join(" ");
 
+/** Compact primary (secondary placement, e.g. under news panel) */
+export const BTN_PRIMARY_SM = [
+  "inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-ns-primary px-4 py-2",
+  "text-xs font-semibold leading-snug text-black shadow-sm transition-all",
+  "hover:bg-ns-primary/90 disabled:cursor-not-allowed disabled:opacity-50",
+  BTN_FOCUS,
+].join(" ");
+
 /** Hero / marketing CTAs */
 export const BTN_PRIMARY_LG = [
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-ns-primary px-8 py-3",
