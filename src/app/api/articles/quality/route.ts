@@ -2,15 +2,14 @@ import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
 import { chatCompletionJson } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
-  buildCtaSuggestionsSystemPrompt,
-  buildCtaSuggestionsUserPrompt,
-} from "@/lib/prompts/cta-suggestions";
+  buildArticleQualitySystemPrompt,
+  buildArticleQualityUserPrompt,
+} from "@/lib/prompts/article-quality";
 import type {
+  ArticleQualityScores,
   ContentLanguage,
-  CtaIntensity,
-  CtaSuggestion,
   LlmProvider,
-  PostObjective,
+  PostBrief,
 } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -18,13 +17,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  personaPromptText: string;
   contentLanguage: string;
   hook: string;
   body: string;
   ps?: string;
-  profileEnrichment?: Record<string, unknown>;
-  postObjective?: PostObjective;
+  postBrief?: PostBrief;
+  personaPromptText: string;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -32,7 +30,11 @@ type Body = {
   };
 };
 
-const STYLES: CtaIntensity[] = ["soft", "medium", "pushy"];
+function clampScore(n: unknown): number {
+  const v = typeof n === "number" ? Math.round(n) : Number(n);
+  if (!Number.isFinite(v)) return 5;
+  return Math.min(10, Math.max(1, v));
+}
 
 export async function POST(request: Request) {
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
@@ -43,20 +45,14 @@ export async function POST(request: Request) {
   let body: Body;
   try {
     body = (await request.json()) as Body;
-    if (!body.personaPromptText?.trim() || !body.body?.trim()) {
+    if (!body.hook?.trim() || !body.body?.trim() || !body.personaPromptText?.trim()) {
       throw new Error("invalid");
     }
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const contentLanguage = body.contentLanguage as ContentLanguage;
-  const postObjective: PostObjective =
-    body.postObjective === "awareness" ||
-    body.postObjective === "conversation" ||
-    body.postObjective === "leads"
-      ? body.postObjective
-      : "credibility";
+  const contentLanguage = (body.contentLanguage || "en") as ContentLanguage;
   const llm =
     body.llm?.apiKey?.trim()
       ? configFromUserLlm({
@@ -74,45 +70,47 @@ export async function POST(request: Request) {
     const raw = await chatCompletionJson(llm, [
       {
         role: "system",
-        content: buildCtaSuggestionsSystemPrompt(contentLanguage, postObjective),
+        content: buildArticleQualitySystemPrompt(contentLanguage),
       },
       {
         role: "user",
-        content: `${body.personaPromptText}\n\n---\n\n${buildCtaSuggestionsUserPrompt({
-          personaPromptText: body.personaPromptText,
+        content: buildArticleQualityUserPrompt({
           hook: body.hook,
           body: body.body,
           ps: body.ps,
-          profileEnrichment: body.profileEnrichment,
-          postObjective,
-        })}`,
+          postBrief: body.postBrief,
+          personaExcerpt: body.personaPromptText,
+        }),
       },
     ]);
 
     const parsed = parseLlmJson<{
-      suggestions?: { style?: string; text?: string; linkUrl?: string }[];
+      scores?: Partial<ArticleQualityScores>;
+      alternativeHooks?: unknown;
+      critique?: string;
     }>(raw);
 
-    const byStyle = new Map<CtaIntensity, CtaSuggestion>();
-    for (const s of parsed.suggestions ?? []) {
-      const style = s.style as CtaIntensity;
-      if (!STYLES.includes(style) || !s.text?.trim()) continue;
-      byStyle.set(style, {
-        style,
-        text: s.text.trim(),
-        linkUrl: s.linkUrl?.trim() || undefined,
-      });
-    }
+    const scores: ArticleQualityScores = {
+      nicheClarity: clampScore(parsed.scores?.nicheClarity),
+      humanPov: clampScore(parsed.scores?.humanPov),
+      proofDensity: clampScore(parsed.scores?.proofDensity),
+      conversationPotential: clampScore(parsed.scores?.conversationPotential),
+    };
 
-    const suggestions = STYLES.map((style) => byStyle.get(style)).filter(
-      (s): s is CtaSuggestion => !!s,
-    );
+    const rawHooks = Array.isArray(parsed.alternativeHooks)
+      ? parsed.alternativeHooks
+      : [];
+    const alternativeHooks = rawHooks
+      .filter((h): h is string => typeof h === "string" && h.trim().length > 0)
+      .map((h) => h.trim())
+      .slice(0, 3);
 
-    if (suggestions.length < 3) {
-      return NextResponse.json({ error: "Incomplete CTA suggestions" }, { status: 502 });
-    }
-
-    return NextResponse.json({ suggestions });
+    return NextResponse.json({
+      scores,
+      alternativeHooks,
+      critique: typeof parsed.critique === "string" ? parsed.critique.trim() : "",
+      model: llm.model,
+    });
   } catch (e) {
     return NextResponse.json(
       {

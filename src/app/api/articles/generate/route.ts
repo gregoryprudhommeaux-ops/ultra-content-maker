@@ -5,14 +5,18 @@ import {
   buildArticlesFromNewsUserPayload,
 } from "@/lib/prompts/articles-from-news";
 import {
-  buildArticlesSystemPrompt,
-  buildArticlesUserPrompt,
+  buildArticlesSystemPromptWithCount,
+  buildArticlesUserPromptWithCount,
+  type ArticleGenerateCount,
 } from "@/lib/prompts/articles-generate";
 import {
   BATCH_ARTICLE_COUNT,
   enforceBatchScopeMix,
+  enforcePairScopeMix,
   hasValidBatchScopeMix,
+  hasValidPairScopeMix,
   normalizeArticleScope,
+  PAIR_ARTICLE_COUNT,
 } from "@/lib/articles/scope";
 import { normalizeHashtags } from "@/lib/linkedin/hashtags";
 import { postContainsEmoji } from "@/lib/prompts/emoji-instruction";
@@ -21,6 +25,7 @@ import type {
   ContentLanguage,
   EmojiLevel,
   LlmProvider,
+  PostBrief,
 } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -33,12 +38,36 @@ type GenerateBody = {
   emojiLevel?: EmojiLevel;
   profileEnrichment?: Record<string, unknown>;
   newsSource?: ArticleNewsSource;
+  articleCount?: ArticleGenerateCount;
+  postBrief?: PostBrief;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
     model?: string;
   };
 };
+
+function parseArticlesFromResponse(raw: string) {
+  const parsed = parseLlmJson<{
+    articles?: {
+      hook?: string;
+      body?: string;
+      ps?: string;
+      scope?: unknown;
+      hashtags?: unknown;
+    }[];
+  }>(raw);
+
+  return (parsed.articles ?? [])
+    .filter((a) => a.hook && a.body)
+    .map((a) => ({
+      hook: a.hook!.trim(),
+      body: a.body!.trim(),
+      ps: a.ps?.trim() || undefined,
+      scope: normalizeArticleScope(a.scope),
+      hashtags: normalizeHashtags(a.hashtags),
+    }));
+}
 
 export async function POST(request: Request) {
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
@@ -58,6 +87,13 @@ export async function POST(request: Request) {
 
   const contentLanguage = body.contentLanguage as ContentLanguage;
   const emojiLevel = body.emojiLevel ?? "light";
+  const articleCount: ArticleGenerateCount = body.articleCount === 2 ? 2 : 4;
+  const expectedCount = articleCount === 2 ? PAIR_ARTICLE_COUNT : BATCH_ARTICLE_COUNT;
+  const enforceScopeMix =
+    articleCount === 2 ? enforcePairScopeMix : enforceBatchScopeMix;
+  const hasValidScopeMix =
+    articleCount === 2 ? hasValidPairScopeMix : hasValidBatchScopeMix;
+
   const llm =
     body.llm?.apiKey?.trim()
       ? configFromUserLlm({
@@ -72,11 +108,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    const baseUserPrompt = buildArticlesUserPrompt(
+    const baseUserPrompt = buildArticlesUserPromptWithCount(
       body.personaPromptText,
       contentLanguage,
+      articleCount,
       body.profileEnrichment,
       emojiLevel,
+      body.postBrief,
     );
     const userContent = body.newsSource
       ? buildArticlesFromNewsUserPayload(
@@ -90,6 +128,8 @@ export async function POST(request: Request) {
             sourceName: body.newsSource.sourceName,
           },
           contentLanguage,
+          articleCount,
+          body.postBrief,
         )
       : baseUserPrompt;
 
@@ -100,7 +140,7 @@ export async function POST(request: Request) {
     const raw = await chatCompletionJson(llm, [
       {
         role: "system",
-        content: `${buildArticlesSystemPrompt(contentLanguage, emojiLevel)}${systemExtra}`,
+        content: `${buildArticlesSystemPromptWithCount(contentLanguage, articleCount, emojiLevel)}${systemExtra}`,
       },
       {
         role: "user",
@@ -108,36 +148,17 @@ export async function POST(request: Request) {
       },
     ]);
 
-    const parsed = parseLlmJson<{
-      articles?: {
-        hook?: string;
-        body?: string;
-        ps?: string;
-        scope?: unknown;
-        hashtags?: unknown;
-      }[];
-    }>(raw);
-
-    let articles = (parsed.articles ?? [])
-      .filter((a) => a.hook && a.body)
-      .slice(0, 4)
-      .map((a) => ({
-        hook: a.hook!.trim(),
-        body: a.body!.trim(),
-        ps: a.ps?.trim() || undefined,
-        scope: normalizeArticleScope(a.scope),
-        hashtags: normalizeHashtags(a.hashtags),
-      }));
+    let articles = parseArticlesFromResponse(raw).slice(0, expectedCount);
 
     if (articles.length < 1) {
       return NextResponse.json({ error: "No articles in response" }, { status: 502 });
     }
 
-    articles = enforceBatchScopeMix(articles);
+    articles = enforceScopeMix(articles);
 
-    if (articles.length < BATCH_ARTICLE_COUNT) {
+    if (articles.length < expectedCount) {
       return NextResponse.json(
-        { error: "Expected 4 articles in response" },
+        { error: `Expected ${expectedCount} articles in response` },
         { status: 502 },
       );
     }
@@ -150,34 +171,16 @@ export async function POST(request: Request) {
       const retryRaw = await chatCompletionJson(llm, [
         {
           role: "system",
-          content: `${buildArticlesSystemPrompt(contentLanguage, emojiLevel)}\n\nCRITICAL: Your previous output had ZERO emojis. Each post MUST include visible Unicode emojis per the emoji rule.`,
+          content: `${buildArticlesSystemPromptWithCount(contentLanguage, articleCount, emojiLevel)}\n\nCRITICAL: Your previous output had ZERO emojis. Each post MUST include visible Unicode emojis per the emoji rule.`,
         },
         {
           role: "user",
           content: `${body.personaPromptText}\n\n---\n\n${userContent}`,
         },
       ]);
-      const retryParsed = parseLlmJson<{
-        articles?: {
-        hook?: string;
-        body?: string;
-        ps?: string;
-        scope?: unknown;
-        hashtags?: unknown;
-      }[];
-      }>(retryRaw);
-      const retryArticles = (retryParsed.articles ?? [])
-        .filter((a) => a.hook && a.body)
-        .slice(0, 4)
-        .map((a) => ({
-          hook: a.hook!.trim(),
-          body: a.body!.trim(),
-          ps: a.ps?.trim() || undefined,
-          scope: normalizeArticleScope(a.scope),
-          hashtags: normalizeHashtags(a.hashtags),
-        }));
+      const retryArticles = parseArticlesFromResponse(retryRaw).slice(0, expectedCount);
       if (retryArticles.length > 0) {
-        articles = enforceBatchScopeMix(retryArticles);
+        articles = enforceScopeMix(retryArticles);
       }
     }
 
@@ -185,8 +188,8 @@ export async function POST(request: Request) {
       ...a,
       indexInBatch,
     }));
-    if (!hasValidBatchScopeMix(indexedForScope)) {
-      articles = enforceBatchScopeMix(articles);
+    if (!hasValidScopeMix(indexedForScope)) {
+      articles = enforceScopeMix(articles);
     }
 
     return NextResponse.json({ articles, model: llm.model });

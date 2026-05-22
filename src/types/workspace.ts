@@ -146,6 +146,95 @@ export type ArticleScope = "generalist" | "niche";
 
 export type CtaIntensity = "soft" | "medium" | "pushy";
 
+/** Why this post exists on LinkedIn (drives CTA + closing shape). */
+export type PostObjective = "awareness" | "credibility" | "conversation" | "leads";
+
+export interface PostBrief {
+  objective: PostObjective;
+  problem: string;
+  pointOfView: string;
+  proof: string;
+}
+
+export interface ArticleQualityScores {
+  nicheClarity: number;
+  humanPov: number;
+  proofDensity: number;
+  conversationPotential: number;
+}
+
+/** Native LinkedIn content format (Phase 2). */
+export type LinkedInPostFormat = "text_post" | "carousel" | "short_video";
+
+export interface PostFormatPlan {
+  primaryFormat: LinkedInPostFormat;
+  rationale: string;
+  alternativeFormats?: LinkedInPostFormat[];
+}
+
+export interface BriefNicheCheck {
+  score: number;
+  isTooGeneric: boolean;
+  feedback: string;
+  suggestions?: string[];
+}
+
+export interface CarouselSlide {
+  title: string;
+  bullets: string[];
+}
+
+export interface CarouselRepurpose {
+  slides: CarouselSlide[];
+  designNotes?: string;
+}
+
+export interface VideoScriptSegment {
+  label: string;
+  script: string;
+  durationSec?: number;
+}
+
+export interface VideoScriptRepurpose {
+  hookLine: string;
+  segments: VideoScriptSegment[];
+  closingLine: string;
+  totalDurationSec?: number;
+}
+
+export interface ArticleRepurpose {
+  carousel?: CarouselRepurpose;
+  videoScript?: VideoScriptRepurpose;
+}
+
+/** Post-publication signals (manual entry, Phase 3). */
+export interface ArticlePerformanceSignals {
+  saves?: number;
+  qualifiedComments?: number;
+  profileVisits?: number;
+  dms?: number;
+  businessOpportunity?: string;
+  notes?: string;
+  /** ISO date when metrics were recorded */
+  recordedAt?: string;
+}
+
+export interface SlopAnalysis {
+  /** 1–10 authenticity / human voice (higher is better) */
+  humanScore: number;
+  /** 1–10 AI-slop intensity (higher is worse) */
+  slopScore: number;
+  flags: string[];
+  summary: "empty" | "clean" | "mild_slop" | "heavy_slop";
+}
+
+export interface PersonaPerformanceInsights {
+  summary: string;
+  suggestions: string[];
+  generatedAt: Date;
+  postsAnalyzed: number;
+}
+
 export interface CtaSuggestion {
   style: CtaIntensity;
   text: string;
@@ -229,6 +318,16 @@ export interface ArticleDoc {
   selectedCtaText?: string;
   contentLanguage: ContentLanguage;
   refinement?: ArticleRefinement;
+  /** Brief used when this batch was generated (v3). */
+  postBrief?: PostBrief;
+  qualityScores?: ArticleQualityScores;
+  alternativeHooks?: string[];
+  qualityCritique?: string;
+  postFormatPlan?: PostFormatPlan;
+  repurpose?: ArticleRepurpose;
+  suggestedFirstComment?: string;
+  performanceSignals?: ArticlePerformanceSignals;
+  slopAnalysis?: SlopAnalysis;
   createdAt: Date;
   updatedAt: Date;
   validatedAt?: Date;

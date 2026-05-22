@@ -1,3 +1,4 @@
+import { stableNewsId } from "@/lib/news/stable-id";
 import type { NewsSuggestion } from "@/types/workspace";
 
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -26,7 +27,7 @@ export function normalizeNewsSuggestions(raw: unknown): NewsSuggestion[] {
     if (!isNewsWithinSevenDays(publishedAt)) continue;
 
     out.push({
-      id: `news-${i}-${Date.parse(publishedAt)}`,
+      id: stableNewsId(url),
       title,
       summary,
       url,

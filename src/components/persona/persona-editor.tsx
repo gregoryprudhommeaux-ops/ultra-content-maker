@@ -7,6 +7,7 @@ import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { PersonaHistoryPanel } from "@/components/persona/persona-history-panel";
+import { PersonaPerformanceInsightsPanel } from "@/components/persona/persona-performance-insights-panel";
 import { getPersona, savePersonaDraft, validatePersona } from "@/lib/workspace/persona";
 import { listSources } from "@/lib/workspace/sources";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
@@ -256,6 +257,13 @@ export function PersonaEditor() {
             className="w-full rounded-xl border border-ns-alternate bg-white p-4 font-mono text-sm text-ns-tertiary leading-relaxed"
             readOnly={status === "validated"}
           />
+
+          {status === "validated" && (
+            <PersonaPerformanceInsightsPanel
+              personaPromptText={promptText}
+              disabled={pending}
+            />
+          )}
 
           <div className="flex flex-wrap gap-3">
             {status !== "validated" && (

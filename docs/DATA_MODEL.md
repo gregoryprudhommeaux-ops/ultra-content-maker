@@ -1,4 +1,4 @@
-# DATA_MODEL — Firestore (ULTRA CONTENT MAKER v2)
+# DATA_MODEL — Firestore (ULTRA CONTENT MAKER v3)
 
 All data is scoped to the authenticated user: `users/{userId}/...`.
 
@@ -168,6 +168,29 @@ Snapshot when user validates Persona (audit / rollback).
 | promptText | string |
 | createdAt | timestamp |
 
+### `users/{userId}/insights/performance` (singleton, v3 phase 3)
+
+Cached output of Persona performance synthesis (LLM).
+
+| Field | Type | Notes |
+|-------|------|-------|
+| summary | string | 3–5 sentences |
+| suggestions | array | Bullet suggestions for Persona updates |
+| postsAnalyzed | number | Count of validated posts with signals |
+| generatedAt | timestamp | |
+
+### `performanceSignals` on article (manual entry)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| saves | number | optional |
+| qualifiedComments | number | optional |
+| profileVisits | number | optional |
+| dms | number | optional |
+| businessOpportunity | string | optional |
+| notes | string | optional |
+| recordedAt | string | ISO date `YYYY-MM-DD` |
+
 ---
 
 ## 6. `users/{userId}/ctas/{ctaId}`
@@ -201,9 +224,42 @@ Sample LinkedIn posts (3–4 per batch) with refinement and export.
 | selectedCtaId | string | no | Set on validate |
 | contentLanguage | string | yes | Copy from author at generation time |
 | refinement | map | no | See § Refinement |
+| postBrief | map | no | v3 — `{ objective, problem, pointOfView, proof }` used at generation |
+| qualityScores | map | no | v3 — `{ nicheClarity, humanPov, proofDensity, conversationPotential }` (1–10) |
+| alternativeHooks | array | no | v3 — up to 3 hook lines from quality analysis |
+| qualityCritique | string | no | v3 — short editor note from quality API |
+| postFormatPlan | map | no | v3 — `{ primaryFormat, rationale, alternativeFormats? }` |
+| repurpose | map | no | v3 — `{ carousel?, videoScript? }` |
+| suggestedFirstComment | string | no | v3 — author seed comment for distribution |
+| performanceSignals | map | no | v3 phase 3 — manual LinkedIn metrics after validation |
+| slopAnalysis | map | no | v3 phase 3 — `{ humanScore, slopScore, flags[], summary }` |
+| newsSource | map | no | When generated from news |
+| scope | string | no | `generalist` \| `niche` |
+| hashtags | array | no | Up to 4 tags without `#` |
+| illustration | map | no | Format + image prompts |
 | createdAt | timestamp | yes | |
 | updatedAt | timestamp | yes | |
 | validatedAt | timestamp | no | |
+
+### `postBrief` (v3)
+
+| Field | Type | Values |
+|-------|------|--------|
+| objective | string | `awareness` \| `credibility` \| `conversation` \| `leads` |
+| problem | string | ICP pain / question |
+| pointOfView | string | Author belief / contrarian take |
+| proof | string | Case, metric, field observation |
+
+### `users/{userId}/newsArchive/{newsId}`
+
+Archived news suggestions (dedupe by stable URL id).
+
+| Field | Type | Notes |
+|-------|------|-------|
+| title, summary, url, publishedAt | string | Same as `NewsSuggestion` |
+| sourceName | string | optional |
+| archivedAt | timestamp | First seen |
+| lastFetchedAt | timestamp | Last refresh batch |
 
 ### Article `status` lifecycle
 

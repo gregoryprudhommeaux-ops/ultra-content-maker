@@ -35,6 +35,19 @@ The prompt must be:
 - Written entirely in ${name} (the expert prompt itself — all section titles and instructions).
 - All LinkedIn posts generated with this prompt must be written in ${posts}.
 
+REQUIRED markdown sections inside promptText (exact headings in ${name}):
+## Topic DNA
+- 3 to 5 content pillars (recurring themes LinkedIn should associate with this author)
+- 2 to 3 belief statements (what the author defends or challenges in the market)
+- Off-topic list (what to refuse — dilutes niche authority)
+
+## LinkedIn operating rules (2026)
+- People-first expert voice (how we think > what we sell)
+- Native formats preference (text, document/carousel outline, short video — no external links in post body)
+- Proof policy: what counts as credible proof for this author (cases, metrics, field notes)
+- Anti-patterns: generic AI tone, engagement bait, vague inspiration, politics/insults even as humor
+- Engagement goal: qualified comments and saves over vanity likes
+
 Also return gapQuestions: 6 to 10 interactive questions to fill missing profile info. EVERY label, hint, and option must be in ${name}.
 
 gapQuestions rules:
@@ -46,7 +59,7 @@ gapQuestions rules:
 - label: short question in ${name}
 - hint: optional helper in ${name}
 
-Prioritize gaps that would materially improve LinkedIn content (sectors, ICP size, markets, CTA style, posting frequency, case study policy, topics to avoid).
+Prioritize gaps that would materially improve LinkedIn content: sectors, ICP size, markets, quarterly LinkedIn goal (enrichment key linkedin_quarterly_goal), proof/case study policy (proof_policy), preferred CTA style (cta_preference: comment_prompt | dm | save), posting frequency, topics to avoid.
 
 When the user provides inspirationPosts or inspirationProfiles, weave them into the expert prompt as explicit creative references (not plagiarism): mirror the ASPECTS they marked (tone, angle, subject, approach, content, format) and optional whyLike notes. Never copy text from URLs. myPosts define the author's own voice baseline; inspirations are external models to borrow structure and energy from.
 

@@ -1,4 +1,4 @@
-import type { ContentLanguage, CtaIntensity } from "@/types/workspace";
+import type { ContentLanguage, CtaIntensity, PostObjective } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
   fr: "French",
@@ -12,17 +12,35 @@ const STYLE_LABELS: Record<CtaIntensity, string> = {
   pushy: "pushy / direct — strong urgency, still credible for B2B",
 };
 
-export function buildCtaSuggestionsSystemPrompt(contentLanguage: ContentLanguage): string {
+const OBJECTIVE_CTA_GUIDE: Record<PostObjective, string> = {
+  conversation:
+    "All 3 variants must invite thoughtful comments from the ICP (open questions, trade-offs) — NOT engagement bait. Vary depth: soft = gentle question, medium = clear debate prompt, pushy = direct challenge to common belief.",
+  credibility:
+    "Variants build authority: invite saves of a framework, ask for peer tag, or offer a resource — professional, low pressure. Vary soft/medium/pushy depth.",
+  leads:
+    "Variants invite DMs or contact for a relevant resource — soft/medium/pushy intensity as below.",
+  awareness:
+    "Variants encourage follow/profile visit or share with a peer — light touch, no hard sell.",
+};
+
+export function buildCtaSuggestionsSystemPrompt(
+  contentLanguage: ContentLanguage,
+  postObjective: PostObjective = "credibility",
+): string {
   const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
+  const intentGuide = OBJECTIVE_CTA_GUIDE[postObjective];
 
   return `You write LinkedIn post signature CTAs in ${lang} for a B2B author.
 
-Given the Persona, post content, and profile context, produce exactly 3 CTA variants:
+Post objective: ${postObjective}.
+${intentGuide}
+
+Produce exactly 3 CTA variants (keep style labels for UI):
 1. soft — ${STYLE_LABELS.soft}
 2. medium — ${STYLE_LABELS.medium}
 3. pushy — ${STYLE_LABELS.pushy}
 
-Each CTA: 1-3 short lines max, fits after the post body. No hashtag spam. Optional linkUrl only if clearly inferable from context (else omit).
+Each CTA: 1-3 short lines max, fits after the post body. No hashtag spam. No external URLs in CTA text. Optional linkUrl only if clearly inferable (else omit).
 
 Return JSON only:
 {
@@ -38,10 +56,12 @@ export function buildCtaSuggestionsUserPrompt(input: {
   body: string;
   ps?: string;
   profileEnrichment?: Record<string, unknown>;
+  postObjective?: PostObjective;
 }): string {
   return JSON.stringify(
     {
       post: { hook: input.hook, body: input.body, ps: input.ps ?? "" },
+      postObjective: input.postObjective ?? "credibility",
       personaPromptText: input.personaPromptText.slice(0, 12000),
       profileEnrichment: input.profileEnrichment ?? {},
     },

@@ -1,4 +1,4 @@
-# PROMPT_ARCHITECTURE — ULTRA CONTENT MAKER (v2)
+# PROMPT_ARCHITECTURE — ULTRA CONTENT MAKER (v3)
 
 **Persona generation:** the expert `promptText` and `gaps` are written in `author.contentLanguage` (fallback: UI locale). **Article generation** uses the same language for post bodies.
 
@@ -16,7 +16,8 @@ Enforce in Server Actions:
 | Prompt | Inputs |
 |--------|--------|
 | `persona_generate` | `author`, `audience` (if not skipped), `sources[]` URLs, `contentLanguage` |
-| `articles_generate` | `persona.promptText` (validated), `contentLanguage`, optional `audience` |
+| `articles_generate` | `persona.promptText`, `contentLanguage`, `postBrief`, `profileEnrichment`, `articleCount` 2\|4 |
+| `articles_quality` | hook, body, ps, `postBrief`, persona excerpt → scores + 3 alt hooks |
 | `article_revise` | `persona.promptText`, current article, `refinement` answers + comments |
 
 **MVP:** URLs are passed as plain text references; no scraped page body unless added later.
@@ -31,6 +32,8 @@ Enforce in Server Actions:
 `promptText` = long expert system prompt (target: 2 000–8 000+ tokens allowed). Structure inside the text:
 
 - Role: expert LinkedIn ghostwriter for this author  
+- **Topic DNA** (pillars, beliefs, off-topic) — v3 required section  
+- **LinkedIn operating rules (2026)** — native formats, proof policy, anti-slop, no link in body  
 - Author context (from URLs + optional short fields)  
 - Audience context (light sketch)  
 - Voice & tone rules  
@@ -38,8 +41,8 @@ Enforce in Server Actions:
 - Topics to emphasize / avoid  
 - Hook patterns, body length, formatting (line breaks, bullets)  
 - What **not** to do (generic fluff, wrong audience, etc.)  
-- How to use Large vs niche angles if relevant  
-- Placeholder section for CTA (signature added at article validation, not in Persona)
+- How to use generalist vs niche angles  
+- CTA added at article validation, not in Persona
 
 **System (summary):**  
 You are a senior B2B LinkedIn strategist. Produce a **complete expert prompt** in the language given by `contentLanguage` / `personaLanguage` (`en` | `fr` | `es`). Posts and `gaps` use the same language. If URLs were not fetched, infer carefully from URL labels/types.
@@ -64,7 +67,7 @@ You are a senior B2B LinkedIn strategist. Produce a **complete expert prompt** i
 
 Exactly **4** items (or **3** if product flag — default **4**).
 
-**Instruction:** Write in `{contentLanguage}`. Each post must follow the Persona. Vary angles (story, insight, contrarian, how-to). Do **not** include final CTA line—user adds at validation.
+**Instruction:** Write in `{contentLanguage}`. Inject `postBrief` (objective, problem, POV, proof). Apply `LINKEDIN_2026_SYSTEM_RULES` (proof visible, no body links, anti engagement bait). Mix generalist/niche per `articleCount`. No final CTA block—user adds at validation.
 
 ---
 

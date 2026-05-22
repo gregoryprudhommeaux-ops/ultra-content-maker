@@ -12,15 +12,23 @@ import {
 } from "firebase/firestore";
 import type {
   ArticleDoc,
+  ArticlePerformanceSignals,
+  ArticleQualityScores,
   ArticleRefinement,
+  ArticleRepurpose,
   ArticleScope,
   ArticleStatus,
   ContentLanguage,
   CtaIntensity,
   EmojiLevel,
+  PostBrief,
+  PostFormatPlan,
   RefinementAnswer,
+  SlopAnalysis,
 } from "@/types/workspace";
 import { normalizeArticleIllustration } from "@/lib/articles/illustration";
+import { normalizePostFormatPlan } from "@/lib/articles/post-format";
+import { normalizeArticleRepurpose } from "@/lib/articles/repurpose";
 import { createDefaultRefinement, hasReviseInput as hasRefinementInputImpl } from "@/lib/articles/refinement";
 import type { ArticleIllustration, ArticleNewsSource } from "@/types/workspace";
 import { normalizeArticleScope } from "@/lib/articles/scope";
@@ -57,6 +65,21 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     newsSource: d.newsSource
       ? (d.newsSource as ArticleNewsSource)
       : undefined,
+    postBrief: d.postBrief ? (d.postBrief as PostBrief) : undefined,
+    qualityScores: d.qualityScores
+      ? (d.qualityScores as ArticleQualityScores)
+      : undefined,
+    alternativeHooks: Array.isArray(d.alternativeHooks)
+      ? (d.alternativeHooks as string[])
+      : undefined,
+    qualityCritique: d.qualityCritique as string | undefined,
+    postFormatPlan: normalizePostFormatPlan(d.postFormatPlan),
+    repurpose: normalizeArticleRepurpose(d.repurpose),
+    suggestedFirstComment: d.suggestedFirstComment as string | undefined,
+    performanceSignals: d.performanceSignals
+      ? (d.performanceSignals as ArticlePerformanceSignals)
+      : undefined,
+    slopAnalysis: d.slopAnalysis ? (d.slopAnalysis as SlopAnalysis) : undefined,
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),
     validatedAt: d.validatedAt ? toDate(d.validatedAt) : undefined,
@@ -68,6 +91,14 @@ export type ArticleBatchGroup = {
   createdAt: Date;
   articles: ArticleDoc[];
 };
+
+export async function listValidatedArticles(userId: string): Promise<ArticleDoc[]> {
+  const batches = await listArticleBatches(userId);
+  return batches
+    .flatMap((b) => b.articles)
+    .filter((a) => a.status === "validated")
+    .sort((a, b) => (b.validatedAt?.getTime() ?? 0) - (a.validatedAt?.getTime() ?? 0));
+}
 
 export async function listArticleBatches(userId: string): Promise<ArticleBatchGroup[]> {
   const q = query(articlesCollection(userId), orderBy("createdAt", "desc"));
@@ -110,6 +141,7 @@ export async function createArticleBatch(
   contentLanguage: ContentLanguage,
   emojiLevel: EmojiLevel = "light",
   newsSource?: ArticleNewsSource,
+  postBrief?: PostBrief,
 ): Promise<string[]> {
   const refinement = { ...createDefaultRefinement(), emojiLevel };
   const ids: string[] = [];
@@ -124,6 +156,10 @@ export async function createArticleBatch(
       scope: items[i].scope ?? (i < 2 ? "generalist" : "niche"),
       hashtags: items[i].hashtags?.length ? items[i].hashtags : null,
       newsSource: newsSource ?? null,
+      postBrief: postBrief ?? null,
+      qualityScores: null,
+      alternativeHooks: null,
+      qualityCritique: null,
       exportText: null,
       selectedCtaId: null,
       selectedCtaStyle: null,
@@ -137,6 +173,122 @@ export async function createArticleBatch(
     ids.push(ref.id);
   }
   return ids;
+}
+
+export async function saveArticleFormatPlan(
+  userId: string,
+  articleId: string,
+  plan: PostFormatPlan,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    postFormatPlan: {
+      primaryFormat: plan.primaryFormat,
+      rationale: plan.rationale,
+      alternativeFormats: plan.alternativeFormats ?? null,
+    },
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function saveArticleRepurpose(
+  userId: string,
+  articleId: string,
+  repurpose: ArticleRepurpose,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    repurpose: {
+      carousel: repurpose.carousel
+        ? {
+            slides: repurpose.carousel.slides,
+            designNotes: repurpose.carousel.designNotes ?? null,
+          }
+        : null,
+      videoScript: repurpose.videoScript
+        ? {
+            hookLine: repurpose.videoScript.hookLine,
+            segments: repurpose.videoScript.segments,
+            closingLine: repurpose.videoScript.closingLine,
+            totalDurationSec: repurpose.videoScript.totalDurationSec ?? null,
+          }
+        : null,
+    },
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function saveArticlePerformanceSignals(
+  userId: string,
+  articleId: string,
+  signals: ArticlePerformanceSignals,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    performanceSignals: {
+      saves: signals.saves ?? null,
+      qualifiedComments: signals.qualifiedComments ?? null,
+      profileVisits: signals.profileVisits ?? null,
+      dms: signals.dms ?? null,
+      businessOpportunity: signals.businessOpportunity?.trim() || null,
+      notes: signals.notes?.trim() || null,
+      recordedAt: signals.recordedAt ?? new Date().toISOString().slice(0, 10),
+    },
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function saveArticleSlopAnalysis(
+  userId: string,
+  articleId: string,
+  slop: SlopAnalysis,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    slopAnalysis: {
+      humanScore: slop.humanScore,
+      slopScore: slop.slopScore,
+      flags: slop.flags,
+      summary: slop.summary,
+    },
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function saveSuggestedFirstComment(
+  userId: string,
+  articleId: string,
+  comment: string,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    suggestedFirstComment: comment,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function saveArticleQuality(
+  userId: string,
+  articleId: string,
+  data: {
+    qualityScores: ArticleQualityScores;
+    alternativeHooks: string[];
+    qualityCritique?: string;
+  },
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    qualityScores: data.qualityScores,
+    alternativeHooks: data.alternativeHooks.slice(0, 3),
+    qualityCritique: data.qualityCritique ?? null,
+    updatedAt: serverTimestamp(),
+  });
 }
 
 export async function saveArticleIllustration(

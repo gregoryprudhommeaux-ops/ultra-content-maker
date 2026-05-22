@@ -1,7 +1,9 @@
 "use client";
 
-import type { ArticleNewsSource, NewsSuggestion } from "@/types/workspace";
-import { useLocale, useTranslations } from "next-intl";
+import { NewsCard } from "@/components/news/news-card";
+import { Link } from "@/i18n/navigation";
+import type { NewsSuggestion } from "@/types/workspace";
+import { useTranslations } from "next-intl";
 
 type Props = {
   news: NewsSuggestion[];
@@ -12,22 +14,6 @@ type Props = {
   perplexityHint?: boolean;
 };
 
-export function newsToSource(item: NewsSuggestion): ArticleNewsSource {
-  return {
-    title: item.title,
-    summary: item.summary,
-    url: item.url,
-    publishedAt: item.publishedAt,
-    sourceName: item.sourceName,
-  };
-}
-
-function formatNewsDate(iso: string, locale: string) {
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return iso;
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(t));
-}
-
 export function NewsPickerPanel({
   news,
   selectedId,
@@ -37,7 +23,6 @@ export function NewsPickerPanel({
   perplexityHint,
 }: Props) {
   const t = useTranslations("setup.articles.news");
-  const locale = useLocale();
 
   return (
     <section className="rounded-xl border border-gray-100 bg-ns-brand-light/40 p-4 md:p-5 space-y-4">
@@ -69,38 +54,27 @@ export function NewsPickerPanel({
 
       {news.length > 0 && (
         <ul className="grid gap-3 sm:grid-cols-2">
-          {news.map((item) => {
-            const selected = selectedId === item.id;
-            return (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelect(item)}
-                  className={`h-full w-full rounded-xl border p-4 text-left transition-colors ${
-                    selected
-                      ? "border-2 border-ns-primary bg-white shadow-sm"
-                      : "border-gray-100 bg-white hover:border-ns-primary/40"
-                  }`}
-                >
-                  <p className="text-xs font-medium text-ns-secondary">
-                    {item.sourceName ?? t("unknownSource")} ·{" "}
-                    {formatNewsDate(item.publishedAt, locale)}
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-ns-tertiary line-clamp-2">
-                    {item.title}
-                  </p>
-                  <p className="mt-2 text-xs text-ns-secondary line-clamp-3">
-                    {item.summary}
-                  </p>
-                  <span className="mt-2 inline-block text-xs font-medium text-ns-primary underline">
-                    {selected ? t("selected") : t("select")}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
+          {news.map((item) => (
+            <li key={item.id}>
+              <NewsCard
+                item={item}
+                selected={selectedId === item.id}
+                onClick={() => onSelect(item)}
+                showSelectLabel
+              />
+            </li>
+          ))}
         </ul>
       )}
+
+      <div className="border-t border-gray-100 pt-3">
+        <Link
+          href="/news"
+          className="text-sm font-medium text-ns-tertiary underline hover:text-ns-primary"
+        >
+          {t("previousNews")}
+        </Link>
+      </div>
     </section>
   );
 }

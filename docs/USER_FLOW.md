@@ -1,4 +1,4 @@
-# USER_FLOW — ULTRA CONTENT MAKER (v2)
+# USER_FLOW — ULTRA CONTENT MAKER (v3)
 
 Routes are locale-prefixed: `/en/...`, `/fr/...`, `/es/...`.
 
@@ -14,8 +14,8 @@ Routes are locale-prefixed: `/en/...`, `/fr/...`, `/es/...`.
 | 2 | Mon profil (Author) | Links: LinkedIn, site, blog, example **post URLs** |
 | 3 | Audience (Cible) | Short optional sketch — or **Skip** |
 | 4 | Persona | Generate **expert prompt** → edit → validate |
-| 5 | Articles | Generate **3–4** sample posts |
-| 6 | Refine | Per post: 3–4 questions + comment → revise |
+| 5 | Articles | **Brief post** (objectif + preuve) → generate **4** sample posts (or 2 from `/news`) |
+| 6 | Refine | Quality panel + per-post questions → revise |
 | 7 | Validate + CTA | Pick CTA → build `exportText` |
 | 8 | Copy | Clipboard → paste on LinkedIn |
 
@@ -40,8 +40,9 @@ flowchart LR
 | `/[locale]/setup/author` | Author profile | URL inputs, add source links, all optional, **Mark complete** |
 | `/[locale]/setup/audience` | Audience sketch | Short fields + **Skip** |
 | `/[locale]/persona` | Persona | Generate expert prompt → textarea edit → **Validate Persona** |
-| `/[locale]/articles` | Article list | Batches of 3–4; status badges |
-| `/[locale]/articles/[id]` | Article detail | Body preview, refinement Q&A, regenerate, validate + CTA picker |
+| `/[locale]/articles` | Article list | Post brief form, news picker, batches of 4; status badges |
+| `/[locale]/news` | Archived news | Pick archived story → brief → generate 2 posts |
+| `/[locale]/articles/[id]` | Article detail | Quality panel, hooks alternatifs, refinement, CTA by objective, validate |
 | `/[locale]/ctas` | CTA library | Create / edit reusable CTAs |
 | `/[locale]/settings` | Settings | Locale, sign out, content language default |
 

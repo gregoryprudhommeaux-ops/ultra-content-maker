@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "ULTRA CONTENT MAKER",
-    "tagline": "De l'onboarding au Content Brain validé — puis du contenu LinkedIn aligné avec la marque.",
+    "tagline": "De l'onboarding au Content Brain validé — puis à ton contenu LinkedIn aligné avec ton expertise et l'image de ta société.",
     "footer": {
       "tagline": "Ultra Content Maker : Ghostwriter IA pour LinkedIn — un outil NS Suite pour les entrepreneurs.",
       "home": "Page d'accueil",
@@ -408,6 +408,21 @@
           "draft": "Brouillon",
           "validated": "Validé"
         }
+      },
+      "insights": {
+        "title": "Boucle de mesure → Persona",
+        "subtitle": "Synthétisez ce qui performe sur vos posts publiés (signaux saisis après validation) pour affiner votre Persona.",
+        "counts": "{validated} post(s) validé(s) · {withSignals} avec signaux renseignés",
+        "synthesize": "Synthétiser depuis mes posts",
+        "generating": "Analyse des performances…",
+        "generatingHint": "L’IA compare vos signaux LinkedIn et propose des ajustements Persona (30–60 s).",
+        "lastRun": "Dernière synthèse : {date} · {count} post(s) analysé(s)",
+        "needSignals": "Renseignez au moins un signal sur un post validé (onglet détail du post) avant de synthétiser.",
+        "goAddSignals": "Ouvrir mes posts →",
+        "failed": "Impossible de générer la synthèse. Réessayez.",
+        "noLlmKey": "Configurez votre clé API avant de synthétiser.",
+        "invalidApiKey": "Clé API refusée. Mettez à jour dans Clé API.",
+        "goLlmSetup": "Configurer ma clé API"
       }
     },
     "articles": {
@@ -439,7 +454,138 @@
         "pickOne": "Choisissez une actualité avant de générer.",
         "generateFromNews": "Générer 4 posts depuis cette actu",
         "generatingFromNews": "Génération depuis l’actu…",
-        "generateFromNewsHint": "2 posts généralistes + 2 niche, tous ancrés sur cette actualité."
+        "generateFromNewsHint": "2 posts généralistes + 2 niche, tous ancrés sur cette actualité.",
+        "previousNews": "News précédentes"
+      },
+      "briefIncomplete": "Complétez le brief post (objectif, problème, point de vue et preuve) avant de générer.",
+      "brief": {
+        "title": "Brief du lot",
+        "subtitle": "Oriente les 4 brouillons vers votre objectif LinkedIn — chaque post intégrera problème, POV et preuve.",
+        "objective": "Objectif du post",
+        "objectives": {
+          "credibility": "Crédibilité",
+          "conversation": "Conversation",
+          "awareness": "Visibilité",
+          "leads": "Demandes"
+        },
+        "problem": "Problème de l’audience",
+        "problemPlaceholder": "Ex. : PME exportatrices qui peinent à sécuriser leur supply chain…",
+        "pointOfView": "Point de vue",
+        "pointOfViewPlaceholder": "Ex. : Le vrai levier n’est pas le prix mais la visibilité bout en bout…",
+        "proof": "Preuve ou expérience",
+        "proofPlaceholder": "Ex. : Cas client, chiffre interne, observation terrain (obligatoire)",
+        "incomplete": "Renseignez au moins 8 caractères pour le problème, le POV et la preuve.",
+        "niche": {
+          "title": "Clarté niche",
+          "deepen": "Analyse IA approfondie",
+          "warning": "Brief trop générique — précisez secteur, ICP ou preuve avant de publier.",
+          "feedback": {
+            "brief_too_generic": "Ce brief pourrait s’adresser à n’importe quel professionnel sur LinkedIn.",
+            "brief_niche_ok": "Bonne spécificité : le brief ancre une expertise identifiable.",
+            "brief_could_be_sharper": "Correct, mais un détail sectoriel ou chiffré renforcerait la crédibilité."
+          },
+          "suggestions": {
+            "add_sector_or_metric": "Ajoutez un secteur, un métier cible ou un chiffre concret.",
+            "remove_generic_phrases": "Retirez les formules génériques (« entrepreneurs », « sur LinkedIn », etc.).",
+            "detail_problem": "Détaillez le problème (qui, où, quand, conséquence métier)."
+          }
+        }
+      },
+      "format": {
+        "title": "Format & distribution",
+        "subtitle": "Format natif LinkedIn recommandé, déclinaisons carrousel / vidéo, et 1er commentaire pour lancer la discussion.",
+        "formatTitle": "Format recommandé",
+        "recommendFormat": "Recommander un format",
+        "refreshFormat": "Actualiser",
+        "formats": {
+          "text_post": "Post texte",
+          "carousel": "Carrousel PDF",
+          "short_video": "Vidéo courte native"
+        },
+        "alternatives": "Alternatives",
+        "carouselHint": "Pensez à un carrousel 5–7 slides — générez l’outline ci-dessous puis les visuels dans Illustration.",
+        "repurposeTitle": "Repurposer ce post",
+        "generateRepurpose": "Générer carrousel + script vidéo",
+        "refreshRepurpose": "Régénérer",
+        "repurposeHint": "Même angle que le post : outline slides LinkedIn + script 45–90 s.",
+        "carouselOutline": "Outline carrousel",
+        "videoScript": "Script vidéo",
+        "copyAll": "Copier l’outline",
+        "firstCommentTitle": "1er commentaire (auteur)",
+        "generateComment": "Suggérer un commentaire",
+        "refreshComment": "Régénérer",
+        "firstCommentHint": "Collez ce commentaire sous votre post juste après publication pour amorcer une discussion qualifiée.",
+        "copyComment": "Copier le commentaire",
+        "copied": "Copié"
+      },
+      "performance": {
+        "title": "Signaux de performance",
+        "subtitle": "Après publication sur LinkedIn, saisissez les métriques utiles pour la boucle d’apprentissage (pas de scraping automatique).",
+        "save": "Enregistrer les signaux",
+        "saved": "Signaux enregistrés",
+        "needOneMetric": "Renseignez au moins une métrique ou une opportunité.",
+        "opportunityPlaceholder": "ex. DM d’un décideur, invitation podcast…",
+        "notesPlaceholder": "Contexte, timing, type de réaction…",
+        "fields": {
+          "saves": "Saves",
+          "qualifiedComments": "Commentaires qualifiés",
+          "profileVisits": "Visites profil",
+          "dms": "DMs reçus",
+          "businessOpportunity": "Opportunité business",
+          "notes": "Notes"
+        }
+      },
+      "slop": {
+        "title": "Détecteur AI-slop",
+        "subtitle": "Heuristique locale : clichés LinkedIn / formulations génériques — sans appel LLM.",
+        "save": "Enregistrer l’analyse",
+        "humanScore": "Score humain",
+        "slopScore": "Score slop",
+        "warning": "Slop élevé : réécrivez avec plus de preuve, niche et voix personnelle avant publication.",
+        "summary": {
+          "empty": "Texte vide.",
+          "clean": "Peu de signaux slop détectés.",
+          "mild_slop": "Quelques formules génériques — à alléger.",
+          "heavy_slop": "Nombreux clichés IA / LinkedIn — réécriture recommandée."
+        },
+        "flags": {
+          "game_changer": "Game changer",
+          "in_todays_world": "Dans le monde d’aujourd’hui",
+          "lessons_numbered": "Leçons numérotées",
+          "let_me_tell": "Laissez-moi vous dire",
+          "heres_the_thing": "Voici la chose",
+          "key_takeaway": "Takeaway clé",
+          "at_end_of_day": "En fin de compte",
+          "excited_to_share": "Ravi de partager",
+          "unlock": "Débloquer / unlock",
+          "the_secret": "Le secret",
+          "engagement_bait": "Engagement bait",
+          "generic_inspiration": "Inspiration générique",
+          "delve": "Plongeons / delve",
+          "tapestry": "Tapisserie / tapestry"
+        }
+      },
+      "quality": {
+        "title": "Qualité LinkedIn",
+        "subtitle": "Scores et leviers pour un post crédible, niche et conversationnel.",
+        "analyze": "Analyser ce post",
+        "refresh": "Ré-analyser",
+        "loadFailed": "Impossible d’analyser le post.",
+        "linkWarning": "Un lien externe est présent dans le corps du post. LinkedIn réduit souvent la portée — préférez le mettre en commentaire.",
+        "alternativeHooks": "Hooks alternatifs",
+        "useHook": "Utiliser",
+        "scores": {
+          "nicheClarity": "Clarté niche",
+          "humanPov": "Voix humaine",
+          "proofDensity": "Densité de preuve",
+          "conversationPotential": "Potentiel conversation"
+        },
+        "actions": {
+          "more_proof": "Plus de preuve",
+          "more_niche": "Plus niche",
+          "conversation_end": "Fin discussion",
+          "less_generic": "Moins générique"
+        }
       },
       "generateBatch": "Générer 4 posts",
       "generating": "Génération des posts…",
@@ -453,7 +599,7 @@
       "untitled": "Sans titre",
       "cta": {
         "title": "Choisir votre CTA",
-        "subtitle": "3 propositions basées sur votre Persona et ce post — choisissez l’intensité qui vous convient.",
+        "subtitle": "3 propositions alignées sur l’objectif du brief (conversation, save, leads…) — choisissez l’intensité.",
         "loading": "Génération des CTA…",
         "regenerate": "Régénérer les 3 CTA",
         "loadFailed": "Impossible de générer les CTA. Réessayez.",
@@ -569,6 +715,20 @@
         "email": "E-mail",
         "whatsapp": "WhatsApp"
       }
+    },
+    "news": {
+      "title": "News précédentes",
+      "subtitle": "Actualités archivées depuis la page Posts. Sélectionnez-en une pour voir le détail et générer 2 posts.",
+      "empty": "Aucune actualité archivée. Chargez des actus depuis la page Posts.",
+      "backToArticles": "← Retour aux posts",
+      "unknownSource": "Source",
+      "closeDetail": "Fermer",
+      "readSource": "Lire l'article source",
+      "pickOne": "Choisissez une actualité avant de générer.",
+      "generateFromNews": "Générer 2 posts depuis cette actu",
+      "generatingFromNews": "Génération depuis l'actu…",
+      "generateFromNewsHint": "1 post généraliste + 1 niche, tous ancrés sur cette actualité.",
+      "generatingHint": "L'IA rédige 2 posts selon votre Persona (30–60 s)."
     }
   },
   "dashboard": {

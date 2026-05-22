@@ -1,7 +1,13 @@
 "use client";
 
+import { ArticleFormatPanel } from "@/components/articles/article-format-panel";
 import { ArticleIllustrationPanel } from "@/components/articles/article-illustration-panel";
+import { ArticlePerformancePanel } from "@/components/articles/article-performance-panel";
+import { ArticleQualityPanel } from "@/components/articles/article-quality-panel";
+import { ArticleSlopPanel } from "@/components/articles/article-slop-panel";
 import { ArticleShareActions } from "@/components/articles/article-share-actions";
+import { REVISE_INTENT_PROMPTS } from "@/lib/prompts/article-quality";
+import { bodyContainsExternalLink } from "@/lib/linkedin/body-links";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
 import { ToneEdgePicker } from "@/components/articles/tone-edge-picker";
 import { LinkedInCharCount } from "@/components/articles/linkedin-char-count";
@@ -10,7 +16,6 @@ import {
   GeneratingIndicator,
 } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
-import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { getPersona } from "@/lib/workspace/persona";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
@@ -26,7 +31,10 @@ import {
   getArticle,
   markArticleRegenerated,
   saveArticleIllustration,
+  saveArticlePerformanceSignals,
+  saveArticleQuality,
   saveArticleRefinement,
+  saveArticleSlopAnalysis,
   updateArticleContent,
   validateArticleWithCta,
 } from "@/lib/workspace/articles";
@@ -40,6 +48,7 @@ import { useTranslations } from "next-intl";
 import type {
   ArticleDoc,
   ArticleIllustration,
+  ArticleQualityScores,
   ArticleRefinement,
   CtaIntensity,
   CtaSuggestion,
@@ -57,6 +66,7 @@ export function ArticleEditor({ articleId }: Props) {
   const tRef = useTranslations("setup.articles.refinement");
   const tCta = useTranslations("setup.articles.cta");
   const tIll = useTranslations("setup.articles.illustration");
+  const tQuality = useTranslations("setup.articles.quality");
   const { user, loading: authLoading } = useAuth();
   const [article, setArticle] = useState<ArticleDoc | null>(null);
   const [personaText, setPersonaText] = useState("");
@@ -73,6 +83,12 @@ export function ArticleEditor({ articleId }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [qualityLoading, setQualityLoading] = useState(false);
+  const [qualityScores, setQualityScores] = useState<ArticleQualityScores | null>(
+    null,
+  );
+  const [alternativeHooks, setAlternativeHooks] = useState<string[]>([]);
+  const [qualityCritique, setQualityCritique] = useState<string | null>(null);
 
   const loadCtaSuggestions = useCallback(async () => {
     if (!user || !article || !personaText) return;
@@ -100,6 +116,7 @@ export function ArticleEditor({ articleId }: Props) {
           body: article.body,
           ps: article.ps,
           profileEnrichment: enrichment?.details ?? {},
+          postObjective: article.postBrief?.objective ?? "credibility",
           llm: {
             provider: llmProfile.provider,
             apiKey: llmProfile.apiKey,
@@ -201,6 +218,9 @@ export function ArticleEditor({ articleId }: Props) {
     setPersonaText(p?.promptText ?? "");
     if (a?.selectedCtaStyle) setSelectedCtaStyle(a.selectedCtaStyle);
     setIllustration(a?.illustration ?? null);
+    setQualityScores(a?.qualityScores ?? null);
+    setAlternativeHooks(a?.alternativeHooks ?? []);
+    setQualityCritique(a?.qualityCritique ?? null);
     setLoaded(true);
   }, [user, articleId]);
 
@@ -268,19 +288,79 @@ export function ArticleEditor({ articleId }: Props) {
     updateRefinement({ questions });
   }
 
-  async function onApplyFeedback() {
-    if (!user || !article?.refinement || !personaText) return;
+  const loadQualityAnalysis = useCallback(async () => {
+    if (!user || !article || !personaText) return;
+    setQualityLoading(true);
+    setError(null);
+    try {
+      const auth = getClientAuth();
+      const token = auth ? await auth.currentUser?.getIdToken() : null;
+      const llmProfile = await getUserLlmProfile(user.uid);
+      if (!token || !llmProfile?.apiKey) return;
+
+      const res = await fetch("/api/articles/quality", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentLanguage: article.contentLanguage,
+          hook: article.hook,
+          body: article.body,
+          ps: article.ps,
+          postBrief: article.postBrief,
+          personaPromptText: personaText,
+          llm: {
+            provider: llmProfile.provider,
+            apiKey: llmProfile.apiKey,
+            model: llmProfile.model,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(tQuality("loadFailed"));
+        return;
+      }
+      const scores = data.scores as ArticleQualityScores;
+      const hooks = (data.alternativeHooks ?? []) as string[];
+      const critique = typeof data.critique === "string" ? data.critique : "";
+      await saveArticleQuality(user.uid, article.id, {
+        qualityScores: scores,
+        alternativeHooks: hooks,
+        qualityCritique: critique,
+      });
+      setQualityScores(scores);
+      setAlternativeHooks(hooks);
+      setQualityCritique(critique || null);
+      setArticle((prev) =>
+        prev
+          ? {
+              ...prev,
+              qualityScores: scores,
+              alternativeHooks: hooks,
+              qualityCritique: critique || undefined,
+            }
+          : prev,
+      );
+    } catch {
+      setError(tQuality("loadFailed"));
+    } finally {
+      setQualityLoading(false);
+    }
+  }, [user, article, personaText, tQuality]);
+
+  async function runRevise(refinement: ArticleRefinement) {
+    if (!user || !article || !personaText) return;
     setPendingAction("revise");
     setError(null);
     try {
-      await saveArticleRefinement(user.uid, article.id, article.refinement, "refining");
+      await saveArticleRefinement(user.uid, article.id, refinement, "refining");
 
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const [author, llmProfile] = await Promise.all([
-        getAuthorProfile(user.uid),
-        getUserLlmProfile(user.uid),
-      ]);
+      const llmProfile = await getUserLlmProfile(user.uid);
       if (!token || !llmProfile?.apiKey) throw new Error("auth");
 
       const res = await fetch("/api/articles/revise", {
@@ -299,7 +379,7 @@ export function ArticleEditor({ articleId }: Props) {
             scope: article.scope,
             hashtags: article.hashtags,
           },
-          refinement: article.refinement,
+          refinement,
           llm: {
             provider: llmProfile.provider,
             apiKey: llmProfile.apiKey,
@@ -314,10 +394,10 @@ export function ArticleEditor({ articleId }: Props) {
       }
 
       await updateArticleContent(user.uid, article.id, data);
-      await markArticleRegenerated(user.uid, article.id, article.refinement);
+      await markArticleRegenerated(user.uid, article.id, refinement);
       await recordArticleRefinementFeedback(
         user.uid,
-        article.refinement,
+        refinement,
         article.contentLanguage,
       );
       const p = await getPersona(user.uid);
@@ -330,6 +410,33 @@ export function ArticleEditor({ articleId }: Props) {
     } finally {
       setPendingAction(null);
     }
+  }
+
+  async function onApplyFeedback() {
+    if (!article?.refinement) return;
+    await runRevise(article.refinement);
+  }
+
+  async function onReviseIntent(intent: keyof typeof REVISE_INTENT_PROMPTS) {
+    if (!article?.refinement) return;
+    const refinement: ArticleRefinement = {
+      ...article.refinement,
+      globalComment: REVISE_INTENT_PROMPTS[intent],
+    };
+    setArticle({ ...article, refinement });
+    await runRevise(refinement);
+  }
+
+  async function onApplyHook(hook: string) {
+    if (!user || !article) return;
+    await updateArticleContent(user.uid, article.id, {
+      hook,
+      body: article.body,
+      ps: article.ps,
+      scope: article.scope,
+      hashtags: article.hashtags,
+    });
+    setArticle({ ...article, hook });
   }
 
   async function onValidate() {
@@ -446,6 +553,9 @@ export function ArticleEditor({ articleId }: Props) {
   const isRevising = pendingAction === "revise";
   const isValidating = pendingAction === "validate";
   const isBusy = pendingAction !== null;
+  const hasBodyLink =
+    bodyContainsExternalLink(article.body) ||
+    (article.ps ? bodyContainsExternalLink(article.ps) : false);
 
   return (
     <div className="space-y-6">
@@ -487,6 +597,43 @@ export function ArticleEditor({ articleId }: Props) {
           <p className="mt-3 text-xs text-ns-secondary">{t("hashtagsHint")}</p>
         )}
       </div>
+
+      {hasBodyLink && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {tQuality("linkWarning")}
+        </div>
+      )}
+
+      {!isValidated && (
+        <ArticleQualityPanel
+          article={article}
+          scores={qualityScores}
+          alternativeHooks={alternativeHooks}
+          critique={qualityCritique}
+          loading={qualityLoading}
+          onAnalyze={loadQualityAnalysis}
+          onApplyHook={onApplyHook}
+          onReviseIntent={onReviseIntent}
+          revising={isRevising}
+        />
+      )}
+
+      <ArticleSlopPanel
+        article={article}
+        disabled={isBusy}
+        onSave={async (slop) => {
+          if (!user) return;
+          await saveArticleSlopAnalysis(user.uid, article.id, slop);
+          setArticle((prev) => (prev ? { ...prev, slopAnalysis: slop } : prev));
+        }}
+      />
+
+      <ArticleFormatPanel
+        article={article}
+        personaText={personaText}
+        disabled={isBusy}
+        onUpdated={(patch) => setArticle((prev) => (prev ? { ...prev, ...patch } : prev))}
+      />
 
       <ArticleShareActions article={article} />
 
@@ -705,6 +852,17 @@ export function ArticleEditor({ articleId }: Props) {
             {t("copyLinkedInHint")}
           </p>
         </div>
+      )}
+
+      {isValidated && user && (
+        <ArticlePerformancePanel
+          article={article}
+          disabled={isBusy}
+          onSave={async (signals) => {
+            await saveArticlePerformanceSignals(user.uid, article.id, signals);
+            setArticle((prev) => (prev ? { ...prev, performanceSignals: signals } : prev));
+          }}
+        />
       )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}

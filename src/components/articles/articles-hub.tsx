@@ -6,10 +6,14 @@ import {
   SCOPE_CARD_CLASS,
 } from "@/lib/articles/scope";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
+import { PostBriefForm } from "@/components/articles/post-brief-form";
+import { NewsPickerPanel } from "@/components/articles/news-picker-panel";
 import {
-  NewsPickerPanel,
-  newsToSource,
-} from "@/components/articles/news-picker-panel";
+  loadStoredPostBrief,
+  saveStoredPostBrief,
+} from "@/lib/articles/post-brief-storage";
+import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
+import { isPostBriefComplete } from "@/lib/prompts/post-brief";
 import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
@@ -25,15 +29,19 @@ import {
   listArticleBatches,
   type ArticleBatchGroup,
 } from "@/lib/workspace/articles";
+import { upsertNewsArchiveBatch } from "@/lib/workspace/news-archive";
 import { getClientAuth } from "@/lib/firebase/client";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
-import { Link, useRouter } from "@/i18n/navigation";
+import { newsToSource } from "@/lib/news/to-source";
+import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type {
   ArticleDoc,
   ContentLanguage,
   EmojiLevel,
   NewsSuggestion,
+  BriefNicheCheck,
+  PostBrief,
 } from "@/types/workspace";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -48,7 +56,6 @@ export function ArticlesHub() {
   const tNews = useTranslations("setup.articles.news");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const pendingOnly = searchParams.get("pending") === "1";
   const [personaOk, setPersonaOk] = useState<boolean | null>(null);
@@ -63,6 +70,68 @@ export function ArticlesHub() {
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsHintPerplexity, setNewsHintPerplexity] = useState(false);
   const [newsLoadedOnce, setNewsLoadedOnce] = useState(false);
+  const [postBrief, setPostBrief] = useState<PostBrief>(() => loadStoredPostBrief());
+  const [nicheCheck, setNicheCheck] = useState<BriefNicheCheck | null>(null);
+  const [nicheLoading, setNicheLoading] = useState(false);
+
+  const heuristicNiche = useMemo(
+    () => heuristicBriefNicheCheck(postBrief),
+    [postBrief],
+  );
+
+  useEffect(() => {
+    saveStoredPostBrief(postBrief);
+  }, [postBrief]);
+
+  useEffect(() => {
+    if (isPostBriefComplete(postBrief)) {
+      setNicheCheck(heuristicNiche);
+    } else {
+      setNicheCheck(null);
+    }
+  }, [postBrief, heuristicNiche]);
+
+  const onAnalyzeNiche = useCallback(async () => {
+    if (!user || !isPostBriefComplete(postBrief)) return;
+    setNicheLoading(true);
+    try {
+      const auth = getClientAuth();
+      const token = auth ? await auth.currentUser?.getIdToken() : null;
+      const llmProfile = await getUserLlmProfile(user.uid);
+      if (!token || !llmProfile?.apiKey) return;
+
+      const author = await getAuthorProfile(user.uid);
+      const res = await fetch("/api/articles/brief-check", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          postBrief,
+          contentLanguage: author?.contentLanguage ?? locale,
+          personaPromptText: personaText,
+          useLlm: true,
+          llm: {
+            provider: llmProfile.provider,
+            apiKey: llmProfile.apiKey,
+            model: llmProfile.model,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && typeof data.score === "number") {
+        setNicheCheck({
+          score: data.score,
+          isTooGeneric: !!data.isTooGeneric,
+          feedback: data.feedback ?? heuristicNiche.feedback,
+          suggestions: data.suggestions ?? heuristicNiche.suggestions,
+        });
+      }
+    } finally {
+      setNicheLoading(false);
+    }
+  }, [user, postBrief, personaText, locale, heuristicNiche]);
 
   const reload = useCallback(async () => {
     if (!user) return;
@@ -139,6 +208,9 @@ export function ArticlesHub() {
       setNewsItems(data.news ?? []);
       setNewsHintPerplexity(!!data.perplexityRecommended);
       setNewsLoadedOnce(true);
+      if (data.news?.length) {
+        await upsertNewsArchiveBatch(user.uid, data.news);
+      }
       if (data.news?.length === 1) {
         setSelectedNews(data.news[0]);
       }
@@ -156,6 +228,10 @@ export function ArticlesHub() {
 
   async function runGenerate(fromNews: boolean) {
     if (!user || !personaText) return;
+    if (!isPostBriefComplete(postBrief)) {
+      setError(t("briefIncomplete"));
+      return;
+    }
     if (fromNews && !selectedNews) {
       setError(tNews("pickOne"));
       return;
@@ -200,6 +276,7 @@ export function ArticlesHub() {
             contentLanguage: contentLang,
             emojiLevel,
             profileEnrichment: enrichment?.details ?? {},
+            postBrief,
             newsSource,
             llm: {
               provider: llmProfile.provider,
@@ -221,17 +298,17 @@ export function ArticlesHub() {
       }
 
       const batchId = crypto.randomUUID();
-      const ids = await createArticleBatch(
+      await createArticleBatch(
         user.uid,
         batchId,
         data.articles,
         author?.contentLanguage ?? locale,
         emojiLevel,
         newsSource,
+        postBrief,
       );
       await reload();
       notifyOnboardingProgressChanged();
-      if (ids[0]) router.push(`/articles/${ids[0]}`);
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
         setError(t("generateTimeout"));
@@ -276,6 +353,14 @@ export function ArticlesHub() {
         pendingOnly={pendingOnly}
         onGenerate={onGenerate}
         generating={pending}
+      />
+
+      <PostBriefForm
+        brief={postBrief}
+        onChange={setPostBrief}
+        nicheCheck={nicheCheck}
+        onAnalyzeNiche={onAnalyzeNiche}
+        nicheLoading={nicheLoading}
       />
 
       <NewsPickerPanel

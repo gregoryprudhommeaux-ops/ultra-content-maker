@@ -408,6 +408,21 @@
           "draft": "Draft",
           "validated": "Validated"
         }
+      },
+      "insights": {
+        "title": "Measurement loop → Persona",
+        "subtitle": "Synthesize what works on your published posts (signals entered after validation) to refine your Persona.",
+        "counts": "{validated} validated post(s) · {withSignals} with signals recorded",
+        "synthesize": "Synthesize from my posts",
+        "generating": "Analyzing performance…",
+        "generatingHint": "AI compares your LinkedIn signals and suggests Persona updates (30–60 s).",
+        "lastRun": "Last run: {date} · {count} post(s) analyzed",
+        "needSignals": "Record at least one signal on a validated post (post detail page) before synthesizing.",
+        "goAddSignals": "Open my posts →",
+        "failed": "Could not generate insights. Try again.",
+        "noLlmKey": "Configure your API key before synthesizing.",
+        "invalidApiKey": "API key rejected. Update it in API key setup.",
+        "goLlmSetup": "Configure my API key"
       }
     },
     "articles": {
@@ -439,7 +454,138 @@
         "pickOne": "Select a news item before generating.",
         "generateFromNews": "Generate 4 posts from this story",
         "generatingFromNews": "Generating from story…",
-        "generateFromNewsHint": "2 generalist + 2 niche posts, all anchored on this news."
+        "generateFromNewsHint": "2 generalist + 2 niche posts, all anchored on this news.",
+        "previousNews": "Previous news"
+      },
+      "briefIncomplete": "Complete the post brief (objective, problem, point of view, and proof) before generating.",
+      "brief": {
+        "title": "Batch brief",
+        "subtitle": "Steers all drafts toward your LinkedIn goal — each post will reflect problem, POV, and proof.",
+        "objective": "Post objective",
+        "objectives": {
+          "credibility": "Credibility",
+          "conversation": "Conversation",
+          "awareness": "Visibility",
+          "leads": "Inbound"
+        },
+        "problem": "Audience problem",
+        "problemPlaceholder": "E.g. SMB exporters struggling to secure supply chains…",
+        "pointOfView": "Point of view",
+        "pointOfViewPlaceholder": "E.g. The real lever isn't price but end-to-end visibility…",
+        "proof": "Proof or experience",
+        "proofPlaceholder": "E.g. client case, internal metric, field observation (required)",
+        "incomplete": "Enter at least 8 characters for problem, POV, and proof.",
+        "niche": {
+          "title": "Niche clarity",
+          "deepen": "Deep AI analysis",
+          "warning": "Brief is too generic — add sector, ICP, or proof before publishing.",
+          "feedback": {
+            "brief_too_generic": "This brief could target any professional on LinkedIn.",
+            "brief_niche_ok": "Good specificity — the brief anchors identifiable expertise.",
+            "brief_could_be_sharper": "OK, but a sector detail or metric would strengthen credibility."
+          },
+          "suggestions": {
+            "add_sector_or_metric": "Add a sector, target role, or concrete metric.",
+            "remove_generic_phrases": "Remove generic phrases (“entrepreneurs”, “on LinkedIn”, etc.).",
+            "detail_problem": "Detail the problem (who, where, when, business impact)."
+          }
+        }
+      },
+      "format": {
+        "title": "Format & distribution",
+        "subtitle": "Recommended native LinkedIn format, carousel/video repurposing, and a first comment to seed discussion.",
+        "formatTitle": "Recommended format",
+        "recommendFormat": "Recommend format",
+        "refreshFormat": "Refresh",
+        "formats": {
+          "text_post": "Text post",
+          "carousel": "PDF carousel",
+          "short_video": "Native short video"
+        },
+        "alternatives": "Alternatives",
+        "carouselHint": "Consider a 5–7 slide carousel — generate the outline below, then visuals in Illustration.",
+        "repurposeTitle": "Repurpose this post",
+        "generateRepurpose": "Generate carousel + video script",
+        "refreshRepurpose": "Regenerate",
+        "repurposeHint": "Same angle as the post: LinkedIn slide outline + 45–90s script.",
+        "carouselOutline": "Carousel outline",
+        "videoScript": "Video script",
+        "copyAll": "Copy outline",
+        "firstCommentTitle": "First comment (author)",
+        "generateComment": "Suggest a comment",
+        "refreshComment": "Regenerate",
+        "firstCommentHint": "Paste this as your first comment right after posting to seed qualified discussion.",
+        "copyComment": "Copy comment",
+        "copied": "Copied"
+      },
+      "performance": {
+        "title": "Performance signals",
+        "subtitle": "After publishing on LinkedIn, enter metrics that feed the learning loop (no automatic scraping).",
+        "save": "Save signals",
+        "saved": "Signals saved",
+        "needOneMetric": "Enter at least one metric or a business opportunity.",
+        "opportunityPlaceholder": "e.g. DM from a decision-maker, podcast invite…",
+        "notesPlaceholder": "Context, timing, reaction type…",
+        "fields": {
+          "saves": "Saves",
+          "qualifiedComments": "Qualified comments",
+          "profileVisits": "Profile visits",
+          "dms": "DMs received",
+          "businessOpportunity": "Business opportunity",
+          "notes": "Notes"
+        }
+      },
+      "slop": {
+        "title": "AI-slop detector",
+        "subtitle": "Local heuristic: LinkedIn clichés / generic phrasing — no LLM call.",
+        "save": "Save analysis",
+        "humanScore": "Human score",
+        "slopScore": "Slop score",
+        "warning": "High slop: rewrite with more proof, niche, and personal voice before publishing.",
+        "summary": {
+          "empty": "Empty text.",
+          "clean": "Few slop signals detected.",
+          "mild_slop": "Some generic phrasing — consider tightening.",
+          "heavy_slop": "Many AI / LinkedIn clichés — rewrite recommended."
+        },
+        "flags": {
+          "game_changer": "Game changer",
+          "in_todays_world": "In today's world",
+          "lessons_numbered": "Numbered lessons",
+          "let_me_tell": "Let me tell you",
+          "heres_the_thing": "Here's the thing",
+          "key_takeaway": "Key takeaway",
+          "at_end_of_day": "At the end of the day",
+          "excited_to_share": "Excited to share",
+          "unlock": "Unlock",
+          "the_secret": "The secret",
+          "engagement_bait": "Engagement bait",
+          "generic_inspiration": "Generic inspiration",
+          "delve": "Let's delve",
+          "tapestry": "Tapestry"
+        }
+      },
+      "quality": {
+        "title": "LinkedIn quality",
+        "subtitle": "Scores and levers for credible, niche, conversational posts.",
+        "analyze": "Analyze this post",
+        "refresh": "Re-analyze",
+        "loadFailed": "Could not analyze the post.",
+        "linkWarning": "An external link appears in the post body. LinkedIn often reduces reach — prefer putting it in a comment.",
+        "alternativeHooks": "Alternative hooks",
+        "useHook": "Use",
+        "scores": {
+          "nicheClarity": "Niche clarity",
+          "humanPov": "Human voice",
+          "proofDensity": "Proof density",
+          "conversationPotential": "Conversation potential"
+        },
+        "actions": {
+          "more_proof": "More proof",
+          "more_niche": "More niche",
+          "conversation_end": "Discussion ending",
+          "less_generic": "Less generic"
+        }
       },
       "generateBatch": "Generate 4 posts",
       "generating": "Generating posts…",
@@ -453,7 +599,7 @@
       "untitled": "Untitled",
       "cta": {
         "title": "Choose your CTA",
-        "subtitle": "3 suggestions from your Persona and this post — pick the intensity you want.",
+        "subtitle": "3 suggestions aligned with the brief objective (conversation, save, leads…) — pick intensity.",
         "loading": "Generating CTAs…",
         "regenerate": "Regenerate 3 CTAs",
         "loadFailed": "Could not generate CTAs. Try again.",
@@ -569,6 +715,20 @@
         "email": "Email",
         "whatsapp": "WhatsApp"
       }
+    },
+    "news": {
+      "title": "Previous news",
+      "subtitle": "Stories archived from your articles hub. Select one to read details and generate 2 posts.",
+      "empty": "No archived news yet. Fetch news from the posts page first.",
+      "backToArticles": "← Back to posts",
+      "unknownSource": "Source",
+      "closeDetail": "Close",
+      "readSource": "Read source article",
+      "pickOne": "Select a news story before generating.",
+      "generateFromNews": "Generate 2 posts from this story",
+      "generatingFromNews": "Generating from story…",
+      "generateFromNewsHint": "1 generalist + 1 niche post, both anchored on this news.",
+      "generatingHint": "AI is writing 2 posts from your Persona (30–60 s)."
     }
   },
   "dashboard": {
