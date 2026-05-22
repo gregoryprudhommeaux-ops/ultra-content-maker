@@ -5,6 +5,7 @@ import {
   clearGoogleRedirectPending,
   isGoogleRedirectPending,
 } from "@/lib/firebase/google-redirect";
+import { clearLoginNotifyDedupe } from "@/lib/firebase/notify-admin-login";
 import { getClientAuth } from "@/lib/firebase/client";
 import {
   User,
@@ -80,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       redirectError,
       signOut: async () => {
         const auth = getClientAuth();
+        if (user) clearLoginNotifyDedupe(user.uid);
         if (auth) await firebaseSignOut(auth);
       },
     }),

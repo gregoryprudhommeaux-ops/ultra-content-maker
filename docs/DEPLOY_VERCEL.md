@@ -18,6 +18,16 @@ FIREBASE_PRIVATE_KEY=
 
 `FIREBASE_PRIVATE_KEY` : collez la clé du JSON service account (Vercel accepte les `\n` littéraux).
 
+**Notifications de connexion (optionnel) :**
+
+```
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=Ultra Content Maker <notifications@votredomaine.com>
+ADMIN_LOGIN_NOTIFY_EMAIL=gregory.prudhommeaux@gmail.com
+```
+
+Créez une clé API sur [Resend](https://resend.com), vérifiez un domaine d’envoi (ou utilisez `onboarding@resend.dev` en test — envoi limité au propriétaire du compte Resend). Sans `RESEND_API_KEY`, les connexions fonctionnent mais aucun e-mail n’est envoyé.
+
 ## Firebase après le 1er déploiement
 
 Authentication → Settings → **Authorized domains** → ajoutez :

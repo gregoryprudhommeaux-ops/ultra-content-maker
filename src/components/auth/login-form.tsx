@@ -94,6 +94,7 @@ export function LoginForm() {
         cred.user.uid,
         cred.user.email ?? email,
         cred.user.displayName ?? undefined,
+        { method: "email", event: "login" },
       );
     } catch (err) {
       setFormError(resolveAuthErrorMessage(tErr, err));
@@ -119,6 +120,7 @@ export function LoginForm() {
         cred.user.uid,
         cred.user.email ?? "",
         cred.user.displayName ?? undefined,
+        { method: "google", event: "login" },
       );
     } catch (err) {
       setFormError(resolveAuthErrorMessage(tErr, err));

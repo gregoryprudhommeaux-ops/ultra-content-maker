@@ -95,6 +95,7 @@ export function SignupForm() {
         cred.user.uid,
         cred.user.email ?? email,
         cred.user.displayName ?? undefined,
+        { method: "email", event: "signup" },
       );
     } catch (err) {
       setFormError(resolveAuthErrorMessage(tErr, err));
@@ -120,6 +121,7 @@ export function SignupForm() {
         cred.user.uid,
         cred.user.email ?? "",
         cred.user.displayName ?? undefined,
+        { method: "google", event: "signup" },
       );
     } catch (err) {
       setFormError(resolveAuthErrorMessage(tErr, err));

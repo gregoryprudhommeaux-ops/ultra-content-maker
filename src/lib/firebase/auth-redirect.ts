@@ -1,4 +1,8 @@
 import type { AppLocale } from "@/i18n/routing";
+import {
+  notifyAdminLogin,
+  type AdminLoginNotifyMeta,
+} from "@/lib/firebase/notify-admin-login";
 import { resolveLandingPath } from "@/lib/workspace/landing-path";
 import { ensureUserDoc } from "@/lib/workspace/user";
 import { clearGoogleRedirectPending } from "./google-redirect";
@@ -15,7 +19,11 @@ export async function redirectAfterSignInForUser(
   userId: string,
   email: string,
   displayName?: string,
+  notify?: AdminLoginNotifyMeta,
 ) {
   await ensureUserDoc(userId, email, displayName);
+  if (notify) {
+    notifyAdminLogin(userId, { ...notify, locale });
+  }
   redirectAfterSignIn(locale, await resolveLandingPath(userId));
 }
