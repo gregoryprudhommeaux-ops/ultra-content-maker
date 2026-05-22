@@ -2,7 +2,6 @@
 
 import { ArticleFormatPanel } from "@/components/articles/article-format-panel";
 import { ArticleIllustrationPanel } from "@/components/articles/article-illustration-panel";
-import { ArticlePerformancePanel } from "@/components/articles/article-performance-panel";
 import { ArticleQualityPanel } from "@/components/articles/article-quality-panel";
 import { ArticleSlopPanel } from "@/components/articles/article-slop-panel";
 import { ArticleShareActions } from "@/components/articles/article-share-actions";
@@ -34,7 +33,6 @@ import {
   getArticle,
   markArticleRegenerated,
   saveArticleIllustration,
-  saveArticlePerformanceSignals,
   saveArticleQuality,
   saveArticleRefinement,
   saveArticleSlopAnalysis,
@@ -637,10 +635,39 @@ export function ArticleEditor({ articleId }: Props) {
         }
       }
 
+      let closingForExport = chosen.text;
+      if (llmProfile?.apiKey) {
+        const intRes = await fetch("/api/articles/integrate-cta", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            hook: article.hook,
+            body: article.body,
+            ps: article.ps,
+            ctaDraft: chosen.text,
+            ctaStyle: chosen.style,
+            contentLanguage: article.contentLanguage,
+            llm: {
+              provider: llmProfile.provider,
+              apiKey: llmProfile.apiKey,
+              model: llmProfile.model,
+            },
+          }),
+        });
+        const intData = (await intRes.json()) as { closingBlock?: string };
+        if (intRes.ok && intData.closingBlock?.trim()) {
+          closingForExport = intData.closingBlock.trim();
+        }
+      }
+
+      const ctaIntegrated = closingForExport !== chosen.text;
       const exportText = buildExportText(
         article.body,
-        article.ps,
-        chosen.text,
+        ctaIntegrated ? undefined : article.ps,
+        closingForExport,
         chosen.linkUrl,
         hashtags,
       );
@@ -1068,17 +1095,6 @@ export function ArticleEditor({ articleId }: Props) {
             {t("copyLinkedInHint")}
           </p>
         </div>
-      )}
-
-      {isValidated && user && (
-        <ArticlePerformancePanel
-          article={article}
-          disabled={isBusy}
-          onSave={async (signals) => {
-            await saveArticlePerformanceSignals(user.uid, article.id, signals);
-            setArticle((prev) => (prev ? { ...prev, performanceSignals: signals } : prev));
-          }}
-        />
       )}
 
       {error && isValidated && (

@@ -591,23 +591,6 @@
         "copyComment": "Copier le commentaire",
         "copied": "Copié"
       },
-      "performance": {
-        "title": "Signaux de performance",
-        "subtitle": "Après publication sur LinkedIn, saisissez les métriques utiles pour la boucle d’apprentissage (pas de scraping automatique).",
-        "save": "Enregistrer les signaux",
-        "saved": "Signaux enregistrés",
-        "needOneMetric": "Renseignez au moins une métrique ou une opportunité.",
-        "opportunityPlaceholder": "ex. DM d’un décideur, invitation podcast…",
-        "notesPlaceholder": "Contexte, timing, type de réaction…",
-        "fields": {
-          "saves": "Saves",
-          "qualifiedComments": "Commentaires qualifiés",
-          "profileVisits": "Visites profil",
-          "dms": "DMs reçus",
-          "businessOpportunity": "Opportunité business",
-          "notes": "Notes"
-        }
-      },
       "slop": {
         "title": "Formulations génériques (style IA / LinkedIn)",
         "intro": "Ce panneau repère les tournures que tout le monde voit sur LinkedIn et que les IA recopient souvent (« game changer », « ravi de partager », leçons numérotées, etc.). Ce n’est pas une note de qualité globale du post : c’est un signal pour le rendre plus personnel, concret et crédible.",
@@ -709,14 +692,6 @@
         "promptLabel": "Prompt {n}",
         "copy": "Copier",
         "copied": "Copié",
-        "limitsTitle": "Génération d’image dans l’app — limites",
-        "limits": {
-          "noNativeGen": "Pas de génération d’image intégrée pour l’instant : votre clé API sert au texte (Persona, posts), pas à produire des fichiers image dans Ultra Content Maker.",
-          "providers": "OpenAI (DALL·E), Google (Imagen) et les autres fournisseurs configurés ne sont pas branchés sur un moteur d’images dans cette version.",
-          "storage": "Il faudrait un stockage cloud (Firebase Storage / Vercel Blob), des coûts par image et une prévisualisation — non inclus aujourd’hui.",
-          "linkedin": "LinkedIn n’accepte pas l’upload automatique depuis une app tierce : vous ajoutez l’image manuellement lors de la publication.",
-          "cost": "Chaque suggestion visuelle consomme un appel LLM texte (comme les CTA) ; la création d’image chez un tiers reste à votre charge."
-        },
         "formats": {
           "photo": "Photo réaliste",
           "illustration": "Illustration",

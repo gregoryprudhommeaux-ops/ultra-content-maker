@@ -26,7 +26,7 @@ export function buildPostBriefInstruction(
 - Author point of view: ${brief.pointOfView.trim()}
 - Proof to weave in (required): ${brief.proof.trim()}
 
-Each post must visibly reflect the problem, POV, and proof. Match the objective in hook, body shape, and closing (no hard-sell CTA block — user adds later).`;
+Each post must visibly reflect the problem, POV, and proof. Match the objective in hook, body shape, and closing (no hard-sell CTA block — user adds a signature CTA later; body ending must not duplicate that CTA's opener).`;
 }
 
 export function isPostBriefComplete(brief: PostBrief): boolean {

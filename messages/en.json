@@ -591,23 +591,6 @@
         "copyComment": "Copy comment",
         "copied": "Copied"
       },
-      "performance": {
-        "title": "Performance signals",
-        "subtitle": "After publishing on LinkedIn, enter metrics that feed the learning loop (no automatic scraping).",
-        "save": "Save signals",
-        "saved": "Signals saved",
-        "needOneMetric": "Enter at least one metric or a business opportunity.",
-        "opportunityPlaceholder": "e.g. DM from a decision-maker, podcast invite…",
-        "notesPlaceholder": "Context, timing, reaction type…",
-        "fields": {
-          "saves": "Saves",
-          "qualifiedComments": "Qualified comments",
-          "profileVisits": "Profile visits",
-          "dms": "DMs received",
-          "businessOpportunity": "Business opportunity",
-          "notes": "Notes"
-        }
-      },
       "slop": {
         "title": "Generic phrasing (AI / LinkedIn style)",
         "intro": "This panel flags wording everyone sees on LinkedIn and that AI tools often reuse (“game changer”, “excited to share”, numbered lessons, etc.). It is not an overall quality grade for your post — only a signal to make it more personal, concrete, and credible.",
@@ -709,14 +692,6 @@
         "promptLabel": "Prompt {n}",
         "copy": "Copy",
         "copied": "Copied",
-        "limitsTitle": "In-app image generation — limits",
-        "limits": {
-          "noNativeGen": "No built-in image generation yet: your API key powers text (Persona, posts), not image files inside Ultra Content Maker.",
-          "providers": "OpenAI (DALL·E), Google (Imagen), and other configured providers are not wired to an image engine in this version.",
-          "storage": "Would require cloud storage (Firebase Storage / Vercel Blob), per-image cost, and preview — not included today.",
-          "linkedin": "LinkedIn does not allow automatic upload from a third-party app: you add the image manually when publishing.",
-          "cost": "Each visual suggestion uses one text LLM call (like CTAs); creating the image elsewhere is on your side."
-        },
         "formats": {
           "photo": "Realistic photo",
           "illustration": "Illustration",

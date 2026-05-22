@@ -29,6 +29,8 @@ Keep the post in ${lang}. Preserve author expertise. Apply all feedback.${toneNo
 Emoji rule (non-negotiable): ${emoji}
 If emojiLevel is light or heavy, the revised post MUST contain visible Unicode emojis.
 
+Closing: end the body so a signature CTA can follow naturally — avoid repeating the same conditional opener the CTA will use; do not paste a hard-sell CTA block into the body.
+
 Return JSON only: { "hook": string, "body": string, "ps": string, "scope": "generalist" | "niche", "hashtags": string[] } with exactly 4 hashtags (no # prefix). Keep the same scope unless refinement clearly requires switching breadth.`;
 }
 

@@ -47,19 +47,6 @@ export function ArticleIllustrationPanel({
         </button>
       </div>
 
-      <details className="rounded-lg border border-ns-alternate bg-white px-3 py-2 text-sm">
-        <summary className="cursor-pointer font-medium text-ns-tertiary">
-          {t("limitsTitle")}
-        </summary>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-ns-secondary">
-          <li>{t("limits.noNativeGen")}</li>
-          <li>{t("limits.providers")}</li>
-          <li>{t("limits.storage")}</li>
-          <li>{t("limits.linkedin")}</li>
-          <li>{t("limits.cost")}</li>
-        </ul>
-      </details>
-
       {loading && !illustration && (
         <p className="text-sm text-ns-secondary">{t("loading")}</p>
       )}

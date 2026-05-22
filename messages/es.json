@@ -591,23 +591,6 @@
         "copyComment": "Copiar comentario",
         "copied": "Copiado"
       },
-      "performance": {
-        "title": "Señales de rendimiento",
-        "subtitle": "Tras publicar en LinkedIn, introduce métricas para el bucle de aprendizaje (sin scraping automático).",
-        "save": "Guardar señales",
-        "saved": "Señales guardadas",
-        "needOneMetric": "Introduce al menos una métrica u oportunidad de negocio.",
-        "opportunityPlaceholder": "ej. DM de un decisor, invitación a podcast…",
-        "notesPlaceholder": "Contexto, timing, tipo de reacción…",
-        "fields": {
-          "saves": "Guardados",
-          "qualifiedComments": "Comentarios cualificados",
-          "profileVisits": "Visitas al perfil",
-          "dms": "DMs recibidos",
-          "businessOpportunity": "Oportunidad de negocio",
-          "notes": "Notas"
-        }
-      },
       "slop": {
         "title": "Frases genéricas (estilo IA / LinkedIn)",
         "intro": "Este panel detecta fórmulas que todo el mundo ve en LinkedIn y que las IA repiten a menudo («game changer», «emocionado de compartir», lecciones numeradas, etc.). No es una nota global de calidad del post: es una señal para hacerlo más personal, concreto y creíble.",
@@ -709,14 +692,6 @@
         "promptLabel": "Prompt {n}",
         "copy": "Copiar",
         "copied": "Copiado",
-        "limitsTitle": "Generación de imagen en la app — límites",
-        "limits": {
-          "noNativeGen": "Sin generación de imagen integrada por ahora: tu clave API sirve para texto (Persona, posts), no para crear archivos de imagen en Ultra Content Maker.",
-          "providers": "OpenAI (DALL·E), Google (Imagen) y otros proveedores configurados no están conectados a un motor de imágenes en esta versión.",
-          "storage": "Haría falta almacenamiento en la nube (Firebase Storage / Vercel Blob), coste por imagen y vista previa — no incluido hoy.",
-          "linkedin": "LinkedIn no permite subir automáticamente desde una app externa: añades la imagen manualmente al publicar.",
-          "cost": "Cada sugerencia visual consume una llamada LLM de texto (como los CTA); crear la imagen en otro servicio queda de tu lado."
-        },
         "formats": {
           "photo": "Foto realista",
           "illustration": "Ilustración",
