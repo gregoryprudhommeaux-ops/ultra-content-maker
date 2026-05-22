@@ -39,6 +39,7 @@ import {
   validateArticleWithCta,
 } from "@/lib/workspace/articles";
 import {
+  persistArticleRefinementAndSyncPersona,
   recordArticleRefinementFeedback,
   recordArticleValidateFeedback,
 } from "@/lib/persona/sync-persona-from-feedback";
@@ -231,6 +232,8 @@ export function ArticleEditor({ articleId }: Props) {
 
   const ctaFetchedRef = useRef(false);
   const illustrationFetchedRef = useRef(false);
+  const refinementSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const refinementSyncGenRef = useRef(0);
   useEffect(() => {
     ctaFetchedRef.current = false;
     illustrationFetchedRef.current = false;
@@ -260,6 +263,41 @@ export function ArticleEditor({ articleId }: Props) {
     illustrationFetchedRef.current = true;
     loadIllustrationSuggestions();
   }, [loaded, article, loadIllustrationSuggestions]);
+
+  useEffect(() => {
+    if (!user || !article?.refinement || article.status === "validated") return;
+    if (!hasReviseInput(article.refinement)) return;
+
+    if (refinementSyncTimerRef.current) {
+      clearTimeout(refinementSyncTimerRef.current);
+    }
+    const gen = ++refinementSyncGenRef.current;
+    refinementSyncTimerRef.current = setTimeout(() => {
+      void (async () => {
+        try {
+          const status = article.status === "draft" ? "draft" : "refining";
+          await persistArticleRefinementAndSyncPersona(
+            user.uid,
+            article.id,
+            article.refinement!,
+            article.contentLanguage,
+            status,
+          );
+          if (gen !== refinementSyncGenRef.current) return;
+          const p = await getPersona(user.uid);
+          if (p?.promptText) setPersonaText(p.promptText);
+        } catch {
+          /* debounced sync — ignore transient errors */
+        }
+      })();
+    }, 800);
+
+    return () => {
+      if (refinementSyncTimerRef.current) {
+        clearTimeout(refinementSyncTimerRef.current);
+      }
+    };
+  }, [user, article?.id, article?.refinement, article?.status, article?.contentLanguage]);
 
   function updateRefinement(patch: Partial<ArticleRefinement>) {
     if (!article?.refinement) return;
@@ -397,6 +435,7 @@ export function ArticleEditor({ articleId }: Props) {
       await markArticleRegenerated(user.uid, article.id, refinement);
       await recordArticleRefinementFeedback(
         user.uid,
+        article.id,
         refinement,
         article.contentLanguage,
       );
@@ -509,6 +548,7 @@ export function ArticleEditor({ articleId }: Props) {
       if (article.refinement) {
         await recordArticleValidateFeedback(
           user.uid,
+          article.id,
           article.refinement,
           article.contentLanguage,
           chosen.style,

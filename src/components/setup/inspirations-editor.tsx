@@ -17,11 +17,8 @@ import { useCallback, useEffect, useState } from "react";
 
 type Props = {
   userId: string;
-  /** Show "your posts" section (dedicated inspirations page) */
   showMyPosts?: boolean;
-  /** Link to regenerate persona after saving */
   showPersonaHint?: boolean;
-  /** Hide page title when embedded in author onboarding */
   hidePageHeader?: boolean;
 };
 
@@ -43,20 +40,22 @@ function SourceList({
   t: ReturnType<typeof useTranslations<"setup.inspirations">>;
   tAspects: ReturnType<typeof useTranslations<"setup.inspirations">>;
 }) {
-  if (sources.length === 0) return null;
   return (
     <ul className="space-y-2">
-      {sources.map((s) => (
+      {sources.map((s, index) => (
         <li
           key={s.id}
-          className="flex items-start justify-between gap-2 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm"
+          className="flex items-start justify-between gap-2 rounded-lg border border-gray-100 bg-white px-3 py-2.5 text-sm"
         >
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+              #{index + 1}
+            </p>
             <a
               href={s.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block truncate font-medium text-ns-tertiary underline"
+              className="mt-0.5 block truncate font-medium text-ns-tertiary underline"
             >
               {s.label || s.url}
             </a>
@@ -73,7 +72,7 @@ function SourceList({
           <button
             type="button"
             onClick={() => onRemove(s.id)}
-            className="shrink-0 text-ns-secondary hover:text-red-600"
+            className="shrink-0 text-xs font-medium text-ns-secondary hover:text-red-600"
           >
             {t("remove")}
           </button>
@@ -102,7 +101,9 @@ function InspirationSection({
   const [whyLike, setWhyLike] = useState("");
   const [aspects, setAspects] = useState<InspirationAspect[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [pending, setPending] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -125,6 +126,7 @@ function InspirationSection({
 
   async function onAdd() {
     setError(null);
+    setSuccess(false);
     if (!url.trim()) return;
     if (!isValidUrl(url.trim())) {
       setError(t("invalidUrl"));
@@ -134,6 +136,7 @@ function InspirationSection({
       setError(t("needAspectOrWhy"));
       return;
     }
+    setPending(true);
     try {
       await addSource(userId, {
         type: category === "inspiration_profile" ? "linkedin_profile" : "linkedin_post",
@@ -145,20 +148,38 @@ function InspirationSection({
       setUrl("");
       setWhyLike("");
       setAspects([]);
+      setSuccess(true);
       await load();
-    } catch {
-      setError(t("addFailed"));
+      setTimeout(() => setSuccess(false), 4000);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      if (msg === "duplicate_url") setError(t("duplicateUrl"));
+      else if (msg === "max_sources_per_category") setError(t("maxReached"));
+      else setError(t("addFailed"));
+    } finally {
+      setPending(false);
     }
   }
 
+  const count = sources.length;
+
   return (
-    <section className="space-y-4 rounded-xl border border-gray-100 bg-ns-brand-light/50 p-4">
-      <h3 className="text-sm font-semibold text-ns-tertiary">{t(titleKey)}</h3>
-      <p className="text-sm text-ns-secondary">{t(descKey)}</p>
+    <section className="space-y-4 rounded-xl border border-gray-100 bg-ns-brand-light/50 p-4 md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-semibold text-ns-tertiary">{t(titleKey)}</h3>
+          <p className="mt-1 text-sm text-ns-secondary">{t(descKey)}</p>
+        </div>
+        {!loading && count > 0 && (
+          <span className="rounded-full bg-ns-primary/20 px-2.5 py-0.5 text-xs font-bold text-ns-tertiary">
+            {t("count", { count })}
+          </span>
+        )}
+      </div>
 
       {loading ? (
         <p className="text-sm text-ns-secondary">…</p>
-      ) : sources.length > 0 ? (
+      ) : count > 0 ? (
         <SourceList
           sources={sources}
           onRemove={(id) => removeSource(userId, id).then(load)}
@@ -166,10 +187,16 @@ function InspirationSection({
           tAspects={t}
         />
       ) : (
-        <p className="text-sm text-ns-secondary">{t("empty")}</p>
+        <p className="rounded-lg border border-dashed border-ns-alternate bg-white/60 px-3 py-4 text-sm text-ns-secondary">
+          {t("empty")}
+        </p>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-3 border-t border-ns-alternate/80 pt-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-ns-secondary">
+          {count > 0 ? t("addAnotherTitle") : t("addFirstTitle")}
+        </p>
+
         <div>
           <OptionalLabel htmlFor={`${category}-url`}>{t("url")}</OptionalLabel>
           <input
@@ -177,7 +204,16 @@ function InspirationSection({
             type="text"
             inputMode="url"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              setError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void onAdd();
+              }
+            }}
             placeholder={t(urlPlaceholderKey)}
             className={INPUT_CLASS}
           />
@@ -222,12 +258,17 @@ function InspirationSection({
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
+        {success && (
+          <p className="text-sm font-medium text-emerald-800">{t("addedSuccess")}</p>
+        )}
+
         <button
           type="button"
+          disabled={pending}
           onClick={onAdd}
-          className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light"
+          className="rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-medium text-ns-tertiary shadow-sm hover:bg-ns-brand-light disabled:opacity-50"
         >
-          {t("add")}
+          {pending ? "…" : count > 0 ? t("addAnother") : t("add")}
         </button>
       </div>
     </section>

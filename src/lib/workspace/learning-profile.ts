@@ -1,6 +1,8 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import type {
   ArticleRefinement,
+  AudienceProfile,
+  AuthorProfile,
   ContentLanguage,
   CtaIntensity,
   EmojiLevel,
@@ -25,6 +27,8 @@ export type LearningSource =
 export interface LearningEntry {
   source: LearningSource;
   text: string;
+  /** When set, refinement lines belong to one article (replaced on update, not duplicated). */
+  articleId?: string;
   createdAt: Date;
 }
 
@@ -53,6 +57,7 @@ export async function getLearningProfile(
     preferredCtaStyle: d.preferredCtaStyle as CtaIntensity | undefined,
     entries: entries.map((e) => ({
       ...e,
+      articleId: e.articleId as string | undefined,
       createdAt: e.createdAt instanceof Date ? e.createdAt : toDate(e.createdAt),
     })),
     updatedAt: toDate(d.updatedAt),
@@ -70,15 +75,15 @@ export async function saveDefaultEmojiLevel(
     {
       emojiLevel,
       preferredCtaStyle: prev?.preferredCtaStyle ?? null,
-      entries: (prev?.entries ?? []).map((e) => ({
-        source: e.source,
-        text: e.text,
-        createdAt: e.createdAt,
-      })),
+      entries: (prev?.entries ?? []).map(serializeLearningEntry),
       updatedAt: serverTimestamp(),
     },
     { merge: true },
   );
+  const { syncPersonaAfterProfileSave } = await import(
+    "@/lib/persona/sync-after-profile-save"
+  );
+  await syncPersonaAfterProfileSave(userId);
 }
 
 export async function appendLearningEntries(
@@ -96,11 +101,43 @@ export async function appendLearningEntries(
   await setDoc(learningRef(userId), {
     emojiLevel: prefs?.emojiLevel ?? prev?.emojiLevel ?? "light",
     preferredCtaStyle: prefs?.preferredCtaStyle ?? prev?.preferredCtaStyle ?? null,
-    entries: merged.map((e) => ({
-      source: e.source,
-      text: e.text,
-      createdAt: e.createdAt,
-    })),
+    entries: merged.map(serializeLearningEntry),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+function serializeLearningEntry(e: LearningEntry) {
+  return {
+    source: e.source,
+    text: e.text,
+    articleId: e.articleId ?? null,
+    createdAt: e.createdAt,
+  };
+}
+
+/** Replace this article's refinement lines in learning (no duplicate on each keystroke). */
+export async function replaceArticleRefinementLearning(
+  userId: string,
+  articleId: string,
+  refinement: ArticleRefinement,
+  contentLanguage: ContentLanguage,
+) {
+  const prev = await getLearningProfile(userId);
+  const now = new Date();
+  const fromRefinement = entriesFromRefinement(refinement, contentLanguage).map((e) => ({
+    ...e,
+    articleId,
+    createdAt: now,
+  }));
+  const kept = (prev?.entries ?? []).filter(
+    (e) => !(e.source === "article_refinement" && e.articleId === articleId),
+  );
+  const merged: LearningEntry[] = [...fromRefinement, ...kept].slice(0, MAX_ENTRIES);
+
+  await setDoc(learningRef(userId), {
+    emojiLevel: refinement.emojiLevel ?? prev?.emojiLevel ?? "light",
+    preferredCtaStyle: prev?.preferredCtaStyle ?? null,
+    entries: merged.map(serializeLearningEntry),
     updatedAt: serverTimestamp(),
   });
 }
@@ -241,6 +278,8 @@ export function buildLearnedSectionMarkdown(
   profile: LearningProfile | null,
   enrichmentDetails: Record<string, GapAnswerValue>,
   lang: ContentLanguage,
+  author?: AuthorProfile | null,
+  audience?: AudienceProfile | null,
 ): string {
   const lines: string[] = [];
   const titles: Record<ContentLanguage, string> = {
@@ -250,6 +289,61 @@ export function buildLearnedSectionMarkdown(
   };
   lines.push(titles[lang] ?? titles.fr);
   lines.push("");
+
+  const profileHeadings: Record<
+    ContentLanguage,
+    { author: string; audience: string; role: string; positioning: string; target: string; focus: string; notes: string }
+  > = {
+    fr: {
+      author: "**Profil auteur (à jour)**",
+      audience: "**Audience cible (à jour)**",
+      role: "Rôle",
+      positioning: "Positionnement",
+      target: "Cible",
+      focus: "Focus contenu",
+      notes: "Notes",
+    },
+    en: {
+      author: "**Author profile (current)**",
+      audience: "**Target audience (current)**",
+      role: "Role",
+      positioning: "Positioning",
+      target: "Target",
+      focus: "Content focus",
+      notes: "Notes",
+    },
+    es: {
+      author: "**Perfil autor (actual)**",
+      audience: "**Audiencia (actual)**",
+      role: "Rol",
+      positioning: "Posicionamiento",
+      target: "Objetivo",
+      focus: "Enfoque",
+      notes: "Notas",
+    },
+  };
+  const H = profileHeadings[lang] ?? profileHeadings.fr;
+
+  const authorLines: string[] = [];
+  if (author?.roleTitle?.trim()) authorLines.push(`${H.role}: ${author.roleTitle.trim()}`);
+  if (author?.positioningLine?.trim()) {
+    authorLines.push(`${H.positioning}: ${author.positioningLine.trim()}`);
+  }
+  if (authorLines.length > 0) {
+    lines.push(`- ${H.author}`);
+    for (const l of authorLines) lines.push(`  - ${l}`);
+  }
+
+  if (audience && !audience.skipped) {
+    const audLines: string[] = [];
+    if (audience.targetLabel?.trim()) audLines.push(`${H.target}: ${audience.targetLabel.trim()}`);
+    if (audience.contentFocus?.trim()) audLines.push(`${H.focus}: ${audience.contentFocus.trim()}`);
+    if (audience.optionalNotes?.trim()) audLines.push(`${H.notes}: ${audience.optionalNotes.trim()}`);
+    if (audLines.length > 0) {
+      lines.push(`- ${H.audience}`);
+      for (const l of audLines) lines.push(`  - ${l}`);
+    }
+  }
 
   if (profile?.emojiLevel) {
     lines.push(`- **Emojis:** ${emojiInstruction(profile.emojiLevel, lang)}`);

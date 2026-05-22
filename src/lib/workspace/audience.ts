@@ -39,6 +39,10 @@ export async function saveAudienceProfile(
     },
     { merge: true },
   );
+  const { syncPersonaAfterProfileSave } = await import(
+    "@/lib/persona/sync-after-profile-save"
+  );
+  await syncPersonaAfterProfileSave(userId);
 }
 
 export async function skipAudienceStep(userId: string) {

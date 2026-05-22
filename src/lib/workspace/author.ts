@@ -52,6 +52,10 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
     },
     { merge: true },
   );
+  const { syncPersonaAfterProfileSave } = await import(
+    "@/lib/persona/sync-after-profile-save"
+  );
+  await syncPersonaAfterProfileSave(userId);
 }
 
 export async function completeAuthorStep(userId: string) {

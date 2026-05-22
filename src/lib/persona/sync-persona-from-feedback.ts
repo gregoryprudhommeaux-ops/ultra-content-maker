@@ -1,9 +1,11 @@
 import { getAuthorProfile } from "@/lib/workspace/author";
+import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import {
   appendLearningEntries,
   buildLearnedSectionMarkdown,
   getLearningProfile,
+  replaceArticleRefinementLearning,
   stripLearnedSection,
   type LearningEntry,
 } from "@/lib/workspace/learning-profile";
@@ -24,10 +26,11 @@ import {
 
 /** Persist feedback signals and merge them into the Persona prompt. */
 export async function syncPersonaFromFeedback(userId: string) {
-  const [persona, enrichment, author, learning] = await Promise.all([
+  const [persona, enrichment, author, audience, learning] = await Promise.all([
     getPersona(userId),
     getProfileEnrichment(userId),
     getAuthorProfile(userId),
+    getAudienceProfile(userId),
     getLearningProfile(userId),
   ]);
 
@@ -39,6 +42,8 @@ export async function syncPersonaFromFeedback(userId: string) {
     learning,
     enrichment?.details ?? {},
     lang,
+    author,
+    audience,
   );
   const promptText = `${base}\n\n${learned}`;
 
@@ -61,33 +66,60 @@ export async function recordGapFeedback(
 
 export async function recordArticleRefinementFeedback(
   userId: string,
+  articleId: string,
   refinement: ArticleRefinement,
   contentLanguage: ContentLanguage,
 ) {
-  const entries = entriesFromRefinement(refinement, contentLanguage);
-  if (entries.length === 0) return;
-  await appendLearningEntries(userId, entries, {
-    emojiLevel: refinement.emojiLevel,
-  });
+  await replaceArticleRefinementLearning(
+    userId,
+    articleId,
+    refinement,
+    contentLanguage,
+  );
   await syncPersonaFromFeedback(userId);
+}
+
+/** Persist refinement to Firestore and merge into Persona (debounced field edits). */
+export async function persistArticleRefinementAndSyncPersona(
+  userId: string,
+  articleId: string,
+  refinement: ArticleRefinement,
+  contentLanguage: ContentLanguage,
+  articleStatus: "draft" | "refining",
+) {
+  const { saveArticleRefinement } = await import("@/lib/workspace/articles");
+  await saveArticleRefinement(userId, articleId, refinement, articleStatus);
+  await recordArticleRefinementFeedback(
+    userId,
+    articleId,
+    refinement,
+    contentLanguage,
+  );
 }
 
 export async function recordArticleValidateFeedback(
   userId: string,
+  articleId: string,
   refinement: ArticleRefinement | undefined,
   contentLanguage: ContentLanguage,
   ctaStyle: CtaIntensity,
 ) {
-  const entries: Omit<LearningEntry, "createdAt">[] = [
-    entryFromCtaChoice(ctaStyle, contentLanguage),
-  ];
   if (refinement) {
-    entries.push(...entriesFromRefinement(refinement, contentLanguage));
+    await replaceArticleRefinementLearning(
+      userId,
+      articleId,
+      refinement,
+      contentLanguage,
+    );
   }
-  await appendLearningEntries(userId, entries, {
-    emojiLevel: refinement?.emojiLevel,
-    preferredCtaStyle: ctaStyle,
-  });
+  await appendLearningEntries(
+    userId,
+    [entryFromCtaChoice(ctaStyle, contentLanguage)],
+    {
+      emojiLevel: refinement?.emojiLevel,
+      preferredCtaStyle: ctaStyle,
+    },
+  );
   await syncPersonaFromFeedback(userId);
 }
 
