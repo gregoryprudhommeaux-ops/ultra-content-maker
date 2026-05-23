@@ -1,10 +1,12 @@
 "use client";
 
 import { NewsCard } from "@/components/news/news-card";
+import { NewsDetailModal } from "@/components/news/news-detail-modal";
 import { BTN_PRIMARY_SM } from "@/lib/ui/nextstep";
 import { Link } from "@/i18n/navigation";
 import type { NewsSuggestion } from "@/types/workspace";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 type Props = {
   news: NewsSuggestion[];
@@ -29,6 +31,12 @@ export function NewsPickerPanel({
 }: Props) {
   const t = useTranslations("setup.articles.news");
   const tArticles = useTranslations("setup.articles");
+  const [detailItem, setDetailItem] = useState<NewsSuggestion | null>(null);
+
+  function handleSelect(item: NewsSuggestion) {
+    onSelect(item);
+    setDetailItem(item);
+  }
 
   return (
     <section className="rounded-xl border border-gray-100 bg-ns-brand-light/40 p-4 md:p-5 space-y-4">
@@ -65,7 +73,8 @@ export function NewsPickerPanel({
               <NewsCard
                 item={item}
                 selected={selectedId === item.id}
-                onClick={() => onSelect(item)}
+                onClick={() => handleSelect(item)}
+                onRead={() => setDetailItem(item)}
                 showSelectLabel
               />
             </li>
@@ -91,6 +100,8 @@ export function NewsPickerPanel({
           {t("previousNews")}
         </Link>
       </div>
+
+      <NewsDetailModal item={detailItem} onClose={() => setDetailItem(null)} />
     </section>
   );
 }

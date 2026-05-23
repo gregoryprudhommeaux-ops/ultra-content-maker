@@ -16,11 +16,18 @@ type Props = {
   >;
   selected?: boolean;
   onClick?: () => void;
+  onRead?: () => void;
   /** Show select/selected label (articles hub picker). */
   showSelectLabel?: boolean;
 };
 
-export function NewsCard({ item, selected = false, onClick, showSelectLabel = false }: Props) {
+export function NewsCard({
+  item,
+  selected = false,
+  onClick,
+  onRead,
+  showSelectLabel = false,
+}: Props) {
   const t = useTranslations("setup.articles.news");
   const locale = useLocale();
 
@@ -37,11 +44,25 @@ export function NewsCard({ item, selected = false, onClick, showSelectLabel = fa
       </p>
       <p className="mt-2 line-clamp-2 text-sm font-semibold text-ns-tertiary">{item.title}</p>
       <p className="mt-2 line-clamp-3 text-xs text-ns-secondary">{item.summary}</p>
-      {showSelectLabel && (
-        <span className="mt-2 inline-block text-xs font-medium text-ns-primary underline">
-          {selected ? t("selected") : t("select")}
-        </span>
-      )}
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+        {onRead && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRead();
+            }}
+            className="text-xs font-medium text-ns-tertiary underline hover:text-ns-primary"
+          >
+            {t("readArticle")}
+          </button>
+        )}
+        {showSelectLabel && (
+          <span className="text-xs font-medium text-ns-primary underline">
+            {selected ? t("selected") : t("select")}
+          </span>
+        )}
+      </div>
     </>
   );
 

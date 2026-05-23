@@ -19,6 +19,7 @@ Rules:
 - Each item MUST be relevant to the user's professional domain, audience, and positioning in the user payload.
 - Prefer reputable sources (trade press, major business media, official industry news — not gossip blogs).
 - title and summary in ${lang}.
+- summary: a full readable recap (6–10 sentences): what happened, who is affected, why it matters for the user's B2B audience — not a one-line teaser.
 - publishedAt: ISO 8601 date (YYYY-MM-DD) of publication — must be within 7 days of ${today}.
 - url: direct link to the article (https).
 - sourceName: publisher name.
