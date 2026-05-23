@@ -473,6 +473,7 @@ export function ArticleEditor({ articleId }: Props) {
             scope: article.scope,
             hashtags: article.hashtags,
           },
+          newsSource: article.newsSource,
           refinement,
           llm: {
             provider: llmProfile.provider,

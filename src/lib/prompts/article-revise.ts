@@ -4,7 +4,13 @@ import {
   isCurrentNewsEnabled,
 } from "@/lib/articles/refinement";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
-import type { ArticleRefinement, ContentLanguage, EmojiLevel } from "@/types/workspace";
+import { buildNewsSourceCitationInstruction } from "@/lib/prompts/news-source-citation";
+import type {
+  ArticleNewsSource,
+  ArticleRefinement,
+  ContentLanguage,
+  EmojiLevel,
+} from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -39,6 +45,7 @@ export function buildReviseUserPrompt(
   article: { hook: string; body: string; ps?: string },
   refinement: ArticleRefinement,
   contentLanguage: ContentLanguage,
+  newsSource?: ArticleNewsSource,
 ): string {
   const currentNews = {
     enabled: isCurrentNewsEnabled(refinement),
@@ -49,17 +56,20 @@ export function buildReviseUserPrompt(
     refinement.toneEdge,
   );
 
-  return JSON.stringify(
-    {
-      personaPromptText,
-      current: article,
-      refinement,
-      currentNews,
-      toneEdge: refinement.toneEdge ?? "default",
-      toneEdgeInstruction,
-      corrosiveToneRequested: isCorrosiveToneEdge(refinement),
-    },
-    null,
-    2,
-  );
+  const payload: Record<string, unknown> = {
+    personaPromptText,
+    current: article,
+    refinement,
+    currentNews,
+    toneEdge: refinement.toneEdge ?? "default",
+    toneEdgeInstruction,
+    corrosiveToneRequested: isCorrosiveToneEdge(refinement),
+  };
+  if (newsSource?.url) {
+    payload.newsSourceCitation = buildNewsSourceCitationInstruction(
+      contentLanguage,
+      newsSource,
+    );
+  }
+  return JSON.stringify(payload, null, 2);
 }

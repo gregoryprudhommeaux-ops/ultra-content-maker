@@ -1,7 +1,6 @@
 "use client";
 
 import { NewsCard } from "@/components/news/news-card";
-import { NewsDetailModal } from "@/components/news/news-detail-modal";
 import { BTN_PRIMARY_SM } from "@/lib/ui/nextstep";
 import { Link } from "@/i18n/navigation";
 import type { NewsSuggestion } from "@/types/workspace";
@@ -17,6 +16,8 @@ type Props = {
   perplexityHint?: boolean;
   onGenerateBatch?: () => void;
   generatingBatch?: boolean;
+  detailItem?: NewsSuggestion | null;
+  onDetailItemChange?: (item: NewsSuggestion | null) => void;
 };
 
 export function NewsPickerPanel({
@@ -28,10 +29,14 @@ export function NewsPickerPanel({
   perplexityHint,
   onGenerateBatch,
   generatingBatch = false,
+  detailItem: detailItemProp,
+  onDetailItemChange,
 }: Props) {
   const t = useTranslations("setup.articles.news");
   const tArticles = useTranslations("setup.articles");
-  const [detailItem, setDetailItem] = useState<NewsSuggestion | null>(null);
+  const [detailItemInternal, setDetailItemInternal] = useState<NewsSuggestion | null>(null);
+  const detailItem = detailItemProp !== undefined ? detailItemProp : detailItemInternal;
+  const setDetailItem = onDetailItemChange ?? setDetailItemInternal;
 
   function handleSelect(item: NewsSuggestion) {
     onSelect(item);
@@ -100,8 +105,6 @@ export function NewsPickerPanel({
           {t("previousNews")}
         </Link>
       </div>
-
-      <NewsDetailModal item={detailItem} onClose={() => setDetailItem(null)} />
     </section>
   );
 }

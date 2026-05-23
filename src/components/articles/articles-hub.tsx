@@ -7,7 +7,9 @@ import {
 } from "@/lib/articles/scope";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
 import { PostBriefForm } from "@/components/articles/post-brief-form";
+import { NewsDetailModal } from "@/components/news/news-detail-modal";
 import { NewsPickerPanel } from "@/components/articles/news-picker-panel";
+import { SelectedNewsActionPanel } from "@/components/articles/selected-news-action-panel";
 import {
   loadStoredPostBrief,
   saveStoredPostBrief,
@@ -67,6 +69,7 @@ export function ArticlesHub() {
   const [loaded, setLoaded] = useState(false);
   const [newsItems, setNewsItems] = useState<NewsSuggestion[]>([]);
   const [selectedNews, setSelectedNews] = useState<NewsSuggestion | null>(null);
+  const [newsDetailItem, setNewsDetailItem] = useState<NewsSuggestion | null>(null);
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsHintPerplexity, setNewsHintPerplexity] = useState(false);
   const [newsLoadedOnce, setNewsLoadedOnce] = useState(false);
@@ -372,21 +375,24 @@ export function ArticlesHub() {
         perplexityHint={newsHintPerplexity}
         onGenerateBatch={onGenerate}
         generatingBatch={pending}
+        detailItem={newsDetailItem}
+        onDetailItemChange={setNewsDetailItem}
       />
 
       {selectedNews && (
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            disabled={pending}
-            onClick={onGenerateFromNews}
-            className="rounded-sm bg-ns-tertiary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-sm hover:bg-ns-tertiary/90 disabled:opacity-50"
-          >
-            {pending ? tNews("generatingFromNews") : tNews("generateFromNews")}
-          </button>
-          <p className="text-xs text-ns-secondary">{tNews("generateFromNewsHint")}</p>
-        </div>
+        <SelectedNewsActionPanel
+          item={selectedNews}
+          pending={pending}
+          onGenerate={onGenerateFromNews}
+          onChangeSelection={() => setSelectedNews(null)}
+          onReadArticle={() => setNewsDetailItem(selectedNews)}
+        />
       )}
+
+      <NewsDetailModal
+        item={newsDetailItem}
+        onClose={() => setNewsDetailItem(null)}
+      />
 
       {pending && (
         <GeneratingIndicator

@@ -1,4 +1,5 @@
 import { buildPostBriefInstruction } from "@/lib/prompts/post-brief";
+import { buildNewsSourceCitationInstruction } from "@/lib/prompts/news-source-citation";
 import type { ContentLanguage, NewsSuggestion, PostBrief } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -37,7 +38,13 @@ Each post must react to this story in ${lang} with a distinct angle (${scopeMix}
 ${scopeDetail}
 - Reference the news clearly (what happened / why it matters) without copying press wording verbatim
 - Add the author's Persona voice and opinion — not a neutral press recap
-- Do NOT invent facts beyond summary + reasonable inference from headline/context`;
+- Do NOT invent facts beyond summary + reasonable inference from headline/context
+
+${buildNewsSourceCitationInstruction(contentLanguage, {
+  title: news.title,
+  url: news.url,
+  sourceName: news.sourceName,
+})}`;
 }
 
 export function buildArticlesFromNewsUserPayload(

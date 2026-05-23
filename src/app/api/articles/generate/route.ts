@@ -134,7 +134,7 @@ export async function POST(request: Request) {
       : baseUserPrompt;
 
     const systemExtra = body.newsSource
-      ? "\n\nAll posts MUST anchor on the news story in the user message."
+      ? "\n\nAll posts MUST anchor on the news story in the user message. Each post MUST include a visible source credit with the exact article URL provided (body or PS)."
       : "";
 
     const raw = await chatCompletionJson(llm, [

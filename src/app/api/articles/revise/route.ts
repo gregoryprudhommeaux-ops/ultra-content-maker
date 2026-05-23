@@ -9,6 +9,7 @@ import {
   buildReviseUserPrompt,
 } from "@/lib/prompts/article-revise";
 import type {
+  ArticleNewsSource,
   ArticleRefinement,
   ContentLanguage,
   LlmProvider,
@@ -29,6 +30,7 @@ type ReviseBody = {
     hashtags?: string[];
   };
   refinement: ArticleRefinement;
+  newsSource?: ArticleNewsSource;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -81,6 +83,7 @@ export async function POST(request: Request) {
           body.article,
           body.refinement,
           contentLanguage,
+          body.newsSource,
         )}`,
       },
     ]);
