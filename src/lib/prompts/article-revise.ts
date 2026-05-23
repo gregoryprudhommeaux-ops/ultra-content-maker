@@ -1,8 +1,4 @@
-import {
-  getCurrentNewsDetail,
-  isCorrosiveToneEdge,
-  isCurrentNewsEnabled,
-} from "@/lib/articles/refinement";
+import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
 import { buildNewsSourceCitationInstruction } from "@/lib/prompts/news-source-citation";
 import type {
@@ -37,6 +33,8 @@ If emojiLevel is light or heavy, the revised post MUST contain visible Unicode e
 
 Closing: end the body so a signature CTA can follow naturally — avoid repeating the same conditional opener the CTA will use; do not paste a hard-sell CTA block into the body.
 
+CRITICAL: Reply with a single valid JSON object only — no markdown fences, no commentary before or after.
+
 Return JSON only: { "hook": string, "body": string, "ps": string, "scope": "generalist" | "niche", "hashtags": string[] } with exactly 4 hashtags (no # prefix). Keep the same scope unless refinement clearly requires switching breadth.`;
 }
 
@@ -47,10 +45,6 @@ export function buildReviseUserPrompt(
   contentLanguage: ContentLanguage,
   newsSource?: ArticleNewsSource,
 ): string {
-  const currentNews = {
-    enabled: isCurrentNewsEnabled(refinement),
-    detail: getCurrentNewsDetail(refinement) ?? "",
-  };
   const toneEdgeInstruction = buildToneEdgeInstruction(
     contentLanguage,
     refinement.toneEdge,
@@ -60,7 +54,6 @@ export function buildReviseUserPrompt(
     personaPromptText,
     current: article,
     refinement,
-    currentNews,
     toneEdge: refinement.toneEdge ?? "default",
     toneEdgeInstruction,
     corrosiveToneRequested: isCorrosiveToneEdge(refinement),

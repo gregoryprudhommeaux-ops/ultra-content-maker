@@ -1,16 +1,8 @@
 import type { ArticleRefinement } from "@/types/workspace";
 
-export const REFINEMENT_IDS = [
-  "tone",
-  "theme",
-  "length",
-  "hook",
-  "currentNews",
-] as const;
+export const REFINEMENT_IDS = ["tone", "theme", "length", "hook"] as const;
 
 export type StandardRefinementId = (typeof REFINEMENT_IDS)[number];
-
-export const YES_NO_ONLY_QUESTIONS = new Set<string>(["currentNews"]);
 
 export function createDefaultRefinement(): ArticleRefinement {
   return {
@@ -42,16 +34,6 @@ export function mergeRefinementWithDefaults(
   };
 }
 
-export function getCurrentNewsDetail(refinement: ArticleRefinement): string | undefined {
-  const q = refinement.questions.find((x) => x.id === "currentNews");
-  return q?.comment?.trim() || undefined;
-}
-
-export function isCurrentNewsEnabled(refinement: ArticleRefinement): boolean {
-  const q = refinement.questions.find((x) => x.id === "currentNews");
-  return q?.answer === "yes";
-}
-
 export function isCorrosiveToneEdge(refinement: ArticleRefinement): boolean {
   return refinement.toneEdge === "corrosive";
 }
@@ -59,11 +41,5 @@ export function isCorrosiveToneEdge(refinement: ArticleRefinement): boolean {
 export function hasReviseInput(refinement: ArticleRefinement): boolean {
   if (isCorrosiveToneEdge(refinement)) return true;
   if (refinement.globalComment?.trim()) return true;
-  return refinement.questions.some((q) => {
-    if (q.id === "currentNews") {
-      if (q.answer === "yes") return !!q.comment?.trim();
-      return q.answer === "no";
-    }
-    return q.answer || q.comment?.trim();
-  });
+  return refinement.questions.some((q) => q.answer || q.comment?.trim());
 }

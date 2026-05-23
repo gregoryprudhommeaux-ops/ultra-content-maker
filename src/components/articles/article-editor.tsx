@@ -24,7 +24,6 @@ import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
   hasReviseInput,
   mergeRefinementWithDefaults,
-  YES_NO_ONLY_QUESTIONS,
 } from "@/lib/articles/refinement";
 import { copyAndOpenLinkedInComposer } from "@/lib/linkedin/composer";
 import { formatHashtagsLine } from "@/lib/linkedin/hashtags";
@@ -45,6 +44,7 @@ import {
   recordArticleValidateFeedback,
 } from "@/lib/persona/sync-persona-from-feedback";
 import { getClientAuth } from "@/lib/firebase/client";
+import { classifyLlmApiError, truncateApiDetail } from "@/lib/llm/format-api-error";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -86,6 +86,7 @@ export function ArticleEditor({ articleId }: Props) {
     null,
   );
   const [error, setError] = useState<string | null>(null);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [errorScope, setErrorScope] = useState<"refine" | "cta" | null>(null);
   const [copied, setCopied] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -417,20 +418,44 @@ export function ArticleEditor({ articleId }: Props) {
     }
   }, [user, article, personaText, tQuality, tArticles]);
 
-  function setReviseError(message: string) {
+  function resolveReviseErrorMessage(errorCode?: string, detail?: string) {
+    const { kind, detail: rawDetail } = classifyLlmApiError(errorCode, detail);
+    const technical = rawDetail ? truncateApiDetail(rawDetail) : undefined;
+    switch (kind) {
+      case "no_key":
+        return { message: tArticles("noLlmKey"), technical: undefined };
+      case "invalid_key":
+        return { message: tArticles("invalidApiKey"), technical: undefined };
+      case "empty_response":
+        return { message: t("reviseEmptyResponse"), technical };
+      case "invalid_json":
+        return { message: t("reviseJsonFailed"), technical };
+      case "rate_limit":
+        return { message: t("reviseRateLimit"), technical };
+      case "timeout":
+        return { message: t("reviseTimeout"), technical };
+      default:
+        return { message: t("reviseFailed"), technical };
+    }
+  }
+
+  function setReviseError(message: string, technical?: string) {
     setError(message);
+    setErrorDetail(technical ?? null);
     setErrorScope("refine");
     scrollToRefineSection();
   }
 
   function setValidateError(message: string) {
     setError(message);
+    setErrorDetail(null);
     setErrorScope("cta");
     scrollToCtaSection();
   }
 
   function clearActionError() {
     setError(null);
+    setErrorDetail(null);
     setErrorScope(null);
   }
 
@@ -492,19 +517,17 @@ export function ArticleEditor({ articleId }: Props) {
         hashtags?: string[];
       };
       if (!res.ok) {
-        const detail = String(data.detail ?? data.error ?? "");
-        if (data.error === "no_llm_key") {
-          setReviseError(tArticles("noLlmKey"));
-        } else if (isInvalidApiKeyError(detail)) {
-          setReviseError(tArticles("invalidApiKey"));
-        } else {
-          setReviseError(t("reviseFailed"));
-        }
+        const { message, technical } = resolveReviseErrorMessage(
+          data.error,
+          String(data.detail ?? ""),
+        );
+        setReviseError(message, technical);
         return;
       }
 
       if (!data.body?.trim()) {
-        setReviseError(t("reviseFailed"));
+        const { message, technical } = resolveReviseErrorMessage("Empty revision");
+        setReviseError(message, technical);
         return;
       }
 
@@ -527,8 +550,10 @@ export function ArticleEditor({ articleId }: Props) {
       illustrationFetchedRef.current = false;
       await load();
       void loadIllustrationSuggestions(true, { quiet: true });
-    } catch {
-      setReviseError(t("reviseFailed"));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      const { message, technical } = resolveReviseErrorMessage(undefined, msg);
+      setReviseError(message, technical || msg || undefined);
     } finally {
       setPendingAction(null);
     }
@@ -838,7 +863,10 @@ export function ArticleEditor({ articleId }: Props) {
           {error && errorScope === "refine" && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               <p>{error}</p>
-              {error === t("reviseFailed") && (
+              {errorDetail && errorScope === "refine" && (
+                <p className="mt-1 text-xs font-normal opacity-90">{errorDetail}</p>
+              )}
+              {error === t("reviseFailed") && !errorDetail && (
                 <p className="mt-1 text-xs font-normal">{t("reviseFailedHint")}</p>
               )}
               {(error === tArticles("noLlmKey") ||
@@ -861,20 +889,15 @@ export function ArticleEditor({ articleId }: Props) {
             </div>
           )}
           {article.refinement.questions.map((q) => {
-            const yesNoOnly = YES_NO_ONLY_QUESTIONS.has(q.id);
-            const answerOptions: RefinementAnswer[] = yesNoOnly
-              ? ["yes", "no"]
-              : ["yes", "no", "partial"];
+            const answerOptions: RefinementAnswer[] = ["yes", "no", "partial"];
             const questionLabel =
-              q.id === "currentNews"
-                ? tRef("currentNews")
-                : q.id === "tone"
-                  ? tRef("tone")
-                  : q.id === "theme"
-                    ? tRef("theme")
-                    : q.id === "length"
-                      ? tRef("length")
-                      : tRef("hook");
+              q.id === "tone"
+                ? tRef("tone")
+                : q.id === "theme"
+                  ? tRef("theme")
+                  : q.id === "length"
+                    ? tRef("length")
+                    : tRef("hook");
 
             return (
               <div key={q.id} className="space-y-2">
@@ -884,16 +907,7 @@ export function ArticleEditor({ articleId }: Props) {
                     <button
                       key={ans}
                       type="button"
-                      onClick={() => {
-                        if (yesNoOnly && ans === "no") {
-                          setQuestionAnswer(q.id, {
-                            answer: ans,
-                            comment: undefined,
-                          });
-                        } else {
-                          setQuestionAnswer(q.id, { answer: ans });
-                        }
-                      }}
+                      onClick={() => setQuestionAnswer(q.id, { answer: ans })}
                       className={
                         q.answer === ans
                           ? "rounded-sm bg-ns-tertiary px-3 py-1.5 text-xs font-black uppercase text-ns-primary"
@@ -908,22 +922,15 @@ export function ArticleEditor({ articleId }: Props) {
                     </button>
                   ))}
                 </div>
-                {(!yesNoOnly || q.answer === "yes") && (
-                  <input
-                    type="text"
-                    value={q.comment ?? ""}
-                    onChange={(e) =>
-                      setQuestionAnswer(q.id, { comment: e.target.value })
-                    }
-                    placeholder={
-                      q.id === "currentNews"
-                        ? tRef("currentNewsDetailPlaceholder")
-                        : tRef("commentPlaceholder")
-                    }
-                    disabled={yesNoOnly && q.answer !== "yes"}
-                    className={INPUT_CLASS}
-                  />
-                )}
+                <input
+                  type="text"
+                  value={q.comment ?? ""}
+                  onChange={(e) =>
+                    setQuestionAnswer(q.id, { comment: e.target.value })
+                  }
+                  placeholder={tRef("commentPlaceholder")}
+                  className={INPUT_CLASS}
+                />
               </div>
             );
           })}

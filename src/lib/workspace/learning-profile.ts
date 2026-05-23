@@ -167,11 +167,6 @@ const REFINEMENT_LABELS: Record<
     theme: { yes: "Thème validé", no: "Thème à changer", partial: "Thème partiellement ok" },
     length: { yes: "Longueur ok", no: "Longueur à ajuster", partial: "Longueur partiellement ok" },
     hook: { yes: "Accroche forte", no: "Accroche faible", partial: "Accroche à renforcer" },
-    currentNews: {
-      yes: "Actualité: oui, ancrer le post",
-      no: "Actualité: pas d'angle actu",
-      partial: "Actualité: partiel",
-    },
   },
   en: {
     tone: { yes: "Tone validated", no: "Tone to fix", partial: "Tone partially ok" },
@@ -218,20 +213,6 @@ export function entriesFromRefinement(
 
   for (const q of refinement.questions) {
     if (!q.answer && !q.comment?.trim()) continue;
-    if (q.id === "currentNews") {
-      if (q.answer === "yes" && q.comment?.trim()) {
-        out.push({
-          source: "article_refinement",
-          text: `Actualité à intégrer: ${q.comment.trim()}`,
-        });
-      } else if (q.answer === "no") {
-        out.push({
-          source: "article_refinement",
-          text: labels.currentNews.no,
-        });
-      }
-      continue;
-    }
     const base = labels[q.id]?.[q.answer ?? "partial"] ?? q.id;
     const line = q.comment?.trim() ? `${base} — ${q.comment.trim()}` : base;
     out.push({ source: "article_refinement", text: line });

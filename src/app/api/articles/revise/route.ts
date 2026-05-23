@@ -78,23 +78,34 @@ export async function POST(request: Request) {
       },
       {
         role: "user",
-        content: `${body.personaPromptText}\n\n---\n\n${buildReviseUserPrompt(
+        content: buildReviseUserPrompt(
           body.personaPromptText,
           body.article,
           body.refinement,
           contentLanguage,
           body.newsSource,
-        )}`,
+        ),
       },
     ]);
 
-    const parsed = parseLlmJson<{
+    let parsed: {
       hook?: string;
       body?: string;
       ps?: string;
       scope?: unknown;
       hashtags?: unknown;
-    }>(raw);
+    };
+    try {
+      parsed = parseLlmJson(raw);
+    } catch (e) {
+      return NextResponse.json(
+        {
+          error: "invalid_json",
+          detail: e instanceof Error ? e.message : "JSON parse failed",
+        },
+        { status: 502 },
+      );
+    }
     if (!parsed.body?.trim()) {
       return NextResponse.json({ error: "Empty revision" }, { status: 502 });
     }
