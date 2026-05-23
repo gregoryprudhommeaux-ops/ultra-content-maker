@@ -1,7 +1,16 @@
 "use client";
 
-import { isPostBriefComplete } from "@/lib/prompts/post-brief";
-import type { BriefNicheCheck, PostBrief, PostObjective } from "@/types/workspace";
+import {
+  isPostBriefComplete,
+  isWizardBriefComplete,
+  type WizardCreationMode,
+} from "@/lib/prompts/post-brief";
+import type {
+  ArticleScope,
+  BriefNicheCheck,
+  PostBrief,
+  PostObjective,
+} from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 
@@ -18,6 +27,12 @@ type Props = {
   nicheCheck?: BriefNicheCheck | null;
   onAnalyzeNiche?: () => void;
   nicheLoading?: boolean;
+  /** Wizard: profile = full brief; news/inspiration = objective only required */
+  wizardMode?: WizardCreationMode;
+  showScope?: boolean;
+  targetScope?: ArticleScope;
+  onScopeChange?: (scope: ArticleScope) => void;
+  briefSuggesting?: boolean;
 };
 
 export function PostBriefForm({
@@ -26,21 +41,57 @@ export function PostBriefForm({
   nicheCheck,
   onAnalyzeNiche,
   nicheLoading,
+  wizardMode,
+  showScope,
+  targetScope = "generalist",
+  onScopeChange,
+  briefSuggesting,
 }: Props) {
   const t = useTranslations("setup.articles.brief");
+  const tCreate = useTranslations("setup.articles.create");
 
   function set<K extends keyof PostBrief>(key: K, value: PostBrief[K]) {
     onChange({ ...brief, [key]: value });
   }
 
-  const complete = isPostBriefComplete(brief);
+  const complete = wizardMode
+    ? isWizardBriefComplete(brief, wizardMode)
+    : isPostBriefComplete(brief);
 
   return (
     <section className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4">
       <div>
         <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
-        <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
+        <p className="mt-1 text-sm text-ns-secondary">
+          {wizardMode === "profile" ? t("subtitle") : tCreate("briefSubtitleShort")}
+        </p>
+        {briefSuggesting && (
+          <p className="mt-2 text-xs text-ns-secondary">{tCreate("briefSuggesting")}</p>
+        )}
       </div>
+
+      {showScope && onScopeChange && (
+        <div>
+          <span className={LABEL_CLASS}>{tCreate("scopeLabel")}</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(["generalist", "niche"] as const).map((scope) => (
+              <button
+                key={scope}
+                type="button"
+                onClick={() => onScopeChange(scope)}
+                className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                  targetScope === scope
+                    ? "border-ns-primary bg-ns-brand-light text-ns-tertiary"
+                    : "border-gray-100 text-ns-secondary hover:border-ns-primary/40"
+                }`}
+              >
+                {tCreate(`scope.${scope}`)}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-ns-secondary">{tCreate("scopeHint")}</p>
+        </div>
+      )}
 
       <div>
         <span className={LABEL_CLASS}>{t("objective")}</span>
@@ -105,7 +156,11 @@ export function PostBriefForm({
       </div>
 
       {!complete && (
-        <p className="text-xs text-amber-800">{t("incomplete")}</p>
+        <p className="text-xs text-amber-800">
+          {wizardMode && wizardMode !== "profile"
+            ? tCreate("incompleteObjective")
+            : t("incomplete")}
+        </p>
       )}
 
       {complete && nicheCheck && (

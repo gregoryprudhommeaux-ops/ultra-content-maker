@@ -34,7 +34,11 @@ import {
   hasReviseInput as hasRefinementInputImpl,
   serializeRefinementForFirestore,
 } from "@/lib/articles/refinement";
-import type { ArticleIllustration, ArticleNewsSource } from "@/types/workspace";
+import type {
+  ArticleIllustration,
+  ArticleInspirationSource,
+  ArticleNewsSource,
+} from "@/types/workspace";
 import { normalizeArticleScope } from "@/lib/articles/scope";
 import {
   countLinkedInCharacters,
@@ -81,6 +85,9 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     illustration: normalizeArticleIllustration(d.illustration),
     newsSource: d.newsSource
       ? (d.newsSource as ArticleNewsSource)
+      : undefined,
+    inspirationSource: d.inspirationSource
+      ? (d.inspirationSource as ArticleInspirationSource)
       : undefined,
     postBrief: d.postBrief ? (d.postBrief as PostBrief) : undefined,
     qualityScores: d.qualityScores
@@ -159,6 +166,7 @@ export async function createArticleBatch(
   emojiLevel: EmojiLevel = "light",
   newsSource?: ArticleNewsSource,
   postBrief?: PostBrief,
+  inspirationSource?: ArticleInspirationSource,
 ): Promise<string[]> {
   const refinement = { ...createDefaultRefinement(), emojiLevel };
   const ids: string[] = [];
@@ -173,6 +181,7 @@ export async function createArticleBatch(
       scope: items[i].scope ?? (i < 2 ? "generalist" : "niche"),
       hashtags: items[i].hashtags?.length ? items[i].hashtags : null,
       newsSource: newsSource ?? null,
+      inspirationSource: inspirationSource ?? null,
       postBrief: postBrief ?? null,
       qualityScores: null,
       alternativeHooks: null,
@@ -346,6 +355,41 @@ export async function updateArticleContent(
     ps: data.ps ?? null,
     scope: data.scope ?? null,
     hashtags: data.hashtags?.length ? data.hashtags : null,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** Replace draft content after inspiration regenerate (same article id). */
+export async function replaceArticleDraft(
+  userId: string,
+  articleId: string,
+  item: {
+    hook: string;
+    body: string;
+    ps?: string;
+    scope?: ArticleScope;
+    hashtags?: string[];
+  },
+  postBrief?: PostBrief,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    hook: item.hook,
+    body: item.body,
+    ps: item.ps ?? null,
+    scope: item.scope ?? null,
+    hashtags: item.hashtags?.length ? item.hashtags : null,
+    postBrief: postBrief ?? null,
+    status: "draft",
+    exportText: null,
+    qualityScores: null,
+    alternativeHooks: null,
+    qualityCritique: null,
+    postFormatPlan: null,
+    repurpose: null,
+    suggestedFirstComment: null,
+    validatedAt: null,
     updatedAt: serverTimestamp(),
   });
 }

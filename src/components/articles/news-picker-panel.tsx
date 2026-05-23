@@ -99,7 +99,7 @@ export function NewsPickerPanel({
           </button>
         )}
         <Link
-          href="/news"
+          href="/news/archive"
           className="text-sm font-medium text-ns-tertiary underline hover:text-ns-primary"
         >
           {t("previousNews")}

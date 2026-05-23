@@ -13,6 +13,8 @@ export const PAIR_GENERALIST_COUNT = 1;
 export const PAIR_NICHE_COUNT = 1;
 export const PAIR_ARTICLE_COUNT = PAIR_GENERALIST_COUNT + PAIR_NICHE_COUNT;
 
+export const SINGLE_ARTICLE_COUNT = 1;
+
 export function normalizeArticleScope(raw: unknown): ArticleScope | undefined {
   const s = String(raw ?? "")
     .trim()

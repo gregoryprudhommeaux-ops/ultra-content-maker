@@ -281,8 +281,10 @@ Considérer comme **v2.5 déjà en production** :
 |-------|--------|
 | `/setup/author`, `/setup/audience`, `/setup/inspirations`, `/setup/llm` | Onboarding profil |
 | `/persona` | Persona + Topic DNA |
-| `/articles`, `/articles/[id]` | Posts + fiche |
-| `/news` | News archivées |
+| `/articles`, `/articles/[id]` | Liste + fiche post |
+| `/articles/new` | Assistant de création (profil \| actu \| inspiration) |
+| `/news` | Redirection → `/articles/new?mode=news` |
+| `/news/archive` | Actus archivées (lecture seule) |
 | `/login`, `/signup` | Auth |
 
 ---

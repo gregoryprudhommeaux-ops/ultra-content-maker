@@ -505,12 +505,122 @@
         "pending": "À publier",
         "all": "Tous les posts"
       },
-      "emptyPending": "Aucun post en attente. Générez un lot ou consultez les posts validés.",
+      "emptyPending": "Aucun post en attente. Créez un nouveau lot ou consultez les posts validés.",
       "needPersona": "Validez votre Persona avant de générer des posts.",
       "goPersona": "Aller au Persona →",
       "goLlmSetup": "Configurer ma clé API →",
       "description": "Générez 3–4 posts LinkedIn, affinez avec des questions, choisissez un CTA, copiez sur LinkedIn.",
+      "descriptionList": "Vos brouillons et posts validés. Créez un nouveau lot via l’assistant de création.",
+      "createCta": "Créer des posts",
       "updateInspirations": "Mettre à jour mes inspirations",
+      "create": {
+        "title": "Créer des posts LinkedIn",
+        "subtitle": "Choisissez comment démarrer : depuis votre profil, une actu récente, ou un contenu existant à décliner.",
+        "backToList": "Retour aux posts",
+        "back": "← Étape précédente",
+        "briefSubtitleShort": "Objectif obligatoire ; les autres champs sont suggérés par l’IA et modifiables.",
+        "briefSuggesting": "Suggestion du brief en cours…",
+        "briefSuggestFailed": "Impossible de suggérer le brief. Complétez les champs manuellement.",
+        "incompleteObjective": "Choisissez un objectif pour continuer.",
+        "scopeLabel": "Portée du post",
+        "scopeHint": "Généraliste = angle large · Niche = angle expert / ICP spécifique.",
+        "scope": {
+          "generalist": "Généraliste",
+          "niche": "Niche"
+        },
+        "modes": {
+          "profile": {
+            "title": "Depuis mon profil",
+            "desc": "4 brouillons (2 généralistes + 2 niches) à partir de votre Persona et d’un brief complet."
+          },
+          "news": {
+            "title": "Depuis l’actualité",
+            "desc": "Scan de 4 actus récentes, choix d’une story, puis 4 posts qui réagissent avec votre voix."
+          },
+          "inspiration": {
+            "title": "Depuis un contenu existant",
+            "desc": "Collez un texte, un lien + extrait, ou une inspiration enregistrée — 1 brouillon avec un angle distinct."
+          }
+        },
+        "inspiration": {
+          "inputTitle": "Comment fournir la référence ?",
+          "inputSubtitle": "L’IA s’inspire de la structure et du ton, sans recopier le texte source.",
+          "referenceRequired": "Complétez la référence (texte, URL + extrait, ou inspiration enregistrée).",
+          "manageLibrary": "Gérer vos inspirations :",
+          "manageLibraryLink": "page Inspirations",
+          "input": {
+            "paste": {
+              "title": "Coller un post ou article",
+              "desc": "Texte intégral copié depuis LinkedIn, un blog, etc."
+            },
+            "url": {
+              "title": "Lien vers un contenu",
+              "desc": "URL + récupération automatique du texte (ou extrait édité à la main)."
+            },
+            "library": {
+              "title": "Mes inspirations enregistrées",
+              "desc": "{count, plural, one {# source} other {# sources}} dans votre bibliothèque",
+              "descEmpty": "Ajoutez des inspirations dans la page dédiée pour les réutiliser ici."
+            }
+          },
+          "urlTitle": "Lien et extrait",
+          "urlHint": "Collez l’URL puis utilisez « Récupérer le contenu » pour préremplir l’extrait. Vous pouvez toujours l’éditer avant de continuer.",
+          "fetchContent": "Récupérer le contenu",
+          "fetching": "Récupération…",
+          "fetchFailed": "Impossible de récupérer le contenu. Collez l’extrait à la main ou vérifiez l’URL.",
+          "fetchNoContent": "Aucun texte exploitable sur cette page. Collez l’extrait manuellement.",
+          "fetchLinkedInPerplexity": "Les posts LinkedIn nécessitent une clé Perplexity (Sonar) dans Réglages, ou collez le texte du post.",
+          "fetchPerplexityHint": "Pour les pages difficiles (LinkedIn, paywall), une clé Perplexity dans Réglages améliore la récupération.",
+          "fetchTitleLabel": "Titre détecté",
+          "urlLabel": "URL du contenu",
+          "urlPlaceholder": "https://…",
+          "urlInvalid": "URL invalide (https://…)",
+          "excerptLabel": "Extrait à décliner",
+          "excerptPlaceholder": "Collez ici le texte du post ou les passages clés de l’article…",
+          "excerptHelp": "Minimum 40 caractères. Ne copiez pas mot pour mot — l’IA doit réécrire.",
+          "libraryTitle": "Choisir une inspiration",
+          "libraryHint": "Posts ou profils LinkedIn que vous avez enregistrés avec les aspects à reprendre.",
+          "profileBadge": "Profil",
+          "postBadge": "Post",
+          "selectedLabel": "Source sélectionnée",
+          "optionalExcerptLabel": "Extrait optionnel",
+          "optionalExcerptPlaceholder": "Collez un extrait si vous voulez ancrer l’IA sur un passage précis…",
+          "optionalExcerptHelp": "Sans extrait, l’IA s’appuie sur l’URL, le libellé et vos notes « pourquoi j’aime ».",
+          "continueToBrief": "Continuer vers le brief",
+          "libraryPreviewLabel": "Référence (bibliothèque)",
+          "urlPreviewLabel": "Référence (lien + extrait)"
+        },
+        "newsIntro": "Nous analysons 4 publications récentes pour votre domaine. Sélectionnez celle qui servira d’ancrage.",
+        "continueWithNews": "Continuer avec cette actu",
+        "pasteTitle": "Contenu de référence",
+        "pasteHint": "Collez le texte intégral (post LinkedIn, extrait d’article, etc.). L’IA proposera un nouvel angle — pas une paraphrase.",
+        "pasteLabel": "Texte à décliner",
+        "pastePlaceholder": "Collez ici le post ou l’article source…",
+        "pasteRequired": "Collez au moins quelques lignes de référence.",
+        "continueToBrief": "Continuer vers le brief",
+        "generateFour": "Générer 4 brouillons",
+        "generateOne": "Générer 1 brouillon",
+        "batchDoneTitle": "4 brouillons prêts",
+        "batchDoneHint": "Ouvrez chaque post pour l’affiner, choisir un CTA et valider.",
+        "openDraft": "Brouillon {n}",
+        "inspirationDoneTitle": "Votre brouillon",
+        "inspirationDoneHint": "Ouvrez-le pour affiner et valider, ou regénérez un autre angle (le brouillon actuel sera remplacé).",
+        "openArticle": "Ouvrir le brouillon",
+        "regenerateAngle": "Regénérer un autre angle",
+        "browseArchive": "Consulter les actus déjà archivées",
+        "selectedNewsLabel": "Actu sélectionnée",
+        "pastedPreviewLabel": "Extrait de référence",
+        "progress": {
+          "ariaLabel": "Étapes de création",
+          "mode": "Mode",
+          "contextProfile": "Profil",
+          "contextNews": "Actu",
+          "contextInspiration": "Référence",
+          "brief": "Brief",
+          "result": "Résultat",
+          "generating": "Génération en cours…"
+        }
+      },
       "news": {
         "title": "Actualités du moment",
         "subtitle": "4 articles de moins de 7 jours, choisis pour votre domaine. Sélectionnez-en une, puis générez 4 brouillons LinkedIn ancrés sur cette actu (avec citation de la source).",
@@ -673,7 +783,7 @@
       "generateTimeout": "Délai dépassé. Réessayez.",
       "noLlmKey": "Configurez votre clé API avant de générer.",
       "invalidApiKey": "Clé API refusée. Mettez à jour dans Clé API.",
-      "empty": "Aucun post pour l’instant. Cliquez sur « Générer 4 posts ».",
+      "empty": "Aucun post pour l’instant. Lancez l’assistant de création pour générer vos premiers brouillons.",
       "batchLabel": "Lot du {date}",
       "untitled": "Sans titre",
       "cta": {
@@ -783,7 +893,10 @@
         "copyFailed": "Impossible de copier. Autorisez l’accès au presse-papiers ou copiez le texte manuellement.",
         "newsAnchor": "Lot généré depuis cette actualité",
         "newsSourceInComment": "La citation avec l’URL de l’article est prévue dans le 1er commentaire (section Format), pas dans le corps du post.",
-        "readSource": "Lire l’article source"
+        "readSource": "Lire l’article source",
+        "inspirationAnchor": "Post inspiré d’un contenu existant",
+        "inspirationAnchorHint": "Généré depuis une référence — angle réécrit avec votre Persona, sans plagiat.",
+        "readInspirationSource": "Ouvrir la source d’inspiration"
       },
       "share": {
         "title": "PARTAGER",
@@ -795,8 +908,12 @@
     "news": {
       "title": "News précédentes",
       "subtitle": "Actualités archivées depuis la page Posts — consultez le détail ou régénérez 2 posts (brief défini sur la page Posts).",
+      "subtitleArchive": "Historique des actus déjà scannées. Pour en créer de nouveaux, utilisez l’assistant de création.",
+      "backToWizard": "Retour à la création depuis l’actualité",
+      "scanFreshNews": "Scanner 4 actus récentes",
+      "archiveHint": "Pour générer des posts, retournez à l’assistant et lancez un nouveau scan.",
       "briefOnArticles": "Configurer le brief sur la page Posts →",
-      "empty": "Aucune actualité archivée. Chargez des actus depuis la page Posts.",
+      "empty": "Aucune actualité archivée. Lancez un scan depuis l’assistant de création.",
       "backToArticles": "← Retour aux posts",
       "unknownSource": "Source",
       "closeDetail": "Fermer",

@@ -505,12 +505,122 @@
         "pending": "To publish",
         "all": "All posts"
       },
-      "emptyPending": "No pending posts. Generate a batch or view validated posts.",
+      "emptyPending": "No pending posts. Create a new batch or view validated posts.",
       "needPersona": "Validate your Persona before generating posts.",
       "goPersona": "Go to Persona →",
       "goLlmSetup": "Configure my API key →",
       "description": "Generate 3–4 LinkedIn posts, refine with guided questions, pick a CTA, and copy to LinkedIn.",
+      "descriptionList": "Your drafts and validated posts. Start a new batch with the creation assistant.",
+      "createCta": "Create posts",
       "updateInspirations": "Update my inspirations",
+      "create": {
+        "title": "Create LinkedIn posts",
+        "subtitle": "Choose how to start: from your profile, recent news, or existing content to repurpose.",
+        "backToList": "Back to posts",
+        "back": "← Previous step",
+        "briefSubtitleShort": "Objective required; other fields are AI-suggested and editable.",
+        "briefSuggesting": "Suggesting brief…",
+        "briefSuggestFailed": "Could not suggest the brief. Fill in the fields manually.",
+        "incompleteObjective": "Pick an objective to continue.",
+        "scopeLabel": "Post scope",
+        "scopeHint": "Generalist = broad angle · Niche = expert / ICP-specific angle.",
+        "scope": {
+          "generalist": "Generalist",
+          "niche": "Niche"
+        },
+        "modes": {
+          "profile": {
+            "title": "From my profile",
+            "desc": "4 drafts (2 generalist + 2 niche) from your Persona and a full brief."
+          },
+          "news": {
+            "title": "From the news",
+            "desc": "Scan 4 recent stories, pick one, then get 4 posts reacting in your voice."
+          },
+          "inspiration": {
+            "title": "From existing content",
+            "desc": "Paste text, a link + excerpt, or a saved inspiration — 1 draft with a distinct angle."
+          }
+        },
+        "inspiration": {
+          "inputTitle": "How do you want to provide the reference?",
+          "inputSubtitle": "The AI draws on structure and tone without copying the source text.",
+          "referenceRequired": "Complete the reference (text, URL + excerpt, or saved inspiration).",
+          "manageLibrary": "Manage your inspirations:",
+          "manageLibraryLink": "Inspirations page",
+          "input": {
+            "paste": {
+              "title": "Paste a post or article",
+              "desc": "Full text copied from LinkedIn, a blog, etc."
+            },
+            "url": {
+              "title": "Link to content",
+              "desc": "URL + automatic text fetch (or edit the excerpt manually)."
+            },
+            "library": {
+              "title": "My saved inspirations",
+              "desc": "{count, plural, one {# source} other {# sources}} in your library",
+              "descEmpty": "Add inspirations on the dedicated page to reuse them here."
+            }
+          },
+          "urlTitle": "Link and excerpt",
+          "urlHint": "Paste the URL, then use “Fetch content” to prefill the excerpt. You can still edit it before continuing.",
+          "fetchContent": "Fetch content",
+          "fetching": "Fetching…",
+          "fetchFailed": "Could not fetch content. Paste the excerpt manually or check the URL.",
+          "fetchNoContent": "No usable text on this page. Paste the excerpt manually.",
+          "fetchLinkedInPerplexity": "LinkedIn posts need a Perplexity (Sonar) API key in Settings, or paste the post text yourself.",
+          "fetchPerplexityHint": "For hard pages (LinkedIn, paywalls), a Perplexity key in Settings improves fetch results.",
+          "fetchTitleLabel": "Detected title",
+          "urlLabel": "Content URL",
+          "urlPlaceholder": "https://…",
+          "urlInvalid": "Invalid URL (https://…)",
+          "excerptLabel": "Excerpt to repurpose",
+          "excerptPlaceholder": "Paste the post text or key passages from the article here…",
+          "excerptHelp": "At least 40 characters. Do not copy verbatim — the AI must rewrite.",
+          "libraryTitle": "Choose an inspiration",
+          "libraryHint": "LinkedIn posts or profiles you saved with the aspects to reuse.",
+          "profileBadge": "Profile",
+          "postBadge": "Post",
+          "selectedLabel": "Selected source",
+          "optionalExcerptLabel": "Optional excerpt",
+          "optionalExcerptPlaceholder": "Paste an excerpt to anchor the AI on a specific passage…",
+          "optionalExcerptHelp": "Without an excerpt, the AI uses the URL, label, and your “why I like it” notes.",
+          "continueToBrief": "Continue to brief",
+          "libraryPreviewLabel": "Reference (library)",
+          "urlPreviewLabel": "Reference (link + excerpt)"
+        },
+        "newsIntro": "We scan 4 recent publications for your domain. Select the story to anchor on.",
+        "continueWithNews": "Continue with this story",
+        "pasteTitle": "Reference content",
+        "pasteHint": "Paste the full text (LinkedIn post, article excerpt, etc.). The AI will propose a new angle — not a paraphrase.",
+        "pasteLabel": "Text to repurpose",
+        "pastePlaceholder": "Paste the source post or article here…",
+        "pasteRequired": "Paste at least a few lines of reference text.",
+        "continueToBrief": "Continue to brief",
+        "generateFour": "Generate 4 drafts",
+        "generateOne": "Generate 1 draft",
+        "batchDoneTitle": "4 drafts ready",
+        "batchDoneHint": "Open each post to refine, pick a CTA, and validate.",
+        "openDraft": "Draft {n}",
+        "inspirationDoneTitle": "Your draft",
+        "inspirationDoneHint": "Open it to refine and validate, or regenerate another angle (replaces this draft).",
+        "openArticle": "Open draft",
+        "regenerateAngle": "Regenerate another angle",
+        "browseArchive": "Browse archived news stories",
+        "selectedNewsLabel": "Selected story",
+        "pastedPreviewLabel": "Reference excerpt",
+        "progress": {
+          "ariaLabel": "Creation steps",
+          "mode": "Mode",
+          "contextProfile": "Profile",
+          "contextNews": "News",
+          "contextInspiration": "Reference",
+          "brief": "Brief",
+          "result": "Result",
+          "generating": "Generating…"
+        }
+      },
       "news": {
         "title": "News of the moment",
         "subtitle": "4 stories from the last 7 days, matched to your domain. Pick one, then generate 4 LinkedIn drafts anchored on that story (with source citation).",
@@ -673,7 +783,7 @@
       "generateTimeout": "Timed out. Try again.",
       "noLlmKey": "Set up your API key before generating.",
       "invalidApiKey": "API key rejected. Update it in API key step.",
-      "empty": "No posts yet. Click “Generate 4 posts”.",
+      "empty": "No posts yet. Open the creation assistant to generate your first drafts.",
       "batchLabel": "Batch from {date}",
       "untitled": "Untitled",
       "cta": {
@@ -783,7 +893,10 @@
         "copyFailed": "Could not copy. Allow clipboard access or copy the text manually.",
         "newsAnchor": "Batch generated from this news story",
         "newsSourceInComment": "The source citation with the article URL belongs in your first comment (Format section), not in the post body.",
-        "readSource": "Read source article"
+        "readSource": "Read source article",
+        "inspirationAnchor": "Post inspired by existing content",
+        "inspirationAnchorHint": "Generated from a reference — rewritten angle with your Persona, no plagiarism.",
+        "readInspirationSource": "Open inspiration source"
       },
       "share": {
         "title": "SHARE",
@@ -795,8 +908,12 @@
     "news": {
       "title": "Previous news",
       "subtitle": "Stories archived from your posts page — browse details or regenerate 2 posts (brief is set on the posts page).",
+      "subtitleArchive": "History of scanned stories. To create new posts, use the creation assistant.",
+      "backToWizard": "Back to news creation",
+      "scanFreshNews": "Scan 4 recent stories",
+      "archiveHint": "To generate posts, return to the assistant and run a fresh scan.",
       "briefOnArticles": "Set up the brief on the posts page →",
-      "empty": "No archived news yet. Fetch news from the posts page first.",
+      "empty": "No archived news yet. Run a scan from the creation assistant.",
       "backToArticles": "← Back to posts",
       "unknownSource": "Source",
       "closeDetail": "Close",

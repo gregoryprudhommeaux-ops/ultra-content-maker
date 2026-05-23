@@ -505,12 +505,122 @@
         "pending": "Por publicar",
         "all": "Todos los posts"
       },
-      "emptyPending": "Ningún post pendiente. Genera un lote o consulta los validados.",
+      "emptyPending": "Ningún post pendiente. Crea un lote nuevo o consulta los validados.",
       "needPersona": "Valida tu Persona antes de generar posts.",
       "goPersona": "Ir a Persona →",
       "goLlmSetup": "Configurar mi clave API →",
       "description": "Genera 3–4 posts de LinkedIn, refina con preguntas, elige un CTA y copia a LinkedIn.",
+      "descriptionList": "Tus borradores y posts validados. Crea un nuevo lote con el asistente de creación.",
+      "createCta": "Crear posts",
       "updateInspirations": "Actualizar mis inspiraciones",
+      "create": {
+        "title": "Crear posts de LinkedIn",
+        "subtitle": "Elige cómo empezar: desde tu perfil, noticias recientes o contenido existente para reutilizar.",
+        "backToList": "Volver a posts",
+        "back": "← Paso anterior",
+        "briefSubtitleShort": "Objetivo obligatorio; los demás campos los sugiere la IA y puedes editarlos.",
+        "briefSuggesting": "Sugiriendo brief…",
+        "briefSuggestFailed": "No se pudo sugerir el brief. Completa los campos manualmente.",
+        "incompleteObjective": "Elige un objetivo para continuar.",
+        "scopeLabel": "Alcance del post",
+        "scopeHint": "Generalista = ángulo amplio · Nicho = ángulo experto / ICP específico.",
+        "scope": {
+          "generalist": "Generalista",
+          "niche": "Nicho"
+        },
+        "modes": {
+          "profile": {
+            "title": "Desde mi perfil",
+            "desc": "4 borradores (2 generalistas + 2 nicho) desde tu Persona y un brief completo."
+          },
+          "news": {
+            "title": "Desde la actualidad",
+            "desc": "Escaneo de 4 noticias recientes, eliges una y obtienes 4 posts con tu voz."
+          },
+          "inspiration": {
+            "title": "Desde contenido existente",
+            "desc": "Pega texto, enlace + extracto o una inspiración guardada — 1 borrador con ángulo distinto."
+          }
+        },
+        "inspiration": {
+          "inputTitle": "¿Cómo quieres aportar la referencia?",
+          "inputSubtitle": "La IA se inspira en la estructura y el tono sin copiar el texto fuente.",
+          "referenceRequired": "Completa la referencia (texto, URL + extracto o inspiración guardada).",
+          "manageLibrary": "Gestiona tus inspiraciones:",
+          "manageLibraryLink": "página Inspiraciones",
+          "input": {
+            "paste": {
+              "title": "Pegar un post o artículo",
+              "desc": "Texto completo copiado de LinkedIn, un blog, etc."
+            },
+            "url": {
+              "title": "Enlace al contenido",
+              "desc": "URL + recuperación automática del texto (o extracto editado a mano)."
+            },
+            "library": {
+              "title": "Mis inspiraciones guardadas",
+              "desc": "{count, plural, one {# fuente} other {# fuentes}} en tu biblioteca",
+              "descEmpty": "Añade inspiraciones en la página dedicada para reutilizarlas aquí."
+            }
+          },
+          "urlTitle": "Enlace y extracto",
+          "urlHint": "Pega la URL y usa «Recuperar contenido» para rellenar el extracto. Siempre puedes editarlo antes de continuar.",
+          "fetchContent": "Recuperar contenido",
+          "fetching": "Recuperando…",
+          "fetchFailed": "No se pudo recuperar el contenido. Pega el extracto a mano o comprueba la URL.",
+          "fetchNoContent": "No hay texto utilizable en esta página. Pega el extracto manualmente.",
+          "fetchLinkedInPerplexity": "Los posts de LinkedIn requieren clave Perplexity (Sonar) en Ajustes, o pega el texto del post.",
+          "fetchPerplexityHint": "Para páginas difíciles (LinkedIn, muro de pago), una clave Perplexity en Ajustes mejora la recuperación.",
+          "fetchTitleLabel": "Título detectado",
+          "urlLabel": "URL del contenido",
+          "urlPlaceholder": "https://…",
+          "urlInvalid": "URL no válida (https://…)",
+          "excerptLabel": "Extracto a reutilizar",
+          "excerptPlaceholder": "Pega aquí el texto del post o los pasajes clave del artículo…",
+          "excerptHelp": "Mínimo 40 caracteres. No copies palabra por palabra — la IA debe reescribir.",
+          "libraryTitle": "Elegir una inspiración",
+          "libraryHint": "Posts o perfiles de LinkedIn que guardaste con los aspectos a retomar.",
+          "profileBadge": "Perfil",
+          "postBadge": "Post",
+          "selectedLabel": "Fuente seleccionada",
+          "optionalExcerptLabel": "Extracto opcional",
+          "optionalExcerptPlaceholder": "Pega un extracto si quieres anclar la IA en un pasaje concreto…",
+          "optionalExcerptHelp": "Sin extracto, la IA usa la URL, la etiqueta y tus notas «por qué me gusta».",
+          "continueToBrief": "Continuar al brief",
+          "libraryPreviewLabel": "Referencia (biblioteca)",
+          "urlPreviewLabel": "Referencia (enlace + extracto)"
+        },
+        "newsIntro": "Analizamos 4 publicaciones recientes de tu sector. Elige la noticia de referencia.",
+        "continueWithNews": "Continuar con esta noticia",
+        "pasteTitle": "Contenido de referencia",
+        "pasteHint": "Pega el texto completo (post de LinkedIn, extracto de artículo, etc.). La IA propondrá un ángulo nuevo, no una paráfrasis.",
+        "pasteLabel": "Texto a reutilizar",
+        "pastePlaceholder": "Pega aquí el post o artículo fuente…",
+        "pasteRequired": "Pega al menos unas líneas de referencia.",
+        "continueToBrief": "Continuar al brief",
+        "generateFour": "Generar 4 borradores",
+        "generateOne": "Generar 1 borrador",
+        "batchDoneTitle": "4 borradores listos",
+        "batchDoneHint": "Abre cada post para afinar, elegir un CTA y validar.",
+        "openDraft": "Borrador {n}",
+        "inspirationDoneTitle": "Tu borrador",
+        "inspirationDoneHint": "Ábrelo para afinar y validar, o regenera otro ángulo (sustituye este borrador).",
+        "openArticle": "Abrir borrador",
+        "regenerateAngle": "Regenerar otro ángulo",
+        "browseArchive": "Ver noticias archivadas",
+        "selectedNewsLabel": "Noticia seleccionada",
+        "pastedPreviewLabel": "Extracto de referencia",
+        "progress": {
+          "ariaLabel": "Pasos de creación",
+          "mode": "Modo",
+          "contextProfile": "Perfil",
+          "contextNews": "Noticia",
+          "contextInspiration": "Referencia",
+          "brief": "Brief",
+          "result": "Resultado",
+          "generating": "Generando…"
+        }
+      },
       "news": {
         "title": "Actualidad del momento",
         "subtitle": "4 noticias de menos de 7 días, según tu dominio. Elige una y genera 4 borradores de LinkedIn anclados en esa noticia (con cita de la fuente).",
@@ -673,7 +783,7 @@
       "generateTimeout": "Tiempo agotado. Inténtalo de nuevo.",
       "noLlmKey": "Configura tu clave API antes de generar.",
       "invalidApiKey": "Clave API rechazada. Actualízala en Clave API.",
-      "empty": "Sin posts aún. Haz clic en « Generar 4 posts ».",
+      "empty": "Sin posts aún. Abre el asistente de creación para generar tus primeros borradores.",
       "batchLabel": "Lote del {date}",
       "untitled": "Sin título",
       "cta": {
@@ -783,7 +893,10 @@
         "copyFailed": "No se pudo copiar. Permite el portapapeles o copia el texto manualmente.",
         "newsAnchor": "Lote generado desde esta noticia",
         "newsSourceInComment": "La cita con la URL del artículo va en el primer comentario (sección Formato), no en el cuerpo del post.",
-        "readSource": "Leer artículo fuente"
+        "readSource": "Leer artículo fuente",
+        "inspirationAnchor": "Post inspirado en contenido existente",
+        "inspirationAnchorHint": "Generado desde una referencia — ángulo reescrito con tu Persona, sin plagio.",
+        "readInspirationSource": "Abrir fuente de inspiración"
       },
       "share": {
         "title": "COMPARTIR",
@@ -795,8 +908,12 @@
     "news": {
       "title": "Noticias anteriores",
       "subtitle": "Noticias archivadas desde la página de posts — consulta el detalle o regenera 2 posts (brief en la página de posts).",
+      "subtitleArchive": "Historial de noticias escaneadas. Para crear posts nuevos, usa el asistente de creación.",
+      "backToWizard": "Volver a creación desde noticias",
+      "scanFreshNews": "Escanear 4 noticias recientes",
+      "archiveHint": "Para generar posts, vuelve al asistente y lanza un nuevo escaneo.",
       "briefOnArticles": "Configurar el brief en la página de posts →",
-      "empty": "No hay noticias archivadas. Carga noticias desde la página de posts.",
+      "empty": "No hay noticias archivadas. Lanza un escaneo desde el asistente de creación.",
       "backToArticles": "← Volver a posts",
       "unknownSource": "Fuente",
       "closeDetail": "Cerrar",

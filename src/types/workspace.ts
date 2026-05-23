@@ -289,6 +289,19 @@ export interface ArticleNewsSource {
   sourceName?: string;
 }
 
+export type InspirationInputKind = "paste" | "url" | "library";
+
+/** Traceability when a post was generated from the inspiration wizard */
+export interface ArticleInspirationSource {
+  kind: InspirationInputKind;
+  sourceId?: string;
+  url: string;
+  label?: string;
+  category?: SourceCategory;
+  likedAspects?: InspirationAspect[];
+  whyLike?: string;
+}
+
 export interface ArticleIllustration {
   format: IllustrationFormat;
   rationale: string;
@@ -308,6 +321,7 @@ export interface ArticleDoc {
   ps?: string;
   illustration?: ArticleIllustration;
   newsSource?: ArticleNewsSource;
+  inspirationSource?: ArticleInspirationSource;
   /** generalist = broad angle; niche = vertical / ICP-specific */
   scope?: ArticleScope;
   /** Up to 4 LinkedIn hashtags (without #), appended on export */

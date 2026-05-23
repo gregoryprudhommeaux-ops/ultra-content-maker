@@ -37,3 +37,14 @@ export function isPostBriefComplete(brief: PostBrief): boolean {
     brief.proof.trim().length >= 8
   );
 }
+
+export type WizardCreationMode = "profile" | "news" | "inspiration";
+
+/** Profile = full brief; news/inspiration = objective required (other fields optional, often AI-prefilled). */
+export function isWizardBriefComplete(
+  brief: PostBrief,
+  mode: WizardCreationMode,
+): boolean {
+  if (mode === "profile") return isPostBriefComplete(brief);
+  return !!brief.objective;
+}

@@ -13,11 +13,9 @@ const SEGMENT_IDLE =
 
 type Props = {
   pendingOnly: boolean;
-  onGenerate: () => void;
-  generating: boolean;
 };
 
-export function ArticlesHubHeader({ pendingOnly, onGenerate, generating }: Props) {
+export function ArticlesHubHeader({ pendingOnly }: Props) {
   const t = useTranslations("setup.articles");
 
   return (
@@ -52,14 +50,9 @@ export function ArticlesHubHeader({ pendingOnly, onGenerate, generating }: Props
           >
             {t("updateInspirations")}
           </Link>
-          <button
-            type="button"
-            disabled={generating}
-            onClick={onGenerate}
-            className={`w-full shrink-0 sm:w-auto ${BTN_PRIMARY}`}
-          >
-            {generating ? t("generating") : t("generateBatch")}
-          </button>
+          <Link href="/articles/new" className={`w-full shrink-0 sm:w-auto ${BTN_PRIMARY}`}>
+            {t("createCta")}
+          </Link>
         </div>
       </div>
 
@@ -68,7 +61,7 @@ export function ArticlesHubHeader({ pendingOnly, onGenerate, generating }: Props
           {pendingOnly ? t("titlePending") : t("title")}
         </h1>
         <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary">
-          {pendingOnly ? t("descriptionPending") : t("description")}
+          {pendingOnly ? t("descriptionPending") : t("descriptionList")}
         </p>
       </header>
     </section>

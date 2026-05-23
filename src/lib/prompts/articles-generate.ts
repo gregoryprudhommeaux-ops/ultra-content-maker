@@ -10,7 +10,7 @@ const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
   es: "Spanish",
 };
 
-export type ArticleGenerateCount = 2 | 4;
+export type ArticleGenerateCount = 1 | 2 | 4;
 
 function scopeMixInstruction(count: ArticleGenerateCount): {
   systemLines: string;

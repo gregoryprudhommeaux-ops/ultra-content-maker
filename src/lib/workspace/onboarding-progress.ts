@@ -16,7 +16,7 @@ export const ONBOARDING_STEPS: ReadonlyArray<{
   { key: "author", href: "/setup/author" },
   { key: "audience", href: "/setup/audience" },
   { key: "persona", href: "/persona" },
-  { key: "articles", href: "/articles" },
+  { key: "articles", href: "/articles/new" },
 ] as const;
 
 export type OnboardingStepState = {
@@ -42,8 +42,15 @@ function isAudienceComplete(
   return Boolean(audience.targetLabel?.trim() || audience.contentFocus?.trim());
 }
 
-function pathMatchesStep(pathname: string | null, href: string): boolean {
+function pathMatchesStep(
+  pathname: string | null,
+  href: string,
+  key: OnboardingStepKey,
+): boolean {
   if (!pathname) return false;
+  if (key === "articles") {
+    return pathname === "/articles" || pathname.startsWith("/articles/");
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -76,7 +83,7 @@ export async function loadOnboardingProgress(
     let status: StepVisualStatus;
     if (complete) {
       status = "complete";
-    } else if (pathMatchesStep(pathname, href)) {
+    } else if (pathMatchesStep(pathname, href, key)) {
       status = "current";
     } else if (previousAllComplete) {
       status = "available";

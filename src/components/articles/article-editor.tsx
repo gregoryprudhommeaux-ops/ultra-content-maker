@@ -810,6 +810,24 @@ export function ArticleEditor({ articleId }: Props) {
         </div>
       )}
 
+      {article.inspirationSource && (
+        <div className="rounded-lg border border-violet-200/80 bg-violet-50/80 px-4 py-3 text-sm">
+          <p className="font-medium text-ns-tertiary">{t("inspirationAnchor")}</p>
+          <p className="mt-1 text-xs text-ns-secondary">{t("inspirationAnchorHint")}</p>
+          {article.inspirationSource.label && (
+            <p className="mt-1 text-ns-secondary">{article.inspirationSource.label}</p>
+          )}
+          <a
+            href={article.inspirationSource.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-xs font-medium text-violet-900 underline"
+          >
+            {t("readInspirationSource")}
+          </a>
+        </div>
+      )}
+
       <div className="rounded-2xl border border-gray-100 bg-ns-surface p-5">
         <div className="mb-3 flex justify-end">
           <LinkedInCharCount
