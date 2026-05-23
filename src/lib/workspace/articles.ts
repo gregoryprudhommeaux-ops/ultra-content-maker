@@ -29,7 +29,11 @@ import type {
 import { normalizeArticleIllustration } from "@/lib/articles/illustration";
 import { normalizePostFormatPlan } from "@/lib/articles/post-format";
 import { normalizeArticleRepurpose } from "@/lib/articles/repurpose";
-import { createDefaultRefinement, hasReviseInput as hasRefinementInputImpl } from "@/lib/articles/refinement";
+import {
+  createDefaultRefinement,
+  hasReviseInput as hasRefinementInputImpl,
+  serializeRefinementForFirestore,
+} from "@/lib/articles/refinement";
 import type { ArticleIllustration, ArticleNewsSource } from "@/types/workspace";
 import { normalizeArticleScope } from "@/lib/articles/scope";
 import { formatHashtagsLine, normalizeHashtags } from "@/lib/linkedin/hashtags";
@@ -342,7 +346,7 @@ export async function saveArticleRefinement(
   const db = getClientFirestore();
   if (!db) throw new Error("Firestore not available");
   await updateDoc(doc(db, "users", userId, "articles", articleId), {
-    refinement,
+    refinement: serializeRefinementForFirestore(refinement),
     status,
     updatedAt: serverTimestamp(),
   });

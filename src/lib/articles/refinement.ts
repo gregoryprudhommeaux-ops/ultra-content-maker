@@ -43,3 +43,34 @@ export function hasReviseInput(refinement: ArticleRefinement): boolean {
   if (refinement.globalComment?.trim()) return true;
   return refinement.questions.some((q) => q.answer || q.comment?.trim());
 }
+
+/** Firestore rejects `undefined` in nested fields — strip empties before updateDoc. */
+export function serializeRefinementForFirestore(
+  refinement: ArticleRefinement,
+): Record<string, unknown> {
+  const questions = refinement.questions.map((q) => {
+    const row: Record<string, unknown> = {
+      id: q.id,
+      questionKey: q.questionKey,
+    };
+    if (q.answer) row.answer = q.answer;
+    const comment = q.comment?.trim();
+    if (comment) row.comment = comment;
+    return row;
+  });
+
+  const out: Record<string, unknown> = {
+    emojiLevel: refinement.emojiLevel ?? "light",
+    toneEdge: refinement.toneEdge ?? "default",
+    questions,
+  };
+
+  const globalComment = refinement.globalComment?.trim();
+  if (globalComment) out.globalComment = globalComment;
+
+  if (refinement.lastRegeneratedAt) {
+    out.lastRegeneratedAt = refinement.lastRegeneratedAt;
+  }
+
+  return out;
+}
