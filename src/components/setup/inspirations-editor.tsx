@@ -20,6 +20,8 @@ type Props = {
   showMyPosts?: boolean;
   showPersonaHint?: boolean;
   hidePageHeader?: boolean;
+  returnHref?: string;
+  returnLabel?: string;
 };
 
 function aspectLabel(
@@ -280,15 +282,27 @@ export function InspirationsEditor({
   showMyPosts = false,
   showPersonaHint = true,
   hidePageHeader = false,
+  returnHref,
+  returnLabel,
 }: Props) {
   const t = useTranslations("setup.inspirations");
 
   return (
     <div className="space-y-6">
       {!hidePageHeader ? (
-        <div>
-          <h2 className="text-xl font-semibold text-ns-tertiary">{t("pageTitle")}</h2>
-          <p className="mt-2 text-sm text-ns-secondary">{t("pageSubtitle")}</p>
+        <div className="space-y-4">
+          {returnHref && returnLabel ? (
+            <Link
+              href={returnHref}
+              className="inline-block text-sm font-medium text-ns-secondary hover:text-ns-tertiary"
+            >
+              {returnLabel}
+            </Link>
+          ) : null}
+          <div>
+            <h1 className="text-2xl font-semibold text-ns-tertiary">{t("pageTitle")}</h1>
+            <p className="mt-2 text-sm text-ns-secondary">{t("pageSubtitle")}</p>
+          </div>
         </div>
       ) : (
         <div>

@@ -356,6 +356,10 @@
       }
     },
     "inspirations": {
+      "backToArticles": "← Back to posts",
+      "backToCreate": "← Back to creation",
+      "backToAuthor": "← Back to My profile",
+      "backToPersona": "← Back to Persona",
       "pageTitle": "My inspirations",
       "pageSubtitle": "Posts and profiles you admire — with what you like (tone, angle, format…). This enriches your Persona.",
       "embeddedTitle": "Inspirations",

@@ -356,6 +356,10 @@
       }
     },
     "inspirations": {
+      "backToArticles": "← Volver a posts",
+      "backToCreate": "← Volver a la creación",
+      "backToAuthor": "← Volver a Mi perfil",
+      "backToPersona": "← Volver al Persona",
       "pageTitle": "Mis inspiraciones",
       "pageSubtitle": "Posts y perfiles que admiras — con lo que te gusta (tono, ángulo, formato…). Enriquecen tu Persona.",
       "embeddedTitle": "Inspiraciones",
