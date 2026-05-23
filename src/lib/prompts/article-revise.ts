@@ -1,6 +1,6 @@
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
-import { buildNewsSourceCitationInstruction } from "@/lib/prompts/news-source-citation";
+import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
 import type {
   ArticleNewsSource,
   ArticleRefinement,
@@ -59,7 +59,7 @@ export function buildReviseUserPrompt(
     corrosiveToneRequested: isCorrosiveToneEdge(refinement),
   };
   if (newsSource?.url) {
-    payload.newsSourceCitation = buildNewsSourceCitationInstruction(
+    payload.newsSourceCitation = buildNewsSourceInPostInstruction(
       contentLanguage,
       newsSource,
     );

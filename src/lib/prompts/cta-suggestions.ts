@@ -48,7 +48,8 @@ CONTINUITY (critical):
 - If the body already ends with a question, offer the next step (DM, resource, tag) — do not ask another question with the same "If you…" opener.
 - Use bridges ("Pour aller plus loin", "Dans ce cas", "If that's you") instead of restarting the body's hook phrase.
 
-No hashtag spam. No external URLs in CTA text. Optional linkUrl only if clearly inferable (else omit).
+No hashtag spam. No external URLs in CTA text.
+linkUrl: omit unless you have a specific resource URL (news article, landing page, calendar, lead magnet). NEVER use linkedin.com homepage, /feed, or /login — for "follow my profile" put the ask in text only with no linkUrl.
 
 Return JSON only:
 {

@@ -10,7 +10,7 @@ import {
 } from "@/lib/workspace/articles";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
   article: ArticleDoc;
@@ -40,6 +40,7 @@ export function ArticleFormatPanel({
   const [loadingRepurpose, setLoadingRepurpose] = useState(false);
   const [loadingComment, setLoadingComment] = useState(false);
   const [copied, setCopied] = useState<"comment" | "carousel" | null>(null);
+  const autoCommentForArticleRef = useRef<string | null>(null);
 
   useEffect(() => {
     setFormatPlan(article.postFormatPlan ?? null);
@@ -151,6 +152,7 @@ export function ArticleFormatPanel({
           exportText: article.exportText,
           postBrief: article.postBrief,
           personaPromptText: personaText,
+          newsSource: article.newsSource,
           llm: auth.llm,
         }),
       });
@@ -163,6 +165,29 @@ export function ArticleFormatPanel({
       setLoadingComment(false);
     }
   }
+
+  useEffect(() => {
+    if (
+      disabled ||
+      !user ||
+      !article.newsSource?.url ||
+      article.status !== "validated" ||
+      article.suggestedFirstComment?.trim() ||
+      autoCommentForArticleRef.current === article.id
+    ) {
+      return;
+    }
+    autoCommentForArticleRef.current = article.id;
+    void loadFirstComment();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per validated news article
+  }, [
+    article.id,
+    article.status,
+    article.newsSource?.url,
+    article.suggestedFirstComment,
+    disabled,
+    user,
+  ]);
 
   async function copyText(text: string, key: "comment" | "carousel") {
     try {
@@ -307,7 +332,9 @@ export function ArticleFormatPanel({
             {loadingComment ? "…" : firstComment ? t("refreshComment") : t("generateComment")}
           </button>
         </div>
-        <p className="text-xs text-ns-secondary">{t("firstCommentHint")}</p>
+        <p className="text-xs text-ns-secondary">
+          {article.newsSource?.url ? t("firstCommentHintNews") : t("firstCommentHint")}
+        </p>
         {firstComment && (
           <div className="rounded-lg bg-ns-brand-light/50 p-3">
             <p className="text-sm text-ns-tertiary whitespace-pre-wrap">{firstComment}</p>

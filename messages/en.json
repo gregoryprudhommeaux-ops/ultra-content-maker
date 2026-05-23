@@ -532,11 +532,11 @@
         "selectedTitle": "Create your LinkedIn posts from this story",
         "selectedNextStep": "Next step",
         "selectedExplain": "The AI will draft 4 LinkedIn posts (2 generalist + 2 niche) reacting to this story in your voice and Persona — not a neutral press recap.",
-        "citationNote": "Each post will cite the source with the full article URL (e.g. Source: BusinessEurope — https://…).",
+        "citationNote": "Posts name the source without a URL in the body (better LinkedIn reach). The full article URL will be suggested in your first comment under the post.",
         "changeNews": "Pick another story",
         "generateFromNews": "Generate 4 LinkedIn posts from this story",
         "generatingFromNews": "Generating 4 drafts…",
-        "generateFromNewsHint": "2 generalist + 2 niche posts · source citation required in every post.",
+        "generateFromNewsHint": "2 generalist + 2 niche posts · source link in the first comment (not in the post body).",
         "previousNews": "Previous news"
       },
       "briefIncomplete": "Complete the post brief (objective, problem, point of view, and proof) before generating.",
@@ -597,6 +597,7 @@
         "generateComment": "Suggest a comment",
         "refreshComment": "Regenerate",
         "firstCommentHint": "Paste this as your first comment right after posting to seed qualified discussion.",
+        "firstCommentHintNews": "For news-based posts: paste this comment right after publishing — it includes the source with the URL (keep links out of the post body).",
         "copyComment": "Copy comment",
         "copied": "Copied"
       },
@@ -647,6 +648,7 @@
         "refresh": "Re-analyze",
         "loadFailed": "Could not analyze the post.",
         "linkWarning": "An external link appears in the post body. LinkedIn often reduces reach — prefer putting it in a comment.",
+        "linkWarningNews": "This post is anchored on news: remove the link from the body (LinkedIn reach penalty). Generate or copy the first comment below — it will include the source URL.",
         "alternativeHooks": "Alternative hooks",
         "useHook": "Use",
         "scores": {
@@ -780,6 +782,7 @@
         "copyLinkedInHint": "Text is on your clipboard. If LinkedIn’s composer is empty, paste with Ctrl+V (Cmd+V on Mac). Auto-publishing requires a LinkedIn connection (coming later).",
         "copyFailed": "Could not copy. Allow clipboard access or copy the text manually.",
         "newsAnchor": "Batch generated from this news story",
+        "newsSourceInComment": "The source citation with the article URL belongs in your first comment (Format section), not in the post body.",
         "readSource": "Read source article"
       },
       "share": {

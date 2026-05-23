@@ -28,6 +28,12 @@ import {
 import { copyAndOpenLinkedInComposer } from "@/lib/linkedin/composer";
 import { formatHashtagsLine } from "@/lib/linkedin/hashtags";
 import {
+  fitLinkedInArticleParts,
+  joinLinkedInPostParts,
+  maxDraftCharsForArticle,
+} from "@/lib/linkedin/fit-linkedin-post";
+import { sanitizeCtaLinkUrl } from "@/lib/linkedin/sanitize-post-link";
+import {
   buildExportText,
   getArticle,
   markArticleRegenerated,
@@ -690,13 +696,28 @@ export function ArticleEditor({ articleId }: Props) {
       }
 
       const ctaIntegrated = closingForExport !== chosen.text;
+      const ctaLink = sanitizeCtaLinkUrl(chosen.linkUrl);
+      const fitted = fitLinkedInArticleParts(
+        {
+          hook: article.hook,
+          body: article.body,
+          ps: ctaIntegrated ? undefined : article.ps,
+        },
+        maxDraftCharsForArticle(hashtags),
+      );
       const exportText = buildExportText(
-        article.body,
-        ctaIntegrated ? undefined : article.ps,
+        fitted.hook,
+        fitted.body,
+        fitted.ps,
         closingForExport,
-        chosen.linkUrl,
+        ctaLink,
         hashtags,
       );
+      await updateArticleContent(user.uid, article.id, {
+        hook: fitted.hook,
+        body: fitted.body,
+        ps: fitted.ps,
+      });
       await validateArticleWithCta(
         user.uid,
         article.id,
@@ -704,7 +725,7 @@ export function ArticleEditor({ articleId }: Props) {
         {
           style: chosen.style,
           text: chosen.text,
-          linkUrl: chosen.linkUrl,
+          linkUrl: ctaLink,
         },
         hashtags,
       );
@@ -776,6 +797,7 @@ export function ArticleEditor({ articleId }: Props) {
       {article.newsSource && (
         <div className="rounded-lg border border-sky-200/80 bg-sky-50/80 px-4 py-3 text-sm">
           <p className="font-medium text-ns-tertiary">{t("newsAnchor")}</p>
+          <p className="mt-1 text-xs text-ns-secondary">{t("newsSourceInComment")}</p>
           <p className="mt-1 text-ns-secondary">{article.newsSource.title}</p>
           <a
             href={article.newsSource.url}
@@ -789,6 +811,15 @@ export function ArticleEditor({ articleId }: Props) {
       )}
 
       <div className="rounded-2xl border border-gray-100 bg-ns-surface p-5">
+        <div className="mb-3 flex justify-end">
+          <LinkedInCharCount
+            text={joinLinkedInPostParts({
+              hook: article.hook,
+              body: article.body,
+              ps: article.ps,
+            })}
+          />
+        </div>
         <p className="text-lg font-semibold text-ns-tertiary whitespace-pre-wrap">
           {article.hook}
         </p>
@@ -810,7 +841,9 @@ export function ArticleEditor({ articleId }: Props) {
 
       {hasBodyLink && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {tQuality("linkWarning")}
+          {article.newsSource
+            ? tQuality("linkWarningNews")
+            : tQuality("linkWarning")}
         </div>
       )}
 

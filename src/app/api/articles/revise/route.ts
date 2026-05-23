@@ -3,6 +3,12 @@ import { chatCompletionJson } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import { normalizeArticleScope } from "@/lib/articles/scope";
 import { normalizeHashtags } from "@/lib/linkedin/hashtags";
+import { stripGenericLinkedInUrlsFromText } from "@/lib/linkedin/sanitize-post-link";
+import {
+  fitLinkedInArticleParts,
+  maxDraftCharsForArticle,
+} from "@/lib/linkedin/fit-linkedin-post";
+import { stripNewsSourceUrlFromText } from "@/lib/linkedin/strip-news-source-url";
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
 import {
   buildReviseSystemPrompt,
@@ -116,12 +122,33 @@ export async function POST(request: Request) {
       normalizeArticleScope(parsed.scope) ??
       normalizeArticleScope(body.article.scope);
 
+    const newsSource = body.newsSource;
+    let hook = stripGenericLinkedInUrlsFromText(
+      parsed.hook?.trim() ?? body.article.hook,
+    );
+    let revisedBody = stripGenericLinkedInUrlsFromText(parsed.body.trim());
+    let ps = parsed.ps?.trim()
+      ? stripGenericLinkedInUrlsFromText(parsed.ps.trim()) || undefined
+      : undefined;
+
+    if (newsSource?.url) {
+      hook = stripNewsSourceUrlFromText(hook, newsSource);
+      revisedBody = stripNewsSourceUrlFromText(revisedBody, newsSource);
+      if (ps) ps = stripNewsSourceUrlFromText(ps, newsSource) || undefined;
+    }
+
+    const tags = hashtags.length ? hashtags : fallbackTags;
+    const fitted = fitLinkedInArticleParts(
+      { hook, body: revisedBody, ps },
+      maxDraftCharsForArticle(tags),
+    );
+
     return NextResponse.json({
-      hook: parsed.hook?.trim() ?? body.article.hook,
-      body: parsed.body.trim(),
-      ps: parsed.ps?.trim() || undefined,
+      hook: fitted.hook,
+      body: fitted.body,
+      ps: fitted.ps,
       scope,
-      hashtags: hashtags.length ? hashtags : fallbackTags,
+      hashtags: tags,
     });
   } catch (e) {
     return NextResponse.json(

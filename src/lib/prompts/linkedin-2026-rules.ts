@@ -1,6 +1,9 @@
+import { LINKEDIN_LENGTH_PROMPT_RULE } from "@/lib/linkedin/fit-linkedin-post";
+
 /** Shared LinkedIn-native writing rules (2026 authority content). */
 export const LINKEDIN_2026_SYSTEM_RULES = `
 LinkedIn 2026 rules (non-negotiable):
+${LINKEDIN_LENGTH_PROMPT_RULE}
 - People-first expert voice: show how the author thinks, not generic corporate speak.
 - Niche-specific: write for the defined ICP, not "everyone on LinkedIn".
 - Include at least one concrete proof element per post (case, metric, field observation, named pattern — no vague inspiration).

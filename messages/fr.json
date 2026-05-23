@@ -532,11 +532,11 @@
         "selectedTitle": "Créer vos posts LinkedIn à partir de cette actualité",
         "selectedNextStep": "Prochaine étape",
         "selectedExplain": "L’IA va rédiger 4 brouillons LinkedIn (2 généralistes + 2 niches) qui commentent cette actu avec votre voix et votre Persona — pas un simple résumé presse.",
-        "citationNote": "Chaque post inclura une citation de la source avec l’URL complète de l’article (ex. Source : BusinessEurope — https://…).",
+        "citationNote": "Les posts citent la source par son nom, sans URL dans le corps (meilleure portée LinkedIn). L’URL complète sera proposée dans le 1er commentaire sous le post.",
         "changeNews": "Choisir une autre actu",
         "generateFromNews": "Générer 4 posts LinkedIn depuis cette actu",
         "generatingFromNews": "Génération des 4 brouillons…",
-        "generateFromNewsHint": "2 posts généralistes + 2 posts niches · citation source obligatoire dans chaque post.",
+        "generateFromNewsHint": "2 posts généralistes + 2 posts niches · lien source dans le 1er commentaire (pas dans le corps).",
         "previousNews": "News précédentes"
       },
       "briefIncomplete": "Complétez le brief post (objectif, problème, point de vue et preuve) avant de générer.",
@@ -597,6 +597,7 @@
         "generateComment": "Suggérer un commentaire",
         "refreshComment": "Régénérer",
         "firstCommentHint": "Collez ce commentaire sous votre post juste après publication pour amorcer une discussion qualifiée.",
+        "firstCommentHintNews": "Pour les posts issus d’une actu : collez ce commentaire juste après publication — il contient la source avec l’URL (évitez les liens dans le corps du post).",
         "copyComment": "Copier le commentaire",
         "copied": "Copié"
       },
@@ -647,6 +648,7 @@
         "refresh": "Ré-analyser",
         "loadFailed": "Impossible d’analyser le post.",
         "linkWarning": "Un lien externe est présent dans le corps du post. LinkedIn réduit souvent la portée — préférez le mettre en commentaire.",
+        "linkWarningNews": "Ce post est ancré sur une actu : retirez le lien du corps (pénalité LinkedIn). Générez ou copiez le 1er commentaire ci-dessous — la source avec l’URL y sera incluse.",
         "alternativeHooks": "Hooks alternatifs",
         "useHook": "Utiliser",
         "scores": {
@@ -780,6 +782,7 @@
         "copyLinkedInHint": "Le texte est dans le presse-papiers. Si le compositeur LinkedIn est vide, collez avec Ctrl+V (Cmd+V sur Mac). La publication automatique nécessite une connexion LinkedIn (bientôt).",
         "copyFailed": "Impossible de copier. Autorisez l’accès au presse-papiers ou copiez le texte manuellement.",
         "newsAnchor": "Lot généré depuis cette actualité",
+        "newsSourceInComment": "La citation avec l’URL de l’article est prévue dans le 1er commentaire (section Format), pas dans le corps du post.",
         "readSource": "Lire l’article source"
       },
       "share": {

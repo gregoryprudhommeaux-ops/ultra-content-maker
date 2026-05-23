@@ -4,8 +4,14 @@ import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
   buildFirstCommentSystemPrompt,
   buildFirstCommentUserPrompt,
+  ensureNewsSourceInFirstComment,
 } from "@/lib/prompts/article-first-comment";
-import type { ContentLanguage, LlmProvider, PostBrief } from "@/types/workspace";
+import type {
+  ArticleNewsSource,
+  ContentLanguage,
+  LlmProvider,
+  PostBrief,
+} from "@/types/workspace";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -18,6 +24,7 @@ type Body = {
   exportText?: string;
   postBrief?: PostBrief;
   personaPromptText: string;
+  newsSource?: ArticleNewsSource;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -40,6 +47,7 @@ export async function POST(request: Request) {
   }
 
   const contentLanguage = (body.contentLanguage || "en") as ContentLanguage;
+  const hasNewsSource = Boolean(body.newsSource?.url?.trim());
   const llm =
     body.llm?.apiKey?.trim()
       ? configFromUserLlm({
@@ -55,7 +63,10 @@ export async function POST(request: Request) {
 
   try {
     const raw = await chatCompletionJson(llm, [
-      { role: "system", content: buildFirstCommentSystemPrompt(contentLanguage) },
+      {
+        role: "system",
+        content: buildFirstCommentSystemPrompt(contentLanguage, hasNewsSource),
+      },
       {
         role: "user",
         content: buildFirstCommentUserPrompt({
@@ -64,14 +75,24 @@ export async function POST(request: Request) {
           exportText: body.exportText,
           postBrief: body.postBrief,
           personaExcerpt: body.personaPromptText ?? "",
+          contentLanguage,
+          newsSource: body.newsSource,
         }),
       },
     ]);
 
     const parsed = parseLlmJson<{ comment?: string }>(raw);
-    const comment = typeof parsed.comment === "string" ? parsed.comment.trim() : "";
+    let comment = typeof parsed.comment === "string" ? parsed.comment.trim() : "";
     if (!comment) {
       return NextResponse.json({ error: "No comment in response" }, { status: 502 });
+    }
+
+    if (body.newsSource?.url) {
+      comment = ensureNewsSourceInFirstComment(
+        comment,
+        body.newsSource,
+        contentLanguage,
+      );
     }
 
     return NextResponse.json({ comment, model: llm.model });

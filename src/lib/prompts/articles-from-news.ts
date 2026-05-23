@@ -1,5 +1,5 @@
 import { buildPostBriefInstruction } from "@/lib/prompts/post-brief";
-import { buildNewsSourceCitationInstruction } from "@/lib/prompts/news-source-citation";
+import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
 import type { ContentLanguage, NewsSuggestion, PostBrief } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -40,7 +40,7 @@ ${scopeDetail}
 - Add the author's Persona voice and opinion — not a neutral press recap
 - Do NOT invent facts beyond summary + reasonable inference from headline/context
 
-${buildNewsSourceCitationInstruction(contentLanguage, {
+${buildNewsSourceInPostInstruction(contentLanguage, {
   title: news.title,
   url: news.url,
   sourceName: news.sourceName,

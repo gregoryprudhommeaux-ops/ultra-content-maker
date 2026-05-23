@@ -19,6 +19,12 @@ import {
   PAIR_ARTICLE_COUNT,
 } from "@/lib/articles/scope";
 import { normalizeHashtags } from "@/lib/linkedin/hashtags";
+import { stripGenericLinkedInUrlsFromText } from "@/lib/linkedin/sanitize-post-link";
+import {
+  fitLinkedInArticleParts,
+  maxDraftCharsForArticle,
+} from "@/lib/linkedin/fit-linkedin-post";
+import { stripNewsSourceUrlFromText } from "@/lib/linkedin/strip-news-source-url";
 import { postContainsEmoji } from "@/lib/prompts/emoji-instruction";
 import type {
   ArticleNewsSource,
@@ -60,13 +66,45 @@ function parseArticlesFromResponse(raw: string) {
 
   return (parsed.articles ?? [])
     .filter((a) => a.hook && a.body)
-    .map((a) => ({
-      hook: a.hook!.trim(),
-      body: a.body!.trim(),
-      ps: a.ps?.trim() || undefined,
-      scope: normalizeArticleScope(a.scope),
-      hashtags: normalizeHashtags(a.hashtags),
-    }));
+    .map((a) => {
+      let hook = stripGenericLinkedInUrlsFromText(a.hook!.trim());
+      let body = stripGenericLinkedInUrlsFromText(a.body!.trim());
+      let ps = a.ps?.trim()
+        ? stripGenericLinkedInUrlsFromText(a.ps.trim()) || undefined
+        : undefined;
+      return {
+        hook,
+        body,
+        ps,
+        scope: normalizeArticleScope(a.scope),
+        hashtags: normalizeHashtags(a.hashtags),
+      };
+    });
+}
+
+function stripNewsUrlsFromArticles(
+  articles: ReturnType<typeof parseArticlesFromResponse>,
+  newsSource?: ArticleNewsSource,
+) {
+  if (!newsSource?.url) return articles;
+  return articles.map((a) => ({
+    ...a,
+    hook: stripNewsSourceUrlFromText(a.hook, newsSource),
+    body: stripNewsSourceUrlFromText(a.body, newsSource),
+    ps: a.ps ? stripNewsSourceUrlFromText(a.ps, newsSource) || undefined : undefined,
+  }));
+}
+
+function enforceLinkedInLengthOnArticles(
+  articles: ReturnType<typeof parseArticlesFromResponse>,
+) {
+  return articles.map((a) => {
+    const fitted = fitLinkedInArticleParts(
+      { hook: a.hook, body: a.body, ps: a.ps },
+      maxDraftCharsForArticle(a.hashtags),
+    );
+    return { ...a, ...fitted };
+  });
 }
 
 export async function POST(request: Request) {
@@ -134,7 +172,7 @@ export async function POST(request: Request) {
       : baseUserPrompt;
 
     const systemExtra = body.newsSource
-      ? "\n\nAll posts MUST anchor on the news story in the user message. Each post MUST include a visible source credit with the exact article URL provided (body or PS)."
+      ? "\n\nAll posts MUST anchor on the news story in the user message. Name the publisher in the text if useful — NEVER paste any https:// URL in hook, body, or PS (source link goes in the first comment only)."
       : "";
 
     const raw = await chatCompletionJson(llm, [
@@ -191,6 +229,12 @@ export async function POST(request: Request) {
     if (!hasValidScopeMix(indexedForScope)) {
       articles = enforceScopeMix(articles);
     }
+
+    if (body.newsSource?.url) {
+      articles = stripNewsUrlsFromArticles(articles, body.newsSource);
+    }
+
+    articles = enforceLinkedInLengthOnArticles(articles);
 
     return NextResponse.json({ articles, model: llm.model });
   } catch (e) {

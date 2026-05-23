@@ -58,6 +58,7 @@ ${LINKEDIN_2026_SYSTEM_RULES}
 Write exactly ${count} distinct LinkedIn posts in ${lang} — mandatory mix: ${mix} (no other ratio).
 ${systemLines}
 - Each post: strong hook (1-2 lines), body with line breaks for LinkedIn readability, optional short PS before CTA (user adds CTA later — do NOT include newsletter links or hard sell CTA blocks).
+- Never paste https://www.linkedin.com/ or other generic LinkedIn platform URLs in hook, body, or PS (no homepage / feed links).
 - When objective is conversation: end body with a specific question for the target ICP (not engagement bait). Do not write a full signature CTA or duplicate conditional opener — a separate CTA block is added later; leave room for one clear next step.
 - Emoji rule (non-negotiable): ${emoji}
 - Match author voice and audience from the Persona strictly.

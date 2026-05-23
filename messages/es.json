@@ -532,11 +532,11 @@
         "selectedTitle": "Crear tus posts de LinkedIn a partir de esta noticia",
         "selectedNextStep": "Siguiente paso",
         "selectedExplain": "La IA redactará 4 borradores de LinkedIn (2 generalistas + 2 nicho) que comentan esta noticia con tu voz y Persona — no un resumen neutro de prensa.",
-        "citationNote": "Cada post incluirá la fuente con la URL completa del artículo (ej. Fuente: BusinessEurope — https://…).",
+        "citationNote": "Los posts citan la fuente por nombre, sin URL en el cuerpo (mejor alcance en LinkedIn). La URL completa se propondrá en el primer comentario bajo el post.",
         "changeNews": "Elegir otra noticia",
         "generateFromNews": "Generar 4 posts de LinkedIn desde esta noticia",
         "generatingFromNews": "Generando 4 borradores…",
-        "generateFromNewsHint": "2 generalistas + 2 nicho · cita de fuente obligatoria en cada post.",
+        "generateFromNewsHint": "2 generalistas + 2 nicho · enlace de la fuente en el primer comentario (no en el cuerpo).",
         "previousNews": "Noticias anteriores"
       },
       "briefIncomplete": "Completa el brief (objetivo, problema, punto de vista y prueba) antes de generar.",
@@ -597,6 +597,7 @@
         "generateComment": "Sugerir comentario",
         "refreshComment": "Regenerar",
         "firstCommentHint": "Pega este comentario bajo tu post al publicar para iniciar una conversación cualificada.",
+        "firstCommentHintNews": "Para posts basados en noticias: pega este comentario justo después de publicar — incluye la fuente con la URL (evita enlaces en el cuerpo del post).",
         "copyComment": "Copiar comentario",
         "copied": "Copiado"
       },
@@ -647,6 +648,7 @@
         "refresh": "Re-analizar",
         "loadFailed": "No se pudo analizar el post.",
         "linkWarning": "Hay un enlace externo en el cuerpo del post. LinkedIn suele reducir el alcance — mejor en un comentario.",
+        "linkWarningNews": "Este post está anclado en una noticia: quita el enlace del cuerpo (penalización de alcance). Genera o copia el primer comentario abajo — incluirá la fuente con la URL.",
         "alternativeHooks": "Hooks alternativos",
         "useHook": "Usar",
         "scores": {
@@ -780,6 +782,7 @@
         "copyLinkedInHint": "El texto está en el portapapeles. Si el compositor de LinkedIn está vacío, pega con Ctrl+V (Cmd+V en Mac). La publicación automática requiere conexión con LinkedIn (próximamente).",
         "copyFailed": "No se pudo copiar. Permite el portapapeles o copia el texto manualmente.",
         "newsAnchor": "Lote generado desde esta noticia",
+        "newsSourceInComment": "La cita con la URL del artículo va en el primer comentario (sección Formato), no en el cuerpo del post.",
         "readSource": "Leer artículo fuente"
       },
       "share": {

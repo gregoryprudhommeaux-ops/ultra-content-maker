@@ -36,7 +36,20 @@ import {
 } from "@/lib/articles/refinement";
 import type { ArticleIllustration, ArticleNewsSource } from "@/types/workspace";
 import { normalizeArticleScope } from "@/lib/articles/scope";
+import {
+  countLinkedInCharacters,
+  LINKEDIN_POST_CHARACTER_LIMIT,
+  truncateToLinkedInLimit,
+} from "@/lib/linkedin/character-count";
+import {
+  fitLinkedInArticleParts,
+  joinLinkedInPostParts,
+} from "@/lib/linkedin/fit-linkedin-post";
 import { formatHashtagsLine, normalizeHashtags } from "@/lib/linkedin/hashtags";
+import {
+  sanitizeCtaLinkUrl,
+  stripGenericLinkedInUrlsFromText,
+} from "@/lib/linkedin/sanitize-post-link";
 import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
 
@@ -391,19 +404,36 @@ export async function validateArticleWithCta(
 }
 
 export function buildExportText(
+  hook: string,
   body: string,
   ps: string | undefined,
   ctaText: string,
   linkUrl?: string,
   hashtags?: string[],
 ): string {
-  const parts = [body.trim()];
-  if (ps?.trim()) parts.push(ps.trim());
-  parts.push(ctaText.trim());
-  if (linkUrl?.trim()) parts.push(linkUrl.trim());
+  const hookClean = stripGenericLinkedInUrlsFromText(hook.trim());
+  const bodyClean = stripGenericLinkedInUrlsFromText(body.trim());
+  const psClean = ps?.trim() ? stripGenericLinkedInUrlsFromText(ps.trim()) : "";
+  const ctaClean = stripGenericLinkedInUrlsFromText(ctaText.trim());
+  const link = sanitizeCtaLinkUrl(linkUrl);
   const tagLine = formatHashtagsLine(hashtags ?? []);
-  if (tagLine) parts.push(tagLine);
-  return parts.join("\n\n");
+
+  const footerParts: string[] = [ctaClean];
+  if (link) footerParts.push(link);
+  if (tagLine) footerParts.push(tagLine);
+  const footer = footerParts.join("\n\n");
+  const footerLen = footer
+    ? countLinkedInCharacters(footer) + 2
+    : 0;
+
+  const fitted = fitLinkedInArticleParts(
+    { hook: hookClean, body: bodyClean, ps: psClean || undefined },
+    Math.max(200, LINKEDIN_POST_CHARACTER_LIMIT - footerLen),
+  );
+
+  const main = joinLinkedInPostParts(fitted);
+  const combined = footer ? `${main}\n\n${footer}` : main;
+  return truncateToLinkedInLimit(combined);
 }
 
 /** @deprecated Use hasReviseInput from refinement module */

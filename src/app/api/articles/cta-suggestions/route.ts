@@ -1,6 +1,7 @@
 import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
 import { chatCompletionJson } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
+import { sanitizeCtaLinkUrl } from "@/lib/linkedin/sanitize-post-link";
 import {
   buildCtaSuggestionsSystemPrompt,
   buildCtaSuggestionsUserPrompt,
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
       byStyle.set(style, {
         style,
         text: s.text.trim(),
-        linkUrl: s.linkUrl?.trim() || undefined,
+        linkUrl: sanitizeCtaLinkUrl(s.linkUrl),
       });
     }
 
