@@ -768,7 +768,17 @@
         "firstCommentHint": "Paste this as your first comment right after posting to seed qualified discussion.",
         "firstCommentHintNews": "For news-based posts: paste this comment right after publishing — it includes the source with the URL (keep links out of the post body).",
         "copyComment": "Copy comment",
-        "copied": "Copied"
+        "copied": "Copied",
+        "scheduleTitle": "Schedule publication",
+        "scheduleHint": "Pick when you will publish on LinkedIn (native scheduler or manual post). The calendar reminder includes the first-comment text to paste right after publishing.",
+        "scheduleLabel": "Planned publish date & time",
+        "addCalendarReminder": "Add to calendar (.ics)",
+        "openGoogleCalendar": "Google Calendar",
+        "scheduleNeedsComment": "Generate the first comment first so its text is included in the reminder.",
+        "scheduleReminderNote": "The event body contains the first comment ready to paste under your post.",
+        "calendarEventTitle": "LinkedIn — publish + first comment · {hook}",
+        "calendarEventIntro": "As soon as the post is live on LinkedIn: publish the post (validated text in Ultra Content Maker), then paste this first comment under the post immediately.",
+        "calendarPostExcerptLabel": "Reminder — post excerpt:"
       },
       "slop": {
         "title": "Generic phrasing (AI / LinkedIn style)",
@@ -872,6 +882,9 @@
         "promptLabel": "Prompt {n}",
         "copy": "Copy",
         "copied": "Copied",
+        "inlineTitle": "Illustration for this post",
+        "inlineHint": "3 image prompts to copy into Midjourney, DALL·E, Ideogram, or Adobe Firefly.",
+        "generateInline": "Generate prompts",
         "formats": {
           "photo": "Realistic photo",
           "illustration": "Illustration",
@@ -942,7 +955,7 @@
         "ctaText": "CTA text",
         "validate": "Validate and prepare LinkedIn copy",
         "validating": "Validating…",
-        "validatingHint": "Generating hashtags and preparing LinkedIn text (10–30 s).",
+        "validatingHint": "CTA integration, global coherence pass, hashtags, and export (20–40 s).",
         "revising": "Revising…",
         "revisingHint": "AI is applying your feedback to the post (20–60 s).",
         "exportPreview": "Final text",

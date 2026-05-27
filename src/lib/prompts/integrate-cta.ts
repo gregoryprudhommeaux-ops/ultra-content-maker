@@ -16,9 +16,11 @@ Rules (non-negotiable):
 - The hook and main body text are FIXED — never rewrite or return them.
 - Output only "closingBlock": the text appended after the body (blank line before). It may merge an existing PS with the CTA draft into one coherent closing.
 - The closingBlock must read as the natural next beat — not a pasted second introduction.
-- Read postEnding carefully. Do NOT repeat its opening clause, conditional setup ("If you…"), or rhetorical question verbatim.
+- Read postEnding carefully. Do NOT repeat its opening clause, conditional setup ("If you…"), audience/ICP list, sector list, study citation, or rhetorical question verbatim.
+- Never restate the same target reader profile (e.g. same "PME / SME / sector" enumeration) if postEnding already named it — assume the reader and move to the next step.
 - If the body already ends with a question, the closingBlock should offer the next step (DM, resource, tag, reflection) — not restart the same scenario with the same first sentence.
-- Prefer short bridges ("Pour aller plus loin", "Dans ce cas", "Si c'est votre situation") over duplicating the body's hook phrase.
+- Prefer short bridges ("Pour aller plus loin", "Dans ce cas", "Si c'est votre situation") over duplicating the body's hook phrase or key metaphor.
+- Do not re-introduce the same study, report, or "étude" the body already mentioned unless you add one new actionable line only.
 - Keep 1–4 short lines total. No hashtags. No external URLs unless present in ctaDraft.
 - Preserve the intent and intensity of ctaDraft (soft / medium / pushy).
 

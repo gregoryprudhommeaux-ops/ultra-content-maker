@@ -100,6 +100,9 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     postFormatPlan: normalizePostFormatPlan(d.postFormatPlan),
     repurpose: normalizeArticleRepurpose(d.repurpose),
     suggestedFirstComment: d.suggestedFirstComment as string | undefined,
+    scheduledPublishAt: d.scheduledPublishAt
+      ? toDate(d.scheduledPublishAt)
+      : undefined,
     performanceSignals: d.performanceSignals
       ? (d.performanceSignals as ArticlePerformanceSignals)
       : undefined,
@@ -294,6 +297,19 @@ export async function saveSuggestedFirstComment(
   if (!db) throw new Error("Firestore not available");
   await updateDoc(doc(db, "users", userId, "articles", articleId), {
     suggestedFirstComment: comment,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function saveArticleScheduledPublishAt(
+  userId: string,
+  articleId: string,
+  scheduledPublishAt: Date | null,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    scheduledPublishAt: scheduledPublishAt ?? null,
     updatedAt: serverTimestamp(),
   });
 }

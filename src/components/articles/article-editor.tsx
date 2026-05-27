@@ -246,7 +246,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
   }, [authLoading, load]);
 
   const ctaFetchedRef = useRef(false);
-  const illustrationFetchedRef = useRef(false);
+  const illustrationFetchedRef = useRef<string | null>(null);
   const refinementSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const refinementSyncGenRef = useRef(0);
   const refineSectionRef = useRef<HTMLDivElement>(null);
@@ -266,7 +266,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
   }
   useEffect(() => {
     ctaFetchedRef.current = false;
-    illustrationFetchedRef.current = false;
+    illustrationFetchedRef.current = null;
   }, [articleId]);
 
   useEffect(() => {
@@ -284,14 +284,17 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
   }, [loaded, article, personaText, loadCtaSuggestions]);
 
   useEffect(() => {
-    if (!loaded || !article || isWizard) return;
+    if (!loaded || !article) return;
     if (article.illustration) {
       setIllustration(article.illustration);
       return;
     }
-    if (illustrationFetchedRef.current) return;
-    illustrationFetchedRef.current = true;
-    loadIllustrationSuggestions();
+    if (illustrationFetchedRef.current === article.id) return;
+    const loadEarly = !isWizard && article.status !== "validated";
+    const loadWhenValidated = article.status === "validated";
+    if (!loadEarly && !loadWhenValidated) return;
+    illustrationFetchedRef.current = article.id;
+    void loadIllustrationSuggestions(false, { quiet: loadWhenValidated });
   }, [loaded, article, loadIllustrationSuggestions, isWizard]);
 
   useEffect(() => {
@@ -558,7 +561,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
       );
       const p = await getPersona(user.uid);
       if (p?.promptText) setPersonaText(p.promptText);
-      illustrationFetchedRef.current = false;
+      illustrationFetchedRef.current = null;
       await load();
       void loadIllustrationSuggestions(true, { quiet: true });
     } catch (e) {
@@ -673,7 +676,17 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
       }
 
       let closingForExport = chosen.text;
+      let hookForExport = article.hook;
+      let bodyForExport = article.body;
+      let psForExport = article.ps;
+
       if (llmProfile?.apiKey) {
+        const llmPayload = {
+          provider: llmProfile.provider,
+          apiKey: llmProfile.apiKey,
+          model: llmProfile.model,
+        };
+
         const intRes = await fetch("/api/articles/integrate-cta", {
           method: "POST",
           headers: {
@@ -687,26 +700,50 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
             ctaDraft: chosen.text,
             ctaStyle: chosen.style,
             contentLanguage: article.contentLanguage,
-            llm: {
-              provider: llmProfile.provider,
-              apiKey: llmProfile.apiKey,
-              model: llmProfile.model,
-            },
+            llm: llmPayload,
           }),
         });
         const intData = (await intRes.json()) as { closingBlock?: string };
         if (intRes.ok && intData.closingBlock?.trim()) {
           closingForExport = intData.closingBlock.trim();
         }
+
+        const unifyRes = await fetch("/api/articles/unify-export", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            hook: article.hook,
+            body: article.body,
+            ps: article.ps,
+            closingBlock: closingForExport,
+            ctaStyle: chosen.style,
+            contentLanguage: article.contentLanguage,
+            llm: llmPayload,
+          }),
+        });
+        const unifyData = (await unifyRes.json()) as {
+          hook?: string;
+          body?: string;
+          ps?: string;
+          closingBlock?: string;
+        };
+        if (unifyRes.ok && unifyData.body?.trim() && unifyData.closingBlock?.trim()) {
+          hookForExport = unifyData.hook?.trim() || article.hook;
+          bodyForExport = unifyData.body.trim();
+          psForExport = unifyData.ps?.trim() || undefined;
+          closingForExport = unifyData.closingBlock.trim();
+        }
       }
 
-      const ctaIntegrated = closingForExport !== chosen.text;
       const ctaLink = sanitizeCtaLinkUrl(chosen.linkUrl);
       const fitted = fitLinkedInArticleParts(
         {
-          hook: article.hook,
-          body: article.body,
-          ps: ctaIntegrated ? undefined : article.ps,
+          hook: hookForExport,
+          body: bodyForExport,
+          ps: psForExport,
         },
         maxDraftCharsForArticle(hashtags),
       );
@@ -917,12 +954,15 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
       {!isWizard && <ArticleShareActions article={article} />}
 
-      {!isWizard && (
+      {!isWizard && !isValidated && (
         <ArticleIllustrationPanel
           illustration={illustration}
           loading={illustrationLoading}
           regenerateDisabled={isBusy}
-          onRegenerate={() => loadIllustrationSuggestions(true)}
+          onRegenerate={() => {
+            illustrationFetchedRef.current = null;
+            void loadIllustrationSuggestions(true);
+          }}
         />
       )}
 
@@ -1159,9 +1199,19 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
             <h2 className="text-sm font-medium text-ns-tertiary">{t("exportPreview")}</h2>
             <LinkedInCharCount text={article.exportText} />
           </div>
-          <pre className="whitespace-pre-wrap rounded-xl border border-gray-100 bg-ns-brand-light p-4 text-sm text-ns-tertiary">
-            {article.exportText}
-          </pre>
+          <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-4">
+            <pre className="whitespace-pre-wrap text-sm text-ns-tertiary">{article.exportText}</pre>
+            <ArticleIllustrationPanel
+              variant="inline"
+              illustration={illustration}
+              loading={illustrationLoading}
+              regenerateDisabled={isBusy}
+              onRegenerate={() => {
+                illustrationFetchedRef.current = null;
+                void loadIllustrationSuggestions(true);
+              }}
+            />
+          </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <button
               type="button"

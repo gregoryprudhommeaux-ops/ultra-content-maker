@@ -768,7 +768,17 @@
         "firstCommentHint": "Collez ce commentaire sous votre post juste après publication pour amorcer une discussion qualifiée.",
         "firstCommentHintNews": "Pour les posts issus d’une actu : collez ce commentaire juste après publication — il contient la source avec l’URL (évitez les liens dans le corps du post).",
         "copyComment": "Copier le commentaire",
-        "copied": "Copié"
+        "copied": "Copié",
+        "scheduleTitle": "Planifier la publication",
+        "scheduleHint": "Choisissez l’heure à laquelle vous publierez sur LinkedIn (planification native ou publication manuelle). Le rappel calendrier inclut le texte du 1er commentaire à coller juste après le post.",
+        "scheduleLabel": "Date et heure de publication prévue",
+        "addCalendarReminder": "Ajouter au calendrier (.ics)",
+        "openGoogleCalendar": "Google Calendar",
+        "scheduleNeedsComment": "Générez d’abord le 1er commentaire pour inclure son texte dans le rappel.",
+        "scheduleReminderNote": "Le corps de l’événement contient le 1er commentaire prêt à coller sous votre post.",
+        "calendarEventTitle": "LinkedIn — publier + 1er commentaire · {hook}",
+        "calendarEventIntro": "À faire dès que le post est en ligne sur LinkedIn : publier le post (texte déjà validé dans Ultra Content Maker), puis coller immédiatement ce 1er commentaire sous le post.",
+        "calendarPostExcerptLabel": "Rappel — extrait du post :"
       },
       "slop": {
         "title": "Formulations génériques (style IA / LinkedIn)",
@@ -872,6 +882,9 @@
         "promptLabel": "Prompt {n}",
         "copy": "Copier",
         "copied": "Copié",
+        "inlineTitle": "Illustration adaptée au post",
+        "inlineHint": "3 prompts image à copier dans Midjourney, DALL·E, Ideogram ou Adobe Firefly.",
+        "generateInline": "Générer les prompts",
         "formats": {
           "photo": "Photo réaliste",
           "illustration": "Illustration",
@@ -942,7 +955,7 @@
         "ctaText": "Texte du CTA",
         "validate": "Valider et préparer la copie LinkedIn",
         "validating": "Validation en cours…",
-        "validatingHint": "Génération des hashtags et préparation du texte LinkedIn (10–30 s).",
+        "validatingHint": "Intégration du CTA, relecture de cohérence globale, hashtags et export (20–40 s).",
         "revising": "Révision en cours…",
         "revisingHint": "L’IA applique vos retours au post (20–60 s).",
         "exportPreview": "Texte final",

@@ -342,6 +342,8 @@ export interface ArticleDoc {
   postFormatPlan?: PostFormatPlan;
   repurpose?: ArticleRepurpose;
   suggestedFirstComment?: string;
+  /** Planned publish time (user reminder — not LinkedIn native scheduling). */
+  scheduledPublishAt?: Date;
   performanceSignals?: ArticlePerformanceSignals;
   slopAnalysis?: SlopAnalysis;
   createdAt: Date;

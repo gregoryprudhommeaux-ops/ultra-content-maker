@@ -768,7 +768,17 @@
         "firstCommentHint": "Pega este comentario bajo tu post al publicar para iniciar una conversación cualificada.",
         "firstCommentHintNews": "Para posts basados en noticias: pega este comentario justo después de publicar — incluye la fuente con la URL (evita enlaces en el cuerpo del post).",
         "copyComment": "Copiar comentario",
-        "copied": "Copiado"
+        "copied": "Copiado",
+        "scheduleTitle": "Planificar publicación",
+        "scheduleHint": "Elige cuándo publicarás en LinkedIn (programador nativo o publicación manual). El recordatorio del calendario incluye el texto del primer comentario para pegarlo justo después del post.",
+        "scheduleLabel": "Fecha y hora previstas de publicación",
+        "addCalendarReminder": "Añadir al calendario (.ics)",
+        "openGoogleCalendar": "Google Calendar",
+        "scheduleNeedsComment": "Genera primero el primer comentario para incluir su texto en el recordatorio.",
+        "scheduleReminderNote": "El cuerpo del evento contiene el primer comentario listo para pegar bajo tu post.",
+        "calendarEventTitle": "LinkedIn — publicar + 1er comentario · {hook}",
+        "calendarEventIntro": "En cuanto el post esté en línea en LinkedIn: publica el post (texto validado en Ultra Content Maker) y pega de inmediato este primer comentario bajo el post.",
+        "calendarPostExcerptLabel": "Recordatorio — extracto del post:"
       },
       "slop": {
         "title": "Frases genéricas (estilo IA / LinkedIn)",
@@ -872,6 +882,9 @@
         "promptLabel": "Prompt {n}",
         "copy": "Copiar",
         "copied": "Copiado",
+        "inlineTitle": "Ilustración adaptada al post",
+        "inlineHint": "3 prompts de imagen para copiar en Midjourney, DALL·E, Ideogram o Adobe Firefly.",
+        "generateInline": "Generar prompts",
         "formats": {
           "photo": "Foto realista",
           "illustration": "Ilustración",
@@ -942,7 +955,7 @@
         "ctaText": "Texto del CTA",
         "validate": "Validar y preparar copia para LinkedIn",
         "validating": "Validando…",
-        "validatingHint": "Generando hashtags y preparando el texto para LinkedIn (10–30 s).",
+        "validatingHint": "Integración del CTA, revisión de coherencia global, hashtags y exportación (20–40 s).",
         "revising": "Revisando…",
         "revisingHint": "La IA aplica tus comentarios al post (20–60 s).",
         "exportPreview": "Texto final",
