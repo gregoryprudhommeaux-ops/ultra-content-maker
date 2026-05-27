@@ -1,3 +1,7 @@
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type { ArticleNewsSource, ContentLanguage, PostBrief } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -22,7 +26,7 @@ Return JSON only:
 Rules:
 - objective is required and must match the best fit for the angle
 - problem, pointOfView, proof: concise, specific, usable in prompts (1-3 sentences each)
-- Align with the author's Persona excerpt — do not invent fake metrics
+- Align with the author's Persona excerpt and authorSteering (profile, news keywords, LinkedIn history) — do not invent fake metrics
 - For news: react to the story, not a neutral recap
 - For pasted post: propose a NEW angle for the author (not a paraphrase)`;
 }
@@ -34,15 +38,19 @@ export function buildBriefSuggestUserPrompt(input: {
   newsSource?: ArticleNewsSource;
   inspirationText?: string;
   inspirationMeta?: Record<string, unknown>;
+  authorSteering?: AuthorSteeringPayload | null;
 }): string {
   return JSON.stringify(
-    {
-      mode: input.mode,
-      personaExcerpt: input.personaExcerpt.slice(0, 6000),
-      news: input.newsSource ?? null,
-      referencePost: input.inspirationText?.trim().slice(0, 8000) ?? null,
-      inspirationMeta: input.inspirationMeta ?? null,
-    },
+    injectAuthorSteering(
+      {
+        mode: input.mode,
+        personaExcerpt: input.personaExcerpt.slice(0, 6000),
+        news: input.newsSource ?? null,
+        referencePost: input.inspirationText?.trim().slice(0, 8000) ?? null,
+        inspirationMeta: input.inspirationMeta ?? null,
+      },
+      input.authorSteering,
+    ),
     null,
     2,
   );

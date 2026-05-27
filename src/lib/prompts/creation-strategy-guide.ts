@@ -1,4 +1,8 @@
 import { LINKEDIN_2026_SYSTEM_RULES } from "@/lib/prompts/linkedin-2026-rules";
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type { LinkedInActivityPostLlm } from "@/lib/prompts/linkedin-activity-fetch";
 import type {
   ArticleCreationMode,
@@ -67,19 +71,29 @@ export function buildCreationStrategyGuideUserPrompt(input: {
   };
   posts: LinkedInActivityPostLlm[];
   userSteering?: string;
+  authorSteering?: AuthorSteeringPayload | null;
 }): string {
   const steering = input.userSteering?.trim().slice(0, 1500);
-  return JSON.stringify(
-    {
-      activityUrl: input.activityUrl,
-      personaExcerpt: input.personaExcerpt.slice(0, 6000),
-      author: input.authorContext ?? null,
-      userSteering: steering || null,
-      recentPosts: input.posts,
-    },
-    null,
-    2,
-  );
+  const base = {
+    activityUrl: input.activityUrl,
+    personaExcerpt: input.personaExcerpt.slice(0, 6000),
+    author: input.authorContext ?? null,
+    userSteering: steering || null,
+    recentPosts: input.posts,
+  };
+  const merged =
+    input.authorSteering != null
+      ? injectAuthorSteering(base, {
+          ...input.authorSteering,
+          author: {
+            ...input.authorSteering.author,
+            creationStrategySteering:
+              steering ||
+              input.authorSteering.author?.creationStrategySteering,
+          },
+        })
+      : base;
+  return JSON.stringify(merged, null, 2);
 }
 
 const MODES: ArticleCreationMode[] = ["profile", "news", "inspiration"];

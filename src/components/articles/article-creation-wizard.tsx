@@ -35,9 +35,9 @@ import {
   isWizardBriefComplete,
   type WizardCreationMode,
 } from "@/lib/prompts/post-brief";
+import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getAudienceProfile, saveAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
-import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import {
   getLearningProfile,
   saveDefaultEmojiLevel,
@@ -205,7 +205,12 @@ export function ArticleCreationWizard() {
       const llmProfile = await getUserLlmProfile(user.uid);
       if (!token || !llmProfile?.apiKey) return;
 
-      const author = await getAuthorProfile(user.uid);
+      const [author, authorSteering] = await Promise.all([
+        getAuthorProfile(user.uid),
+        gatherAuthorSteeringPayload(user.uid, {
+          newsInterestQuery: newsInterestQuery.trim() || undefined,
+        }),
+      ]);
       const res = await fetch("/api/articles/brief-check", {
         method: "POST",
         headers: {
@@ -216,6 +221,7 @@ export function ArticleCreationWizard() {
           postBrief,
           contentLanguage: author?.contentLanguage ?? locale,
           personaPromptText: personaText,
+          authorSteering,
           useLlm: true,
           llm: {
             provider: llmProfile.provider,
@@ -229,7 +235,7 @@ export function ArticleCreationWizard() {
     } finally {
       setNicheLoading(false);
     }
-  }, [user, mode, postBrief, personaText, locale]);
+  }, [user, mode, postBrief, personaText, locale, newsInterestQuery]);
 
   async function onEmojiLevelChange(level: EmojiLevel) {
     setEmojiLevel(level);
@@ -274,15 +280,17 @@ export function ArticleCreationWizard() {
           setError(tArticles("noLlmKey"));
           return;
         }
-        const [author, audience, enrichment] = await Promise.all([
-          getAuthorProfile(user.uid),
-          getAudienceProfile(user.uid),
-          getProfileEnrichment(user.uid),
-        ]);
         const interest = newsInterestQuery.trim();
         if (options?.persistInterest && interest) {
           await saveAudienceProfile(user.uid, { newsInterestQuery: interest });
         }
+
+        const [author, authorSteering] = await Promise.all([
+          getAuthorProfile(user.uid),
+          gatherAuthorSteeringPayload(user.uid, {
+            newsInterestQuery: interest || undefined,
+          }),
+        ]);
 
         const res = await fetch("/api/news/suggestions", {
           method: "POST",
@@ -293,10 +301,7 @@ export function ArticleCreationWizard() {
           body: JSON.stringify({
             personaExcerpt: personaText,
             contentLanguage: author?.contentLanguage ?? locale,
-            author: author ?? undefined,
-            audience: audience ?? undefined,
-            newsInterestQuery: interest || undefined,
-            profileEnrichment: enrichment?.details ?? {},
+            authorSteering,
             llm: {
               provider: llmProfile.provider,
               apiKey: llmProfile.apiKey,
@@ -343,7 +348,12 @@ export function ArticleCreationWizard() {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       const llmProfile = await getUserLlmProfile(user.uid);
-      const author = await getAuthorProfile(user.uid);
+      const [author, authorSteering] = await Promise.all([
+        getAuthorProfile(user.uid),
+        gatherAuthorSteeringPayload(user.uid, {
+          newsInterestQuery: newsInterestQuery.trim() || undefined,
+        }),
+      ]);
       if (!token || !llmProfile?.apiKey) {
         setError(tArticles("noLlmKey"));
         return;
@@ -359,6 +369,7 @@ export function ArticleCreationWizard() {
           mode: mode === "news" ? "news" : "inspiration",
           contentLanguage: author?.contentLanguage ?? locale,
           personaPromptText: personaText,
+          authorSteering,
           newsSource:
             mode === "news" && selectedNews ? newsToSource(selectedNews) : undefined,
           inspirationText:
@@ -395,6 +406,7 @@ export function ArticleCreationWizard() {
     selectedLibrarySource,
     personaText,
     locale,
+    newsInterestQuery,
     t,
     tArticles,
   ]);
@@ -436,10 +448,12 @@ export function ArticleCreationWizard() {
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       if (!token) throw new Error("no token");
 
-      const [author, llmProfile, enrichment] = await Promise.all([
+      const [author, llmProfile, authorSteering] = await Promise.all([
         getAuthorProfile(user.uid),
         getUserLlmProfile(user.uid),
-        getProfileEnrichment(user.uid),
+        gatherAuthorSteeringPayload(user.uid, {
+          newsInterestQuery: newsInterestQuery.trim() || undefined,
+        }),
       ]);
 
       if (!llmProfile?.apiKey) {
@@ -468,7 +482,7 @@ export function ArticleCreationWizard() {
             personaPromptText: personaText,
             contentLanguage: contentLang,
             emojiLevel,
-            profileEnrichment: enrichment?.details ?? {},
+            authorSteering,
             postBrief,
             newsSource,
             articleCount,

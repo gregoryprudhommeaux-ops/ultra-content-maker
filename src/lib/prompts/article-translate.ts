@@ -1,5 +1,9 @@
 import { LINKEDIN_2026_SYSTEM_RULES } from "@/lib/prompts/linkedin-2026-rules";
 import { LINKEDIN_LENGTH_PROMPT_RULE } from "@/lib/linkedin/fit-linkedin-post";
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type {
   ArticleTranslationMode,
   ContentLanguage,
@@ -70,21 +74,25 @@ export function buildArticleTranslateUserPrompt(input: {
   ps?: string;
   hashtags?: string[];
   postBrief?: import("@/types/workspace").PostBrief;
+  authorSteering?: AuthorSteeringPayload | null;
 }): string {
   return JSON.stringify(
-    {
-      sourceLanguage: LANGUAGE_LABELS[input.sourceLanguage],
-      targetLanguage: LANGUAGE_LABELS[input.targetLanguage],
-      mode: input.mode,
-      personaExcerpt: input.personaExcerpt.slice(0, 5000),
-      post: {
-        hook: input.hook,
-        body: input.body,
-        ps: input.ps ?? "",
-        hashtags: input.hashtags ?? [],
+    injectAuthorSteering(
+      {
+        sourceLanguage: LANGUAGE_LABELS[input.sourceLanguage],
+        targetLanguage: LANGUAGE_LABELS[input.targetLanguage],
+        mode: input.mode,
+        personaExcerpt: input.personaExcerpt.slice(0, 5000),
+        post: {
+          hook: input.hook,
+          body: input.body,
+          ps: input.ps ?? "",
+          hashtags: input.hashtags ?? [],
+        },
+        postBrief: input.postBrief ?? null,
       },
-      postBrief: input.postBrief ?? null,
-    },
+      input.authorSteering,
+    ),
     null,
     2,
   );

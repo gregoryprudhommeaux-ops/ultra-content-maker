@@ -1,4 +1,8 @@
 import { extractPostEnding } from "@/lib/articles/post-ending";
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, CtaIntensity, PostObjective } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -66,15 +70,19 @@ export function buildCtaSuggestionsUserPrompt(input: {
   ps?: string;
   profileEnrichment?: Record<string, unknown>;
   postObjective?: PostObjective;
+  authorSteering?: AuthorSteeringPayload | null;
 }): string {
   return JSON.stringify(
-    {
-      post: { hook: input.hook, body: input.body, ps: input.ps ?? "" },
-      postEnding: extractPostEnding(input.body, input.ps),
-      postObjective: input.postObjective ?? "credibility",
-      personaPromptText: input.personaPromptText.slice(0, 12000),
-      profileEnrichment: input.profileEnrichment ?? {},
-    },
+    injectAuthorSteering(
+      {
+        post: { hook: input.hook, body: input.body, ps: input.ps ?? "" },
+        postEnding: extractPostEnding(input.body, input.ps),
+        postObjective: input.postObjective ?? "credibility",
+        personaPromptText: input.personaPromptText.slice(0, 12000),
+        profileEnrichment: input.profileEnrichment ?? {},
+      },
+      input.authorSteering,
+    ),
     null,
     2,
   );

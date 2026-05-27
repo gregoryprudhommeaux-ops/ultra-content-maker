@@ -1,4 +1,8 @@
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, EmojiLevel, PostBrief } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
 import { LINKEDIN_2026_SYSTEM_RULES } from "./linkedin-2026-rules";
@@ -93,6 +97,7 @@ export function buildArticlesUserPromptWithCount(
   profileEnrichment?: Record<string, unknown>,
   emojiLevel: EmojiLevel = "light",
   postBrief?: PostBrief,
+  authorSteering?: AuthorSteeringPayload | null,
 ): string {
   const emojiRule = emojiInstruction(emojiLevel, contentLanguage);
   const { userMix, userInstruction } = scopeMixInstruction(count);
@@ -106,17 +111,20 @@ export function buildArticlesUserPromptWithCount(
     : undefined;
 
   return JSON.stringify(
-    {
-      contentLanguage,
-      emojiLevel,
-      emojiRule,
-      personaPromptText,
-      profileEnrichment: profileEnrichment ?? {},
-      postBrief: postBrief ?? null,
-      postBriefInstruction: briefBlock ?? null,
-      requiredScopeMix: userMix,
-      instruction: `${userInstruction}${emojiSuffix}${briefBlock ? `\n\n${briefBlock}` : ""}`,
-    },
+    injectAuthorSteering(
+      {
+        contentLanguage,
+        emojiLevel,
+        emojiRule,
+        personaPromptText,
+        profileEnrichment: profileEnrichment ?? {},
+        postBrief: postBrief ?? null,
+        postBriefInstruction: briefBlock ?? null,
+        requiredScopeMix: userMix,
+        instruction: `${userInstruction}${emojiSuffix}${briefBlock ? `\n\n${briefBlock}` : ""}`,
+      },
+      authorSteering,
+    ),
     null,
     2,
   );
@@ -134,6 +142,7 @@ export function buildArticlesUserPrompt(
   contentLanguage: ContentLanguage,
   profileEnrichment?: Record<string, unknown>,
   emojiLevel: EmojiLevel = "light",
+  authorSteering?: AuthorSteeringPayload | null,
 ): string {
   return buildArticlesUserPromptWithCount(
     personaPromptText,
@@ -141,5 +150,7 @@ export function buildArticlesUserPrompt(
     4,
     profileEnrichment,
     emojiLevel,
+    undefined,
+    authorSteering,
   );
 }

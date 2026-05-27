@@ -6,6 +6,7 @@ import {
   buildFormatPlanSystemPrompt,
   buildFormatPlanUserPrompt,
 } from "@/lib/prompts/article-format-plan";
+import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, LlmProvider, PostBrief } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -19,6 +20,10 @@ type Body = {
   ps?: string;
   postBrief?: PostBrief;
   personaPromptText: string;
+  authorSteering?: AuthorSteeringPayload;
+  profileEnrichment?: Record<string, unknown>;
+  author?: Record<string, unknown>;
+  audience?: Record<string, unknown>;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -54,6 +59,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
+  const authorSteering = resolveAuthorSteering({
+    authorSteering: body.authorSteering,
+    author: body.author,
+    audience: body.audience,
+    profileEnrichment: body.profileEnrichment,
+  });
+
   try {
     const raw = await chatCompletionJson(llm, [
       { role: "system", content: buildFormatPlanSystemPrompt(contentLanguage) },
@@ -65,6 +77,7 @@ export async function POST(request: Request) {
           ps: body.ps,
           postBrief: body.postBrief,
           personaExcerpt: body.personaPromptText ?? "",
+          authorSteering,
         }),
       },
     ]);

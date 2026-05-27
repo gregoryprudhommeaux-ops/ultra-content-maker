@@ -14,6 +14,7 @@ import {
   buildReviseSystemPrompt,
   buildReviseUserPrompt,
 } from "@/lib/prompts/article-revise";
+import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type {
   ArticleNewsSource,
   ArticleRefinement,
@@ -37,6 +38,10 @@ type ReviseBody = {
   };
   refinement: ArticleRefinement;
   newsSource?: ArticleNewsSource;
+  authorSteering?: AuthorSteeringPayload;
+  profileEnrichment?: Record<string, unknown>;
+  author?: Record<string, unknown>;
+  audience?: Record<string, unknown>;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -74,6 +79,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
+  const authorSteering = resolveAuthorSteering({
+    authorSteering: body.authorSteering,
+    author: body.author,
+    audience: body.audience,
+    profileEnrichment: body.profileEnrichment,
+  });
+
   try {
     const emojiLevel = body.refinement.emojiLevel ?? "light";
     const corrosiveTone = isCorrosiveToneEdge(body.refinement);
@@ -90,6 +102,7 @@ export async function POST(request: Request) {
           body.refinement,
           contentLanguage,
           body.newsSource,
+          authorSteering,
         ),
       },
     ]);

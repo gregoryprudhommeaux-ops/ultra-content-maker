@@ -11,7 +11,7 @@ import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { newsToSource } from "@/lib/news/to-source";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { createArticleBatch } from "@/lib/workspace/articles";
-import { getProfileEnrichment } from "@/lib/workspace/enrichment";
+import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getLearningProfile } from "@/lib/workspace/learning-profile";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
@@ -82,10 +82,10 @@ export function NewsArchiveHub() {
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       if (!token) throw new Error("no token");
 
-      const [author, llmProfile, enrichment] = await Promise.all([
+      const [author, llmProfile, authorSteering] = await Promise.all([
         getAuthorProfile(user.uid),
         getUserLlmProfile(user.uid),
-        getProfileEnrichment(user.uid),
+        gatherAuthorSteeringPayload(user.uid),
       ]);
 
       if (!llmProfile?.apiKey) {
@@ -114,7 +114,7 @@ export function NewsArchiveHub() {
             personaPromptText: personaText,
             contentLanguage: contentLang,
             emojiLevel,
-            profileEnrichment: enrichment?.details ?? {},
+            authorSteering,
             postBrief,
             newsSource,
             articleCount: 2,

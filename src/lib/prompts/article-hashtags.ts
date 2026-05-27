@@ -1,3 +1,7 @@
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type { ContentLanguage } from "@/types/workspace";
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
 
@@ -31,19 +35,23 @@ export function buildHashtagsUserPrompt(input: {
   ps?: string;
   ctaText?: string;
   profileEnrichment?: Record<string, unknown>;
+  authorSteering?: AuthorSteeringPayload | null;
 }): string {
   return JSON.stringify(
-    {
-      contentLanguage: input.contentLanguage,
-      personaPromptText: input.personaPromptText,
-      profileEnrichment: input.profileEnrichment ?? {},
-      post: {
-        hook: input.hook,
-        body: input.body,
-        ps: input.ps ?? "",
-        ctaText: input.ctaText ?? "",
+    injectAuthorSteering(
+      {
+        contentLanguage: input.contentLanguage,
+        personaPromptText: input.personaPromptText,
+        profileEnrichment: input.profileEnrichment ?? {},
+        post: {
+          hook: input.hook,
+          body: input.body,
+          ps: input.ps ?? "",
+          ctaText: input.ctaText ?? "",
+        },
       },
-    },
+      input.authorSteering,
+    ),
     null,
     2,
   );

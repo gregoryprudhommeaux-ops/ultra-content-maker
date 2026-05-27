@@ -3,6 +3,7 @@
 import { useAuth } from "@/components/auth/auth-provider";
 import { getClientAuth } from "@/lib/firebase/client";
 import { joinLinkedInPostParts } from "@/lib/linkedin/fit-linkedin-post";
+import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getPersona } from "@/lib/workspace/persona";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { saveArticleTranslation } from "@/lib/workspace/articles";
@@ -42,9 +43,10 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
       try {
         const auth = getClientAuth();
         const token = auth ? await auth.currentUser?.getIdToken() : null;
-        const [llmProfile, persona] = await Promise.all([
+        const [llmProfile, persona, authorSteering] = await Promise.all([
           getUserLlmProfile(user.uid),
           getPersona(user.uid),
+          gatherAuthorSteeringPayload(user.uid),
         ]);
         if (!token || !llmProfile?.apiKey) {
           setError(t("noLlm"));
@@ -72,6 +74,7 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
             ps: article.ps,
             hashtags: article.hashtags,
             postBrief: article.postBrief,
+            authorSteering,
             llm: {
               provider: llmProfile.provider,
               apiKey: llmProfile.apiKey,

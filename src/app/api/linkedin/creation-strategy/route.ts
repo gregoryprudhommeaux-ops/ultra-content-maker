@@ -3,6 +3,10 @@ import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
 import { resolveLlmConfigsForUrlFetch } from "@/lib/inspiration/fetch-url-excerpt";
 import { getLlmConfig } from "@/lib/llm/config";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
+import {
+  resolveAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, CreationStrategyCache, LlmProvider } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -20,6 +24,10 @@ type Body = {
   audienceFocus?: string;
   /** Angle, keywords, or leads to reorganize recommendations */
   userSteering?: string;
+  authorSteering?: AuthorSteeringPayload;
+  profileEnrichment?: Record<string, unknown>;
+  author?: Record<string, unknown>;
+  audience?: Record<string, unknown>;
   forceRefresh?: boolean;
   cached?: CreationStrategyCache | null;
   llm?: {
@@ -99,6 +107,13 @@ export async function POST(request: Request) {
     );
   }
 
+  const authorSteering = resolveAuthorSteering({
+    authorSteering: body.authorSteering,
+    author: body.author,
+    audience: body.audience,
+    profileEnrichment: body.profileEnrichment,
+  });
+
   try {
     const { guide } = await analyzeCreationStrategy({
       activityUrl,
@@ -110,6 +125,7 @@ export async function POST(request: Request) {
         audienceFocus: body.audienceFocus,
       },
       userSteering: steering || undefined,
+      authorSteering,
       strategyLlm: primary,
       fetchLlm: perplexity,
     });

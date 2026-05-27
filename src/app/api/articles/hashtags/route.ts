@@ -6,6 +6,7 @@ import {
   buildHashtagsSystemPrompt,
   buildHashtagsUserPrompt,
 } from "@/lib/prompts/article-hashtags";
+import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, LlmProvider } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -20,6 +21,9 @@ type HashtagsBody = {
   ps?: string;
   ctaText?: string;
   profileEnrichment?: Record<string, unknown>;
+  authorSteering?: AuthorSteeringPayload;
+  author?: Record<string, unknown>;
+  audience?: Record<string, unknown>;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -57,6 +61,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
+  const authorSteering = resolveAuthorSteering({
+    authorSteering: body.authorSteering,
+    author: body.author,
+    audience: body.audience,
+    profileEnrichment: body.profileEnrichment,
+  });
+
   try {
     const raw = await chatCompletionJson(llm, [
       {
@@ -73,6 +84,7 @@ export async function POST(request: Request) {
           ps: body.ps,
           ctaText: body.ctaText,
           profileEnrichment: body.profileEnrichment,
+          authorSteering,
         })}`,
       },
     ]);

@@ -4,8 +4,8 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { getClientAuth } from "@/lib/firebase/client";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
+import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
-import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { META_LABEL } from "@/lib/ui/nextstep";
 import type {
@@ -64,10 +64,10 @@ export function CreationStrategyGuidePanel({
       try {
         const auth = getClientAuth();
         const token = auth ? await auth.currentUser?.getIdToken() : null;
-        const [llmProfile, author, audience] = await Promise.all([
+        const [llmProfile, author, authorSteering] = await Promise.all([
           getUserLlmProfile(user.uid),
           getAuthorProfile(user.uid),
-          getAudienceProfile(user.uid),
+          gatherAuthorSteeringPayload(user.uid),
         ]);
 
         if (!token || !llmProfile?.apiKey) {
@@ -89,9 +89,7 @@ export function CreationStrategyGuidePanel({
             personaPromptText: personaText,
             roleTitle: author?.roleTitle,
             positioningLine: author?.positioningLine,
-            audienceFocus:
-              audience?.newsInterestQuery?.trim() ||
-              audience?.contentFocus?.trim(),
+            authorSteering,
             userSteering: steeringText || undefined,
             forceRefresh,
             cached: forceRefresh ? null : author?.creationStrategyCache ?? null,

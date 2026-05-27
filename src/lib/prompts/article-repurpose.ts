@@ -1,3 +1,7 @@
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, PostBrief } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -45,16 +49,20 @@ export function buildRepurposeUserPrompt(input: {
   exportText?: string;
   postBrief?: PostBrief;
   personaExcerpt: string;
+  authorSteering?: AuthorSteeringPayload | null;
 }): string {
   return JSON.stringify(
-    {
-      hook: input.hook,
-      body: input.body,
-      ps: input.ps ?? "",
-      exportText: input.exportText ?? null,
-      postBrief: input.postBrief ?? null,
-      personaExcerpt: input.personaExcerpt.slice(0, 8000),
-    },
+    injectAuthorSteering(
+      {
+        hook: input.hook,
+        body: input.body,
+        ps: input.ps ?? "",
+        exportText: input.exportText ?? null,
+        postBrief: input.postBrief ?? null,
+        personaExcerpt: input.personaExcerpt.slice(0, 8000),
+      },
+      input.authorSteering,
+    ),
     null,
     2,
   );

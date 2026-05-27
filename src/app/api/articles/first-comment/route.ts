@@ -6,6 +6,7 @@ import {
   buildFirstCommentUserPrompt,
   ensureNewsSourceInFirstComment,
 } from "@/lib/prompts/article-first-comment";
+import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type {
   ArticleNewsSource,
   ContentLanguage,
@@ -25,6 +26,10 @@ type Body = {
   postBrief?: PostBrief;
   personaPromptText: string;
   newsSource?: ArticleNewsSource;
+  authorSteering?: AuthorSteeringPayload;
+  profileEnrichment?: Record<string, unknown>;
+  author?: Record<string, unknown>;
+  audience?: Record<string, unknown>;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -61,6 +66,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
+  const authorSteering = resolveAuthorSteering({
+    authorSteering: body.authorSteering,
+    author: body.author,
+    audience: body.audience,
+    profileEnrichment: body.profileEnrichment,
+  });
+
   try {
     const raw = await chatCompletionJson(llm, [
       {
@@ -77,6 +89,7 @@ export async function POST(request: Request) {
           personaExcerpt: body.personaPromptText ?? "",
           contentLanguage,
           newsSource: body.newsSource,
+          authorSteering,
         }),
       },
     ]);

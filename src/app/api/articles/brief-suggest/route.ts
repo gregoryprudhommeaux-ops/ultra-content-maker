@@ -6,6 +6,7 @@ import {
   buildBriefSuggestUserPrompt,
   normalizeSuggestedBrief,
 } from "@/lib/prompts/brief-suggest";
+import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type {
   ArticleNewsSource,
   ContentLanguage,
@@ -23,6 +24,11 @@ type Body = {
   newsSource?: ArticleNewsSource;
   inspirationText?: string;
   inspirationMeta?: Record<string, unknown>;
+  authorSteering?: AuthorSteeringPayload;
+  author?: Record<string, unknown>;
+  audience?: Record<string, unknown>;
+  profileEnrichment?: Record<string, unknown>;
+  newsInterestQuery?: string;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -62,6 +68,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
+  const authorSteering = resolveAuthorSteering({
+    authorSteering: body.authorSteering,
+    author: body.author,
+    audience: body.audience,
+    profileEnrichment: body.profileEnrichment,
+    newsInterestQuery: body.newsInterestQuery,
+  });
+
   try {
     const raw = await chatCompletionJson(llm, [
       {
@@ -77,6 +91,7 @@ export async function POST(request: Request) {
           newsSource: body.newsSource,
           inspirationText: body.inspirationText,
           inspirationMeta: body.inspirationMeta,
+          authorSteering,
         }),
       },
     ]);

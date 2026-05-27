@@ -1,6 +1,10 @@
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
 import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type {
   ArticleNewsSource,
   ArticleRefinement,
@@ -44,6 +48,7 @@ export function buildReviseUserPrompt(
   refinement: ArticleRefinement,
   contentLanguage: ContentLanguage,
   newsSource?: ArticleNewsSource,
+  authorSteering?: AuthorSteeringPayload | null,
 ): string {
   const toneEdgeInstruction = buildToneEdgeInstruction(
     contentLanguage,
@@ -64,5 +69,5 @@ export function buildReviseUserPrompt(
       newsSource,
     );
   }
-  return JSON.stringify(payload, null, 2);
+  return JSON.stringify(injectAuthorSteering(payload, authorSteering), null, 2);
 }

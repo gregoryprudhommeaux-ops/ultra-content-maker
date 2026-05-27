@@ -7,6 +7,7 @@ import {
   buildNewsSuggestionsSystemPrompt,
   buildNewsSuggestionsUserPrompt,
 } from "@/lib/prompts/news-suggestions";
+import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, LlmProvider } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -22,6 +23,7 @@ type Body = {
   /** @deprecated use personaExcerpt — kept for older clients */
   personaPromptText?: string;
   newsInterestQuery?: string;
+  authorSteering?: AuthorSteeringPayload;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -71,6 +73,7 @@ export async function POST(request: Request) {
     profileEnrichment: body.profileEnrichment,
     personaExcerpt,
     newsInterestQuery,
+    authorSteering: body.authorSteering,
   });
 
   try {

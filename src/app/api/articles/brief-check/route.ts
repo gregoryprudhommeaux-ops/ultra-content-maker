@@ -6,6 +6,7 @@ import {
   buildBriefCheckSystemPrompt,
   buildBriefCheckUserPrompt,
 } from "@/lib/prompts/article-brief-check";
+import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { BriefNicheCheck, ContentLanguage, LlmProvider, PostBrief } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -16,6 +17,10 @@ type Body = {
   postBrief: PostBrief;
   contentLanguage?: string;
   personaPromptText?: string;
+  authorSteering?: AuthorSteeringPayload;
+  profileEnrichment?: Record<string, unknown>;
+  author?: Record<string, unknown>;
+  audience?: Record<string, unknown>;
   useLlm?: boolean;
   llm?: {
     provider: LlmProvider;
@@ -64,6 +69,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ ...heuristic, source: "heuristic" });
   }
 
+  const authorSteering = resolveAuthorSteering({
+    authorSteering: body.authorSteering,
+    author: body.author,
+    audience: body.audience,
+    profileEnrichment: body.profileEnrichment,
+  });
+
   try {
     const raw = await chatCompletionJson(llm, [
       {
@@ -75,6 +87,7 @@ export async function POST(request: Request) {
         content: buildBriefCheckUserPrompt(
           body.postBrief,
           body.personaPromptText ?? "",
+          authorSteering,
         ),
       },
     ]);

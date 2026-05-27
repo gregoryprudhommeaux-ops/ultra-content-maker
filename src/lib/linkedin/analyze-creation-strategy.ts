@@ -14,6 +14,7 @@ import {
   type LinkedInActivityPostLlm,
 } from "@/lib/prompts/linkedin-activity-fetch";
 import { normalizeLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
+import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, CreationStrategyGuide } from "@/types/workspace";
 
 export type AnalyzeCreationStrategyInput = {
@@ -27,6 +28,8 @@ export type AnalyzeCreationStrategyInput = {
   };
   /** Angle, keywords, or leads to steer theme generation */
   userSteering?: string;
+  /** Full profile, audience, enrichment, sources, LinkedIn cache */
+  authorSteering?: AuthorSteeringPayload | null;
   /** Primary LLM for strategy synthesis */
   strategyLlm: LlmConfig;
   /** Must be Perplexity (or env Perplexity) for activity fetch */
@@ -86,6 +89,7 @@ export async function analyzeCreationStrategy(
         authorContext: input.authorContext,
         posts,
         userSteering: input.userSteering,
+        authorSteering: input.authorSteering,
       }),
     },
   ]);

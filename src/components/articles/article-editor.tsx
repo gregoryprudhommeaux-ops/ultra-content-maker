@@ -18,7 +18,7 @@ import {
   GeneratingIndicator,
 } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
-import { getProfileEnrichment } from "@/lib/workspace/enrichment";
+import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getPersona } from "@/lib/workspace/persona";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
@@ -115,8 +115,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
     try {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const [enrichment, llmProfile] = await Promise.all([
-        getProfileEnrichment(user.uid),
+      const [authorSteering, llmProfile] = await Promise.all([
+        gatherAuthorSteeringPayload(user.uid),
         getUserLlmProfile(user.uid),
       ]);
       if (!token || !llmProfile?.apiKey) return;
@@ -133,7 +133,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
           hook: article.hook,
           body: article.body,
           ps: article.ps,
-          profileEnrichment: enrichment?.details ?? {},
+          authorSteering,
           postObjective: article.postBrief?.objective ?? "credibility",
           llm: {
             provider: llmProfile.provider,
@@ -373,7 +373,10 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
     try {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const llmProfile = await getUserLlmProfile(user.uid);
+      const [llmProfile, authorSteering] = await Promise.all([
+        getUserLlmProfile(user.uid),
+        gatherAuthorSteeringPayload(user.uid),
+      ]);
       if (!token || !llmProfile?.apiKey) {
         setError(tArticles("noLlmKey"));
         return;
@@ -392,6 +395,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
           ps: article.ps,
           postBrief: article.postBrief,
           personaPromptText: personaText,
+          authorSteering,
           llm: {
             provider: llmProfile.provider,
             apiKey: llmProfile.apiKey,
@@ -490,7 +494,10 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const llmProfile = await getUserLlmProfile(user.uid);
+      const [llmProfile, authorSteering] = await Promise.all([
+        getUserLlmProfile(user.uid),
+        gatherAuthorSteeringPayload(user.uid),
+      ]);
       if (!token || !llmProfile?.apiKey) {
         setReviseError(tArticles("noLlmKey"));
         return;
@@ -514,6 +521,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
           },
           newsSource: article.newsSource,
           refinement,
+          authorSteering,
           llm: {
             provider: llmProfile.provider,
             apiKey: llmProfile.apiKey,
@@ -622,8 +630,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
     try {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const [enrichment, llmProfile] = await Promise.all([
-        getProfileEnrichment(user.uid),
+      const [authorSteering, llmProfile] = await Promise.all([
+        gatherAuthorSteeringPayload(user.uid),
         getUserLlmProfile(user.uid),
       ]);
       if (!token) {
@@ -646,7 +654,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
             body: article.body,
             ps: article.ps,
             ctaText: chosen.text,
-            profileEnrichment: enrichment?.details ?? {},
+            authorSteering,
             llm: {
               provider: llmProfile.provider,
               apiKey: llmProfile.apiKey,

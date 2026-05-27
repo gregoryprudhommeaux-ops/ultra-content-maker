@@ -31,6 +31,7 @@ import {
 } from "@/lib/linkedin/fit-linkedin-post";
 import { stripNewsSourceUrlFromText } from "@/lib/linkedin/strip-news-source-url";
 import { postContainsEmoji } from "@/lib/prompts/emoji-instruction";
+import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type {
   ArticleInspirationSource,
   ArticleNewsSource,
@@ -50,6 +51,10 @@ type GenerateBody = {
   contentLanguage: string;
   emojiLevel?: EmojiLevel;
   profileEnrichment?: Record<string, unknown>;
+  authorSteering?: AuthorSteeringPayload;
+  author?: Record<string, unknown>;
+  audience?: Record<string, unknown>;
+  newsInterestQuery?: string;
   newsSource?: ArticleNewsSource;
   inspirationText?: string;
   inspirationSource?: ArticleInspirationSource;
@@ -179,6 +184,13 @@ export async function POST(request: Request) {
 
   try {
     const isInspiration = !!body.inspirationText?.trim();
+    const authorSteering = resolveAuthorSteering({
+      authorSteering: body.authorSteering,
+      author: body.author,
+      audience: body.audience,
+      profileEnrichment: body.profileEnrichment,
+      newsInterestQuery: body.newsInterestQuery,
+    });
 
     let systemContent: string;
     let userContent: string;
@@ -197,6 +209,7 @@ export async function POST(request: Request) {
         body.postBrief,
         body.profileEnrichment,
         body.inspirationSource,
+        authorSteering,
       )}`;
     } else {
       const baseUserPrompt = buildArticlesUserPromptWithCount(
@@ -206,6 +219,7 @@ export async function POST(request: Request) {
         body.profileEnrichment,
         emojiLevel,
         body.postBrief,
+        authorSteering,
       );
       userContent = body.newsSource
         ? buildArticlesFromNewsUserPayload(

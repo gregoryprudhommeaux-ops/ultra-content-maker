@@ -2,6 +2,7 @@
 
 import type { ArticleDoc, ArticleRepurpose, PostFormatPlan } from "@/types/workspace";
 import { getClientAuth } from "@/lib/firebase/client";
+import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
   buildFirstCommentReminderDescription,
@@ -80,10 +81,15 @@ export function ArticleFormatPanel({
   const llmPayload = useCallback(async () => {
     const auth = getClientAuth();
     const token = auth ? await auth.currentUser?.getIdToken() : null;
-    const llmProfile = user ? await getUserLlmProfile(user.uid) : null;
-    if (!token || !llmProfile?.apiKey) return null;
+    if (!user || !token) return null;
+    const [llmProfile, authorSteering] = await Promise.all([
+      getUserLlmProfile(user.uid),
+      gatherAuthorSteeringPayload(user.uid),
+    ]);
+    if (!llmProfile?.apiKey) return null;
     return {
       token,
+      authorSteering,
       llm: {
         provider: llmProfile.provider,
         apiKey: llmProfile.apiKey,
@@ -111,6 +117,7 @@ export function ArticleFormatPanel({
           ps: article.ps,
           postBrief: article.postBrief,
           personaPromptText: personaText,
+          authorSteering: auth.authorSteering,
           llm: auth.llm,
         }),
       });
@@ -144,6 +151,7 @@ export function ArticleFormatPanel({
           exportText: article.exportText,
           postBrief: article.postBrief,
           personaPromptText: personaText,
+          authorSteering: auth.authorSteering,
           llm: auth.llm,
         }),
       });
@@ -177,6 +185,7 @@ export function ArticleFormatPanel({
           postBrief: article.postBrief,
           personaPromptText: personaText,
           newsSource: article.newsSource,
+          authorSteering: auth.authorSteering,
           llm: auth.llm,
         }),
       });

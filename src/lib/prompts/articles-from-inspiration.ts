@@ -1,4 +1,8 @@
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type { ArticleScope, ContentLanguage, EmojiLevel, PostBrief } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
 import { LINKEDIN_2026_SYSTEM_RULES } from "./linkedin-2026-rules";
@@ -57,24 +61,28 @@ export function buildInspirationArticleUserPayload(
     likedAspects?: string[];
     whyLike?: string;
   },
+  authorSteering?: AuthorSteeringPayload | null,
 ): string {
   const briefBlock = postBrief
     ? buildPostBriefInstruction(postBrief, contentLanguage)
     : null;
 
   return JSON.stringify(
-    {
-      contentLanguage,
-      targetScope,
-      personaPromptText,
-      profileEnrichment: profileEnrichment ?? {},
-      referencePost: inspirationText.trim().slice(0, 8000),
-      inspirationMeta: inspirationMeta ?? null,
-      postBrief: postBrief ?? null,
-      postBriefInstruction: briefBlock,
-      instruction:
-        "Generate exactly one post now. Honor targetScope and post brief. New angle only — zero plagiarism from referencePost. If inspirationMeta includes likedAspects/whyLike, mirror those qualities without copying phrases.",
-    },
+    injectAuthorSteering(
+      {
+        contentLanguage,
+        targetScope,
+        personaPromptText,
+        profileEnrichment: profileEnrichment ?? {},
+        referencePost: inspirationText.trim().slice(0, 8000),
+        inspirationMeta: inspirationMeta ?? null,
+        postBrief: postBrief ?? null,
+        postBriefInstruction: briefBlock,
+        instruction:
+          "Generate exactly one post now. Honor targetScope and post brief. New angle only — zero plagiarism from referencePost. If inspirationMeta includes likedAspects/whyLike, mirror those qualities without copying phrases.",
+      },
+      authorSteering,
+    ),
     null,
     2,
   );

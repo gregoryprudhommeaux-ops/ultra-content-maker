@@ -1,6 +1,10 @@
 import {
   buildNewsSourceInFirstCommentInstruction,
 } from "@/lib/prompts/news-source-citation";
+import {
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
+} from "@/lib/profile/author-steering-context";
 import type {
   ArticleNewsSource,
   ContentLanguage,
@@ -44,6 +48,7 @@ export function buildFirstCommentUserPrompt(input: {
   personaExcerpt: string;
   contentLanguage?: ContentLanguage;
   newsSource?: Pick<ArticleNewsSource, "title" | "url" | "sourceName">;
+  authorSteering?: AuthorSteeringPayload | null;
 }): string {
   const payload: Record<string, unknown> = {
     hook: input.hook,
@@ -60,7 +65,7 @@ export function buildFirstCommentUserPrompt(input: {
     );
   }
 
-  return JSON.stringify(payload, null, 2);
+  return JSON.stringify(injectAuthorSteering(payload, input.authorSteering), null, 2);
 }
 
 /** Ensure the news URL appears in the first comment if the model omitted it. */
