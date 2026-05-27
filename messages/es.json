@@ -325,6 +325,9 @@
       "title": "Mi perfil",
       "subtitle": "Añade enlaces a tu presencia profesional. Sin copiar-pegar — solo URLs para ejemplos.",
       "linkedin": "URL perfil LinkedIn",
+      "linkedinActivity": "URL actividad LinkedIn (tus posts)",
+      "linkedinActivityHint": "Página de actividad reciente de tu perfil — la IA analiza ~2 meses de posts para recomendaciones estratégicas.",
+      "linkedinActivityNotActivity": "Usa la URL del feed de actividad (ej. …/in/tu-nombre/recent-activity/all/).",
       "website": "URL sitio web",
       "blog": "URL blog",
       "role": "Rol / título (opcional)",
@@ -551,6 +554,37 @@
               "profile": "→ Recorrido recomendado: 1 borrador alineado con tu Persona y tu brief.",
               "news": "→ Recorrido actualidad: escaneo de 4 noticias y 1 post con tu ángulo.",
               "inspiration": "→ Recorrido inspiración: 1 borrador con ángulo distinto (sin copiar la fuente)."
+            }
+          },
+          "strategy": {
+            "missingUrlTitle": "Añade tu feed de actividad de LinkedIn",
+            "missingUrlBody": "En Mi perfil, pega la URL de actividad reciente (ej. …/recent-activity/all/) para activar el análisis IA.",
+            "missingUrlCta": "Configurar en Mi perfil →",
+            "analyzing": "Analizando tus posts de LinkedIn (~2 meses)…",
+            "failed": "No se pudo analizar. Reintenta o comprueba la URL.",
+            "noLlm": "Configura tu clave API en Ajustes para ejecutar el análisis.",
+            "perplexityRequired": "El análisis de posts de LinkedIn requiere Perplexity (Sonar) en Ajustes.",
+            "perplexityCta": "Configurar Perplexity →",
+            "notActivityUrl": "URL de actividad no válida — usa …/recent-activity/all/",
+            "invalidKey": "Clave API rechazada por el proveedor.",
+            "retry": "Reintentar",
+            "refresh": "Volver a analizar",
+            "patternLabel": "Lo que ve la IA",
+            "postsCount": "{count, plural, =0 {No se detectaron posts recientes} one {# post analizado · {period}} other {# posts analizados · {period}}}",
+            "modeLabel": "Recorrido recomendado",
+            "highlightMode": "Resaltar este recorrido",
+            "themesLabel": "4 temáticas estratégicas",
+            "newsHook": "Actualidad",
+            "modes": {
+              "profile": "Desde mi perfil",
+              "news": "Desde la actualidad",
+              "inspiration": "Desde contenido existente"
+            },
+            "relation": {
+              "continuity": "Coherencia",
+              "correction": "Corrección",
+              "pivot": "Pivote",
+              "news": "Actualidad"
             }
           },
           "modes": {

@@ -4,6 +4,7 @@ import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-
 import { InspirationsEditor } from "@/components/setup/inspirations-editor";
 import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { useAuth } from "@/components/auth/auth-provider";
+import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
 import { completeAuthorStep, getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
@@ -20,6 +21,7 @@ export function AuthorSetupForm() {
   const { user } = useAuth();
   const router = useRouter();
   const [linkedinProfileUrl, setLinkedinProfileUrl] = useState("");
+  const [linkedinActivityUrl, setLinkedinActivityUrl] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [blogUrl, setBlogUrl] = useState("");
   const [roleTitle, setRoleTitle] = useState("");
@@ -36,6 +38,7 @@ export function AuthorSetupForm() {
       const profile = await getAuthorProfile(user.uid);
       if (profile) {
         setLinkedinProfileUrl(profile.linkedinProfileUrl ?? "");
+        setLinkedinActivityUrl(profile.linkedinActivityUrl ?? "");
         setWebsiteUrl(profile.websiteUrl ?? "");
         setBlogUrl(profile.blogUrl ?? "");
         setRoleTitle(profile.roleTitle ?? "");
@@ -57,8 +60,18 @@ export function AuthorSetupForm() {
         return false;
       }
     }
+    const activityCheck = validateLinkedInActivityUrl(linkedinActivityUrl);
+    if (activityCheck === "invalid") {
+      setError(t("invalidUrl"));
+      return false;
+    }
+    if (activityCheck === "not_activity") {
+      setError(t("linkedinActivityNotActivity"));
+      return false;
+    }
     await saveAuthorProfile(user.uid, {
       linkedinProfileUrl: linkedinProfileUrl.trim() || undefined,
+      linkedinActivityUrl: linkedinActivityUrl.trim() || undefined,
       websiteUrl: websiteUrl.trim() || undefined,
       blogUrl: blogUrl.trim() || undefined,
       roleTitle: roleTitle.trim() || undefined,
@@ -128,6 +141,20 @@ export function AuthorSetupForm() {
             value={linkedinProfileUrl}
             onChange={(e) => setLinkedinProfileUrl(e.target.value)}
             placeholder="https://www.linkedin.com/in/..."
+            className={INPUT_CLASS}
+          />
+        </div>
+        <div>
+          <OptionalLabel htmlFor="linkedin-activity">{t("linkedinActivity")}</OptionalLabel>
+          <p className="mb-2 text-xs text-ns-secondary">{t("linkedinActivityHint")}</p>
+          <input
+            id="linkedin-activity"
+            type="text"
+            inputMode="url"
+            autoComplete="url"
+            value={linkedinActivityUrl}
+            onChange={(e) => setLinkedinActivityUrl(e.target.value)}
+            placeholder="https://www.linkedin.com/in/.../recent-activity/all/"
             className={INPUT_CLASS}
           />
         </div>

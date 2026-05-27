@@ -325,6 +325,9 @@
       "title": "My profile",
       "subtitle": "Add links to your professional presence. No copy-paste — URLs only for examples.",
       "linkedin": "LinkedIn profile URL",
+      "linkedinActivity": "LinkedIn activity URL (your posts)",
+      "linkedinActivityHint": "Your profile’s recent activity page — the AI analyzes ~2 months of posts for strategic recommendations.",
+      "linkedinActivityNotActivity": "Use your activity feed URL (e.g. …/in/your-name/recent-activity/all/).",
       "website": "Website URL",
       "blog": "Blog URL",
       "role": "Role / title (optional)",
@@ -551,6 +554,37 @@
               "profile": "→ Recommended path: 1 draft aligned with your Persona and brief.",
               "news": "→ News path: scan 4 recent stories, then 1 post anchored on your angle.",
               "inspiration": "→ Inspiration path: 1 draft with a distinct angle (no copying the source)."
+            }
+          },
+          "strategy": {
+            "missingUrlTitle": "Add your LinkedIn activity feed",
+            "missingUrlBody": "In My profile, paste your recent activity URL (e.g. …/recent-activity/all/) to enable AI analysis.",
+            "missingUrlCta": "Set up in My profile →",
+            "analyzing": "Analyzing your LinkedIn posts (~2 months)…",
+            "failed": "Analysis failed. Retry or check the URL.",
+            "noLlm": "Add your API key in Settings to run analysis.",
+            "perplexityRequired": "LinkedIn post analysis requires Perplexity (Sonar) in Settings.",
+            "perplexityCta": "Configure Perplexity →",
+            "notActivityUrl": "Invalid activity URL — use …/recent-activity/all/",
+            "invalidKey": "API key rejected by the provider.",
+            "retry": "Retry",
+            "refresh": "Re-run analysis",
+            "patternLabel": "What the AI sees",
+            "postsCount": "{count, plural, =0 {No recent posts detected} one {# post analyzed · {period}} other {# posts analyzed · {period}}}",
+            "modeLabel": "Recommended path",
+            "highlightMode": "Highlight this path",
+            "themesLabel": "4 strategic themes",
+            "newsHook": "News",
+            "modes": {
+              "profile": "From my profile",
+              "news": "From the news",
+              "inspiration": "From existing content"
+            },
+            "relation": {
+              "continuity": "Continuity",
+              "correction": "Course correction",
+              "pivot": "Pivot",
+              "news": "News"
             }
           },
           "modes": {

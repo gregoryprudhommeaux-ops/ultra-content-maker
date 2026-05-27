@@ -58,6 +58,7 @@ import type {
   ArticleScope,
   BriefNicheCheck,
   ContentLanguage,
+  CreationStrategyTheme,
   EmojiLevel,
   InspirationInputKind,
   NewsSuggestion,
@@ -564,11 +565,11 @@ export function ArticleCreationWizard() {
     setInspirationLibrary([...posts, ...profiles]);
   }, [user]);
 
-  function pickMode(next: CreationMode) {
+  function pickMode(next: CreationMode, briefSeed?: Partial<PostBrief>) {
     setMode(next);
     setError(null);
-    briefSuggestedRef.current = false;
-    setPostBrief({ ...DEFAULT_POST_BRIEF });
+    briefSuggestedRef.current = !!briefSeed;
+    setPostBrief({ ...DEFAULT_POST_BRIEF, ...briefSeed });
     setInspirationCtx(null);
     if (next === "profile") {
       setStep("brief");
@@ -579,6 +580,14 @@ export function ArticleCreationWizard() {
       void loadInspirationLibrary();
       setStep("inspiration-input");
     }
+  }
+
+  function applyStrategyTheme(theme: CreationStrategyTheme, mode: CreationMode) {
+    pickMode(mode, {
+      problem: theme.title,
+      pointOfView: theme.angle,
+      proof: theme.rationale.slice(0, 500),
+    });
   }
 
   function pickInspirationInput(kind: InspirationInputKind) {
@@ -722,7 +731,13 @@ export function ArticleCreationWizard() {
           </button>
         )}
 
-      {step === "mode" && <CreationModePicker onSelect={pickMode} />}
+      {step === "mode" && (
+        <CreationModePicker
+          personaText={personaText}
+          onSelect={pickMode}
+          onApplyTheme={applyStrategyTheme}
+        />
+      )}
 
       {step === "news" && (
         <div className="space-y-4">

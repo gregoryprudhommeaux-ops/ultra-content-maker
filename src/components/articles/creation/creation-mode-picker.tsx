@@ -1,7 +1,9 @@
 "use client";
 
+import { CreationStrategyGuidePanel } from "@/components/articles/creation/creation-strategy-guide";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
+import type { CreationStrategyTheme } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -118,10 +120,12 @@ function ModeIcon({ mode, className }: { mode: ModeId; className?: string }) {
 }
 
 type Props = {
+  personaText: string;
   onSelect: (mode: ModeId) => void;
+  onApplyTheme?: (theme: CreationStrategyTheme, mode: ModeId) => void;
 };
 
-export function CreationModePicker({ onSelect }: Props) {
+export function CreationModePicker({ personaText, onSelect, onApplyTheme }: Props) {
   const t = useTranslations("setup.articles.create.modePicker");
   const [guideHighlight, setGuideHighlight] = useState<ModeId | null>(null);
 
@@ -201,6 +205,15 @@ export function CreationModePicker({ onSelect }: Props) {
             {t(`guide.hint.${guideHighlight}`)}
           </p>
         )}
+
+        <CreationStrategyGuidePanel
+          personaText={personaText}
+          onRecommendMode={setGuideHighlight}
+          onApplyTheme={(theme, mode) => {
+            setGuideHighlight(mode);
+            onApplyTheme?.(theme, mode);
+          }}
+        />
       </section>
 
       <div className="space-y-4">

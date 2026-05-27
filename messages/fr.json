@@ -325,6 +325,9 @@
       "title": "Mon profil",
       "subtitle": "Ajoutez des liens vers votre présence professionnelle. Pas de copier-coller — des URLs pour les exemples.",
       "linkedin": "URL profil LinkedIn",
+      "linkedinActivity": "URL activité LinkedIn (vos posts)",
+      "linkedinActivityHint": "Page « activité récente » de votre profil — l’IA analyse vos ~2 derniers mois de posts pour des recommandations stratégiques.",
+      "linkedinActivityNotActivity": "Utilisez l’URL de votre fil d’activité (ex. …/in/votre-nom/recent-activity/all/).",
       "website": "URL site web",
       "blog": "URL blog",
       "role": "Rôle / titre",
@@ -551,6 +554,37 @@
               "profile": "→ Parcours recommandé : 1 brouillon aligné sur votre Persona et votre brief.",
               "news": "→ Parcours actu : scan de 4 stories récentes, puis 1 post ancré sur votre angle.",
               "inspiration": "→ Parcours inspiration : 1 brouillon avec un angle distinct (sans copier le source)."
+            }
+          },
+          "strategy": {
+            "missingUrlTitle": "Ajoutez votre fil d’activité LinkedIn",
+            "missingUrlBody": "Dans Mon profil, collez l’URL de votre page activité récente (ex. …/recent-activity/all/) pour activer l’analyse IA.",
+            "missingUrlCta": "Configurer dans Mon profil →",
+            "analyzing": "Analyse de vos posts LinkedIn (≈ 2 mois)…",
+            "failed": "Analyse impossible pour l’instant. Réessayez ou vérifiez l’URL.",
+            "noLlm": "Configurez votre clé API dans Réglages pour lancer l’analyse.",
+            "perplexityRequired": "L’analyse des posts LinkedIn nécessite Perplexity (Sonar) dans Réglages.",
+            "perplexityCta": "Configurer Perplexity →",
+            "notActivityUrl": "URL d’activité invalide — utilisez …/recent-activity/all/",
+            "invalidKey": "Clé API refusée par le fournisseur.",
+            "retry": "Réessayer",
+            "refresh": "Relancer l’analyse",
+            "patternLabel": "Ce que l’IA observe",
+            "postsCount": "{count, plural, =0 {Aucun post récent détecté} one {# post analysé · {period}} other {# posts analysés · {period}}}",
+            "modeLabel": "Parcours recommandé",
+            "highlightMode": "Mettre en avant ce parcours",
+            "themesLabel": "4 thématiques stratégiques",
+            "newsHook": "Actu",
+            "modes": {
+              "profile": "Depuis mon profil",
+              "news": "Depuis l’actualité",
+              "inspiration": "Depuis un contenu existant"
+            },
+            "relation": {
+              "continuity": "Cohérence",
+              "correction": "Redressement",
+              "pivot": "Pivot",
+              "news": "Actu"
             }
           },
           "modes": {

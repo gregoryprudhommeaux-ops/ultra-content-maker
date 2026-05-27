@@ -48,13 +48,48 @@ export interface UserDoc {
   updatedAt: Date;
 }
 
+export type ArticleCreationMode = "profile" | "news" | "inspiration";
+
+export type CreationStrategyThemeRelation =
+  | "continuity"
+  | "correction"
+  | "pivot"
+  | "news";
+
+export interface CreationStrategyTheme {
+  title: string;
+  angle: string;
+  rationale: string;
+  relationToHistory: CreationStrategyThemeRelation;
+  suggestedMode: ArticleCreationMode;
+  newsHook?: string;
+}
+
+export interface CreationStrategyGuide {
+  postsAnalyzed: number;
+  periodLabel: string;
+  patternSummary: string;
+  recommendedMode: ArticleCreationMode;
+  modeJustification: string;
+  themes: CreationStrategyTheme[];
+}
+
+export interface CreationStrategyCache {
+  activityUrl: string;
+  analyzedAt: string;
+  guide: CreationStrategyGuide;
+}
+
 export interface AuthorProfile {
   linkedinProfileUrl?: string;
+  /** Public activity feed URL (recent posts) for AI pattern analysis. */
+  linkedinActivityUrl?: string;
   websiteUrl?: string;
   blogUrl?: string;
   contentLanguage: ContentLanguage;
   roleTitle?: string;
   positioningLine?: string;
+  creationStrategyCache?: CreationStrategyCache;
   status: AuthorStatus;
   updatedAt: Date;
 }

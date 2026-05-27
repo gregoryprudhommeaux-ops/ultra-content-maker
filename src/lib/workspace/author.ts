@@ -1,5 +1,9 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import type { AuthorProfile, ContentLanguage } from "@/types/workspace";
+import type {
+  AuthorProfile,
+  ContentLanguage,
+  CreationStrategyCache,
+} from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
 
@@ -17,6 +21,10 @@ export async function getAuthorProfile(userId: string): Promise<AuthorProfile | 
   const d = snap.data();
   return {
     linkedinProfileUrl: d.linkedinProfileUrl as string | undefined,
+    linkedinActivityUrl: d.linkedinActivityUrl as string | undefined,
+    creationStrategyCache: d.creationStrategyCache as
+      | CreationStrategyCache
+      | undefined,
     websiteUrl: d.websiteUrl as string | undefined,
     blogUrl: d.blogUrl as string | undefined,
     contentLanguage: (d.contentLanguage as ContentLanguage) ?? "en",
@@ -42,6 +50,10 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
     authorRef(userId),
     {
       linkedinProfileUrl: input.linkedinProfileUrl ?? prev?.linkedinProfileUrl ?? null,
+      linkedinActivityUrl:
+        input.linkedinActivityUrl ?? prev?.linkedinActivityUrl ?? null,
+      creationStrategyCache:
+        input.creationStrategyCache ?? prev?.creationStrategyCache ?? null,
       websiteUrl: input.websiteUrl ?? prev?.websiteUrl ?? null,
       blogUrl: input.blogUrl ?? prev?.blogUrl ?? null,
       contentLanguage: input.contentLanguage ?? prev?.contentLanguage ?? "en",
