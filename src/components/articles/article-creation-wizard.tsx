@@ -47,7 +47,10 @@ import {
   createArticleBatch,
   replaceArticleDraft,
 } from "@/lib/workspace/articles";
-import { upsertNewsArchiveBatch } from "@/lib/workspace/news-archive";
+import {
+  getArchivedNews,
+  upsertNewsArchiveBatch,
+} from "@/lib/workspace/news-archive";
 import { getClientAuth } from "@/lib/firebase/client";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -609,14 +612,36 @@ export function ArticleCreationWizard() {
   }
 
   useEffect(() => {
-    if (!loaded || initialModeFromUrl.current) return;
-    const param = searchParams.get("mode");
-    if (param === "profile" || param === "news" || param === "inspiration") {
+    if (!loaded || !user || initialModeFromUrl.current) return;
+
+    const modeParam = searchParams.get("mode");
+    const newsId = searchParams.get("newsId")?.trim();
+
+    if (modeParam === "news" && newsId) {
       initialModeFromUrl.current = true;
-      pickMode(param);
+      void (async () => {
+        const archived = await getArchivedNews(user.uid, newsId);
+        setMode("news");
+        setError(null);
+        if (archived) {
+          setSelectedNews(archived);
+          briefSuggestedRef.current = false;
+          setStep("brief");
+        } else {
+          setSelectedNews(null);
+          setStep("news");
+          void loadNews();
+        }
+      })();
+      return;
+    }
+
+    if (modeParam === "profile" || modeParam === "news" || modeParam === "inspiration") {
+      initialModeFromUrl.current = true;
+      pickMode(modeParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once on load
-  }, [loaded, searchParams]);
+  }, [loaded, user, searchParams]);
 
   function goBack() {
     setError(null);

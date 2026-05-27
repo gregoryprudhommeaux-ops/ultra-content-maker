@@ -19,6 +19,9 @@ export type ArchivedNewsDoc = NewsSuggestion & {
   lastFetchedAt: Date;
 };
 
+/** Max items shown on the previous-news archive page. */
+export const ARCHIVED_NEWS_DISPLAY_LIMIT = 10;
+
 function newsArchiveCollection(userId: string) {
   const db = getClientFirestore();
   if (!db) throw new Error("Firestore not available");
@@ -67,10 +70,15 @@ export async function upsertNewsArchiveBatch(
   );
 }
 
-export async function listArchivedNews(userId: string): Promise<ArchivedNewsDoc[]> {
+export async function listArchivedNews(
+  userId: string,
+  limit = ARCHIVED_NEWS_DISPLAY_LIMIT,
+): Promise<ArchivedNewsDoc[]> {
   const q = query(newsArchiveCollection(userId), orderBy("lastFetchedAt", "desc"));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => mapArchived(d.id, d.data()));
+  const items = snap.docs.map((d) => mapArchived(d.id, d.data()));
+  if (limit <= 0) return items;
+  return items.slice(0, limit);
 }
 
 export async function getArchivedNews(

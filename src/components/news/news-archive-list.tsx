@@ -1,11 +1,13 @@
 "use client";
 
-import { NewsCard } from "@/components/news/news-card";
+import { NewsCard, formatNewsDate } from "@/components/news/news-card";
+import { NewsDetailModal } from "@/components/news/news-detail-modal";
 import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
 import {
+  ARCHIVED_NEWS_DISPLAY_LIMIT,
   listArchivedNews,
   type ArchivedNewsDoc,
 } from "@/lib/workspace/news-archive";
@@ -15,20 +17,21 @@ import { useLocale, useTranslations } from "next-intl";
 import type { ContentLanguage } from "@/types/workspace";
 import { useCallback, useEffect, useState } from "react";
 
-/** Read-only archive; creation happens in /articles/new */
 export function NewsArchiveList() {
   const t = useTranslations("setup.news");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
   const [personaOk, setPersonaOk] = useState<boolean | null>(null);
   const [archived, setArchived] = useState<ArchivedNewsDoc[]>([]);
+  const [selected, setSelected] = useState<ArchivedNewsDoc | null>(null);
+  const [detailItem, setDetailItem] = useState<ArchivedNewsDoc | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const reload = useCallback(async () => {
     if (!user) return;
     const [p, items] = await Promise.all([
       getPersona(user.uid),
-      listArchivedNews(user.uid),
+      listArchivedNews(user.uid, ARCHIVED_NEWS_DISPLAY_LIMIT),
     ]);
     setPersonaOk(!!p?.validatedAt && !!p?.promptText?.trim());
     setArchived(items);
@@ -63,6 +66,7 @@ export function NewsArchiveList() {
         </Link>
         <h1 className="text-2xl font-bold text-ns-tertiary">{t("title")}</h1>
         <p className="text-sm text-ns-secondary">{t("subtitleArchive")}</p>
+        <p className="text-xs text-ns-secondary">{t("archiveLimitNote")}</p>
       </header>
 
       {archived.length === 0 && (
@@ -80,16 +84,51 @@ export function NewsArchiveList() {
             <li key={item.id}>
               <NewsCard
                 item={item}
-                selected={false}
-                onClick={() => {}}
-                onRead={() => window.open(item.url, "_blank", "noopener,noreferrer")}
+                selected={selected?.id === item.id}
+                showSelectLabel
+                onClick={() => setSelected(item)}
+                onRead={() => setDetailItem(item)}
               />
             </li>
           ))}
         </ul>
       )}
 
-      <p className="text-xs text-ns-secondary">{t("archiveHint")}</p>
+      {selected && (
+        <section className="rounded-xl border-2 border-ns-primary/40 bg-gradient-to-b from-ns-primary/10 to-white p-5 shadow-sm space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-ns-tertiary">
+                {t("selectedBadge")}
+              </p>
+              <p className="mt-1 text-xs font-medium text-ns-secondary">
+                {selected.sourceName ?? t("unknownSource")} ·{" "}
+                {formatNewsDate(selected.publishedAt, locale)}
+              </p>
+              <h2 className="mt-2 text-lg font-semibold text-ns-tertiary">{selected.title}</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelected(null)}
+              className="text-sm text-ns-secondary underline hover:text-ns-tertiary"
+            >
+              {t("changeNews")}
+            </button>
+          </div>
+          <p className="text-sm leading-relaxed text-ns-secondary whitespace-pre-wrap line-clamp-4">
+            {selected.summary}
+          </p>
+          <p className="text-xs text-ns-secondary">{t("archiveCreateHint")}</p>
+          <Link
+            href={`/articles/new?mode=news&newsId=${encodeURIComponent(selected.id)}`}
+            className={`inline-block ${BTN_PRIMARY}`}
+          >
+            {t("createPostFromArchive")}
+          </Link>
+        </section>
+      )}
+
+      <NewsDetailModal item={detailItem} onClose={() => setDetailItem(null)} />
     </div>
   );
 }
