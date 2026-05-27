@@ -78,6 +78,8 @@ export interface CreationStrategyCache {
   activityUrl: string;
   analyzedAt: string;
   guide: CreationStrategyGuide;
+  /** Steering text used when this cache was built (empty = none). */
+  steering?: string;
 }
 
 export interface AuthorProfile {
@@ -90,6 +92,8 @@ export interface AuthorProfile {
   roleTitle?: string;
   positioningLine?: string;
   creationStrategyCache?: CreationStrategyCache;
+  /** Optional angle / keywords to steer the next strategy analysis. */
+  creationStrategySteering?: string;
   status: AuthorStatus;
   updatedAt: Date;
 }

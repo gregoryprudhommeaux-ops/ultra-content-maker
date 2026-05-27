@@ -25,6 +25,7 @@ export async function getAuthorProfile(userId: string): Promise<AuthorProfile | 
     creationStrategyCache: d.creationStrategyCache as
       | CreationStrategyCache
       | undefined,
+    creationStrategySteering: d.creationStrategySteering as string | undefined,
     websiteUrl: d.websiteUrl as string | undefined,
     blogUrl: d.blogUrl as string | undefined,
     contentLanguage: (d.contentLanguage as ContentLanguage) ?? "en",
@@ -54,6 +55,8 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
         input.linkedinActivityUrl ?? prev?.linkedinActivityUrl ?? null,
       creationStrategyCache:
         input.creationStrategyCache ?? prev?.creationStrategyCache ?? null,
+      creationStrategySteering:
+        input.creationStrategySteering ?? prev?.creationStrategySteering ?? null,
       websiteUrl: input.websiteUrl ?? prev?.websiteUrl ?? null,
       blogUrl: input.blogUrl ?? prev?.blogUrl ?? null,
       contentLanguage: input.contentLanguage ?? prev?.contentLanguage ?? "en",

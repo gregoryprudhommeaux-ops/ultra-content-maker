@@ -13,6 +13,7 @@ import type {
   CreationStrategyGuide,
   CreationStrategyTheme,
 } from "@/types/workspace";
+import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -49,10 +50,11 @@ export function CreationStrategyGuidePanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [perplexityHint, setPerplexityHint] = useState(false);
+  const [steering, setSteering] = useState("");
   const fetchedRef = useRef(false);
 
   const runAnalysis = useCallback(
-    async (forceRefresh = false) => {
+    async (forceRefresh = false, steeringOverride?: string) => {
       if (!user || !activityUrl?.trim() || !personaText.trim()) return;
 
       setLoading(true);
@@ -73,6 +75,8 @@ export function CreationStrategyGuidePanel({
           return;
         }
 
+        const steeringText = (steeringOverride ?? steering).trim().slice(0, 1500);
+
         const res = await fetch("/api/linkedin/creation-strategy", {
           method: "POST",
           headers: {
@@ -88,6 +92,7 @@ export function CreationStrategyGuidePanel({
             audienceFocus:
               audience?.newsInterestQuery?.trim() ||
               audience?.contentFocus?.trim(),
+            userSteering: steeringText || undefined,
             forceRefresh,
             cached: forceRefresh ? null : author?.creationStrategyCache ?? null,
             llm: {
@@ -138,15 +143,19 @@ export function CreationStrategyGuidePanel({
             activityUrl,
             analyzedAt: new Date().toISOString(),
             guide: data.guide,
+            steering: steeringText || undefined,
           } as const);
-        await saveAuthorProfile(user.uid, { creationStrategyCache: cachePayload });
+        await saveAuthorProfile(user.uid, {
+          creationStrategyCache: cachePayload,
+          creationStrategySteering: steeringText || undefined,
+        });
       } catch {
         setError(t("failed"));
       } finally {
         setLoading(false);
       }
     },
-    [activityUrl, locale, onRecommendMode, personaText, t, user],
+    [activityUrl, locale, onRecommendMode, personaText, steering, t, user],
   );
 
   useEffect(() => {
@@ -155,6 +164,7 @@ export function CreationStrategyGuidePanel({
       const author = await getAuthorProfile(user.uid);
       const url = author?.linkedinActivityUrl?.trim();
       setActivityUrl(url ?? null);
+      setSteering(author?.creationStrategySteering ?? "");
 
       const cache = author?.creationStrategyCache;
       if (
@@ -283,17 +293,31 @@ export function CreationStrategyGuidePanel({
             </ul>
           </div>
 
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => {
-              fetchedRef.current = true;
-              void runAnalysis(true);
-            }}
-            className="text-xs font-semibold text-ns-secondary underline hover:text-ns-tertiary"
-          >
-            {t("refresh")}
-          </button>
+          <div className="rounded-xl border border-dashed border-ns-alternate/80 bg-white/80 p-4">
+            <label htmlFor="strategy-steering" className={LABEL_CLASS}>
+              {t("steeringLabel")}
+            </label>
+            <p className="mt-1 text-xs text-ns-secondary">{t("steeringHint")}</p>
+            <textarea
+              id="strategy-steering"
+              value={steering}
+              onChange={(e) => setSteering(e.target.value)}
+              placeholder={t("steeringPlaceholder")}
+              rows={3}
+              className={`${INPUT_CLASS} mt-2 resize-y`}
+            />
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => {
+                fetchedRef.current = true;
+                void runAnalysis(true);
+              }}
+              className="mt-3 rounded-lg border border-ns-alternate bg-ns-brand-light px-4 py-2 text-sm font-semibold text-ns-tertiary hover:border-ns-primary/50 disabled:opacity-50"
+            >
+              {loading ? t("analyzing") : t("refresh")}
+            </button>
+          </div>
         </>
       )}
     </div>

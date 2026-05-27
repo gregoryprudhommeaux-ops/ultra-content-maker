@@ -25,6 +25,8 @@ export type AnalyzeCreationStrategyInput = {
     positioningLine?: string;
     audienceFocus?: string;
   };
+  /** Angle, keywords, or leads to steer theme generation */
+  userSteering?: string;
   /** Primary LLM for strategy synthesis */
   strategyLlm: LlmConfig;
   /** Must be Perplexity (or env Perplexity) for activity fetch */
@@ -83,6 +85,7 @@ export async function analyzeCreationStrategy(
         personaExcerpt: input.personaPromptText,
         authorContext: input.authorContext,
         posts,
+        userSteering: input.userSteering,
       }),
     },
   ]);

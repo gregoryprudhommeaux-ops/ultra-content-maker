@@ -101,7 +101,7 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
             <div className="mb-4 flex flex-wrap items-center justify-center gap-3 rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-center text-sm">
               <span className="font-medium text-white/80">{tMarketing("signedIn")}</span>
               <Link
-                href="/articles"
+                href="/articles/new"
                 className="font-semibold text-ns-primary underline-offset-2 hover:underline"
               >
                 {tMarketing("backToApp")}

@@ -18,6 +18,8 @@ type Body = {
   roleTitle?: string;
   positioningLine?: string;
   audienceFocus?: string;
+  /** Angle, keywords, or leads to reorganize recommendations */
+  userSteering?: string;
   forceRefresh?: boolean;
   cached?: CreationStrategyCache | null;
   llm?: {
@@ -53,12 +55,15 @@ export async function POST(request: Request) {
 
   const contentLanguage = (body.contentLanguage || "fr") as ContentLanguage;
   const activityUrl = body.linkedinActivityUrl.trim();
+  const steering = body.userSteering?.trim().slice(0, 1500) ?? "";
 
+  const cachedSteering = body.cached?.steering?.trim() ?? "";
   if (
     !body.forceRefresh &&
     body.cached?.activityUrl === activityUrl &&
     body.cached.guide &&
-    body.cached.analyzedAt
+    body.cached.analyzedAt &&
+    steering === cachedSteering
   ) {
     const age = Date.now() - new Date(body.cached.analyzedAt).getTime();
     if (age >= 0 && age < CACHE_MAX_AGE_MS) {
@@ -104,6 +109,7 @@ export async function POST(request: Request) {
         positioningLine: body.positioningLine,
         audienceFocus: body.audienceFocus,
       },
+      userSteering: steering || undefined,
       strategyLlm: primary,
       fetchLlm: perplexity,
     });
@@ -117,6 +123,7 @@ export async function POST(request: Request) {
         activityUrl,
         analyzedAt,
         guide,
+        steering: steering || undefined,
       } satisfies CreationStrategyCache,
     });
   } catch (e) {

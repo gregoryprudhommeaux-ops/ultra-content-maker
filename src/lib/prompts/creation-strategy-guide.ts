@@ -52,7 +52,8 @@ Rules:
 - recommendedMode must match the strongest immediate recommendation.
 - suggestedMode per theme can differ (e.g. one news theme, three profile themes).
 - Be specific to THIS author — no generic "leadership tips".
-- If few or no posts were found, recommend profile mode and themes that establish positioning from Persona.`;
+- If few or no posts were found, recommend profile mode and themes that establish positioning from Persona.
+- When userSteering is provided, treat it as the author's explicit priority: reshape all 4 themes and mode recommendation around that angle, keywords, or leads — while staying coherent with Persona and post history (or justify a deliberate pivot).`;
 }
 
 export function buildCreationStrategyGuideUserPrompt(input: {
@@ -65,12 +66,15 @@ export function buildCreationStrategyGuideUserPrompt(input: {
     audienceFocus?: string;
   };
   posts: LinkedInActivityPostLlm[];
+  userSteering?: string;
 }): string {
+  const steering = input.userSteering?.trim().slice(0, 1500);
   return JSON.stringify(
     {
       activityUrl: input.activityUrl,
       personaExcerpt: input.personaExcerpt.slice(0, 6000),
       author: input.authorContext ?? null,
+      userSteering: steering || null,
       recentPosts: input.posts,
     },
     null,
