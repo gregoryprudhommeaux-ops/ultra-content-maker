@@ -34,6 +34,13 @@ Return JSON only:
 }`;
 }
 
-export function buildNewsSuggestionsUserPrompt(profileContextJson: string): string {
-  return `User profile and positioning:\n${profileContextJson}\n\nFind 4 recent news items for LinkedIn post inspiration.`;
+export function buildNewsSuggestionsUserPrompt(
+  profileContextJson: string,
+  newsInterestQuery?: string,
+): string {
+  const interest = newsInterestQuery?.trim();
+  const interestBlock = interest
+    ? `\n\nPriority news topics (user-specified — weight these heavily):\n${interest}`
+    : "";
+  return `User profile and positioning:\n${profileContextJson}${interestBlock}\n\nFind 4 recent news items for LinkedIn post inspiration.`;
 }

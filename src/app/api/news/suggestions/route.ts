@@ -19,6 +19,9 @@ type Body = {
   audience?: Record<string, unknown> | null;
   profileEnrichment?: Record<string, unknown>;
   personaExcerpt?: string;
+  /** @deprecated use personaExcerpt — kept for older clients */
+  personaPromptText?: string;
+  newsInterestQuery?: string;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -54,11 +57,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
+  const personaExcerpt =
+    body.personaExcerpt?.trim() || body.personaPromptText?.trim() || "";
+  const newsInterestQuery =
+    body.newsInterestQuery?.trim() ||
+    (typeof body.audience?.newsInterestQuery === "string"
+      ? body.audience.newsInterestQuery.trim()
+      : "");
+
   const profileContext = buildNewsProfileContext({
     author: body.author ?? null,
     audience: body.audience ?? null,
     profileEnrichment: body.profileEnrichment,
-    personaExcerpt: body.personaExcerpt,
+    personaExcerpt,
+    newsInterestQuery,
   });
 
   try {
@@ -69,18 +81,27 @@ export async function POST(request: Request) {
       },
       {
         role: "user",
-        content: buildNewsSuggestionsUserPrompt(profileContext),
+        content: buildNewsSuggestionsUserPrompt(profileContext, newsInterestQuery),
       },
     ]);
 
     const parsed = parseLlmJson<{ news?: unknown }>(raw);
-    const news = normalizeNewsSuggestions(parsed);
+    const { news, rawCount, rejectedByAge, rejectedIncomplete } =
+      normalizeNewsSuggestions(parsed);
 
     if (news.length === 0) {
+      const error =
+        rawCount === 0
+          ? "no_llm_results"
+          : rejectedByAge > 0 && rejectedIncomplete === 0
+            ? "all_filtered_by_date"
+            : "no_recent_news";
+
       return NextResponse.json(
         {
-          error: "no_recent_news",
+          error,
           perplexityRecommended: llm.provider !== "perplexity",
+          stats: { rawCount, rejectedByAge, rejectedIncomplete },
         },
         { status: 502 },
       );

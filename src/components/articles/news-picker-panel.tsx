@@ -1,5 +1,6 @@
 "use client";
 
+import { NewsEmptyRefinePanel } from "@/components/articles/news-empty-refine-panel";
 import { NewsCard } from "@/components/news/news-card";
 import { BTN_PRIMARY_SM } from "@/lib/ui/nextstep";
 import { Link } from "@/i18n/navigation";
@@ -14,6 +15,11 @@ type Props = {
   loading: boolean;
   onRefresh: () => void;
   perplexityHint?: boolean;
+  newsError?: string | null;
+  newsErrorCode?: string | null;
+  newsInterestQuery?: string;
+  onNewsInterestChange?: (value: string) => void;
+  onRefineSearch?: () => void;
   onGenerateBatch?: () => void;
   generatingBatch?: boolean;
   detailItem?: NewsSuggestion | null;
@@ -27,6 +33,11 @@ export function NewsPickerPanel({
   loading,
   onRefresh,
   perplexityHint,
+  newsError,
+  newsErrorCode,
+  newsInterestQuery = "",
+  onNewsInterestChange,
+  onRefineSearch,
   onGenerateBatch,
   generatingBatch = false,
   detailItem: detailItemProp,
@@ -67,7 +78,19 @@ export function NewsPickerPanel({
         <p className="text-sm text-ns-secondary">{t("loading")}</p>
       )}
 
-      {!loading && news.length === 0 && (
+      {!loading && news.length === 0 && onNewsInterestChange && onRefineSearch && (
+        <NewsEmptyRefinePanel
+          newsInterestQuery={newsInterestQuery}
+          onNewsInterestChange={onNewsInterestChange}
+          onSearch={onRefineSearch}
+          searching={loading}
+          errorMessage={newsError}
+          errorCode={newsErrorCode}
+          perplexityHint={perplexityHint}
+        />
+      )}
+
+      {!loading && news.length === 0 && !onRefineSearch && (
         <p className="text-sm text-ns-secondary">{t("empty")}</p>
       )}
 

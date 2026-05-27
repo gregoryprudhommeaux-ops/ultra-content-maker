@@ -32,6 +32,7 @@ import {
   isWizardBriefComplete,
   type WizardCreationMode,
 } from "@/lib/prompts/post-brief";
+import { getAudienceProfile, saveAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import {
@@ -98,6 +99,8 @@ export function ArticleCreationWizard() {
   const [newsDetailItem, setNewsDetailItem] = useState<NewsSuggestion | null>(null);
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsHintPerplexity, setNewsHintPerplexity] = useState(false);
+  const [newsInterestQuery, setNewsInterestQuery] = useState("");
+  const [newsErrorCode, setNewsErrorCode] = useState<string | null>(null);
 
   const [inspirationCtx, setInspirationCtx] = useState<WizardInspirationContext | null>(
     null,
@@ -145,13 +148,19 @@ export function ArticleCreationWizard() {
   useEffect(() => {
     if (!user) return;
     void (async () => {
-      const [persona, learning] = await Promise.all([
+      const [persona, learning, audience] = await Promise.all([
         getPersona(user.uid),
         getLearningProfile(user.uid),
+        getAudienceProfile(user.uid),
       ]);
       setPersonaOk(!!persona?.validatedAt && !!persona.promptText?.trim());
       setPersonaText(persona?.promptText ?? "");
       setEmojiLevel(learning?.emojiLevel ?? "light");
+      setNewsInterestQuery(
+        audience?.newsInterestQuery?.trim() ||
+          audience?.contentFocus?.trim() ||
+          "",
+      );
       setLoaded(true);
     })();
   }, [user]);
@@ -229,54 +238,93 @@ export function ArticleCreationWizard() {
     }
   }
 
-  const loadNews = useCallback(async () => {
-    if (!user || !personaText) return;
-    setNewsLoading(true);
-    setError(null);
-    try {
-      const auth = getClientAuth();
-      const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const llmProfile = await getUserLlmProfile(user.uid);
-      if (!token || !llmProfile?.apiKey) {
-        setError(tArticles("noLlmKey"));
-        return;
+  const mapNewsLoadError = useCallback(
+    (code: string | undefined) => {
+      switch (code) {
+        case "all_filtered_by_date":
+          return tNews("noResultsFiltered");
+        case "no_llm_results":
+          return tNews("noResultsEmpty");
+        case "no_recent_news":
+          return tNews("noResults");
+        case "llm_request_failed":
+          return tNews("loadFailed");
+        default:
+          return tNews("noResultsGeneric");
       }
-      const author = await getAuthorProfile(user.uid);
-      const res = await fetch("/api/news/suggestions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          personaPromptText: personaText,
-          contentLanguage: author?.contentLanguage ?? locale,
-          llm: {
-            provider: llmProfile.provider,
-            apiKey: llmProfile.apiKey,
-            model: llmProfile.model,
+    },
+    [tNews],
+  );
+
+  const loadNews = useCallback(
+    async (options?: { persistInterest?: boolean }) => {
+      if (!user || !personaText) return;
+      setNewsLoading(true);
+      setError(null);
+      setNewsErrorCode(null);
+      try {
+        const auth = getClientAuth();
+        const token = auth ? await auth.currentUser?.getIdToken() : null;
+        const llmProfile = await getUserLlmProfile(user.uid);
+        if (!token || !llmProfile?.apiKey) {
+          setError(tArticles("noLlmKey"));
+          return;
+        }
+        const [author, audience, enrichment] = await Promise.all([
+          getAuthorProfile(user.uid),
+          getAudienceProfile(user.uid),
+          getProfileEnrichment(user.uid),
+        ]);
+        const interest = newsInterestQuery.trim();
+        if (options?.persistInterest && interest) {
+          await saveAudienceProfile(user.uid, { newsInterestQuery: interest });
+        }
+
+        const res = await fetch("/api/news/suggestions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(
-          data.error === "no_recent_news" ? tNews("noResults") : tNews("loadFailed"),
-        );
-        setNewsItems([]);
-        return;
+          body: JSON.stringify({
+            personaExcerpt: personaText,
+            contentLanguage: author?.contentLanguage ?? locale,
+            author: author ?? undefined,
+            audience: audience ?? undefined,
+            newsInterestQuery: interest || undefined,
+            profileEnrichment: enrichment?.details ?? {},
+            llm: {
+              provider: llmProfile.provider,
+              apiKey: llmProfile.apiKey,
+              model: llmProfile.model,
+            },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const code = typeof data.error === "string" ? data.error : "no_recent_news";
+          setNewsErrorCode(code);
+          setError(mapNewsLoadError(code));
+          setNewsItems([]);
+          setNewsHintPerplexity(!!data.perplexityRecommended);
+          return;
+        }
+        setNewsItems(data.news ?? []);
+        setNewsHintPerplexity(!!data.perplexityRecommended);
+        setError(null);
+        setNewsErrorCode(null);
+        if (data.news?.length) {
+          await upsertNewsArchiveBatch(user.uid, data.news);
+        }
+      } catch {
+        setNewsErrorCode("llm_request_failed");
+        setError(tNews("loadFailed"));
+      } finally {
+        setNewsLoading(false);
       }
-      setNewsItems(data.news ?? []);
-      setNewsHintPerplexity(!!data.perplexityRecommended);
-      if (data.news?.length) {
-        await upsertNewsArchiveBatch(user.uid, data.news);
-      }
-    } catch {
-      setError(tNews("loadFailed"));
-    } finally {
-      setNewsLoading(false);
-    }
-  }, [user, personaText, locale, tArticles, tNews]);
+    },
+    [user, personaText, locale, newsInterestQuery, tArticles, tNews, mapNewsLoadError],
+  );
 
   const suggestBrief = useCallback(async () => {
     if (!user || !mode || mode === "profile") return;
@@ -709,8 +757,13 @@ export function ArticleCreationWizard() {
             selectedId={selectedNews?.id ?? null}
             onSelect={setSelectedNews}
             loading={newsLoading}
-            onRefresh={loadNews}
+            onRefresh={() => void loadNews()}
             perplexityHint={newsHintPerplexity}
+            newsError={error}
+            newsErrorCode={newsErrorCode}
+            newsInterestQuery={newsInterestQuery}
+            onNewsInterestChange={setNewsInterestQuery}
+            onRefineSearch={() => void loadNews({ persistInterest: true })}
             detailItem={newsDetailItem}
             onDetailItemChange={setNewsDetailItem}
           />
@@ -941,7 +994,7 @@ export function ArticleCreationWizard() {
         onClose={() => setNewsDetailItem(null)}
       />
 
-      {error && (
+      {error && !(step === "news" && newsItems.length === 0) && (
         <p className="text-sm text-red-600" role="alert">
           {error}
         </p>

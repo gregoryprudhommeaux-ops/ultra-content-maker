@@ -62,6 +62,8 @@ export interface AuthorProfile {
 export interface AudienceProfile {
   targetLabel?: string;
   contentFocus?: string;
+  /** Optional keywords / topics to steer news scan (wizard + API). */
+  newsInterestQuery?: string;
   optionalNotes?: string;
   skipped?: boolean;
   updatedAt: Date;

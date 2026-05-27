@@ -103,6 +103,7 @@ Simple target sketch — all optional.
 |-------|------|----------|-------|
 | targetLabel | string | no | General type, e.g. "French SMBs expanding abroad" |
 | contentFocus | string | no | What to highlight (themes, angles)—not service catalog |
+| newsInterestQuery | string | no | Keywords / topics for news scan (creation wizard) |
 | optionalNotes | string | no | Free text |
 | skipped | boolean | no | `true` if user skipped step |
 | updatedAt | timestamp | yes | |
