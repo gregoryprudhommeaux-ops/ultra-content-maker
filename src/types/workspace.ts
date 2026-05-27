@@ -244,6 +244,23 @@ export interface ArticleRepurpose {
   videoScript?: VideoScriptRepurpose;
 }
 
+export type ArticleTranslationMode = "literal" | "localized";
+
+export interface ArticleTranslationVariant {
+  mode: ArticleTranslationMode;
+  hook: string;
+  body: string;
+  ps?: string;
+  exportText?: string;
+  hashtags?: string[];
+  generatedAt: string;
+}
+
+/** Alternate-language versions of a validated post (key = target ContentLanguage). */
+export type ArticleTranslations = Partial<
+  Record<ContentLanguage, ArticleTranslationVariant>
+>;
+
 /** Post-publication signals (manual entry, Phase 3). */
 export interface ArticlePerformanceSignals {
   saves?: number;
@@ -381,6 +398,7 @@ export interface ArticleDoc {
   scheduledPublishAt?: Date;
   performanceSignals?: ArticlePerformanceSignals;
   slopAnalysis?: SlopAnalysis;
+  translations?: ArticleTranslations;
   createdAt: Date;
   updatedAt: Date;
   validatedAt?: Date;

@@ -17,5 +17,5 @@ export async function resolveLandingPath(userId: string): Promise<string> {
     return "/setup/author";
   }
 
-  return "/articles?pending=1";
+  return "/articles/new";
 }

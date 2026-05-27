@@ -16,6 +16,8 @@ import type {
   ArticleQualityScores,
   ArticleRefinement,
   ArticleRepurpose,
+  ArticleTranslations,
+  ArticleTranslationVariant,
   ArticleScope,
   ArticleStatus,
   ContentLanguage,
@@ -107,6 +109,9 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
       ? (d.performanceSignals as ArticlePerformanceSignals)
       : undefined,
     slopAnalysis: d.slopAnalysis ? (d.slopAnalysis as SlopAnalysis) : undefined,
+    translations: d.translations
+      ? (d.translations as ArticleTranslations)
+      : undefined,
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),
     validatedAt: d.validatedAt ? toDate(d.validatedAt) : undefined,
@@ -125,6 +130,21 @@ export async function listValidatedArticles(userId: string): Promise<ArticleDoc[
     .flatMap((b) => b.articles)
     .filter((a) => a.status === "validated")
     .sort((a, b) => (b.validatedAt?.getTime() ?? 0) - (a.validatedAt?.getTime() ?? 0));
+}
+
+export const RECENT_ARTICLES_MAX = 20;
+export const RECENT_ARTICLES_PREVIEW = 4;
+
+/** Most recently updated articles across all batches (for creation hub). */
+export async function listRecentArticles(
+  userId: string,
+  limit = RECENT_ARTICLES_MAX,
+): Promise<ArticleDoc[]> {
+  const batches = await listArticleBatches(userId);
+  return batches
+    .flatMap((b) => b.articles)
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+    .slice(0, limit);
 }
 
 export async function listArticleBatches(userId: string): Promise<ArticleBatchGroup[]> {
@@ -219,6 +239,26 @@ export async function saveArticleFormatPlan(
     },
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function saveArticleTranslation(
+  userId: string,
+  articleId: string,
+  targetLanguage: ContentLanguage,
+  variant: ArticleTranslationVariant,
+  existing?: ArticleTranslations,
+) {
+  const db = getClientFirestore();
+  if (!db) throw new Error("Firestore not available");
+  const translations: ArticleTranslations = {
+    ...(existing ?? {}),
+    [targetLanguage]: variant,
+  };
+  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+    translations,
+    updatedAt: serverTimestamp(),
+  });
+  return translations;
 }
 
 export async function saveArticleRepurpose(

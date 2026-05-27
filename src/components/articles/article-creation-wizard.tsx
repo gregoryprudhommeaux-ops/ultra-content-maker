@@ -16,6 +16,7 @@ import {
   toArticleInspirationSource,
   type WizardInspirationContext,
 } from "@/lib/inspiration/wizard-context";
+import { joinLinkedInPostParts } from "@/lib/linkedin/fit-linkedin-post";
 import { listSourcesByCategory } from "@/lib/workspace/sources";
 import { NewsDetailModal } from "@/components/news/news-detail-modal";
 import { NewsPickerPanel } from "@/components/articles/news-picker-panel";
@@ -55,6 +56,7 @@ import { getClientAuth } from "@/lib/firebase/client";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type {
+  ArticleDoc,
   ArticleScope,
   BriefNicheCheck,
   ContentLanguage,
@@ -120,6 +122,7 @@ export function ArticleCreationWizard() {
   const [draftArticleId, setDraftArticleId] = useState<string | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [draftRevision, setDraftRevision] = useState(0);
+  const [reworkSourceId, setReworkSourceId] = useState<string | null>(null);
   const [nicheCheck, setNicheCheck] = useState<BriefNicheCheck | null>(null);
   const [nicheLoading, setNicheLoading] = useState(false);
 
@@ -590,6 +593,29 @@ export function ArticleCreationWizard() {
     });
   }
 
+  function reworkFromArticle(article: ArticleDoc) {
+    setReworkSourceId(article.id);
+    const excerpt = joinLinkedInPostParts({
+      hook: article.hook,
+      body: article.body,
+      ps: article.ps,
+    });
+    setInspirationCtx({
+      kind: "paste",
+      excerpt,
+    });
+    const briefSeed = article.postBrief
+      ? { ...article.postBrief }
+      : {
+          problem: article.hook.slice(0, 200),
+          pointOfView: "",
+          proof: "",
+        };
+    pickMode("inspiration", briefSeed);
+    setStep("brief");
+    briefSuggestedRef.current = true;
+  }
+
   function pickInspirationInput(kind: InspirationInputKind) {
     setInspirationCtx({ kind, excerpt: "" });
     setError(null);
@@ -736,6 +762,8 @@ export function ArticleCreationWizard() {
           personaText={personaText}
           onSelect={pickMode}
           onApplyTheme={applyStrategyTheme}
+          onReworkArticle={reworkFromArticle}
+          reworkArticleId={reworkSourceId}
         />
       )}
 

@@ -183,6 +183,7 @@
   },
   "nav": {
     "content": "Contenu",
+    "postCreation": "Création des posts",
     "profile": "Mon profil",
     "setup": "Mon profil",
     "persona": "Persona",
@@ -612,6 +613,22 @@
             }
           }
         },
+        "recentPosts": {
+          "title": "Retravailler un post existant",
+          "subtitle": "Choisissez un post déjà généré pour en créer une nouvelle version avec un angle distinct.",
+          "allPostsLink": "Tous mes posts →",
+          "seeMore": "Voir plus ({count} posts)",
+          "seeLess": "Voir moins",
+          "maxHint": "Affichage limité aux {max} posts les plus récents.",
+          "reworkCta": "Retravailler ce post →",
+          "selected": "Sélectionné — brief prérempli",
+          "untitled": "Sans titre",
+          "status": {
+            "draft": "Brouillon",
+            "refining": "En relecture",
+            "validated": "Validé"
+          }
+        },
         "modes": {
           "profile": {
             "title": "Depuis mon profil",
@@ -813,6 +830,24 @@
         "calendarEventTitle": "LinkedIn — publier + 1er commentaire · {hook}",
         "calendarEventIntro": "À faire dès que le post est en ligne sur LinkedIn : publier le post (texte déjà validé dans Ultra Content Maker), puis coller immédiatement ce 1er commentaire sous le post.",
         "calendarPostExcerptLabel": "Rappel — extrait du post :"
+      },
+      "translate": {
+        "title": "Traductions",
+        "subtitle": "Produisez des versions dans les autres langues — respect du format LinkedIn (longueur, sauts de ligne).",
+        "literal": "Traduction fidèle",
+        "localized": "Réinterprétation localisée",
+        "literalHint": "Traduction textuelle : même structure et sens, adaptée à la limite de caractères LinkedIn.",
+        "localizedHint": "Réécriture pour l’audience cible (ex. références françaises → exemples US ou Mexique selon la langue).",
+        "languages": {
+          "fr": "Français",
+          "en": "Anglais",
+          "es": "Espagnol (Mexique)"
+        },
+        "copy": "Copier la version",
+        "copied": "Copié",
+        "noLlm": "Configurez votre clé API dans Réglages.",
+        "noPersona": "Validez votre Persona avant de traduire.",
+        "failed": "Traduction impossible. Réessayez."
       },
       "slop": {
         "title": "Formulations génériques (style IA / LinkedIn)",

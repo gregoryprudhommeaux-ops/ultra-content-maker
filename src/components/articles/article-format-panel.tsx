@@ -19,6 +19,7 @@ import {
   saveArticleScheduledPublishAt,
   saveSuggestedFirstComment,
 } from "@/lib/workspace/articles";
+import { ArticleTranslationPanel } from "@/components/articles/article-translation-panel";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -486,6 +487,8 @@ export function ArticleFormatPanel({
           )}
         </div>
       </div>
+
+      <ArticleTranslationPanel article={article} onUpdated={onUpdated} />
     </section>
   );
 }

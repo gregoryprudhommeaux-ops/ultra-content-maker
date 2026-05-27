@@ -11,7 +11,11 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 
 const NAV = [
-  { href: "/articles", labelKey: "content" as const, match: ["/articles"] },
+  {
+    href: "/articles/new",
+    labelKey: "postCreation" as const,
+    match: ["/articles"],
+  },
   {
     href: "/setup/author",
     labelKey: "profile" as const,

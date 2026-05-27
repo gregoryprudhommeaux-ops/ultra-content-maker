@@ -1,9 +1,10 @@
 "use client";
 
 import { CreationStrategyGuidePanel } from "@/components/articles/creation/creation-strategy-guide";
+import { RecentPostsSection } from "@/components/articles/creation/recent-posts-section";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
-import type { CreationStrategyTheme } from "@/types/workspace";
+import type { ArticleDoc, CreationStrategyTheme } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -123,9 +124,17 @@ type Props = {
   personaText: string;
   onSelect: (mode: ModeId) => void;
   onApplyTheme?: (theme: CreationStrategyTheme, mode: ModeId) => void;
+  onReworkArticle?: (article: ArticleDoc) => void;
+  reworkArticleId?: string | null;
 };
 
-export function CreationModePicker({ personaText, onSelect, onApplyTheme }: Props) {
+export function CreationModePicker({
+  personaText,
+  onSelect,
+  onApplyTheme,
+  onReworkArticle,
+  reworkArticleId,
+}: Props) {
   const t = useTranslations("setup.articles.create.modePicker");
   const [guideHighlight, setGuideHighlight] = useState<ModeId | null>(null);
 
@@ -239,6 +248,13 @@ export function CreationModePicker({ personaText, onSelect, onApplyTheme }: Prop
           ))}
         </div>
       </div>
+
+      {onReworkArticle && (
+        <RecentPostsSection
+          onRework={onReworkArticle}
+          reworkArticleId={reworkArticleId}
+        />
+      )}
     </div>
   );
 }

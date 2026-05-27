@@ -183,6 +183,7 @@
   },
   "nav": {
     "content": "Contenido",
+    "postCreation": "Creación de posts",
     "profile": "Mi perfil",
     "setup": "Mi perfil",
     "persona": "Persona",
@@ -612,6 +613,22 @@
             }
           }
         },
+        "recentPosts": {
+          "title": "Retrabajar un post existente",
+          "subtitle": "Elige un post ya generado para crear una nueva versión con un ángulo distinto.",
+          "allPostsLink": "Todos mis posts →",
+          "seeMore": "Ver más ({count} posts)",
+          "seeLess": "Ver menos",
+          "maxHint": "Mostrando hasta los {max} posts más recientes.",
+          "reworkCta": "Retrabajar este post →",
+          "selected": "Seleccionado — brief prellenado",
+          "untitled": "Sin título",
+          "status": {
+            "draft": "Borrador",
+            "refining": "En revisión",
+            "validated": "Validado"
+          }
+        },
         "modes": {
           "profile": {
             "title": "Desde mi perfil",
@@ -813,6 +830,24 @@
         "calendarEventTitle": "LinkedIn — publicar + 1er comentario · {hook}",
         "calendarEventIntro": "En cuanto el post esté en línea en LinkedIn: publica el post (texto validado en Ultra Content Maker) y pega de inmediato este primer comentario bajo el post.",
         "calendarPostExcerptLabel": "Recordatorio — extracto del post:"
+      },
+      "translate": {
+        "title": "Traducciones",
+        "subtitle": "Crea versiones en tus otros idiomas — respetando longitud y saltos de línea de LinkedIn.",
+        "literal": "Traducción fiel",
+        "localized": "Reinterpretación localizada",
+        "literalHint": "Traducción cercana: misma estructura y sentido, ajustada al límite de caracteres de LinkedIn.",
+        "localizedHint": "Reescritura para la audiencia objetivo (ej. referencias francesas → ejemplos relevantes en EE. UU. o México).",
+        "languages": {
+          "fr": "Francés",
+          "en": "Inglés",
+          "es": "Español (México)"
+        },
+        "copy": "Copiar versión",
+        "copied": "Copiado",
+        "noLlm": "Configura tu clave API en Ajustes.",
+        "noPersona": "Valida tu Persona antes de traducir.",
+        "failed": "No se pudo traducir. Inténtalo de nuevo."
       },
       "slop": {
         "title": "Frases genéricas (estilo IA / LinkedIn)",

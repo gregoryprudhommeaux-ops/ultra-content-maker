@@ -183,6 +183,7 @@
   },
   "nav": {
     "content": "Content",
+    "postCreation": "Post creation",
     "profile": "My profile",
     "setup": "My profile",
     "persona": "Persona",
@@ -612,6 +613,22 @@
             }
           }
         },
+        "recentPosts": {
+          "title": "Rework an existing post",
+          "subtitle": "Pick a post you already generated to create a new version with a distinct angle.",
+          "allPostsLink": "All my posts →",
+          "seeMore": "See more ({count} posts)",
+          "seeLess": "See less",
+          "maxHint": "Showing up to the {max} most recent posts.",
+          "reworkCta": "Rework this post →",
+          "selected": "Selected — brief prefilled",
+          "untitled": "Untitled",
+          "status": {
+            "draft": "Draft",
+            "refining": "In review",
+            "validated": "Validated"
+          }
+        },
         "modes": {
           "profile": {
             "title": "From my profile",
@@ -813,6 +830,24 @@
         "calendarEventTitle": "LinkedIn — publish + first comment · {hook}",
         "calendarEventIntro": "As soon as the post is live on LinkedIn: publish the post (validated text in Ultra Content Maker), then paste this first comment under the post immediately.",
         "calendarPostExcerptLabel": "Reminder — post excerpt:"
+      },
+      "translate": {
+        "title": "Translations",
+        "subtitle": "Create versions in your other languages — LinkedIn length and line breaks respected.",
+        "literal": "Faithful translation",
+        "localized": "Localized rewrite",
+        "literalHint": "Close translation: same structure and meaning, fitted to LinkedIn character limits.",
+        "localizedHint": "Rewritten for the target audience (e.g. French company examples → US or Mexico-relevant references).",
+        "languages": {
+          "fr": "French",
+          "en": "English",
+          "es": "Spanish (Mexico)"
+        },
+        "copy": "Copy version",
+        "copied": "Copied",
+        "noLlm": "Add your API key in Settings.",
+        "noPersona": "Validate your Persona before translating.",
+        "failed": "Translation failed. Try again."
       },
       "slop": {
         "title": "Generic phrasing (AI / LinkedIn style)",
