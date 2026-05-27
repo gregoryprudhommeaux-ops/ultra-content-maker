@@ -532,14 +532,60 @@
           "generalist": "Generalista",
           "niche": "Nicho"
         },
+        "modePicker": {
+          "heroEyebrow": "Asistente de creación",
+          "heroTitle": "Tu próximo post de LinkedIn, en minutos",
+          "heroSubtitle": "Tres recorridos según tu situación: publicar desde tu Persona, reaccionar a la actualidad o adaptar un contenido existente — siempre con tu voz y controles de calidad.",
+          "heroPill1": "Persona y brief",
+          "heroPill2": "Quality Panel",
+          "heroPill3": "Listo para LinkedIn",
+          "recommended": "Recomendado",
+          "start": "Empezar",
+          "guide": {
+            "title": "¿No sabes por dónde empezar?",
+            "subtitle": "Elige la intención que te encaje — resaltamos el recorrido adecuado.",
+            "regular": "Quiero publicar desde mi experiencia",
+            "news": "Quiero reaccionar a la actualidad",
+            "repurpose": "Quiero adaptar un contenido existente",
+            "hint": {
+              "profile": "→ Recorrido recomendado: 1 borrador alineado con tu Persona y tu brief.",
+              "news": "→ Recorrido actualidad: escaneo de 4 noticias y 1 post con tu ángulo.",
+              "inspiration": "→ Recorrido inspiración: 1 borrador con ángulo distinto (sin copiar la fuente)."
+            }
+          },
+          "modes": {
+            "profile": {
+              "title": "Desde mi perfil",
+              "desc": "El corazón del producto: un borrador alineado con tu Persona y un brief completo — afina y valida.",
+              "badge": "1 borrador",
+              "outputs": [
+                "Persona + Topic DNA",
+                "Brief objetivo / prueba",
+                "Hooks y Quality Panel"
+              ]
+            },
+            "news": {
+              "title": "Desde la actualidad",
+              "desc": "Escaneo de 4 noticias recientes, eliges una y obtienes 1 post con tu voz — fuente en el primer comentario.",
+              "badge": "Noticias < 7 días",
+              "outputs": ["Escaneo web dirigido", "1 post reactivo", "Cita de fuente"]
+            },
+            "inspiration": {
+              "title": "Desde contenido existente",
+              "desc": "Pega, enlace + extracto o inspiración guardada — 1 borrador reescrito con ángulo distinto.",
+              "badge": "1 borrador enfocado",
+              "outputs": ["Pegar · URL · Biblioteca", "Ángulo anti-plagio", "Regenerar ángulo"]
+            }
+          }
+        },
         "modes": {
           "profile": {
             "title": "Desde mi perfil",
-            "desc": "4 borradores (2 generalistas + 2 nicho) desde tu Persona y un brief completo."
+            "desc": "1 borrador desde tu Persona y un brief completo."
           },
           "news": {
             "title": "Desde la actualidad",
-            "desc": "Escaneo de 4 noticias recientes, eliges una y obtienes 4 posts con tu voz."
+            "desc": "Escaneo de 4 noticias recientes, eliges una y obtienes 1 post con tu voz."
           },
           "inspiration": {
             "title": "Desde contenido existente",
@@ -602,15 +648,12 @@
         "pastePlaceholder": "Pega aquí el post o artículo fuente…",
         "pasteRequired": "Pega al menos unas líneas de referencia.",
         "continueToBrief": "Continuar al brief",
-        "generateFour": "Generar 4 borradores",
-        "generateOne": "Generar 1 borrador",
-        "batchDoneTitle": "4 borradores listos",
-        "batchDoneHint": "Abre cada post para afinar, elegir un CTA y validar.",
-        "openDraft": "Borrador {n}",
-        "inspirationDoneTitle": "Tu borrador",
-        "inspirationDoneHint": "Ábrelo para afinar y validar, o regenera otro ángulo (sustituye este borrador).",
-        "openArticle": "Abrir borrador",
-        "regenerateAngle": "Regenerar otro ángulo",
+        "generateDraft": "Generar borrador",
+        "draftDoneTitle": "Tu borrador",
+        "draftDoneHint": "Revisa título y texto, reorienta el ángulo si hace falta, elige un CTA y valida — como en el editor completo.",
+        "regenerateDraft": "Regenerar borrador",
+        "regeneratingDraft": "Regenerando…",
+        "regeneratingDraftHint": "Nuevo ángulo con el mismo brief — se sustituirá el texto actual.",
         "browseArchive": "Ver noticias archivadas",
         "selectedNewsLabel": "Noticia seleccionada",
         "pastedPreviewLabel": "Extracto de referencia",
@@ -627,7 +670,7 @@
       },
       "news": {
         "title": "Actualidad del momento",
-        "subtitle": "4 noticias de menos de 7 días, según tu dominio. Elige una y genera 4 borradores de LinkedIn anclados en esa noticia (con cita de la fuente).",
+        "subtitle": "4 noticias de menos de 7 días, según tu dominio. Elige una y genera un borrador de LinkedIn anclado en esa noticia (con cita de la fuente).",
         "refresh": "Actualizar",
         "loading": "Buscando noticias recientes…",
         "empty": "Sin noticias recientes. Afina tus temas abajo o reintenta.",
@@ -657,18 +700,18 @@
         "selectedBadge": "Noticia seleccionada",
         "selectedTitle": "Crear tus posts de LinkedIn a partir de esta noticia",
         "selectedNextStep": "Siguiente paso",
-        "selectedExplain": "La IA redactará 4 borradores de LinkedIn (2 generalistas + 2 nicho) que comentan esta noticia con tu voz y Persona — no un resumen neutro de prensa.",
+        "selectedExplain": "La IA redactará un borrador de LinkedIn que comenta esta noticia con tu voz y Persona — no un resumen neutro de prensa.",
         "citationNote": "Los posts citan la fuente por nombre, sin URL en el cuerpo (mejor alcance en LinkedIn). La URL completa se propondrá en el primer comentario bajo el post.",
         "changeNews": "Elegir otra noticia",
-        "generateFromNews": "Generar 4 posts de LinkedIn desde esta noticia",
-        "generatingFromNews": "Generando 4 borradores…",
-        "generateFromNewsHint": "2 generalistas + 2 nicho · enlace de la fuente en el primer comentario (no en el cuerpo).",
+        "generateFromNews": "Generar un post de LinkedIn desde esta noticia",
+        "generatingFromNews": "Generando borrador…",
+        "generateFromNewsHint": "1 borrador anclado en la noticia · enlace de la fuente en el primer comentario (no en el cuerpo).",
         "previousNews": "Noticias anteriores"
       },
       "briefIncomplete": "Completa el brief (objetivo, problema, punto de vista y prueba) antes de generar.",
       "brief": {
         "title": "Brief del lote",
-        "subtitle": "Orienta los borradores hacia tu objetivo en LinkedIn — cada post integrará problema, POV y prueba.",
+        "subtitle": "Orienta el borrador hacia tu objetivo en LinkedIn — el post integrará problema, POV y prueba.",
         "objective": "Objetivo del post",
         "objectives": {
           "credibility": "Credibilidad",
@@ -880,6 +923,8 @@
       },
       "detail": {
         "back": "Volver a posts",
+        "hookLabel": "Título / gancho",
+        "bodyLabel": "Texto del post",
         "notFound": "Post no encontrado.",
         "applyFeedback": "Aplicar feedback y regenerar",
         "reviseFailed": "Error al revisar. Inténtalo de nuevo.",

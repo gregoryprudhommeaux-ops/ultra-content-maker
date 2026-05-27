@@ -16,7 +16,7 @@ export function resolveWizardProgressStep(
 ): WizardStepId {
   if (step === "mode") return "mode";
   if (step === "generating") return "generating";
-  if (step === "batch-done" || step === "inspiration-done") return "result";
+  if (step === "draft-done") return "result";
   if (step === "brief") return "brief";
   if (
     step === "news" ||

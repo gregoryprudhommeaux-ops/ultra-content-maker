@@ -532,14 +532,60 @@
           "generalist": "Généraliste",
           "niche": "Niche"
         },
+        "modePicker": {
+          "heroEyebrow": "Assistant de création",
+          "heroTitle": "Votre prochain post LinkedIn, en quelques minutes",
+          "heroSubtitle": "Trois parcours selon votre situation : publier depuis votre Persona, réagir à l’actualité, ou décliner un contenu existant — toujours avec votre voix et des garde-fous qualité.",
+          "heroPill1": "Persona & brief",
+          "heroPill2": "Quality Panel",
+          "heroPill3": "Prêt à copier sur LinkedIn",
+          "recommended": "Recommandé",
+          "start": "Commencer",
+          "guide": {
+            "title": "Pas sûr par où commencer ?",
+            "subtitle": "Choisissez l’intention qui vous ressemble — nous mettons en avant le bon parcours.",
+            "regular": "Je veux publier depuis mon expertise",
+            "news": "Je veux réagir à l’actualité",
+            "repurpose": "Je veux décliner un contenu existant",
+            "hint": {
+              "profile": "→ Parcours recommandé : 1 brouillon aligné sur votre Persona et votre brief.",
+              "news": "→ Parcours actu : scan de 4 stories récentes, puis 1 post ancré sur votre angle.",
+              "inspiration": "→ Parcours inspiration : 1 brouillon avec un angle distinct (sans copier le source)."
+            }
+          },
+          "modes": {
+            "profile": {
+              "title": "Depuis mon profil",
+              "desc": "Le cœur du produit : un brouillon aligné sur votre Persona et un brief complet — à affiner puis valider.",
+              "badge": "1 brouillon",
+              "outputs": [
+                "Persona + Topic DNA",
+                "Brief objectif / preuve",
+                "Hooks & Quality Panel"
+              ]
+            },
+            "news": {
+              "title": "Depuis l’actualité",
+              "desc": "Scan de 4 actus récentes, choix d’une story, puis 1 post qui commente avec votre voix — source en 1er commentaire.",
+              "badge": "Actu < 7 jours",
+              "outputs": ["Scan web ciblé", "1 post réactif", "Citation source"]
+            },
+            "inspiration": {
+              "title": "Depuis un contenu existant",
+              "desc": "Collez, liez + extrait, ou choisissez une inspiration enregistrée — 1 brouillon réécrit avec un angle distinct.",
+              "badge": "1 brouillon ciblé",
+              "outputs": ["Coller · URL · Bibliothèque", "Angle anti-plagiat", "Regénérer l’angle"]
+            }
+          }
+        },
         "modes": {
           "profile": {
             "title": "Depuis mon profil",
-            "desc": "4 brouillons (2 généralistes + 2 niches) à partir de votre Persona et d’un brief complet."
+            "desc": "1 brouillon à partir de votre Persona et d’un brief complet."
           },
           "news": {
             "title": "Depuis l’actualité",
-            "desc": "Scan de 4 actus récentes, choix d’une story, puis 4 posts qui réagissent avec votre voix."
+            "desc": "Scan de 4 actus récentes, choix d’une story, puis 1 post qui réagit avec votre voix."
           },
           "inspiration": {
             "title": "Depuis un contenu existant",
@@ -602,15 +648,12 @@
         "pastePlaceholder": "Collez ici le post ou l’article source…",
         "pasteRequired": "Collez au moins quelques lignes de référence.",
         "continueToBrief": "Continuer vers le brief",
-        "generateFour": "Générer 4 brouillons",
-        "generateOne": "Générer 1 brouillon",
-        "batchDoneTitle": "4 brouillons prêts",
-        "batchDoneHint": "Ouvrez chaque post pour l’affiner, choisir un CTA et valider.",
-        "openDraft": "Brouillon {n}",
-        "inspirationDoneTitle": "Votre brouillon",
-        "inspirationDoneHint": "Ouvrez-le pour affiner et valider, ou regénérez un autre angle (le brouillon actuel sera remplacé).",
-        "openArticle": "Ouvrir le brouillon",
-        "regenerateAngle": "Regénérer un autre angle",
+        "generateDraft": "Générer le brouillon",
+        "draftDoneTitle": "Votre brouillon",
+        "draftDoneHint": "Relisez le titre et le texte, réorientez l’angle si besoin, choisissez un CTA puis validez — comme dans l’éditeur complet.",
+        "regenerateDraft": "Regénérer le brouillon",
+        "regeneratingDraft": "Regénération…",
+        "regeneratingDraftHint": "Nouvel angle à partir du même brief — le texte actuel sera remplacé.",
         "browseArchive": "Consulter les actus déjà archivées",
         "selectedNewsLabel": "Actu sélectionnée",
         "pastedPreviewLabel": "Extrait de référence",
@@ -627,7 +670,7 @@
       },
       "news": {
         "title": "Actualités du moment",
-        "subtitle": "4 articles de moins de 7 jours, choisis pour votre domaine. Sélectionnez-en une, puis générez 4 brouillons LinkedIn ancrés sur cette actu (avec citation de la source).",
+        "subtitle": "4 articles de moins de 7 jours, choisis pour votre domaine. Sélectionnez-en une, puis générez un brouillon LinkedIn ancré sur cette actu (avec citation de la source).",
         "refresh": "Actualiser",
         "loading": "Recherche d’actualités récentes…",
         "empty": "Aucune actualité récente trouvée. Affinez vos sujets ci-dessous ou réessayez.",
@@ -657,18 +700,18 @@
         "selectedBadge": "Actu sélectionnée",
         "selectedTitle": "Créer vos posts LinkedIn à partir de cette actualité",
         "selectedNextStep": "Prochaine étape",
-        "selectedExplain": "L’IA va rédiger 4 brouillons LinkedIn (2 généralistes + 2 niches) qui commentent cette actu avec votre voix et votre Persona — pas un simple résumé presse.",
+        "selectedExplain": "L’IA va rédiger un brouillon LinkedIn qui commente cette actu avec votre voix et votre Persona — pas un simple résumé presse.",
         "citationNote": "Les posts citent la source par son nom, sans URL dans le corps (meilleure portée LinkedIn). L’URL complète sera proposée dans le 1er commentaire sous le post.",
         "changeNews": "Choisir une autre actu",
-        "generateFromNews": "Générer 4 posts LinkedIn depuis cette actu",
-        "generatingFromNews": "Génération des 4 brouillons…",
-        "generateFromNewsHint": "2 posts généralistes + 2 posts niches · lien source dans le 1er commentaire (pas dans le corps).",
+        "generateFromNews": "Générer un post LinkedIn depuis cette actu",
+        "generatingFromNews": "Génération du brouillon…",
+        "generateFromNewsHint": "1 brouillon ancré sur l’actu · lien source dans le 1er commentaire (pas dans le corps).",
         "previousNews": "News précédentes"
       },
       "briefIncomplete": "Complétez le brief post (objectif, problème, point de vue et preuve) avant de générer.",
       "brief": {
         "title": "Brief du lot",
-        "subtitle": "Oriente les 4 brouillons vers votre objectif LinkedIn — chaque post intégrera problème, POV et preuve.",
+        "subtitle": "Oriente le brouillon vers votre objectif LinkedIn — le post intégrera problème, POV et preuve.",
         "objective": "Objectif du post",
         "objectives": {
           "credibility": "Crédibilité",
@@ -880,6 +923,8 @@
       },
       "detail": {
         "back": "Retour aux posts",
+        "hookLabel": "Titre / accroche",
+        "bodyLabel": "Texte du post",
         "notFound": "Post introuvable.",
         "applyFeedback": "Appliquer les retours et régénérer",
         "reviseFailed": "Échec de la révision. Réessayez.",

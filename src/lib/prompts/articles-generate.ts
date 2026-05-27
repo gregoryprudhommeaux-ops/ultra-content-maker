@@ -17,6 +17,15 @@ function scopeMixInstruction(count: ArticleGenerateCount): {
   userMix: { generalist: number; niche: number };
   userInstruction: string;
 } {
+  if (count === 1) {
+    return {
+      systemLines: `- Single post: choose the strongest angle from the Persona and brief (scope "generalist" OR "niche" — pick one and match the content).
+- Return exactly one article with the correct scope field.`,
+      userMix: { generalist: 0, niche: 0 },
+      userInstruction: "Generate exactly 1 post now with the best-fitting scope for the brief.",
+    };
+  }
+
   if (count === 2) {
     return {
       systemLines: `- Post 1: scope "generalist" — broad business/leadership angle, readable by any professional in the author's domain.
@@ -48,7 +57,11 @@ export function buildArticlesSystemPromptWithCount(
   const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
   const emoji = emojiInstruction(emojiLevel, contentLanguage);
   const mix =
-    count === 2 ? "1 generalist + 1 niche" : "2 generalist + 2 niche";
+    count === 1
+      ? "one post (generalist OR niche — best fit)"
+      : count === 2
+        ? "1 generalist + 1 niche"
+        : "2 generalist + 2 niche";
   const { systemLines } = scopeMixInstruction(count);
 
   return `You are a senior LinkedIn B2B content strategist and ghostwriter. Follow the expert Persona system prompt provided by the user.

@@ -69,9 +69,14 @@ import type {
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type Props = { articleId: string };
+type Props = {
+  articleId: string;
+  /** In wizard: hide nav/extra panels; show draft + refine + CTA inline. */
+  variant?: "page" | "wizard";
+};
 
-export function ArticleEditor({ articleId }: Props) {
+export function ArticleEditor({ articleId, variant = "page" }: Props) {
+  const isWizard = variant === "wizard";
   const t = useTranslations("setup.articles.detail");
   const tArticles = useTranslations("setup.articles");
   const tRef = useTranslations("setup.articles.refinement");
@@ -279,7 +284,7 @@ export function ArticleEditor({ articleId }: Props) {
   }, [loaded, article, personaText, loadCtaSuggestions]);
 
   useEffect(() => {
-    if (!loaded || !article) return;
+    if (!loaded || !article || isWizard) return;
     if (article.illustration) {
       setIllustration(article.illustration);
       return;
@@ -287,7 +292,7 @@ export function ArticleEditor({ articleId }: Props) {
     if (illustrationFetchedRef.current) return;
     illustrationFetchedRef.current = true;
     loadIllustrationSuggestions();
-  }, [loaded, article, loadIllustrationSuggestions]);
+  }, [loaded, article, loadIllustrationSuggestions, isWizard]);
 
   useEffect(() => {
     if (!user || !article?.refinement || article.status === "validated") return;
@@ -790,9 +795,11 @@ export function ArticleEditor({ articleId }: Props) {
 
   return (
     <div className="space-y-6">
-      <Link href="/articles" className="text-sm text-ns-secondary hover:text-ns-tertiary">
-        ← {t("back")}
-      </Link>
+      {!isWizard && (
+        <Link href="/articles" className="text-sm text-ns-secondary hover:text-ns-tertiary">
+          ← {t("back")}
+        </Link>
+      )}
 
       {article.newsSource && (
         <div className="rounded-lg border border-sky-200/80 bg-sky-50/80 px-4 py-3 text-sm">
@@ -838,9 +845,19 @@ export function ArticleEditor({ articleId }: Props) {
             })}
           />
         </div>
+        {isWizard && (
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-ns-secondary">
+            {t("hookLabel")}
+          </p>
+        )}
         <p className="text-lg font-semibold text-ns-tertiary whitespace-pre-wrap">
           {article.hook}
         </p>
+        {isWizard && (
+          <p className="mb-1 mt-4 text-xs font-semibold uppercase tracking-wide text-ns-secondary">
+            {t("bodyLabel")}
+          </p>
+        )}
         <p className="mt-4 text-sm text-ns-tertiary whitespace-pre-wrap leading-relaxed">
           {article.body}
         </p>
@@ -879,15 +896,17 @@ export function ArticleEditor({ articleId }: Props) {
         />
       )}
 
-      <ArticleSlopPanel
-        article={article}
-        disabled={isBusy}
-        onSave={async (slop) => {
-          if (!user) return;
-          await saveArticleSlopAnalysis(user.uid, article.id, slop);
-          setArticle((prev) => (prev ? { ...prev, slopAnalysis: slop } : prev));
-        }}
-      />
+      {!isWizard && (
+        <ArticleSlopPanel
+          article={article}
+          disabled={isBusy}
+          onSave={async (slop) => {
+            if (!user) return;
+            await saveArticleSlopAnalysis(user.uid, article.id, slop);
+            setArticle((prev) => (prev ? { ...prev, slopAnalysis: slop } : prev));
+          }}
+        />
+      )}
 
       <ArticleFormatPanel
         article={article}
@@ -896,14 +915,16 @@ export function ArticleEditor({ articleId }: Props) {
         onUpdated={(patch) => setArticle((prev) => (prev ? { ...prev, ...patch } : prev))}
       />
 
-      <ArticleShareActions article={article} />
+      {!isWizard && <ArticleShareActions article={article} />}
 
-      <ArticleIllustrationPanel
-        illustration={illustration}
-        loading={illustrationLoading}
-        regenerateDisabled={isBusy}
-        onRegenerate={() => loadIllustrationSuggestions(true)}
-      />
+      {!isWizard && (
+        <ArticleIllustrationPanel
+          illustration={illustration}
+          loading={illustrationLoading}
+          regenerateDisabled={isBusy}
+          onRegenerate={() => loadIllustrationSuggestions(true)}
+        />
+      )}
 
       {!isValidated && article.refinement && (
         <div

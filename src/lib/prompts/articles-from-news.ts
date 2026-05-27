@@ -8,7 +8,7 @@ const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
   es: "Spanish",
 };
 
-export type ArticlesFromNewsPostCount = 2 | 4;
+export type ArticlesFromNewsPostCount = 1 | 2 | 4;
 
 export function buildArticlesFromNewsExtraInstruction(
   contentLanguage: ContentLanguage,
@@ -17,14 +17,18 @@ export function buildArticlesFromNewsExtraInstruction(
 ): string {
   const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
   const scopeMix =
-    postCount === 2
-      ? "1 generalist + 1 niche"
-      : "2 generalist + 2 niche";
+    postCount === 1
+      ? "one post (generalist OR niche — best angle for the brief)"
+      : postCount === 2
+        ? "1 generalist + 1 niche"
+        : "2 generalist + 2 niche";
   const scopeDetail =
-    postCount === 2
-      ? `- generalist: broader lesson or trend from the news for any professional in the field
+    postCount === 1
+      ? `- Pick generalist (broader lesson) OR niche (ICP-specific take) — one strong angle only`
+      : postCount === 2
+        ? `- generalist: broader lesson or trend from the news for any professional in the field
 - niche: expert/ICP-specific take, tactics, or implications`
-      : `- generalist pair: broader lesson or trend from the news for any professional in the field
+        : `- generalist pair: broader lesson or trend from the news for any professional in the field
 - niche pair: expert/ICP-specific take, tactics, or implications`;
 
   return `ANCHOR all ${postCount} posts on this news story (mandatory):

@@ -532,14 +532,60 @@
           "generalist": "Generalist",
           "niche": "Niche"
         },
+        "modePicker": {
+          "heroEyebrow": "Creation assistant",
+          "heroTitle": "Your next LinkedIn post, in minutes",
+          "heroSubtitle": "Three paths for your situation: publish from your Persona, react to the news, or repurpose existing content — always in your voice with quality guardrails.",
+          "heroPill1": "Persona & brief",
+          "heroPill2": "Quality Panel",
+          "heroPill3": "Ready to paste on LinkedIn",
+          "recommended": "Recommended",
+          "start": "Get started",
+          "guide": {
+            "title": "Not sure where to start?",
+            "subtitle": "Pick the intent that fits you — we’ll highlight the right path.",
+            "regular": "I want to publish from my expertise",
+            "news": "I want to react to the news",
+            "repurpose": "I want to repurpose existing content",
+            "hint": {
+              "profile": "→ Recommended path: 1 draft aligned with your Persona and brief.",
+              "news": "→ News path: scan 4 recent stories, then 1 post anchored on your angle.",
+              "inspiration": "→ Inspiration path: 1 draft with a distinct angle (no copying the source)."
+            }
+          },
+          "modes": {
+            "profile": {
+              "title": "From my profile",
+              "desc": "The core experience: one draft aligned with your Persona and a full brief — refine then validate.",
+              "badge": "1 draft",
+              "outputs": [
+                "Persona + Topic DNA",
+                "Objective / proof brief",
+                "Hooks & Quality Panel"
+              ]
+            },
+            "news": {
+              "title": "From the news",
+              "desc": "Scan 4 recent stories, pick one, then 1 post that comments in your voice — source in the first comment.",
+              "badge": "News < 7 days",
+              "outputs": ["Targeted web scan", "1 reactive post", "Source citation"]
+            },
+            "inspiration": {
+              "title": "From existing content",
+              "desc": "Paste, link + excerpt, or pick a saved inspiration — 1 rewritten draft with a distinct angle.",
+              "badge": "1 focused draft",
+              "outputs": ["Paste · URL · Library", "Anti-plagiarism angle", "Regenerate angle"]
+            }
+          }
+        },
         "modes": {
           "profile": {
             "title": "From my profile",
-            "desc": "4 drafts (2 generalist + 2 niche) from your Persona and a full brief."
+            "desc": "1 draft from your Persona and a full brief."
           },
           "news": {
             "title": "From the news",
-            "desc": "Scan 4 recent stories, pick one, then get 4 posts reacting in your voice."
+            "desc": "Scan 4 recent stories, pick one, then get 1 post reacting in your voice."
           },
           "inspiration": {
             "title": "From existing content",
@@ -602,15 +648,12 @@
         "pastePlaceholder": "Paste the source post or article here…",
         "pasteRequired": "Paste at least a few lines of reference text.",
         "continueToBrief": "Continue to brief",
-        "generateFour": "Generate 4 drafts",
-        "generateOne": "Generate 1 draft",
-        "batchDoneTitle": "4 drafts ready",
-        "batchDoneHint": "Open each post to refine, pick a CTA, and validate.",
-        "openDraft": "Draft {n}",
-        "inspirationDoneTitle": "Your draft",
-        "inspirationDoneHint": "Open it to refine and validate, or regenerate another angle (replaces this draft).",
-        "openArticle": "Open draft",
-        "regenerateAngle": "Regenerate another angle",
+        "generateDraft": "Generate draft",
+        "draftDoneTitle": "Your draft",
+        "draftDoneHint": "Review the title and body, adjust the angle if needed, pick a CTA, then validate — same as the full editor.",
+        "regenerateDraft": "Regenerate draft",
+        "regeneratingDraft": "Regenerating…",
+        "regeneratingDraftHint": "New angle from the same brief — the current text will be replaced.",
         "browseArchive": "Browse archived news stories",
         "selectedNewsLabel": "Selected story",
         "pastedPreviewLabel": "Reference excerpt",
@@ -627,7 +670,7 @@
       },
       "news": {
         "title": "News of the moment",
-        "subtitle": "4 stories from the last 7 days, matched to your domain. Pick one, then generate 4 LinkedIn drafts anchored on that story (with source citation).",
+        "subtitle": "4 stories from the last 7 days, matched to your domain. Pick one, then generate one LinkedIn draft anchored on that story (with source citation).",
         "refresh": "Refresh",
         "loading": "Searching for recent news…",
         "empty": "No recent news found. Refine your topics below or try again.",
@@ -657,18 +700,18 @@
         "selectedBadge": "Story selected",
         "selectedTitle": "Create your LinkedIn posts from this story",
         "selectedNextStep": "Next step",
-        "selectedExplain": "The AI will draft 4 LinkedIn posts (2 generalist + 2 niche) reacting to this story in your voice and Persona — not a neutral press recap.",
+        "selectedExplain": "The AI will draft one LinkedIn post reacting to this story in your voice and Persona — not a neutral press recap.",
         "citationNote": "Posts name the source without a URL in the body (better LinkedIn reach). The full article URL will be suggested in your first comment under the post.",
         "changeNews": "Pick another story",
-        "generateFromNews": "Generate 4 LinkedIn posts from this story",
-        "generatingFromNews": "Generating 4 drafts…",
-        "generateFromNewsHint": "2 generalist + 2 niche posts · source link in the first comment (not in the post body).",
+        "generateFromNews": "Generate a LinkedIn post from this story",
+        "generatingFromNews": "Generating draft…",
+        "generateFromNewsHint": "1 story-anchored draft · source link in the first comment (not in the post body).",
         "previousNews": "Previous news"
       },
       "briefIncomplete": "Complete the post brief (objective, problem, point of view, and proof) before generating.",
       "brief": {
         "title": "Batch brief",
-        "subtitle": "Steers all drafts toward your LinkedIn goal — each post will reflect problem, POV, and proof.",
+        "subtitle": "Steers the draft toward your LinkedIn goal — the post will reflect problem, POV, and proof.",
         "objective": "Post objective",
         "objectives": {
           "credibility": "Credibility",
@@ -880,6 +923,8 @@
       },
       "detail": {
         "back": "Back to posts",
+        "hookLabel": "Title / hook",
+        "bodyLabel": "Post body",
         "notFound": "Post not found.",
         "applyFeedback": "Apply feedback and regenerate",
         "reviseFailed": "Revision failed. Try again.",

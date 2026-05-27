@@ -135,9 +135,6 @@ export async function POST(request: Request) {
     if (!body.personaPromptText?.trim() || !body.contentLanguage) {
       throw new Error("invalid");
     }
-    if (body.articleCount === 1 && !body.inspirationText?.trim()) {
-      throw new Error("invalid");
-    }
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
@@ -181,7 +178,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const isInspiration = articleCount === 1 && !!body.inspirationText?.trim();
+    const isInspiration = !!body.inspirationText?.trim();
 
     let systemContent: string;
     let userContent: string;
@@ -222,7 +219,7 @@ export async function POST(request: Request) {
               sourceName: body.newsSource.sourceName,
             },
             contentLanguage,
-            articleCount === 2 ? 2 : 4,
+            articleCount === 1 ? 1 : articleCount === 2 ? 2 : 4,
             body.postBrief,
           )
         : baseUserPrompt;
@@ -246,7 +243,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No articles in response" }, { status: 502 });
     }
 
-    if (articleCount === 1) {
+    if (articleCount === 1 && isInspiration) {
       articles = articles.map((a) => ({
         ...a,
         scope: targetScope,
@@ -277,7 +274,7 @@ export async function POST(request: Request) {
       const retryArticles = parseArticlesFromResponse(retryRaw).slice(0, expectedCount);
       if (retryArticles.length > 0) {
         articles =
-          articleCount === 1
+          articleCount === 1 && isInspiration
             ? retryArticles.map((a) => ({ ...a, scope: targetScope }))
             : enforceScopeMix!(retryArticles);
       }

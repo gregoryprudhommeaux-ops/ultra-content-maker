@@ -6,6 +6,8 @@ import {
 } from "@/components/articles/creation/wizard-progress";
 import { InspirationLibraryStep } from "@/components/articles/creation/inspiration-library-step";
 import { InspirationSourceChoice } from "@/components/articles/creation/inspiration-source-choice";
+import { ArticleEditor } from "@/components/articles/article-editor";
+import { CreationModePicker } from "@/components/articles/creation/creation-mode-picker";
 import { InspirationUrlStep } from "@/components/articles/creation/inspiration-url-step";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
 import {
@@ -73,8 +75,7 @@ type Step =
   | "inspiration-library"
   | "brief"
   | "generating"
-  | "batch-done"
-  | "inspiration-done";
+  | "draft-done";
 
 export function ArticleCreationWizard() {
   const t = useTranslations("setup.articles.create");
@@ -112,13 +113,9 @@ export function ArticleCreationWizard() {
   const briefSuggestedRef = useRef(false);
 
   const [error, setError] = useState<string | null>(null);
-  const [batchArticleIds, setBatchArticleIds] = useState<string[]>([]);
-  const [inspirationArticle, setInspirationArticle] = useState<{
-    id: string;
-    hook: string;
-    body: string;
-    ps?: string;
-  } | null>(null);
+  const [draftArticleId, setDraftArticleId] = useState<string | null>(null);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [draftRevision, setDraftRevision] = useState(0);
   const [nicheCheck, setNicheCheck] = useState<BriefNicheCheck | null>(null);
   const [nicheLoading, setNicheLoading] = useState(false);
 
@@ -421,7 +418,11 @@ export function ArticleCreationWizard() {
     }
 
     setError(null);
-    setStep("generating");
+    if (replaceArticleId && draftArticleId) {
+      setIsRegenerating(true);
+    } else {
+      setStep("generating");
+    }
 
     try {
       const auth = getClientAuth();
@@ -436,14 +437,14 @@ export function ArticleCreationWizard() {
 
       if (!llmProfile?.apiKey) {
         setError(tArticles("noLlmKey"));
-        setStep(mode === "inspiration" ? "inspiration-done" : "brief");
+        setStep(draftArticleId ? "draft-done" : "brief");
         return;
       }
 
       const contentLang = author?.contentLanguage ?? locale;
       const newsSource =
         mode === "news" && selectedNews ? newsToSource(selectedNews) : undefined;
-      const articleCount = mode === "inspiration" ? 1 : 4;
+      const articleCount = 1;
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 120_000);
@@ -487,11 +488,7 @@ export function ArticleCreationWizard() {
         const detail = typeof data.detail === "string" ? data.detail : "";
         if (isInvalidApiKeyError(detail)) setError(tArticles("invalidApiKey"));
         else setError(tArticles("generateFailed"));
-        setStep(
-          mode === "inspiration" && inspirationArticle
-            ? "inspiration-done"
-            : "brief",
-        );
+        setStep(draftArticleId ? "draft-done" : "brief");
         return;
       }
 
@@ -503,58 +500,45 @@ export function ArticleCreationWizard() {
         hashtags?: string[];
       }[];
 
-      if (mode === "inspiration") {
-        const item = articles[0];
-        if (replaceArticleId) {
-          await replaceArticleDraft(
-            user.uid,
-            replaceArticleId,
-            { ...item, scope: targetScope },
-            postBrief,
-          );
-          setInspirationArticle({
-            id: replaceArticleId,
-            hook: item.hook,
-            body: item.body,
-            ps: item.ps,
-          });
-        } else {
-          const batchId = crypto.randomUUID();
-          const inspirationMeta =
-            inspirationCtx &&
-            toArticleInspirationSource(inspirationCtx, selectedLibrarySource);
-          const ids = await createArticleBatch(
-            user.uid,
-            batchId,
-            [{ ...item, scope: targetScope }],
-            contentLang,
-            emojiLevel,
-            undefined,
-            postBrief,
-            inspirationMeta ?? undefined,
-          );
-          setInspirationArticle({
-            id: ids[0],
-            hook: item.hook,
-            body: item.body,
-            ps: item.ps,
-          });
-        }
-        setStep("inspiration-done");
+      const item = articles[0];
+      if (!item) {
+        setError(tArticles("generateFailed"));
+        setStep(draftArticleId ? "draft-done" : "brief");
+        return;
+      }
+
+      const draftPayload =
+        mode === "inspiration" ? { ...item, scope: targetScope } : item;
+
+      if (replaceArticleId) {
+        await replaceArticleDraft(
+          user.uid,
+          replaceArticleId,
+          draftPayload,
+          postBrief,
+        );
+        setDraftArticleId(replaceArticleId);
+        setDraftRevision((n) => n + 1);
       } else {
         const batchId = crypto.randomUUID();
+        const inspirationMeta =
+          mode === "inspiration" && inspirationCtx
+            ? toArticleInspirationSource(inspirationCtx, selectedLibrarySource)
+            : undefined;
         const ids = await createArticleBatch(
           user.uid,
           batchId,
-          articles,
+          [draftPayload],
           contentLang,
           emojiLevel,
           newsSource,
           postBrief,
+          inspirationMeta ?? undefined,
         );
-        setBatchArticleIds(ids);
-        setStep("batch-done");
+        setDraftArticleId(ids[0]);
+        setDraftRevision((n) => n + 1);
       }
+      setStep("draft-done");
       notifyOnboardingProgressChanged();
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
@@ -562,11 +546,9 @@ export function ArticleCreationWizard() {
       } else {
         setError(tArticles("generateFailed"));
       }
-      setStep(
-        mode === "inspiration" && inspirationArticle
-          ? "inspiration-done"
-          : "brief",
-      );
+      setStep(draftArticleId ? "draft-done" : "brief");
+    } finally {
+      setIsRegenerating(false);
     }
   }
 
@@ -656,7 +638,7 @@ export function ArticleCreationWizard() {
       setStep("mode");
       setMode(null);
       setInspirationCtx(null);
-    } else if (step === "batch-done" || step === "inspiration-done") {
+    } else if (step === "draft-done") {
       router.push("/articles");
     } else {
       setStep("mode");
@@ -676,7 +658,11 @@ export function ArticleCreationWizard() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div
+      className={`mx-auto space-y-6 ${
+        step === "mode" || step === "draft-done" ? "max-w-4xl" : "max-w-3xl"
+      }`}
+    >
       <div className="flex items-center gap-3">
         <Link
           href="/articles"
@@ -686,12 +672,14 @@ export function ArticleCreationWizard() {
         </Link>
       </div>
 
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight text-ns-tertiary">
-          {t("title")}
-        </h1>
-        <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>
-      </header>
+      {step !== "mode" && (
+        <header>
+          <h1 className="text-2xl font-bold tracking-tight text-ns-tertiary">
+            {t("title")}
+          </h1>
+          <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>
+        </header>
+      )}
 
       {step !== "mode" && (
         <WizardProgress mode={mode} activeStep={progressStep} />
@@ -699,8 +687,7 @@ export function ArticleCreationWizard() {
 
       {step !== "mode" &&
         step !== "generating" &&
-        step !== "batch-done" &&
-        step !== "inspiration-done" && (
+        step !== "draft-done" && (
           <button
             type="button"
             onClick={goBack}
@@ -710,39 +697,7 @@ export function ArticleCreationWizard() {
           </button>
         )}
 
-      {step === "mode" && (
-        <div className="grid gap-4 sm:grid-cols-1">
-          {(
-            [
-              {
-                id: "profile" as const,
-                title: t("modes.profile.title"),
-                desc: t("modes.profile.desc"),
-              },
-              {
-                id: "news" as const,
-                title: t("modes.news.title"),
-                desc: t("modes.news.desc"),
-              },
-              {
-                id: "inspiration" as const,
-                title: t("modes.inspiration.title"),
-                desc: t("modes.inspiration.desc"),
-              },
-            ] as const
-          ).map((card) => (
-            <button
-              key={card.id}
-              type="button"
-              onClick={() => pickMode(card.id)}
-              className="rounded-xl border border-gray-100 bg-white p-5 text-left shadow-sm transition-colors hover:border-ns-primary hover:bg-ns-brand-light/30"
-            >
-              <p className="text-base font-semibold text-ns-tertiary">{card.title}</p>
-              <p className="mt-2 text-sm text-ns-secondary">{card.desc}</p>
-            </button>
-          ))}
-        </div>
-      )}
+      {step === "mode" && <CreationModePicker onSelect={pickMode} />}
 
       {step === "news" && (
         <div className="space-y-4">
@@ -922,7 +877,7 @@ export function ArticleCreationWizard() {
             onClick={() => void runGenerate()}
             className={`${BTN_PRIMARY} disabled:opacity-50`}
           >
-            {mode === "inspiration" ? t("generateOne") : t("generateFour")}
+            {t("generateDraft")}
           </button>
         </div>
       )}
@@ -935,58 +890,42 @@ export function ArticleCreationWizard() {
         />
       )}
 
-      {step === "batch-done" && (
-        <section className="space-y-4 rounded-xl border border-gray-100 bg-white p-5">
-          <h2 className="text-lg font-semibold text-ns-tertiary">{t("batchDoneTitle")}</h2>
-          <p className="text-sm text-ns-secondary">{t("batchDoneHint")}</p>
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {batchArticleIds.map((id, i) => (
-              <li key={id}>
-                <Link
-                  href={`/articles/${id}`}
-                  className="block rounded-lg border border-gray-100 bg-ns-brand-light/40 px-4 py-3 text-sm font-medium text-ns-tertiary hover:border-ns-primary"
-                >
-                  {t("openDraft", { n: i + 1 })}
-                </Link>
-              </li>
-            ))}
-          </ul>
+      {step === "draft-done" && draftArticleId && (
+        <div className="space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-ns-tertiary">
+                {t("draftDoneTitle")}
+              </h2>
+              <p className="mt-1 text-sm text-ns-secondary">{t("draftDoneHint")}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void runGenerate(draftArticleId)}
+              disabled={isRegenerating}
+              className="shrink-0 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
+            >
+              {isRegenerating ? t("regeneratingDraft") : t("regenerateDraft")}
+            </button>
+          </div>
+          {isRegenerating && (
+            <GeneratingIndicator
+              label={tArticles("generating")}
+              hint={t("regeneratingDraftHint")}
+              className="max-w-2xl"
+            />
+          )}
+          {!isRegenerating && (
+            <ArticleEditor
+              key={`${draftArticleId}-${draftRevision}`}
+              articleId={draftArticleId}
+              variant="wizard"
+            />
+          )}
           <Link href="/articles" className={`inline-block ${BTN_PRIMARY}`}>
             {t("backToList")}
           </Link>
-        </section>
-      )}
-
-      {step === "inspiration-done" && inspirationArticle && (
-        <section className="space-y-4 rounded-xl border border-gray-100 bg-white p-5">
-          <h2 className="text-lg font-semibold text-ns-tertiary">
-            {t("inspirationDoneTitle")}
-          </h2>
-          <p className="text-sm text-ns-secondary">{t("inspirationDoneHint")}</p>
-          <div className="rounded-lg bg-ns-brand-light/50 p-4">
-            <p className="font-semibold text-ns-tertiary whitespace-pre-wrap">
-              {inspirationArticle.hook}
-            </p>
-            <p className="mt-3 text-sm text-ns-secondary whitespace-pre-wrap line-clamp-6">
-              {inspirationArticle.body}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href={`/articles/${inspirationArticle.id}`}
-              className={BTN_PRIMARY}
-            >
-              {t("openArticle")}
-            </Link>
-            <button
-              type="button"
-              onClick={() => void runGenerate(inspirationArticle.id)}
-              className="rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light"
-            >
-              {t("regenerateAngle")}
-            </button>
-          </div>
-        </section>
+        </div>
       )}
 
       <NewsDetailModal
