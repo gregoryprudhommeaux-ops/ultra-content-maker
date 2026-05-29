@@ -11,6 +11,52 @@
       "rights": "© {year} NextStep Services"
     }
   },
+  "errors": {
+    "retry": "Réessayer",
+    "showTechnical": "Voir les détails techniques",
+    "hideTechnical": "Masquer les détails",
+    "report": {
+      "button": "Signaler le problème",
+      "hint": "Un e-mail sera envoyé à l'équipe avec le contexte de l'erreur (sans votre clé API).",
+      "notePlaceholder": "Que faisiez-vous ? (optionnel)",
+      "send": "Envoyer le signalement",
+      "sending": "Envoi…",
+      "sent": "Merci — signalement envoyé.",
+      "failed": "Envoi impossible pour l'instant. Réessayez plus tard."
+    },
+    "codes": {
+      "generic": "Une erreur s'est produite. Réessayez dans un instant.",
+      "noLlmKey": "Aucune clé API configurée. Ajoutez votre clé dans Réglages → Clé API.",
+      "invalidApiKey": "Clé API refusée par le fournisseur. Vérifiez qu'elle est active et correspond au bon service (Anthropic, OpenAI, etc.).",
+      "insufficientCredits": "Crédits insuffisants sur votre compte fournisseur. Rechargez la facturation sur la console du fournisseur (ex. console.anthropic.com), puis réessayez.",
+      "rateLimit": "Trop de requêtes. Attendez une à deux minutes, puis réessayez.",
+      "timeout": "La requête a expiré. Réessayez avec une connexion stable.",
+      "verifyFailed": "Le test de clé a échoué. Consultez les détails ci-dessous ou rechargez vos crédits fournisseur.",
+      "llmRequestFailed": "Le fournisseur IA n'a pas répondu correctement. Réessayez ou vérifiez votre clé et vos crédits.",
+      "linkedinPerplexity": "L'analyse LinkedIn en direct fonctionne mieux avec une clé Perplexity (Sonar) dans Réglages.",
+      "linkedinFetchUnavailable": "Impossible de lire l'activité LinkedIn pour l'instant. Ajoutez Perplexity (Sonar) ou réessayez plus tard.",
+      "analysisFailed": "Analyse stratégique impossible. Vérifiez l'URL d'activité LinkedIn et réessayez.",
+      "strategyParseFailed": "L'IA a renvoyé une réponse illisible. Relancez l'analyse.",
+      "notActivityUrl": "URL d'activité invalide — utilisez le lien …/recent-activity/all/ depuis votre profil LinkedIn.",
+      "urlInvalid": "URL invalide.",
+      "fetchFailed": "Impossible de récupérer le contenu de ce lien.",
+      "noContent": "Aucun contenu exploitable trouvé sur cette page.",
+      "invalidJson": "Réponse IA incomplète ou illisible. Réessayez.",
+      "emptyResponse": "Réponse vide du fournisseur. Réessayez.",
+      "newsFiltered": "Aucune actu récente ne correspond à vos filtres. Élargissez vos mots-clés.",
+      "noRecentNews": "Aucune actu récente trouvée pour vos critères.",
+      "noNewsResults": "Aucun résultat. Modifiez vos mots-clés d'actualité.",
+      "unauthorized": "Session expirée. Reconnectez-vous.",
+      "invalidBody": "Requête invalide. Rechargez la page et réessayez.",
+      "emailNotConfigured": "Signalement par e-mail non configuré sur le serveur.",
+      "notifyFailed": "Notification impossible.",
+      "reportFailed": "Signalement impossible pour l'instant."
+    },
+    "hints": {
+      "linkedin_requires_perplexity": "Perplexity Sonar peut parcourir le web pour lire votre fil d'activité public.",
+      "linkedin_fetch_unavailable": "Si vous n'avez que Claude, l'analyse peut quand même s'appuyer sur votre profil sans scan LinkedIn en direct."
+    }
+  },
   "landing": {
     "hero": {
       "brand": "ULTRA CONTENT MAKER",

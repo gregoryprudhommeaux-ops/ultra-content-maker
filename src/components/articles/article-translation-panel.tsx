@@ -1,6 +1,9 @@
 "use client";
 
+import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useFormatUserError } from "@/hooks/use-format-user-error";
+import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import { getClientAuth } from "@/lib/firebase/client";
 import { joinLinkedInPostParts } from "@/lib/linkedin/fit-linkedin-post";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
@@ -25,9 +28,10 @@ type Props = {
 
 export function ArticleTranslationPanel({ article, onUpdated }: Props) {
   const t = useTranslations("setup.articles.translate");
+  const formatError = useFormatUserError();
   const { user } = useAuth();
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [errorInfo, setErrorInfo] = useState<UserErrorInfo | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const sourceLang = article.contentLanguage;
@@ -36,7 +40,7 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
   const runTranslation = useCallback(
     async (targetLanguage: ContentLanguage, mode: ArticleTranslationMode) => {
       if (!user) return;
-      setError(null);
+      setErrorInfo(null);
       const loadKey = `${targetLanguage}-${mode}`;
       setLoadingKey(loadKey);
 
@@ -49,12 +53,14 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
           gatherAuthorSteeringPayload(user.uid),
         ]);
         if (!token || !llmProfile?.apiKey) {
-          setError(t("noLlm"));
+          setErrorInfo(
+            formatError({ errorCode: "no_llm_key", fallbackMessage: t("noLlm") }),
+          );
           return;
         }
         const personaText = persona?.promptText?.trim() ?? "";
         if (!personaText) {
-          setError(t("noPersona"));
+          setErrorInfo({ message: t("noPersona") });
           return;
         }
 
@@ -85,11 +91,18 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
 
         const data = (await res.json()) as {
           error?: string;
+          detail?: string;
           translation?: ArticleTranslationVariant;
         };
 
         if (!res.ok || !data.translation) {
-          setError(t("failed"));
+          setErrorInfo(
+            formatError({
+              errorCode: data.error ?? "llm_request_failed",
+              detail: data.detail,
+              fallbackMessage: t("failed"),
+            }),
+          );
           return;
         }
 
@@ -102,12 +115,14 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
         );
         onUpdated({ translations });
       } catch {
-        setError(t("failed"));
+        setErrorInfo(
+          formatError({ errorCode: "llm_request_failed", fallbackMessage: t("failed") }),
+        );
       } finally {
         setLoadingKey(null);
       }
     },
-    [article, onUpdated, sourceLang, t, user],
+    [article, formatError, onUpdated, sourceLang, t, user],
   );
 
   async function copyVariant(
@@ -137,7 +152,16 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
         <p className="mt-1 text-xs text-ns-secondary">{t("subtitle")}</p>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {errorInfo && (
+        <UserErrorBanner
+          surface="article-translation"
+          userMessage={errorInfo.message}
+          hint={errorInfo.hint}
+          technical={errorInfo.technical}
+          errorCode={errorInfo.errorCode}
+          detail={errorInfo.detail}
+        />
+      )}
 
       <div className="space-y-6">
         {targetLangs.map((lang) => {

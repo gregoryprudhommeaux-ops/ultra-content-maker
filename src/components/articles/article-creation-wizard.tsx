@@ -29,7 +29,9 @@ import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-
 import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
 import { DEFAULT_POST_BRIEF, saveStoredPostBrief } from "@/lib/articles/post-brief-storage";
 import { newsToSource } from "@/lib/news/to-source";
-import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
+import { UserErrorBanner } from "@/components/ui/user-error-banner";
+import { useFormatUserError } from "@/hooks/use-format-user-error";
+import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import {
   isPostBriefComplete,
   isWizardBriefComplete,
@@ -118,7 +120,8 @@ export function ArticleCreationWizard() {
   const [briefSuggesting, setBriefSuggesting] = useState(false);
   const briefSuggestedRef = useRef(false);
 
-  const [error, setError] = useState<string | null>(null);
+  const formatError = useFormatUserError();
+  const [errorInfo, setErrorInfo] = useState<UserErrorInfo | null>(null);
   const [draftArticleId, setDraftArticleId] = useState<string | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [draftRevision, setDraftRevision] = useState(0);
@@ -270,14 +273,16 @@ export function ArticleCreationWizard() {
     async (options?: { persistInterest?: boolean }) => {
       if (!user || !personaText) return;
       setNewsLoading(true);
-      setError(null);
+      setErrorInfo(null);
       setNewsErrorCode(null);
       try {
         const auth = getClientAuth();
         const token = auth ? await auth.currentUser?.getIdToken() : null;
         const llmProfile = await getUserLlmProfile(user.uid);
         if (!token || !llmProfile?.apiKey) {
-          setError(tArticles("noLlmKey"));
+          setErrorInfo(
+            formatError({ errorCode: "no_llm_key", fallbackMessage: tArticles("noLlmKey") }),
+          );
           return;
         }
         const interest = newsInterestQuery.trim();
@@ -313,21 +318,31 @@ export function ArticleCreationWizard() {
         if (!res.ok) {
           const code = typeof data.error === "string" ? data.error : "no_recent_news";
           setNewsErrorCode(code);
-          setError(mapNewsLoadError(code));
+          setErrorInfo(
+            formatError({
+              errorCode: code,
+              fallbackMessage: mapNewsLoadError(code),
+            }),
+          );
           setNewsItems([]);
           setNewsHintPerplexity(!!data.perplexityRecommended);
           return;
         }
         setNewsItems(data.news ?? []);
         setNewsHintPerplexity(!!data.perplexityRecommended);
-        setError(null);
+        setErrorInfo(null);
         setNewsErrorCode(null);
         if (data.news?.length) {
           await upsertNewsArchiveBatch(user.uid, data.news);
         }
       } catch {
         setNewsErrorCode("llm_request_failed");
-        setError(tNews("loadFailed"));
+        setErrorInfo(
+          formatError({
+            errorCode: "llm_request_failed",
+            fallbackMessage: tNews("loadFailed"),
+          }),
+        );
       } finally {
         setNewsLoading(false);
       }
@@ -343,7 +358,7 @@ export function ArticleCreationWizard() {
     }
 
     setBriefSuggesting(true);
-    setError(null);
+    setErrorInfo(null);
     try {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
@@ -355,7 +370,9 @@ export function ArticleCreationWizard() {
         }),
       ]);
       if (!token || !llmProfile?.apiKey) {
-        setError(tArticles("noLlmKey"));
+        setErrorInfo(
+          formatError({ errorCode: "no_llm_key", fallbackMessage: tArticles("noLlmKey") }),
+        );
         return;
       }
 
@@ -388,12 +405,22 @@ export function ArticleCreationWizard() {
       });
       const data = await res.json();
       if (!res.ok || !data.brief) {
-        setError(t("briefSuggestFailed"));
+        setErrorInfo(
+          formatError({
+            errorCode: "llm_request_failed",
+            fallbackMessage: t("briefSuggestFailed"),
+          }),
+        );
         return;
       }
       setPostBrief(data.brief);
     } catch {
-      setError(t("briefSuggestFailed"));
+      setErrorInfo(
+        formatError({
+          errorCode: "llm_request_failed",
+          fallbackMessage: t("briefSuggestFailed"),
+        }),
+      );
     } finally {
       setBriefSuggesting(false);
     }
@@ -421,22 +448,22 @@ export function ArticleCreationWizard() {
   async function runGenerate(replaceArticleId?: string) {
     if (!user || !personaText || !mode) return;
     if (!isWizardBriefComplete(postBrief, mode)) {
-      setError(tArticles("briefIncomplete"));
+      setErrorInfo({ message: tArticles("briefIncomplete") });
       return;
     }
     if (mode === "news" && !selectedNews) {
-      setError(tNews("pickOne"));
+      setErrorInfo({ message: tNews("pickOne") });
       return;
     }
     if (
       mode === "inspiration" &&
       !isWizardInspirationContextReady(inspirationCtx, selectedLibrarySource)
     ) {
-      setError(t("inspiration.referenceRequired"));
+      setErrorInfo({ message: t("inspiration.referenceRequired") });
       return;
     }
 
-    setError(null);
+    setErrorInfo(null);
     if (replaceArticleId && draftArticleId) {
       setIsRegenerating(true);
     } else {
@@ -457,7 +484,9 @@ export function ArticleCreationWizard() {
       ]);
 
       if (!llmProfile?.apiKey) {
-        setError(tArticles("noLlmKey"));
+        setErrorInfo(
+          formatError({ errorCode: "no_llm_key", fallbackMessage: tArticles("noLlmKey") }),
+        );
         setStep(draftArticleId ? "draft-done" : "brief");
         return;
       }
@@ -507,8 +536,14 @@ export function ArticleCreationWizard() {
       const data = await res.json();
       if (!res.ok) {
         const detail = typeof data.detail === "string" ? data.detail : "";
-        if (isInvalidApiKeyError(detail)) setError(tArticles("invalidApiKey"));
-        else setError(tArticles("generateFailed"));
+        const code = typeof data.error === "string" ? data.error : "llm_request_failed";
+        setErrorInfo(
+          formatError({
+            errorCode: code,
+            detail,
+            fallbackMessage: tArticles("generateFailed"),
+          }),
+        );
         setStep(draftArticleId ? "draft-done" : "brief");
         return;
       }
@@ -523,7 +558,12 @@ export function ArticleCreationWizard() {
 
       const item = articles[0];
       if (!item) {
-        setError(tArticles("generateFailed"));
+        setErrorInfo(
+          formatError({
+            errorCode: "llm_request_failed",
+            fallbackMessage: tArticles("generateFailed"),
+          }),
+        );
         setStep(draftArticleId ? "draft-done" : "brief");
         return;
       }
@@ -563,9 +603,19 @@ export function ArticleCreationWizard() {
       notifyOnboardingProgressChanged();
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
-        setError(tArticles("generateTimeout"));
+        setErrorInfo(
+          formatError({
+            errorCode: "timeout",
+            fallbackMessage: tArticles("generateTimeout"),
+          }),
+        );
       } else {
-        setError(tArticles("generateFailed"));
+        setErrorInfo(
+          formatError({
+            errorCode: "llm_request_failed",
+            fallbackMessage: tArticles("generateFailed"),
+          }),
+        );
       }
       setStep(draftArticleId ? "draft-done" : "brief");
     } finally {
@@ -584,7 +634,7 @@ export function ArticleCreationWizard() {
 
   function pickMode(next: CreationMode, briefSeed?: Partial<PostBrief>) {
     setMode(next);
-    setError(null);
+    setErrorInfo(null);
     briefSuggestedRef.current = !!briefSeed;
     setPostBrief({ ...DEFAULT_POST_BRIEF, ...briefSeed });
     setInspirationCtx(null);
@@ -632,7 +682,7 @@ export function ArticleCreationWizard() {
 
   function pickInspirationInput(kind: InspirationInputKind) {
     setInspirationCtx({ kind, excerpt: "" });
-    setError(null);
+    setErrorInfo(null);
     if (kind === "paste") setStep("paste");
     else if (kind === "url") setStep("inspiration-url");
     else setStep("inspiration-library");
@@ -640,7 +690,7 @@ export function ArticleCreationWizard() {
 
   function goToBriefFromInspiration() {
     if (!isWizardInspirationContextReady(inspirationCtx, selectedLibrarySource)) {
-      setError(t("inspiration.referenceRequired"));
+      setErrorInfo({ message: t("inspiration.referenceRequired") });
       return;
     }
     briefSuggestedRef.current = false;
@@ -671,7 +721,7 @@ export function ArticleCreationWizard() {
       void (async () => {
         const archived = await getArchivedNews(user.uid, newsId);
         setMode("news");
-        setError(null);
+        setErrorInfo(null);
         if (archived) {
           setSelectedNews(archived);
           briefSuggestedRef.current = false;
@@ -693,7 +743,7 @@ export function ArticleCreationWizard() {
   }, [loaded, user, searchParams]);
 
   function goBack() {
-    setError(null);
+    setErrorInfo(null);
     if (step === "brief") {
       if (mode === "profile") setStep("mode");
       else if (mode === "news") setStep("news");
@@ -796,7 +846,7 @@ export function ArticleCreationWizard() {
             loading={newsLoading}
             onRefresh={() => void loadNews()}
             perplexityHint={newsHintPerplexity}
-            newsError={error}
+            newsError={errorInfo?.message ?? null}
             newsErrorCode={newsErrorCode}
             newsInterestQuery={newsInterestQuery}
             onNewsInterestChange={setNewsInterestQuery}
@@ -1015,10 +1065,15 @@ export function ArticleCreationWizard() {
         onClose={() => setNewsDetailItem(null)}
       />
 
-      {error && !(step === "news" && newsItems.length === 0) && (
-        <p className="text-sm text-red-600" role="alert">
-          {error}
-        </p>
+      {errorInfo && !(step === "news" && newsItems.length === 0) && (
+        <UserErrorBanner
+          surface="article-creation-wizard"
+          userMessage={errorInfo.message}
+          hint={errorInfo.hint}
+          technical={errorInfo.technical}
+          errorCode={errorInfo.errorCode}
+          detail={errorInfo.detail}
+        />
       )}
     </div>
   );

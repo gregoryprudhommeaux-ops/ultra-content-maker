@@ -1,6 +1,9 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { UserErrorBanner } from "@/components/ui/user-error-banner";
+import { useFormatUserError } from "@/hooks/use-format-user-error";
+import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import { getClientAuth } from "@/lib/firebase/client";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
@@ -41,13 +44,14 @@ export function CreationStrategyGuidePanel({
   onApplyTheme,
 }: Props) {
   const t = useTranslations("setup.articles.create.modePicker.strategy");
+  const formatError = useFormatUserError();
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
 
   const [activityUrl, setActivityUrl] = useState<string | null>(null);
   const [guide, setGuide] = useState<CreationStrategyGuide | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorInfo, setErrorInfo] = useState<UserErrorInfo | null>(null);
   const [perplexityHint, setPerplexityHint] = useState(false);
   const [steering, setSteering] = useState("");
   const fetchedRef = useRef(false);
@@ -57,7 +61,7 @@ export function CreationStrategyGuidePanel({
       if (!user || !activityUrl?.trim() || !personaText.trim()) return;
 
       setLoading(true);
-      setError(null);
+      setErrorInfo(null);
       setPerplexityHint(false);
 
       try {
@@ -70,7 +74,7 @@ export function CreationStrategyGuidePanel({
         ]);
 
         if (!token || !llmProfile?.apiKey) {
-          setError(t("noLlm"));
+          setErrorInfo(formatError({ errorCode: "no_llm_key", fallbackMessage: t("noLlm") }));
           return;
         }
 
@@ -109,38 +113,26 @@ export function CreationStrategyGuidePanel({
         };
 
         if (!res.ok) {
-          if (data.error === "linkedin_requires_perplexity") {
-            setError(t("perplexityRequired"));
-            setPerplexityHint(true);
-            return;
-          }
-          if (data.error === "not_activity_url") {
-            setError(t("notActivityUrl"));
-            return;
-          }
-          if (data.error === "insufficient_credits") {
-            setError(t("insufficientCredits"));
-            return;
-          }
-          if (data.error === "linkedin_fetch_unavailable") {
-            setError(t("fetchUnavailable"));
-            setPerplexityHint(true);
-            return;
-          }
-          if (data.error === "invalid_api_key") {
-            setError(t("invalidKey"));
-            return;
-          }
-          if (data.error === "rate_limit") {
-            setError(t("rateLimit"));
-            return;
-          }
-          setError(t("failed"));
+          const code = data.error ?? "analysis_failed";
+          setErrorInfo(
+            formatError({
+              errorCode: code,
+              detail: data.detail,
+              fallbackMessage: t("failed"),
+            }),
+          );
+          setPerplexityHint(
+            code === "linkedin_requires_perplexity" ||
+              code === "linkedin_fetch_unavailable" ||
+              !!data.perplexityRecommended,
+          );
           return;
         }
 
         if (!data.guide) {
-          setError(t("failed"));
+          setErrorInfo(
+            formatError({ errorCode: "strategy_parse_failed", fallbackMessage: t("failed") }),
+          );
           return;
         }
 
@@ -160,12 +152,14 @@ export function CreationStrategyGuidePanel({
           creationStrategySteering: steeringText || undefined,
         });
       } catch {
-        setError(t("failed"));
+        setErrorInfo(
+          formatError({ errorCode: "analysis_failed", fallbackMessage: t("failed") }),
+        );
       } finally {
         setLoading(false);
       }
     },
-    [activityUrl, locale, onRecommendMode, personaText, steering, t, user],
+    [activityUrl, formatError, locale, onRecommendMode, personaText, steering, t, user],
   );
 
   useEffect(() => {
@@ -216,22 +210,23 @@ export function CreationStrategyGuidePanel({
         <p className="text-sm font-medium text-ns-secondary animate-pulse">{t("analyzing")}</p>
       )}
 
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          <p>{error}</p>
-          {perplexityHint && (
-            <Link href="/setup/llm" className="mt-1 inline-block font-semibold underline">
+      {errorInfo && (
+        <UserErrorBanner
+          surface="creation-strategy"
+          userMessage={errorInfo.message}
+          hint={errorInfo.hint}
+          technical={errorInfo.technical}
+          errorCode={errorInfo.errorCode}
+          detail={errorInfo.detail}
+          onRetry={() => void runAnalysis(true)}
+          retryLabel={t("retry")}
+        >
+          {perplexityHint ? (
+            <Link href="/setup/llm" className="text-sm font-semibold underline">
               {t("perplexityCta")}
             </Link>
-          )}
-          <button
-            type="button"
-            onClick={() => void runAnalysis(true)}
-            className="mt-2 block text-sm font-semibold underline"
-          >
-            {t("retry")}
-          </button>
-        </div>
+          ) : null}
+        </UserErrorBanner>
       )}
 
       {guide && !loading && (

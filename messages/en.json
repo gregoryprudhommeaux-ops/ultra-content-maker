@@ -11,6 +11,52 @@
       "rights": "© {year} NextStep Services"
     }
   },
+  "errors": {
+    "retry": "Retry",
+    "showTechnical": "Show technical details",
+    "hideTechnical": "Hide details",
+    "report": {
+      "button": "Report this issue",
+      "hint": "An email will be sent to the team with error context (your API key is never included).",
+      "notePlaceholder": "What were you doing? (optional)",
+      "send": "Send report",
+      "sending": "Sending…",
+      "sent": "Thanks — your report was sent.",
+      "failed": "Could not send the report. Try again later."
+    },
+    "codes": {
+      "generic": "Something went wrong. Please try again in a moment.",
+      "noLlmKey": "No API key configured. Add your key in Settings → API key.",
+      "invalidApiKey": "The provider rejected this API key. Check it is active and matches the selected service (Anthropic, OpenAI, etc.).",
+      "insufficientCredits": "Insufficient credits on your provider account. Add billing on the provider console (e.g. console.anthropic.com), then try again.",
+      "rateLimit": "Too many requests. Wait one or two minutes, then try again.",
+      "timeout": "The request timed out. Try again on a stable connection.",
+      "verifyFailed": "Key test failed. See details below or top up provider credits.",
+      "llmRequestFailed": "The AI provider did not respond correctly. Retry or check your key and credits.",
+      "linkedinPerplexity": "Live LinkedIn analysis works best with a Perplexity (Sonar) key in Settings.",
+      "linkedinFetchUnavailable": "Could not read LinkedIn activity right now. Add Perplexity (Sonar) or try again later.",
+      "analysisFailed": "Strategic analysis failed. Check your LinkedIn activity URL and try again.",
+      "strategyParseFailed": "The AI returned an unreadable response. Run the analysis again.",
+      "notActivityUrl": "Invalid activity URL — use the …/recent-activity/all/ link from your LinkedIn profile.",
+      "urlInvalid": "Invalid URL.",
+      "fetchFailed": "Could not fetch content from this link.",
+      "noContent": "No usable content found on this page.",
+      "invalidJson": "Incomplete or unreadable AI response. Try again.",
+      "emptyResponse": "Empty response from the provider. Try again.",
+      "newsFiltered": "No recent news matches your filters. Broaden your keywords.",
+      "noRecentNews": "No recent news found for your criteria.",
+      "noNewsResults": "No results. Adjust your news keywords.",
+      "unauthorized": "Session expired. Sign in again.",
+      "invalidBody": "Invalid request. Reload the page and try again.",
+      "emailNotConfigured": "Email reporting is not configured on the server.",
+      "notifyFailed": "Notification could not be sent.",
+      "reportFailed": "Report could not be sent right now."
+    },
+    "hints": {
+      "linkedin_requires_perplexity": "Perplexity Sonar can browse the web to read your public activity feed.",
+      "linkedin_fetch_unavailable": "If you only use Claude, analysis can still use your profile without a live LinkedIn scan."
+    }
+  },
   "landing": {
     "hero": {
       "brand": "ULTRA CONTENT MAKER",

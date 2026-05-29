@@ -17,6 +17,7 @@ import {
   ButtonSpinner,
   GeneratingIndicator,
 } from "@/components/ui/generating-indicator";
+import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getPersona } from "@/lib/workspace/persona";
@@ -98,6 +99,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
   );
   const [error, setError] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
+  const [errorApiCode, setErrorApiCode] = useState<string | undefined>();
+  const [errorApiRawDetail, setErrorApiRawDetail] = useState<string | undefined>();
   const [errorScope, setErrorScope] = useState<"refine" | "cta" | null>(null);
   const [copied, setCopied] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -459,16 +462,27 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
     }
   }
 
-  function setReviseError(message: string, technical?: string) {
+  function setReviseError(
+    message: string,
+    technical?: string,
+    meta?: { errorCode?: string; detail?: string },
+  ) {
     setError(message);
     setErrorDetail(technical ?? null);
+    setErrorApiCode(meta?.errorCode);
+    setErrorApiRawDetail(meta?.detail);
     setErrorScope("refine");
     scrollToRefineSection();
   }
 
-  function setValidateError(message: string) {
+  function setValidateError(
+    message: string,
+    meta?: { errorCode?: string; detail?: string },
+  ) {
     setError(message);
     setErrorDetail(null);
+    setErrorApiCode(meta?.errorCode);
+    setErrorApiRawDetail(meta?.detail);
     setErrorScope("cta");
     scrollToCtaSection();
   }
@@ -476,6 +490,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
   function clearActionError() {
     setError(null);
     setErrorDetail(null);
+    setErrorApiCode(undefined);
+    setErrorApiRawDetail(undefined);
     setErrorScope(null);
   }
 
@@ -541,11 +557,12 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
         hashtags?: string[];
       };
       if (!res.ok) {
-        const { message, technical } = resolveReviseErrorMessage(
-          data.error,
-          String(data.detail ?? ""),
-        );
-        setReviseError(message, technical);
+        const detailStr = String(data.detail ?? "");
+        const { message, technical } = resolveReviseErrorMessage(data.error, detailStr);
+        setReviseError(message, technical, {
+          errorCode: data.error,
+          detail: detailStr || undefined,
+        });
         return;
       }
 
@@ -983,32 +1000,33 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
         >
           <h2 className="text-base font-semibold text-ns-tertiary">{tRef("title")}</h2>
           {error && errorScope === "refine" && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              <p>{error}</p>
-              {errorDetail && errorScope === "refine" && (
-                <p className="mt-1 text-xs font-normal opacity-90">{errorDetail}</p>
-              )}
-              {error === t("reviseFailed") && !errorDetail && (
-                <p className="mt-1 text-xs font-normal">{t("reviseFailedHint")}</p>
-              )}
+            <UserErrorBanner
+              surface="article-editor-refine"
+              userMessage={error}
+              technical={errorDetail ?? errorApiRawDetail}
+              errorCode={errorApiCode}
+              detail={errorApiRawDetail}
+            >
+              {error === t("reviseFailed") && !errorDetail && !errorApiRawDetail ? (
+                <p className="text-xs">{t("reviseFailedHint")}</p>
+              ) : null}
               {(error === tArticles("noLlmKey") ||
                 error === tArticles("invalidApiKey") ||
+                error === tArticles("insufficientCredits") ||
                 error === tArticles("needPersona")) && (
-                <p className="mt-2">
-                  <Link
-                    href={
-                      error === tArticles("needPersona") ? "/persona" : "/setup/llm"
-                    }
-                    className="font-medium underline"
-                  >
-                    →{" "}
-                    {error === tArticles("needPersona")
-                      ? tArticles("goPersona")
-                      : tArticles("goLlmSetup")}
-                  </Link>
-                </p>
+                <Link
+                  href={
+                    error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+                  }
+                  className="text-sm font-semibold underline"
+                >
+                  →{" "}
+                  {error === tArticles("needPersona")
+                    ? tArticles("goPersona")
+                    : tArticles("goLlmSetup")}
+                </Link>
               )}
-            </div>
+            </UserErrorBanner>
           )}
           {article.refinement.questions.map((q) => {
             const answerOptions: RefinementAnswer[] = ["yes", "no", "partial"];
@@ -1176,29 +1194,33 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
             {isValidating ? t("validating") : t("validate")}
           </button>
           {error && errorScope === "cta" && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              <p>{error}</p>
-              {error === t("validateFailed") && (
-                <p className="mt-1 text-xs font-normal">{t("validateFailedHint")}</p>
-              )}
+            <UserErrorBanner
+              surface="article-editor-validate"
+              userMessage={error}
+              technical={errorApiRawDetail}
+              errorCode={errorApiCode}
+              detail={errorApiRawDetail}
+            >
+              {error === t("validateFailed") ? (
+                <p className="text-xs">{t("validateFailedHint")}</p>
+              ) : null}
               {(error === tArticles("noLlmKey") ||
                 error === tArticles("invalidApiKey") ||
+                error === tArticles("insufficientCredits") ||
                 error === tArticles("needPersona")) && (
-                <p className="mt-2">
-                  <Link
-                    href={
-                      error === tArticles("needPersona") ? "/persona" : "/setup/llm"
-                    }
-                    className="font-medium underline"
-                  >
-                    →{" "}
-                    {error === tArticles("needPersona")
-                      ? tArticles("goPersona")
-                      : tArticles("goLlmSetup")}
-                  </Link>
-                </p>
+                <Link
+                  href={
+                    error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+                  }
+                  className="text-sm font-semibold underline"
+                >
+                  →{" "}
+                  {error === tArticles("needPersona")
+                    ? tArticles("goPersona")
+                    : tArticles("goLlmSetup")}
+                </Link>
               )}
-            </div>
+            </UserErrorBanner>
           )}
         </div>
       )}
@@ -1238,9 +1260,13 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
       )}
 
       {error && isValidated && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
+        <UserErrorBanner
+          surface="article-editor"
+          userMessage={error}
+          errorCode={errorApiCode}
+          detail={errorApiRawDetail}
+          technical={errorApiRawDetail}
+        />
       )}
     </div>
   );

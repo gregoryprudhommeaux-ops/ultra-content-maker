@@ -11,6 +11,52 @@
       "rights": "© {year} NextStep Services"
     }
   },
+  "errors": {
+    "retry": "Reintentar",
+    "showTechnical": "Ver detalles técnicos",
+    "hideTechnical": "Ocultar detalles",
+    "report": {
+      "button": "Reportar el problema",
+      "hint": "Se enviará un correo al equipo con el contexto del error (sin tu clave API).",
+      "notePlaceholder": "¿Qué estabas haciendo? (opcional)",
+      "send": "Enviar informe",
+      "sending": "Enviando…",
+      "sent": "Gracias — informe enviado.",
+      "failed": "No se pudo enviar el informe. Inténtalo más tarde."
+    },
+    "codes": {
+      "generic": "Ha ocurrido un error. Inténtalo de nuevo en un momento.",
+      "noLlmKey": "No hay clave API configurada. Añádela en Ajustes → Clave API.",
+      "invalidApiKey": "El proveedor rechazó esta clave API. Comprueba que está activa y corresponde al servicio (Anthropic, OpenAI, etc.).",
+      "insufficientCredits": "Créditos insuficientes en tu cuenta del proveedor. Recarga la facturación en la consola (p. ej. console.anthropic.com) y vuelve a intentarlo.",
+      "rateLimit": "Demasiadas solicitudes. Espera uno o dos minutos y vuelve a intentarlo.",
+      "timeout": "La solicitud ha caducado. Inténtalo con una conexión estable.",
+      "verifyFailed": "La prueba de clave falló. Consulta los detalles o recarga créditos del proveedor.",
+      "llmRequestFailed": "El proveedor de IA no respondió correctamente. Reintenta o revisa tu clave y créditos.",
+      "linkedinPerplexity": "El análisis LinkedIn en directo funciona mejor con una clave Perplexity (Sonar) en Ajustes.",
+      "linkedinFetchUnavailable": "No se pudo leer la actividad de LinkedIn. Añade Perplexity (Sonar) o inténtalo más tarde.",
+      "analysisFailed": "Análisis estratégico imposible. Revisa la URL de actividad de LinkedIn.",
+      "strategyParseFailed": "La IA devolvió una respuesta ilegible. Vuelve a lanzar el análisis.",
+      "notActivityUrl": "URL de actividad no válida — usa el enlace …/recent-activity/all/ de tu perfil LinkedIn.",
+      "urlInvalid": "URL no válida.",
+      "fetchFailed": "No se pudo obtener el contenido de este enlace.",
+      "noContent": "No se encontró contenido utilizable en esta página.",
+      "invalidJson": "Respuesta de IA incompleta o ilegible. Inténtalo de nuevo.",
+      "emptyResponse": "Respuesta vacía del proveedor. Inténtalo de nuevo.",
+      "newsFiltered": "Ninguna noticia reciente coincide con tus filtros. Amplía las palabras clave.",
+      "noRecentNews": "No hay noticias recientes para tus criterios.",
+      "noNewsResults": "Sin resultados. Ajusta las palabras clave de actualidad.",
+      "unauthorized": "Sesión caducada. Vuelve a iniciar sesión.",
+      "invalidBody": "Solicitud no válida. Recarga la página e inténtalo de nuevo.",
+      "emailNotConfigured": "El informe por correo no está configurado en el servidor.",
+      "notifyFailed": "No se pudo enviar la notificación.",
+      "reportFailed": "No se pudo enviar el informe ahora."
+    },
+    "hints": {
+      "linkedin_requires_perplexity": "Perplexity Sonar puede explorar la web para leer tu feed de actividad público.",
+      "linkedin_fetch_unavailable": "Si solo usas Claude, el análisis puede apoyarse en tu perfil sin escaneo LinkedIn en directo."
+    }
+  },
   "landing": {
     "hero": {
       "brand": "ULTRA CONTENT MAKER",

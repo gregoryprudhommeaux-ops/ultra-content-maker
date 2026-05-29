@@ -1,7 +1,10 @@
 "use client";
 
 import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper";
+import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useFormatUserError } from "@/hooks/use-format-user-error";
+import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import {
   defaultModelForProvider,
@@ -58,13 +61,14 @@ function useProviderGuides(t: ReturnType<typeof useTranslations<"setup.llm">>) {
 
 export function LlmSetupForm() {
   const t = useTranslations("setup.llm");
+  const formatError = useFormatUserError();
   const guides = useProviderGuides(t);
   const { user } = useAuth();
   const router = useRouter();
   const [provider, setProvider] = useState<LlmProvider>("perplexity");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorInfo, setErrorInfo] = useState<UserErrorInfo | null>(null);
   const [pending, setPending] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -86,10 +90,10 @@ export function LlmSetupForm() {
     if (!user) return;
     const trimmed = apiKey.trim();
     if (trimmed.length < 8) {
-      setError(t("errors.keyTooShort"));
+      setErrorInfo({ message: t("errors.keyTooShort") });
       return;
     }
-    setError(null);
+    setErrorInfo(null);
     setPending(true);
     try {
       const verifyRes = await fetch("/api/llm/verify", {
@@ -100,16 +104,14 @@ export function LlmSetupForm() {
       const verifyData = await verifyRes.json();
       if (!verifyRes.ok) {
         const detail = typeof verifyData.detail === "string" ? verifyData.detail : "";
-        const code = typeof verifyData.error === "string" ? verifyData.error : "";
-        if (code === "insufficient_credits") {
-          setError(t("errors.insufficientCredits"));
-          return;
-        }
-        if (code === "invalid_api_key") {
-          setError(t("errors.invalidKey"));
-          return;
-        }
-        setError(t("errors.verifyFailed", { detail: detail.slice(0, 120) }));
+        const code = typeof verifyData.error === "string" ? verifyData.error : "verify_failed";
+        setErrorInfo(
+          formatError({
+            errorCode: code,
+            detail,
+            fallbackMessage: t("errors.verifyFailed", { detail: detail.slice(0, 120) }),
+          }),
+        );
         return;
       }
 
@@ -122,7 +124,7 @@ export function LlmSetupForm() {
       notifyOnboardingProgressChanged();
       router.push("/setup/author");
     } catch {
-      setError(t("errors.saveFailed"));
+      setErrorInfo({ message: t("errors.saveFailed") });
     } finally {
       setPending(false);
     }
@@ -205,7 +207,16 @@ export function LlmSetupForm() {
           </p>
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {errorInfo && (
+          <UserErrorBanner
+            surface="llm-setup"
+            userMessage={errorInfo.message}
+            hint={errorInfo.hint}
+            technical={errorInfo.technical}
+            errorCode={errorInfo.errorCode}
+            detail={errorInfo.detail}
+          />
+        )}
 
         <button
           type="submit"
