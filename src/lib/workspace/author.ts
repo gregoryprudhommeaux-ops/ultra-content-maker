@@ -5,7 +5,25 @@ import type {
   CreationStrategyCache,
 } from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
-import { toDate } from "./firestore-utils";
+import { isValidUrl, toDate } from "./firestore-utils";
+
+/** Minimum fields before the author step counts as complete (onboarding gate). */
+export function isAuthorProfileMinimumComplete(
+  profile: Pick<
+    AuthorProfile,
+    "linkedinProfileUrl" | "roleTitle" | "positioningLine" | "contentLanguage"
+  > | null | undefined,
+): boolean {
+  if (!profile) return false;
+  const linkedin = profile.linkedinProfileUrl?.trim() ?? "";
+  return (
+    linkedin.length > 0 &&
+    isValidUrl(linkedin) &&
+    Boolean(profile.roleTitle?.trim()) &&
+    Boolean(profile.positioningLine?.trim()) &&
+    Boolean(profile.contentLanguage)
+  );
+}
 
 const DOC_ID = "profile";
 
@@ -76,5 +94,9 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
 }
 
 export async function completeAuthorStep(userId: string) {
+  const prev = await getAuthorProfile(userId);
+  if (!isAuthorProfileMinimumComplete(prev)) {
+    throw new Error("author_profile_minimum_incomplete");
+  }
   await saveAuthorProfile(userId, { status: "complete" });
 }

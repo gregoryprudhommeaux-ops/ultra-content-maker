@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { OnboardingRouteGuard } from "@/components/onboarding/onboarding-route-guard";
 import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper";
 import { OnboardingProgressProvider } from "@/contexts/onboarding-progress-context";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -14,7 +15,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <DashboardShell>
             <LlmKeyDialog />
             <OnboardingStepper placement="dashboard" />
-            {children}
+            <OnboardingRouteGuard>{children}</OnboardingRouteGuard>
           </DashboardShell>
         </OnboardingProgressProvider>
       </RequireAuth>

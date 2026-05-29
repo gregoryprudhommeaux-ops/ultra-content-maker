@@ -97,6 +97,9 @@ export function AudienceSetupForm() {
       <div>
         <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
         <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>
+        <p className="mt-2 inline-flex rounded-full border border-ns-alternate bg-ns-brand-light px-2.5 py-0.5 text-xs font-semibold text-ns-secondary">
+          {t("stepBadge")}
+        </p>
       </div>
 
       <form onSubmit={onSubmit} className="max-w-xl space-y-4" aria-busy={pending}>

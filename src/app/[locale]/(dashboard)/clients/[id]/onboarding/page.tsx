@@ -1,11 +1,8 @@
-"use client";
+import { redirectWithLocale } from "@/i18n/server-navigation";
 
-import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
-import { use } from "react";
+type Props = { params: Promise<{ locale: string; id: string }> };
 
-type Props = { params: Promise<{ id: string }> };
-
-export default function ClientOnboardingPage({ params }: Props) {
-  const { id } = use(params);
-  return <OnboardingWizard clientId={id} />;
+export default async function LegacyClientOnboardingPage({ params }: Props) {
+  const { locale } = await params;
+  redirectWithLocale("/setup/author?tab=essential", locale);
 }

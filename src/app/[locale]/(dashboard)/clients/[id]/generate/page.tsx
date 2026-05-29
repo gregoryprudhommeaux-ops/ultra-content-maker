@@ -1,11 +1,8 @@
-"use client";
+import { redirectWithLocale } from "@/i18n/server-navigation";
 
-import { PersonaSectionPlaceholder } from "@/components/clients/persona-section-placeholder";
-import { use } from "react";
+type Props = { params: Promise<{ locale: string; id: string }> };
 
-type Props = { params: Promise<{ id: string }> };
-
-export default function PersonaGeneratePage({ params }: Props) {
-  const { id } = use(params);
-  return <PersonaSectionPlaceholder personaId={id} section="generate" />;
+export default async function LegacyClientGeneratePage({ params }: Props) {
+  const { locale } = await params;
+  redirectWithLocale("/articles/new", locale);
 }

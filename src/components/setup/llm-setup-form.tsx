@@ -15,7 +15,8 @@ import {
 } from "@/lib/workspace/llm-settings";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import type { LlmProvider } from "@/types/workspace";
-import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { OptionalLabel } from "@/components/setup/optional-label";
+import { INPUT_CLASS } from "@/types/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
@@ -147,9 +148,9 @@ export function LlmSetupForm() {
 
       <form onSubmit={onSubmit} className="max-w-xl space-y-6">
         <div>
-          <label className={LABEL_CLASS} htmlFor="provider">
+          <OptionalLabel htmlFor="provider" optional={false}>
             {t("provider")}
-          </label>
+          </OptionalLabel>
           <select
             id="provider"
             value={provider}
@@ -184,9 +185,9 @@ export function LlmSetupForm() {
         </div>
 
         <div>
-          <label className={LABEL_CLASS} htmlFor="api-key">
+          <OptionalLabel htmlFor="api-key" optional={false}>
             {t("apiKey")}
-          </label>
+          </OptionalLabel>
           <div className="flex gap-2">
             <input
               id="api-key"

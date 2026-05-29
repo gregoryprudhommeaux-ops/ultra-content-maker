@@ -28,7 +28,7 @@ export function OnboardingGuard({
 }: Props) {
   const t = useTranslations("setup.onboarding.guard");
   const router = useRouter();
-  const { progress, loading } = useOnboardingProgress();
+  const { progress, status, loading } = useOnboardingProgress();
   const didRedirect = useRef(false);
 
   const blocked =
@@ -41,8 +41,8 @@ export function OnboardingGuard({
 
   const redirectHref =
     mode === "creation"
-      ? progress?.creationRedirectHref ?? "/start"
-      : progress?.nextHref;
+      ? (status?.nextHref ?? progress?.creationRedirectHref ?? "/start")
+      : (status?.nextHref ?? progress?.nextHref);
 
   useEffect(() => {
     if (!redirect || !blocked || !redirectHref || didRedirect.current) return;

@@ -1,6 +1,7 @@
 "use client";
 
-import { CreationIntentSummary } from "@/components/articles/creation/creation-intent-summary";
+import { BriefReminderBanner } from "@/components/articles/creation/brief-reminder-banner";
+import { SetupReadyBanner } from "@/components/articles/creation/setup-ready-banner";
 import {
   WizardProgress,
   resolveWizardProgressStep,
@@ -8,6 +9,7 @@ import {
 import { InspirationLibraryStep } from "@/components/articles/creation/inspiration-library-step";
 import { InspirationSourceChoice } from "@/components/articles/creation/inspiration-source-choice";
 import { ArticleEditor } from "@/components/articles/article-editor";
+import { CreationIntentSummary } from "@/components/articles/creation/creation-intent-summary";
 import { CreationModePicker } from "@/components/articles/creation/creation-mode-picker";
 import { InspirationUrlStep } from "@/components/articles/creation/inspiration-url-step";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
@@ -25,7 +27,10 @@ import { PostBriefForm } from "@/components/articles/post-brief-form";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
-import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
+import {
+  notifyOnboardingProgressChanged,
+  useOnboardingProgress,
+} from "@/contexts/onboarding-progress-context";
 import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
 import { DEFAULT_POST_BRIEF, saveStoredPostBrief } from "@/lib/articles/post-brief-storage";
 import { newsToSource } from "@/lib/news/to-source";
@@ -94,7 +99,24 @@ export function ArticleCreationWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
+  const { status: onboardingStatus } = useOnboardingProgress();
+  const [showSetupReadyBanner, setShowSetupReadyBanner] = useState(false);
+  const [showBriefReminder, setShowBriefReminder] = useState(false);
   const initialModeFromUrl = useRef(false);
+
+  useEffect(() => {
+    if (searchParams.get("from") === "ready") {
+      setShowSetupReadyBanner(true);
+      setShowBriefReminder(false);
+      return;
+    }
+    if (
+      onboardingStatus?.isReadyToCreate &&
+      !onboardingStatus.hasGeneratedFirstDraft
+    ) {
+      setShowBriefReminder(true);
+    }
+  }, [searchParams, onboardingStatus]);
 
   const [personaText, setPersonaText] = useState("");
   const [emojiLevel, setEmojiLevel] = useState<EmojiLevel>("light");
@@ -823,6 +845,14 @@ export function ArticleCreationWizard() {
             {t("back")}
           </button>
         )}
+
+      {step === "mode" && showSetupReadyBanner && (
+        <SetupReadyBanner onDismiss={() => setShowSetupReadyBanner(false)} />
+      )}
+
+      {step === "mode" && showBriefReminder && !showSetupReadyBanner && (
+        <BriefReminderBanner onDismiss={() => setShowBriefReminder(false)} />
+      )}
 
       {step === "mode" && (
         <CreationModePicker

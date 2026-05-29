@@ -1,5 +1,6 @@
 import type { OnboardingStepKey, OnboardingStepState } from "./onboarding-progress";
 import { loadOnboardingProgress, ONBOARDING_STEPS } from "./onboarding-progress";
+import { resolveNextStep } from "./onboarding-status";
 
 /** Explicit completion flags for guards, nav, and analytics. */
 export type SetupCompletion = {
@@ -59,12 +60,12 @@ export function evaluateCreationGate(completion: SetupCompletion): CreationGateR
     };
   }
 
-  const step = ONBOARDING_STEPS.find((s) => s.key === missing);
+  const { nextHref } = resolveNextStep(completion);
   return {
     allowed: false,
     completion,
     missingStep: missing,
-    redirectHref: step?.href ?? "/setup/llm",
+    redirectHref: nextHref,
   };
 }
 

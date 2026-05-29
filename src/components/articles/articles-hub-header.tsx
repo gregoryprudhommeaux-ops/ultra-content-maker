@@ -2,6 +2,7 @@
 
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import type { LibraryStatusFilter } from "@/lib/articles/library-filters";
+import { ContextHelp } from "@/components/ui/context-help";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -31,9 +32,12 @@ export function ArticlesHubHeader({ statusFilter }: Props) {
       </div>
 
       <header className="px-4 py-5 md:px-6 md:py-6">
-        <h1 className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl">
-          {t("library.title")}
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl">
+            {t("library.title")}
+          </h1>
+          <ContextHelp label={t("help.lot.label")}>{t("help.lot.body")}</ContextHelp>
+        </div>
         <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary">
           {isPendingView ? t("library.descriptionPending") : t("library.description")}
         </p>

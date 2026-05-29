@@ -7,6 +7,7 @@ import {
   type LibraryStatusFilter,
 } from "@/lib/articles/library-filters";
 import { INPUT_CLASS } from "@/types/workspace";
+import { ContextHelp } from "@/components/ui/context-help";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -60,6 +61,7 @@ export function ArticlesLibraryToolbar({
   totalCount,
 }: Props) {
   const t = useTranslations("setup.articles.library");
+  const tHelp = useTranslations("setup.articles.help");
 
   const hasActiveFilters =
     filters.query.trim().length > 0 ||
@@ -110,9 +112,14 @@ export function ArticlesLibraryToolbar({
       </div>
 
       <div className="space-y-2">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-ns-secondary">
-          {t("scopeLabel")}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-ns-secondary">
+            {t("scopeLabel")}
+          </p>
+          <ContextHelp label={tHelp("scopeFilter.label")}>
+            {tHelp("scopeFilter.body")}
+          </ContextHelp>
+        </div>
         <div className="flex flex-wrap gap-2">
           {SCOPE_OPTIONS.map((scope) => (
             <FilterChip

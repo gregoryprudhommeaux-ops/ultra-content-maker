@@ -19,7 +19,7 @@ export function ReadyScreen() {
       return;
     }
     if (progress.completion.isOnboardingComplete) {
-      router.replace("/articles/new");
+      router.replace("/articles/new?from=ready");
     }
   }, [loading, progress, router]);
 
@@ -78,7 +78,7 @@ export function ReadyScreen() {
       </ul>
 
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-        <Link href="/articles/new" className={BTN_PRIMARY}>
+        <Link href="/articles/new?from=ready" className={BTN_PRIMARY}>
           {t("ctaCreate")}
         </Link>
         <Link

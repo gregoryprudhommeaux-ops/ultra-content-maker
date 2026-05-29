@@ -1,9 +1,13 @@
 import { getAudienceProfile } from "./audience";
-import { getAuthorProfile } from "./author";
+import { getAuthorProfile, isAuthorProfileMinimumComplete } from "./author";
 import { listArticleBatches } from "./articles";
 import { getUserLlmProfile } from "./llm-settings";
 import { getPersona } from "./persona";
 import type { SetupCompletion } from "./setup-completion";
+import {
+  getOnboardingStatusFromProgress,
+  resolveCreationBlockHref,
+} from "./onboarding-status";
 
 export type OnboardingStepKey = "llm" | "author" | "audience" | "persona" | "articles";
 
@@ -74,7 +78,8 @@ export async function loadOnboardingProgress(
 
   const completion: Record<OnboardingStepKey, boolean> = {
     llm: Boolean(llm?.apiKey?.trim()),
-    author: author?.status === "complete",
+    author:
+      author?.status === "complete" && isAuthorProfileMinimumComplete(author),
     audience: isAudienceComplete(audience),
     persona: persona?.status === "validated",
     articles: batches.some((b) => b.articles.length > 0),
@@ -109,9 +114,7 @@ export async function loadOnboardingProgress(
   const setupCompletion = completionFromSteps(steps, completedCount);
   const gate = evaluateCreationGate(setupCompletion);
 
-  const { ONBOARDING_WELCOME_PATH } = await import("./onboarding-routes");
-
-  return {
+  const draft: OnboardingProgress = {
     steps,
     percent,
     completedCount,
@@ -119,6 +122,16 @@ export async function loadOnboardingProgress(
     nextHref: next?.href ?? null,
     completion: setupCompletion,
     canAccessCreation: gate.allowed,
-    creationRedirectHref: gate.allowed ? null : ONBOARDING_WELCOME_PATH,
+    creationRedirectHref: null,
+  };
+
+  const status = getOnboardingStatusFromProgress(draft);
+
+  return {
+    ...draft,
+    nextHref: status.nextHref,
+    creationRedirectHref: gate.allowed
+      ? null
+      : resolveCreationBlockHref(status),
   };
 }
