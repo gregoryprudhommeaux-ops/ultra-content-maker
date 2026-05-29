@@ -354,6 +354,34 @@
       "hideKey": "Ocultar",
       "modelHint": "Modelo por defecto: {model}",
       "continue": "Continuar a Mi perfil →",
+      "dataManagement": {
+        "title": "Gestión de datos",
+        "subtitle": "Reiniciar o borrar tu espacio de trabajo.",
+        "warning": "Estas acciones son irreversibles. Copia los posts validados que necesites antes de continuar.",
+        "reset": {
+          "title": "Reiniciar mi perfil",
+          "description": "Borra tu perfil, Persona, inspiraciones y biblioteca de posts. Se conserva tu clave API — vuelves al paso « Mi perfil ».",
+          "action": "Reiniciar mi perfil",
+          "pending": "Reiniciando…",
+          "confirm": "¿Reiniciar tu perfil? Se eliminarán tus posts y Persona. Se conservará tu clave API."
+        },
+        "delete": {
+          "title": "Borrar todos mis datos",
+          "description": "Elimina todo: perfil, Persona, posts y clave API. No quedará ningún dato editorial en la plataforma.",
+          "showForm": "Borrar todos mis datos…",
+          "confirmLabel": "Escribe {word} para confirmar",
+          "confirmWord": "BORRAR",
+          "action": "Borrar definitivamente",
+          "pending": "Borrando…",
+          "cancel": "Cancelar"
+        },
+        "errors": {
+          "notAuthenticated": "Sesión expirada. Vuelve a iniciar sesión.",
+          "adminNotConfigured": "Acción no disponible (servidor no configurado). Contacta con soporte.",
+          "generic": "No se pudo completar la acción. Inténtalo de nuevo.",
+          "confirmMismatch": "Introduce la palabra de confirmación exacta."
+        }
+      },
       "errors": {
         "keyTooShort": "La clave parece demasiado corta. Comprueba que copiaste la clave completa.",
         "invalidKey": "El proveedor rechazó esta clave API. Comprueba que está activa y corresponde al servicio elegido.",

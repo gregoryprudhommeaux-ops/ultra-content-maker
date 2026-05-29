@@ -354,6 +354,34 @@
       "hideKey": "Masquer",
       "modelHint": "Modèle utilisé par défaut : {model}",
       "continue": "Continuer vers Mon profil →",
+      "dataManagement": {
+        "title": "Gestion des données",
+        "subtitle": "Recommencer ou effacer votre espace de travail.",
+        "warning": "Ces actions sont irréversibles. Exportez ou copiez vos posts validés avant de continuer si vous en avez besoin.",
+        "reset": {
+          "title": "Recommencer mon profil",
+          "description": "Efface votre profil, Persona, inspirations et bibliothèque de posts. Votre clé API est conservée — vous repartez de l’étape « Mon profil ».",
+          "action": "Recommencer mon profil",
+          "pending": "Réinitialisation…",
+          "confirm": "Recommencer votre profil ? Vos posts et votre Persona seront supprimés. Votre clé API sera conservée."
+        },
+        "delete": {
+          "title": "Effacer toutes mes données",
+          "description": "Supprime tout : profil, Persona, posts et clé API. Aucune donnée éditoriale ne restera sur la plateforme.",
+          "showForm": "Effacer toutes mes données…",
+          "confirmLabel": "Tapez {word} pour confirmer",
+          "confirmWord": "EFFACER",
+          "action": "Effacer définitivement",
+          "pending": "Suppression…",
+          "cancel": "Annuler"
+        },
+        "errors": {
+          "notAuthenticated": "Session expirée. Reconnectez-vous.",
+          "adminNotConfigured": "Action indisponible (serveur non configuré). Contactez le support.",
+          "generic": "Impossible d’effectuer l’action. Réessayez.",
+          "confirmMismatch": "Saisissez le mot de confirmation exact."
+        }
+      },
       "errors": {
         "keyTooShort": "La clé API semble trop courte. Vérifiez que vous avez copié la clé complète.",
         "invalidKey": "Cette clé API est refusée par le fournisseur. Vérifiez qu'elle est active et correspond au bon service.",

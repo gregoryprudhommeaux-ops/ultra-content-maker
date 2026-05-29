@@ -2,6 +2,7 @@
 
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper";
+import { ProfileDataManagement } from "@/components/setup/profile-data-management";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useFormatUserError } from "@/hooks/use-format-user-error";
@@ -228,6 +229,8 @@ export function LlmSetupForm() {
           {t("continue")}
         </button>
       </form>
+
+      <ProfileDataManagement />
     </div>
   );
 }

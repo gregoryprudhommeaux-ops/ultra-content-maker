@@ -354,6 +354,34 @@
       "hideKey": "Hide",
       "modelHint": "Default model: {model}",
       "continue": "Continue to My profile →",
+      "dataManagement": {
+        "title": "Data management",
+        "subtitle": "Reset or erase your workspace.",
+        "warning": "These actions cannot be undone. Copy any validated posts you need before continuing.",
+        "reset": {
+          "title": "Restart my profile",
+          "description": "Clears your profile, Persona, inspirations, and post library. Your API key is kept — you restart at the My profile step.",
+          "action": "Restart my profile",
+          "pending": "Resetting…",
+          "confirm": "Restart your profile? Your posts and Persona will be deleted. Your API key will be kept."
+        },
+        "delete": {
+          "title": "Erase all my data",
+          "description": "Removes everything: profile, Persona, posts, and API key. No editorial data will remain on the platform.",
+          "showForm": "Erase all my data…",
+          "confirmLabel": "Type {word} to confirm",
+          "confirmWord": "DELETE",
+          "action": "Erase permanently",
+          "pending": "Deleting…",
+          "cancel": "Cancel"
+        },
+        "errors": {
+          "notAuthenticated": "Session expired. Sign in again.",
+          "adminNotConfigured": "Action unavailable (server not configured). Contact support.",
+          "generic": "Could not complete the action. Try again.",
+          "confirmMismatch": "Enter the exact confirmation word."
+        }
+      },
       "errors": {
         "keyTooShort": "The API key looks too short. Make sure you copied the full key.",
         "invalidKey": "This API key was rejected by the provider. Check that it is active and matches the selected service.",
