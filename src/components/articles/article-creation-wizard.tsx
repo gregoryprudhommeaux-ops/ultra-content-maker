@@ -784,14 +784,16 @@ export function ArticleCreationWizard() {
         step === "mode" || step === "draft-done" ? "max-w-4xl" : "max-w-3xl"
       }`}
     >
-      <div className="flex items-center gap-3">
-        <Link
-          href="/articles"
-          className="text-sm text-ns-secondary hover:text-ns-tertiary"
-        >
-          ← {t("backToList")}
-        </Link>
-      </div>
+      {step !== "mode" && (
+        <div className="flex items-center gap-3">
+          <Link
+            href="/articles"
+            className="text-sm text-ns-secondary hover:text-ns-tertiary"
+          >
+            ← {t("backToList")}
+          </Link>
+        </div>
+      )}
 
       {step !== "mode" && (
         <header>

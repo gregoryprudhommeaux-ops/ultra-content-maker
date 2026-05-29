@@ -672,7 +672,12 @@
               "correction": "Course correction",
               "pivot": "Pivot",
               "news": "News"
-            }
+            },
+            "highlightModeHint": "Scroll down to the “{mode}” path below — it will be highlighted.",
+            "themesSelectHint": "1. Click to select a theme · 2. Then start adjustment (brief pre-filled).",
+            "themesSelected": "Selected",
+            "themesStartAdjustment": "Start adjustment with this theme",
+            "themesStartHint": "“{title}” → {mode} path"
           },
           "modes": {
             "profile": {

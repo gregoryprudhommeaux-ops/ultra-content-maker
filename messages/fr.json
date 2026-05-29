@@ -672,7 +672,12 @@
               "correction": "Redressement",
               "pivot": "Pivot",
               "news": "Actu"
-            }
+            },
+            "highlightModeHint": "Faites défiler vers le parcours « {mode} » ci-dessous — il sera mis en surbrillance.",
+            "themesSelectHint": "1. Cliquez pour sélectionner une thématique · 2. Puis lancez l’ajustement (brief pré-rempli).",
+            "themesSelected": "Sélectionnée",
+            "themesStartAdjustment": "Démarrer l’ajustement avec cette thématique",
+            "themesStartHint": "« {title} » → parcours {mode}"
           },
           "modes": {
             "profile": {

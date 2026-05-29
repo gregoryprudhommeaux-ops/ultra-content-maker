@@ -672,7 +672,12 @@
               "correction": "Corrección",
               "pivot": "Pivote",
               "news": "Actualidad"
-            }
+            },
+            "highlightModeHint": "Desplázate al recorrido «{mode}» abajo — quedará resaltado.",
+            "themesSelectHint": "1. Haz clic para elegir un tema · 2. Luego inicia el ajuste (brief prellenado).",
+            "themesSelected": "Seleccionado",
+            "themesStartAdjustment": "Iniciar ajuste con este tema",
+            "themesStartHint": "«{title}» → recorrido {mode}"
           },
           "modes": {
             "profile": {

@@ -35,12 +35,15 @@ const RELATION_BADGE: Record<
 type Props = {
   personaText: string;
   onRecommendMode: (mode: ModeId) => void;
+  /** Scroll to and emphasize the matching creation mode card. */
+  onFocusRecommendedMode?: (mode: ModeId) => void;
   onApplyTheme?: (theme: CreationStrategyTheme, mode: ModeId) => void;
 };
 
 export function CreationStrategyGuidePanel({
   personaText,
   onRecommendMode,
+  onFocusRecommendedMode,
   onApplyTheme,
 }: Props) {
   const t = useTranslations("setup.articles.create.modePicker.strategy");
@@ -53,6 +56,7 @@ export function CreationStrategyGuidePanel({
   const [loading, setLoading] = useState(false);
   const [errorInfo, setErrorInfo] = useState<UserErrorInfo | null>(null);
   const [steering, setSteering] = useState("");
+  const [selectedThemeIndex, setSelectedThemeIndex] = useState<number | null>(null);
   const fetchedRef = useRef(false);
 
   const runAnalysis = useCallback(
@@ -128,6 +132,7 @@ export function CreationStrategyGuidePanel({
         }
 
         setGuide(data.guide);
+        setSelectedThemeIndex(null);
         onRecommendMode(data.guide.recommendedMode);
 
         const cachePayload =
@@ -239,48 +244,94 @@ export function CreationStrategyGuidePanel({
             </p>
             <button
               type="button"
-              onClick={() => onRecommendMode(guide.recommendedMode)}
+              onClick={() =>
+                (onFocusRecommendedMode ?? onRecommendMode)(guide.recommendedMode)
+              }
               className="mt-3 rounded-lg bg-ns-hero px-3 py-2 text-xs font-bold uppercase tracking-wider text-ns-primary hover:bg-ns-primary hover:text-black"
             >
               {t("highlightMode")}
             </button>
+            <p className="mt-2 text-xs font-medium text-ns-secondary">
+              {t("highlightModeHint", {
+                mode: t(`modes.${guide.recommendedMode}`),
+              })}
+            </p>
           </div>
 
           <div>
             <p className={META_LABEL}>{t("themesLabel")}</p>
+            <p className="mt-1 text-xs font-medium text-ns-secondary">{t("themesSelectHint")}</p>
             <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-              {guide.themes.map((theme, i) => (
-                <li key={theme.title}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onRecommendMode(theme.suggestedMode);
-                      onApplyTheme?.(theme, theme.suggestedMode);
-                    }}
-                    className="h-full w-full rounded-xl border border-gray-200 bg-white p-4 text-left transition hover:border-ns-primary/50 hover:shadow-md"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[10px] font-black text-ns-secondary">
-                        {i + 1}/4
-                      </span>
-                      <span
-                        className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${RELATION_BADGE[theme.relationToHistory]}`}
-                      >
-                        {t(`relation.${theme.relationToHistory}`)}
-                      </span>
-                    </div>
-                    <h4 className="mt-2 text-sm font-bold text-ns-tertiary">{theme.title}</h4>
-                    <p className="mt-1 text-xs font-medium text-ns-secondary">{theme.angle}</p>
-                    <p className="mt-2 text-xs text-ns-secondary/90">{theme.rationale}</p>
-                    {theme.newsHook && (
-                      <p className="mt-2 text-xs font-semibold text-sky-800">
-                        {t("newsHook")}: {theme.newsHook}
-                      </p>
-                    )}
-                  </button>
-                </li>
-              ))}
+              {guide.themes.map((theme, i) => {
+                const selected = selectedThemeIndex === i;
+                return (
+                  <li key={theme.title}>
+                    <button
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => {
+                        setSelectedThemeIndex(i);
+                        (onFocusRecommendedMode ?? onRecommendMode)(theme.suggestedMode);
+                      }}
+                      className={[
+                        "h-full w-full rounded-xl border bg-white p-4 text-left transition",
+                        selected
+                          ? "border-ns-primary ring-2 ring-ns-primary/30 shadow-md"
+                          : "border-gray-200 hover:border-ns-primary/50 hover:shadow-md",
+                      ].join(" ")}
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-black text-ns-secondary">
+                          {i + 1}/4
+                        </span>
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${RELATION_BADGE[theme.relationToHistory]}`}
+                        >
+                          {t(`relation.${theme.relationToHistory}`)}
+                        </span>
+                        {selected && (
+                          <span className="rounded-full bg-ns-primary px-2 py-0.5 text-[10px] font-black uppercase text-black">
+                            {t("themesSelected")}
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="mt-2 text-sm font-bold text-ns-tertiary">{theme.title}</h4>
+                      <p className="mt-1 text-xs font-medium text-ns-secondary">{theme.angle}</p>
+                      <p className="mt-2 text-xs text-ns-secondary/90">{theme.rationale}</p>
+                      {theme.newsHook && (
+                        <p className="mt-2 text-xs font-semibold text-sky-800">
+                          {t("newsHook")}: {theme.newsHook}
+                        </p>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
+            {onApplyTheme && (
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  disabled={selectedThemeIndex === null}
+                  onClick={() => {
+                    if (selectedThemeIndex === null) return;
+                    const theme = guide.themes[selectedThemeIndex];
+                    onApplyTheme(theme, theme.suggestedMode);
+                  }}
+                  className="inline-flex items-center justify-center rounded-sm bg-ns-primary px-5 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  {t("themesStartAdjustment")}
+                </button>
+                {selectedThemeIndex !== null && (
+                  <p className="text-xs font-medium text-ns-secondary">
+                    {t("themesStartHint", {
+                      title: guide.themes[selectedThemeIndex].title,
+                      mode: t(`modes.${guide.themes[selectedThemeIndex].suggestedMode}`),
+                    })}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="rounded-xl border border-dashed border-ns-alternate/80 bg-white/80 p-4">

@@ -6,7 +6,7 @@ import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { ArticleDoc, CreationStrategyTheme } from "@/types/workspace";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 type ModeId = WizardCreationMode;
 
@@ -137,6 +137,20 @@ export function CreationModePicker({
 }: Props) {
   const t = useTranslations("setup.articles.create.modePicker");
   const [guideHighlight, setGuideHighlight] = useState<ModeId | null>(null);
+  const [pulseMode, setPulseMode] = useState<ModeId | null>(null);
+  const modeCardRefs = useRef<Partial<Record<ModeId, HTMLButtonElement | null>>>({});
+
+  const focusCreationMode = useCallback((mode: ModeId) => {
+    setGuideHighlight(mode);
+    setPulseMode(mode);
+    window.setTimeout(() => setPulseMode(null), 2400);
+    requestAnimationFrame(() => {
+      modeCardRefs.current[mode]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }, []);
 
   const guideOptions: { key: GuideKey; label: string }[] = [
     { key: "regular", label: t("guide.regular") },
@@ -196,7 +210,7 @@ export function CreationModePicker({
               <button
                 key={opt.key}
                 type="button"
-                onClick={() => setGuideHighlight(mode)}
+                onClick={() => focusCreationMode(mode)}
                 className={[
                   "rounded-xl border px-4 py-2.5 text-left text-sm font-semibold transition-all",
                   active
@@ -218,8 +232,9 @@ export function CreationModePicker({
         <CreationStrategyGuidePanel
           personaText={personaText}
           onRecommendMode={setGuideHighlight}
+          onFocusRecommendedMode={focusCreationMode}
           onApplyTheme={(theme, mode) => {
-            setGuideHighlight(mode);
+            focusCreationMode(mode);
             onApplyTheme?.(theme, mode);
           }}
         />
@@ -231,6 +246,10 @@ export function CreationModePicker({
             key={config.id}
             config={config}
             highlighted={guideHighlight === config.id}
+            pulsing={pulseMode === config.id}
+            cardRef={(el) => {
+              modeCardRefs.current[config.id] = el;
+            }}
             onSelect={onSelect}
             t={t}
             featured
@@ -242,6 +261,10 @@ export function CreationModePicker({
               key={config.id}
               config={config}
               highlighted={guideHighlight === config.id}
+              pulsing={pulseMode === config.id}
+              cardRef={(el) => {
+                modeCardRefs.current[config.id] = el;
+              }}
               onSelect={onSelect}
               t={t}
             />
@@ -262,12 +285,16 @@ export function CreationModePicker({
 function ModeCard({
   config,
   highlighted,
+  pulsing,
+  cardRef,
   onSelect,
   t,
   featured = false,
 }: {
   config: ModeConfig;
   highlighted: boolean;
+  pulsing?: boolean;
+  cardRef?: (el: HTMLButtonElement | null) => void;
   onSelect: (mode: ModeId) => void;
   t: ReturnType<typeof useTranslations<"setup.articles.create.modePicker">>;
   featured?: boolean;
@@ -279,6 +306,7 @@ function ModeCard({
   return (
     <button
       type="button"
+      ref={cardRef}
       onClick={() => onSelect(mode)}
       className={[
         "group relative w-full overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition-all duration-200",
@@ -287,6 +315,7 @@ function ModeCard({
         "hover:-translate-y-0.5 hover:shadow-lg",
         featured ? "p-6 md:p-7" : "p-5",
         highlighted ? `ring-2 ${accent.ring} shadow-md` : "",
+        pulsing ? `ring-4 ${accent.ring} scale-[1.01] shadow-lg` : "",
       ].join(" ")}
     >
       <div
