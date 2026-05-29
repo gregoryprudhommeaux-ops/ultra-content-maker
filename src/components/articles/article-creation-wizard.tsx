@@ -21,7 +21,6 @@ import { listSourcesByCategory } from "@/lib/workspace/sources";
 import { NewsDetailModal } from "@/components/news/news-detail-modal";
 import { NewsPickerPanel } from "@/components/articles/news-picker-panel";
 import { PostBriefForm } from "@/components/articles/post-brief-form";
-import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -95,7 +94,6 @@ export function ArticleCreationWizard() {
   const { user, loading: authLoading } = useAuth();
   const initialModeFromUrl = useRef(false);
 
-  const [personaOk, setPersonaOk] = useState<boolean | null>(null);
   const [personaText, setPersonaText] = useState("");
   const [emojiLevel, setEmojiLevel] = useState<EmojiLevel>("light");
   const [loaded, setLoaded] = useState(false);
@@ -159,7 +157,6 @@ export function ArticleCreationWizard() {
         getLearningProfile(user.uid),
         getAudienceProfile(user.uid),
       ]);
-      setPersonaOk(!!persona?.validatedAt && !!persona.promptText?.trim());
       setPersonaText(persona?.promptText ?? "");
       setEmojiLevel(learning?.emojiLevel ?? "light");
       setNewsInterestQuery(
@@ -772,10 +769,6 @@ export function ArticleCreationWizard() {
 
   if (!user) {
     return null;
-  }
-
-  if (!personaOk) {
-    return <OnboardingBlockedBanner reason="persona" />;
   }
 
   return (

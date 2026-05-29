@@ -302,6 +302,10 @@
         "progressHint": "Profile {percent}% complete",
         "cta": "Continue: {step}",
         "ctaDefault": "Next step"
+      },
+      "guard": {
+        "checking": "Checking your setup…",
+        "redirecting": "Redirecting to the next setup step…"
       }
     },
     "llm": {

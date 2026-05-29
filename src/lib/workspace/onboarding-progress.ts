@@ -3,6 +3,7 @@ import { getAuthorProfile } from "./author";
 import { listArticleBatches } from "./articles";
 import { getUserLlmProfile } from "./llm-settings";
 import { getPersona } from "./persona";
+import type { SetupCompletion } from "./setup-completion";
 
 export type OnboardingStepKey = "llm" | "author" | "audience" | "persona" | "articles";
 
@@ -32,6 +33,11 @@ export type OnboardingProgress = {
   completedCount: number;
   nextStep: OnboardingStepKey | null;
   nextHref: string | null;
+  /** Explicit flags — use for guards and nav badges. */
+  completion: SetupCompletion;
+  /** True when API key, profile, audience and persona are ready for /articles/new. */
+  canAccessCreation: boolean;
+  creationRedirectHref: string | null;
 };
 
 function isAudienceComplete(
@@ -96,11 +102,21 @@ export async function loadOnboardingProgress(
 
   const next = ONBOARDING_STEPS.find((s) => !completion[s.key]) ?? null;
 
+  const { completionFromSteps, evaluateCreationGate } = await import(
+    "./setup-completion"
+  );
+
+  const setupCompletion = completionFromSteps(steps, completedCount);
+  const gate = evaluateCreationGate(setupCompletion);
+
   return {
     steps,
     percent,
     completedCount,
     nextStep: next?.key ?? null,
     nextHref: next?.href ?? null,
+    completion: setupCompletion,
+    canAccessCreation: gate.allowed,
+    creationRedirectHref: gate.redirectHref,
   };
 }

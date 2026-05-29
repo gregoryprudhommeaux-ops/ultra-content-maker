@@ -1,0 +1,74 @@
+# Refonte UX Ultra Content Maker (2026)
+
+## Workflow cible
+
+1. Entrée dans l’app  
+2. Onboarding guidé  
+3. Première génération  
+4. Affinage  
+5. Bibliothèque / réutilisation  
+
+## Parcours utilisateur
+
+| Étape | Écran | Décision |
+|-------|--------|----------|
+| 1 | Welcome / onboarding | Promesse en 3 points |
+| 2 | Clé API | Obligatoire avant création |
+| 3 | Profil + cible | Champs essentiels d’abord |
+| 4 | Persona | Montrer ce que l’IA a compris |
+| 5 | Création guidée | Un parcours visible à la fois |
+| 6 | Bibliothèque | Trier, retravailler |
+
+## Chantiers
+
+1. **Onboarding obligatoire** — guards + completion state  
+2. **Navigation** — Accueil / Créer / Bibliothèque / Profil / Réglages  
+3. **`/articles/new`** — wizard progressif (intent → brief → gen → result)  
+4. **`/setup/author`** — Essentiel / Voix / Inspirations  
+5. **Aide contextuelle** — tooltips Persona, Topic DNA, etc.  
+6. **Bibliothèque** — recherche, filtres, statuts, lots  
+
+## Cartographie code (état actuel)
+
+| Zone | Fichiers |
+|------|----------|
+| Complétion setup | `src/lib/workspace/onboarding-progress.ts` |
+| Contexte | `src/contexts/onboarding-progress-context.tsx` |
+| Stepper | `src/components/onboarding/onboarding-stepper.tsx` |
+| Garde | `src/components/onboarding/onboarding-guard.tsx` |
+| Progress partagé | `src/components/onboarding/setup-progress.tsx` |
+| Création | `src/components/articles/article-creation-wizard.tsx` |
+| Nav | `src/components/dashboard-shell.tsx` |
+| Layout dashboard | `src/app/[locale]/(dashboard)/layout.tsx` |
+
+## Phases d’exécution
+
+### Phase 1 — Fondations (en cours)
+
+- [x] `SetupCompletion` + `loadSetupCompletion`  
+- [x] `canAccessCreation` / redirect  
+- [x] `OnboardingGuard` sur `/articles/new`  
+- [x] `SetupProgress` (alias stepper)  
+- [ ] Nav conditionnelle (badges)  
+
+### Phase 2 — Premier usage
+
+- [ ] Welcome / Start here  
+- [ ] Wizard onboarding Clé API → Profil → Cible → Persona → Premier post  
+- [ ] Écran « Vous êtes prêt »  
+
+### Phase 3 — Création guidée
+
+- [ ] State machine `intent → briefing → generation → result`  
+- [ ] Un seul parcours visible après intention  
+- [ ] Panneau repliable « Pourquoi cette recommandation ? »  
+- [ ] Thématiques en drawer optionnel  
+- [ ] Retravailler un post → bibliothèque  
+
+### Phase 4–5 — Profil avancé, bibliothèque
+
+Voir backlog produit initial.
+
+## Branche de travail
+
+`ux-onboarding-refactor`
