@@ -8,7 +8,7 @@ import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import {
   DASHBOARD_NAV,
   dashboardNavNeedsAttention,
-  isDashboardNavActive,
+  resolveDashboardNavActive,
   type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
 import { resolveHomeHrefFromProgress } from "@/lib/workspace/onboarding-routes";
@@ -74,10 +74,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   function isNavItemActive(item: DashboardNavItem) {
-    if (item.key === "home" && progress?.completion.isOnboardingComplete) {
-      return pathname === "/start" || pathname?.startsWith("/start/");
-    }
-    return isDashboardNavActive(item, pathname);
+    return resolveDashboardNavActive(item, pathname, progress);
   }
 
   const logoHref = resolveHomeHrefFromProgress(progress);

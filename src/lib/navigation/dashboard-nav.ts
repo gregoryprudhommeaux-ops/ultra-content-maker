@@ -52,6 +52,41 @@ export function isDashboardNavActive(
   );
 }
 
+/** Path used as Accueil after onboarding (`resolveHomeHrefFromProgress`). */
+export function isPostOnboardingHomePath(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return (
+    pathname === "/articles/new" || pathname.startsWith("/articles/new/")
+  );
+}
+
+/**
+ * Nav highlight aligned with dynamic Accueil href (`resolveHomeHrefFromProgress`).
+ * When onboarding is complete, `/articles/new` is Accueil — not Créer.
+ */
+export function resolveDashboardNavActive(
+  item: DashboardNavItem,
+  pathname: string | null,
+  progress: OnboardingProgress | null | undefined,
+): boolean {
+  if (!pathname) return false;
+
+  if (progress?.completion.isOnboardingComplete) {
+    if (item.key === "home") {
+      return (
+        pathname === "/start" ||
+        pathname.startsWith("/start/") ||
+        isPostOnboardingHomePath(pathname)
+      );
+    }
+    if (item.key === "create" && isPostOnboardingHomePath(pathname)) {
+      return false;
+    }
+  }
+
+  return isDashboardNavActive(item, pathname);
+}
+
 /** Small dot when setup attention is needed on this nav item. */
 export function dashboardNavNeedsAttention(
   key: DashboardNavKey,
