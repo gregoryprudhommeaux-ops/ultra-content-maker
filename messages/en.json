@@ -547,10 +547,43 @@
       "validate": "Validate Persona",
       "goArticles": "Continue to sample posts →",
       "back": "← Back to target",
+      "help": {
+        "guideTitle": "Understand your Content Brain",
+        "guideHint": "Topic DNA, LinkedIn rules, auto-learning — in brief.",
+        "promptLabel": "Persona prompt",
+        "promptBody": "Text the AI reads on every generation. Look for ## Topic DNA and ## LinkedIn operating rules — your editorial DNA.",
+        "sections": {
+          "contentBrain": {
+            "title": "Content Brain",
+            "body": "The Persona is the expert system behind every post: voice, structure, allowed and forbidden topics. The sharper it is, the less you edit after generation."
+          },
+          "topicDna": {
+            "title": "Topic DNA",
+            "body": "Content pillars (3–5 recurring themes), belief statements (what you stand for), and off-topic list (what to refuse). Your LinkedIn thematic compass."
+          },
+          "operatingRules": {
+            "title": "LinkedIn rules",
+            "body": "Native format, credible proof, anti-AI patterns, goal of qualified comments. These rules avoid generic content and engagement bait."
+          },
+          "learned": {
+            "title": "Learned preferences",
+            "body": "At the bottom of the prompt, a section added from your post feedback (tone, emojis, length). It grows without wiping your base."
+          },
+          "validate": {
+            "title": "Validation",
+            "body": "Validate when the prompt reflects your voice. Until validated, post creation stays blocked — your quality gate."
+          },
+          "measurement": {
+            "title": "Measurement loop",
+            "body": "After validation, record signals on published posts (saves, comments, DMs). The AI suggests Persona tweaks based on what performs."
+          }
+        }
+      },
       "gapsTitle": "Assumptions / gaps",
       "gaps": {
         "title": "Complete your profile",
         "subtitle": "Answer these questions to refine your Persona and future LinkedIn posts. You can save partially and come back later.",
+        "help": "AI-generated questions when info is missing (sector, proof, CTA…). Answers enrich your profile and future Persona versions.",
         "textPlaceholder": "Your answer…",
         "save": "Save answers",
         "saving": "Saving…",
@@ -597,6 +630,7 @@
       "insights": {
         "title": "Measurement loop → Persona",
         "subtitle": "Synthesize what works on your published posts (signals entered after validation) to refine your Persona.",
+        "help": "After publishing on LinkedIn, record saves, qualified comments, or DMs on each validated post. The AI suggests Topic DNA adjustments from these signals.",
         "counts": "{validated} validated post(s) · {withSignals} with signals recorded",
         "synthesize": "Synthesize from my posts",
         "generating": "Analyzing performance…",
@@ -612,6 +646,7 @@
       "recentUpdates": {
         "title": "Latest Persona updates",
         "subtitle": "The last 2 integrations (profile, article feedback, your notes).",
+        "help": "Journal of recent changes — not full history. Useful to see what the AI integrated since your last visit.",
         "source": {
           "generate": "Generation",
           "profile_sync": "Profile",
@@ -623,6 +658,7 @@
       "refinement": {
         "title": "Refine your Persona",
         "subtitle": "Add precise instructions: tone, topics, avoid list, examples. The AI updates the prompt and bumps the version.",
+        "help": "Your instructions in plain language. The AI rewrites the Persona keeping Topic DNA and rules — ideal to fix drift without full regeneration.",
         "placeholder": "E.g. Emphasize international networking, less tech jargon, always end with an open question…",
         "apply": "Update Persona",
         "applying": "Updating…",

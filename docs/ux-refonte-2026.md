@@ -80,7 +80,7 @@
 - [x] Filtres statut (tous / à publier / brouillon / affinage / validé)  
 - [x] Filtres portée (généraliste / niche)  
 - [x] Compteur de résultats + lots datés  
-- [ ] Aide contextuelle Persona (backlog)  
+- [x] Aide contextuelle Persona (backlog)  
 
 ### Phase 4–5 — Profil avancé
 

@@ -7,6 +7,7 @@ import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
+import { PersonaContextGuide } from "@/components/persona/persona-context-guide";
 import { PersonaHistoryPanel } from "@/components/persona/persona-history-panel";
 import { PersonaPerformanceInsightsPanel } from "@/components/persona/persona-performance-insights-panel";
 import { PersonaRecentUpdatesPanel } from "@/components/persona/persona-recent-updates-panel";
@@ -21,6 +22,7 @@ import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { serializeForApi } from "@/lib/workspace/serialize-profile";
 import { updateSetupStep } from "@/lib/workspace/user";
 import { getClientAuth } from "@/lib/firebase/client";
+import { ContextHelp } from "@/components/ui/context-help";
 import { ButtonSpinner, GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -247,6 +249,8 @@ export function PersonaEditor() {
         <p className="mt-2 max-w-2xl text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
 
+      <PersonaContextGuide />
+
       {pending && (
         <GeneratingIndicator
           label={t("generating")}
@@ -301,6 +305,13 @@ export function PersonaEditor() {
               {formatVersionLine(versionNumber, personaUpdatedAt, contentLang)}
             </p>
           )}
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-semibold text-ns-tertiary">
+              {t("help.promptLabel")}
+            </label>
+            <ContextHelp label={t("help.promptLabel")}>{t("help.promptBody")}</ContextHelp>
+          </div>
 
           <textarea
             value={promptText}

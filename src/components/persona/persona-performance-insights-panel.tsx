@@ -1,5 +1,6 @@
 "use client";
 
+import { ContextHelp } from "@/components/ui/context-help";
 import { useAuth } from "@/components/auth/auth-provider";
 import { ButtonSpinner, GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { detectSlop } from "@/lib/articles/slop-detector";
@@ -170,7 +171,10 @@ export function PersonaPerformanceInsightsPanel({
   return (
     <section className="rounded-xl border border-violet-200/60 bg-violet-50/40 p-5 space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+        <h2 className="flex items-center gap-2 text-base font-semibold text-ns-tertiary">
+          {t("title")}
+          <ContextHelp label={t("title")}>{t("help")}</ContextHelp>
+        </h2>
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
         <p className="mt-2 text-xs text-ns-secondary">
           {t("counts", {
