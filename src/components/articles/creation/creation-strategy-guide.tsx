@@ -239,9 +239,6 @@ export function CreationStrategyGuidePanel({
             <p className="mt-1 text-sm font-black uppercase tracking-tight text-ns-tertiary">
               {t(`modes.${guide.recommendedMode}`)}
             </p>
-            <p className="mt-2 text-sm font-medium text-ns-secondary">
-              {guide.modeJustification}
-            </p>
             <button
               type="button"
               onClick={() =>
@@ -258,9 +255,39 @@ export function CreationStrategyGuidePanel({
             </p>
           </div>
 
-          <div>
-            <p className={META_LABEL}>{t("themesLabel")}</p>
-            <p className="mt-1 text-xs font-medium text-ns-secondary">{t("themesSelectHint")}</p>
+          <details className="group rounded-xl border border-gray-200 bg-white">
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-ns-tertiary marker:content-none [&::-webkit-details-marker]:hidden">
+              <span className="flex items-center justify-between gap-2">
+                {t("whyRecommendTitle")}
+                <span
+                  className="text-xs font-medium text-ns-secondary transition group-open:rotate-180"
+                  aria-hidden
+                >
+                  ▾
+                </span>
+              </span>
+            </summary>
+            <div className="border-t border-gray-100 px-4 py-3">
+              <p className="text-sm font-medium leading-relaxed text-ns-secondary">
+                {guide.modeJustification}
+              </p>
+            </div>
+          </details>
+
+          <details className="group rounded-xl border border-gray-200 bg-white">
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-ns-tertiary marker:content-none [&::-webkit-details-marker]:hidden">
+              <span className="flex items-center justify-between gap-2">
+                {t("themesDrawerTitle")}
+                <span
+                  className="text-xs font-medium text-ns-secondary transition group-open:rotate-180"
+                  aria-hidden
+                >
+                  ▾
+                </span>
+              </span>
+            </summary>
+            <div className="border-t border-gray-100 px-4 py-4">
+            <p className="text-xs font-medium text-ns-secondary">{t("themesSelectHint")}</p>
             <ul className="mt-3 grid gap-3 sm:grid-cols-2">
               {guide.themes.map((theme, i) => {
                 const selected = selectedThemeIndex === i;
@@ -332,7 +359,8 @@ export function CreationStrategyGuidePanel({
                 )}
               </div>
             )}
-          </div>
+            </div>
+          </details>
 
           <div className="rounded-xl border border-dashed border-ns-alternate/80 bg-white/80 p-4">
             <label htmlFor="strategy-steering" className={LABEL_CLASS}>

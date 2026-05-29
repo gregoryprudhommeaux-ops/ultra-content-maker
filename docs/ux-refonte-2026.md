@@ -61,11 +61,11 @@
 
 ### Phase 3 — Création guidée
 
-- [ ] State machine `intent → briefing → generation → result`  
-- [ ] Un seul parcours visible après intention  
-- [ ] Panneau repliable « Pourquoi cette recommandation ? »  
-- [ ] Thématiques en drawer optionnel  
-- [ ] Retravailler un post → bibliothèque  
+- [x] State machine `intent → briefing → generation → result`  
+- [x] Un seul parcours visible après intention (résumé + changement d’intention)  
+- [x] Panneau repliable « Pourquoi cette recommandation ? »  
+- [x] Thématiques en drawer optionnel  
+- [x] Retravailler un post → bibliothèque  
 
 ### Phase 4–5 — Profil avancé, bibliothèque
 

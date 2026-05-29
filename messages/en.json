@@ -660,6 +660,8 @@
           "heroPill3": "Ready to paste on LinkedIn",
           "recommended": "Recommended",
           "start": "Get started",
+          "strategyDrawerTitle": "LinkedIn analysis & recommendations",
+          "strategyDrawerHint": "Optional — recommended path and 4 themes based on your recent posts.",
           "guide": {
             "title": "Not sure where to start?",
             "subtitle": "Pick the intent that fits you — we’ll highlight the right path.",
@@ -694,6 +696,8 @@
             "patternLabel": "What the AI sees",
             "postsCount": "{count, plural, =0 {No recent posts detected} one {# post analyzed · {period}} other {# posts analyzed · {period}}}",
             "modeLabel": "Recommended path",
+            "whyRecommendTitle": "Why this recommendation?",
+            "themesDrawerTitle": "4 strategic themes",
             "highlightMode": "Highlight this path",
             "themesLabel": "4 strategic themes",
             "newsHook": "News",
@@ -844,13 +848,22 @@
         "pastedPreviewLabel": "Reference excerpt",
         "progress": {
           "ariaLabel": "Creation steps",
-          "mode": "Mode",
+          "intent": "Intent",
           "contextProfile": "Profile",
           "contextNews": "News",
           "contextInspiration": "Reference",
-          "brief": "Brief",
+          "briefing": "Brief",
           "result": "Result",
-          "generating": "Generating…"
+          "generation": "Generating…"
+        },
+        "intentSummary": {
+          "label": "Path:",
+          "change": "Change intent",
+          "modes": {
+            "profile": "From my profile",
+            "news": "From the news",
+            "inspiration": "From existing content"
+          }
         }
       },
       "news": {

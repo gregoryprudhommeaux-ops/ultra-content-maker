@@ -1,5 +1,6 @@
 "use client";
 
+import { CreationIntentSummary } from "@/components/articles/creation/creation-intent-summary";
 import {
   WizardProgress,
   resolveWizardProgressStep,
@@ -47,6 +48,7 @@ import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { getPersona } from "@/lib/workspace/persona";
 import {
   createArticleBatch,
+  getArticle,
   replaceArticleDraft,
 } from "@/lib/workspace/articles";
 import {
@@ -122,7 +124,6 @@ export function ArticleCreationWizard() {
   const [draftArticleId, setDraftArticleId] = useState<string | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [draftRevision, setDraftRevision] = useState(0);
-  const [reworkSourceId, setReworkSourceId] = useState<string | null>(null);
   const [nicheCheck, setNicheCheck] = useState<BriefNicheCheck | null>(null);
   const [nicheLoading, setNicheLoading] = useState(false);
 
@@ -651,8 +652,15 @@ export function ArticleCreationWizard() {
     });
   }
 
+  function resetToIntent() {
+    setStep("mode");
+    setMode(null);
+    setInspirationCtx(null);
+    setSelectedNews(null);
+    briefSuggestedRef.current = false;
+  }
+
   function reworkFromArticle(article: ArticleDoc) {
-    setReworkSourceId(article.id);
     const excerpt = joinLinkedInPostParts({
       hook: article.hook,
       body: article.body,
@@ -732,6 +740,15 @@ export function ArticleCreationWizard() {
     if (modeParam === "profile" || modeParam === "news" || modeParam === "inspiration") {
       initialModeFromUrl.current = true;
       pickMode(modeParam);
+      return;
+    }
+
+    const reworkId = searchParams.get("rework")?.trim();
+    if (reworkId) {
+      initialModeFromUrl.current = true;
+      void getArticle(user.uid, reworkId).then((article) => {
+        if (article) reworkFromArticle(article);
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once on load
   }, [loaded, user, searchParams]);
@@ -753,9 +770,7 @@ export function ArticleCreationWizard() {
     ) {
       setStep("inspiration-input");
     } else if (step === "inspiration-input" || step === "news") {
-      setStep("mode");
-      setMode(null);
-      setInspirationCtx(null);
+      resetToIntent();
     } else if (step === "draft-done") {
       router.push("/articles");
     } else {
@@ -797,9 +812,16 @@ export function ArticleCreationWizard() {
         </header>
       )}
 
-      {step !== "mode" && (
+      {step !== "generating" && step !== "draft-done" && (
         <WizardProgress mode={mode} activeStep={progressStep} />
       )}
+
+      {mode &&
+        step !== "mode" &&
+        step !== "generating" &&
+        step !== "draft-done" && (
+          <CreationIntentSummary mode={mode} onChangeIntent={resetToIntent} />
+        )}
 
       {step !== "mode" &&
         step !== "generating" &&
@@ -818,8 +840,6 @@ export function ArticleCreationWizard() {
           personaText={personaText}
           onSelect={pickMode}
           onApplyTheme={applyStrategyTheme}
-          onReworkArticle={reworkFromArticle}
-          reworkArticleId={reworkSourceId}
         />
       )}
 

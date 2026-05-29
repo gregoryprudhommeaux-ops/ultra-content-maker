@@ -660,6 +660,8 @@
           "heroPill3": "Listo para LinkedIn",
           "recommended": "Recomendado",
           "start": "Empezar",
+          "strategyDrawerTitle": "Análisis LinkedIn y recomendaciones",
+          "strategyDrawerHint": "Opcional — recorrido recomendado y 4 temas basados en tus posts recientes.",
           "guide": {
             "title": "¿No sabes por dónde empezar?",
             "subtitle": "Elige la intención que te encaje — resaltamos el recorrido adecuado.",
@@ -694,6 +696,8 @@
             "patternLabel": "Lo que ve la IA",
             "postsCount": "{count, plural, =0 {No se detectaron posts recientes} one {# post analizado · {period}} other {# posts analizados · {period}}}",
             "modeLabel": "Recorrido recomendado",
+            "whyRecommendTitle": "¿Por qué esta recomendación?",
+            "themesDrawerTitle": "4 temas estratégicos",
             "highlightMode": "Resaltar este recorrido",
             "themesLabel": "4 temáticas estratégicas",
             "newsHook": "Actualidad",
@@ -844,13 +848,22 @@
         "pastedPreviewLabel": "Extracto de referencia",
         "progress": {
           "ariaLabel": "Pasos de creación",
-          "mode": "Modo",
+          "intent": "Intención",
           "contextProfile": "Perfil",
           "contextNews": "Noticia",
           "contextInspiration": "Referencia",
-          "brief": "Brief",
+          "briefing": "Brief",
           "result": "Resultado",
-          "generating": "Generando…"
+          "generation": "Generando…"
+        },
+        "intentSummary": {
+          "label": "Recorrido:",
+          "change": "Cambiar intención",
+          "modes": {
+            "profile": "Desde mi perfil",
+            "news": "Desde la actualidad",
+            "inspiration": "Desde contenido existente"
+          }
         }
       },
       "news": {

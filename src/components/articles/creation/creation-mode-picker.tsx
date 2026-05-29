@@ -1,10 +1,9 @@
 "use client";
 
 import { CreationStrategyGuidePanel } from "@/components/articles/creation/creation-strategy-guide";
-import { RecentPostsSection } from "@/components/articles/creation/recent-posts-section";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
-import type { ArticleDoc, CreationStrategyTheme } from "@/types/workspace";
+import type { CreationStrategyTheme } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useCallback, useRef, useState } from "react";
 
@@ -124,16 +123,12 @@ type Props = {
   personaText: string;
   onSelect: (mode: ModeId) => void;
   onApplyTheme?: (theme: CreationStrategyTheme, mode: ModeId) => void;
-  onReworkArticle?: (article: ArticleDoc) => void;
-  reworkArticleId?: string | null;
 };
 
 export function CreationModePicker({
   personaText,
   onSelect,
   onApplyTheme,
-  onReworkArticle,
-  reworkArticleId,
 }: Props) {
   const t = useTranslations("setup.articles.create.modePicker");
   const [guideHighlight, setGuideHighlight] = useState<ModeId | null>(null);
@@ -184,62 +179,6 @@ export function CreationModePicker({
         </ul>
       </section>
 
-      <section
-        className="rounded-2xl border border-dashed border-ns-alternate/80 bg-ns-brand-light/60 p-5 md:p-6"
-        aria-labelledby="creation-guide-title"
-      >
-        <div className="flex flex-wrap items-start gap-3">
-          <span
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ns-hero text-lg text-ns-primary"
-            aria-hidden
-          >
-            ?
-          </span>
-          <div className="min-w-0 flex-1">
-            <h3 id="creation-guide-title" className={SECTION_TITLE}>
-              {t("guide.title")}
-            </h3>
-            <p className="mt-1 text-sm font-medium text-ns-secondary">{t("guide.subtitle")}</p>
-          </div>
-        </div>
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          {guideOptions.map((opt) => {
-            const mode = GUIDE_TO_MODE[opt.key];
-            const active = guideHighlight === mode;
-            return (
-              <button
-                key={opt.key}
-                type="button"
-                onClick={() => focusCreationMode(mode)}
-                className={[
-                  "rounded-xl border px-4 py-2.5 text-left text-sm font-semibold transition-all",
-                  active
-                    ? "border-ns-primary bg-white text-ns-tertiary shadow-md ring-2 ring-ns-primary/25"
-                    : "border-gray-200 bg-white/70 text-ns-secondary hover:border-ns-primary/50 hover:bg-white hover:text-ns-tertiary",
-                ].join(" ")}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
-        {guideHighlight && (
-          <p className="mt-3 text-sm font-medium text-ns-tertiary">
-            {t(`guide.hint.${guideHighlight}`)}
-          </p>
-        )}
-
-        <CreationStrategyGuidePanel
-          personaText={personaText}
-          onRecommendMode={setGuideHighlight}
-          onFocusRecommendedMode={focusCreationMode}
-          onApplyTheme={(theme, mode) => {
-            focusCreationMode(mode);
-            onApplyTheme?.(theme, mode);
-          }}
-        />
-      </section>
-
       <div className="space-y-4">
         {MODES.filter((m) => m.featured).map((config) => (
           <ModeCard
@@ -272,12 +211,70 @@ export function CreationModePicker({
         </div>
       </div>
 
-      {onReworkArticle && (
-        <RecentPostsSection
-          onRework={onReworkArticle}
-          reworkArticleId={reworkArticleId}
-        />
-      )}
+      <details className="group rounded-2xl border border-dashed border-ns-alternate/80 bg-ns-brand-light/40">
+        <summary className="cursor-pointer list-none px-5 py-4 marker:content-none [&::-webkit-details-marker]:hidden md:px-6">
+          <span className="flex items-start justify-between gap-3">
+            <span className="flex gap-3">
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ns-hero text-lg text-ns-primary"
+                aria-hidden
+              >
+                ✦
+              </span>
+              <span>
+                <span className={SECTION_TITLE}>{t("strategyDrawerTitle")}</span>
+                <span className="mt-1 block text-sm font-medium text-ns-secondary">
+                  {t("strategyDrawerHint")}
+                </span>
+              </span>
+            </span>
+            <span
+              className="mt-1 shrink-0 text-xs font-medium text-ns-secondary transition group-open:rotate-180"
+              aria-hidden
+            >
+              ▾
+            </span>
+          </span>
+        </summary>
+        <div className="space-y-4 border-t border-ns-alternate/50 px-5 pb-5 pt-4 md:px-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            {guideOptions.map((opt) => {
+              const mode = GUIDE_TO_MODE[opt.key];
+              const active = guideHighlight === mode;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => focusCreationMode(mode)}
+                  className={[
+                    "rounded-xl border px-4 py-2.5 text-left text-sm font-semibold transition-all",
+                    active
+                      ? "border-ns-primary bg-white text-ns-tertiary shadow-md ring-2 ring-ns-primary/25"
+                      : "border-gray-200 bg-white/70 text-ns-secondary hover:border-ns-primary/50 hover:bg-white hover:text-ns-tertiary",
+                  ].join(" ")}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+          {guideHighlight && (
+            <p className="text-sm font-medium text-ns-tertiary">
+              {t(`guide.hint.${guideHighlight}`)}
+            </p>
+          )}
+
+          <CreationStrategyGuidePanel
+            personaText={personaText}
+            onRecommendMode={setGuideHighlight}
+            onFocusRecommendedMode={focusCreationMode}
+            onApplyTheme={(theme, mode) => {
+              focusCreationMode(mode);
+              onApplyTheme?.(theme, mode);
+            }}
+          />
+        </div>
+      </details>
     </div>
   );
 }
