@@ -643,6 +643,33 @@
         "pending": "Por publicar",
         "all": "Todos los posts"
       },
+      "library": {
+        "title": "Biblioteca",
+        "description": "Busca, filtra por estado o alcance y retrabaja posts por lote.",
+        "descriptionPending": "Posts en borrador o en refinamiento — listos para finalizar en LinkedIn.",
+        "toolbarLabel": "Filtros de la biblioteca",
+        "searchLabel": "Buscar en los posts",
+        "searchPlaceholder": "Buscar por gancho, contenido o brief…",
+        "resetFilters": "Restablecer filtros",
+        "statusLabel": "Estado",
+        "scopeLabel": "Alcance",
+        "resultsCount": "{visible} post(s) mostrado(s) de {total}",
+        "emptyFiltered": "Ningún post coincide con estos filtros.",
+        "batchTitle": "Lote del {date}",
+        "batchCount": "{count, plural, one {# post} other {# posts}}",
+        "status": {
+          "all": "Todos",
+          "pending": "Por publicar",
+          "draft": "Borrador",
+          "refining": "En refinamiento",
+          "validated": "Validado"
+        },
+        "scope": {
+          "all": "Todos los alcances",
+          "generalist": "Generalista",
+          "niche": "Nicho"
+        }
+      },
       "emptyPending": "Ningún post pendiente. Crea un lote nuevo o consulta los validados.",
       "needPersona": "Valida tu Persona antes de generar posts.",
       "goPersona": "Ir a Persona →",

@@ -643,6 +643,33 @@
         "pending": "To publish",
         "all": "All posts"
       },
+      "library": {
+        "title": "Library",
+        "description": "Search, filter by status or scope, and rework posts by batch.",
+        "descriptionPending": "Draft or refining posts — ready to finalize for LinkedIn.",
+        "toolbarLabel": "Library filters",
+        "searchLabel": "Search posts",
+        "searchPlaceholder": "Search by hook, content, or brief…",
+        "resetFilters": "Reset filters",
+        "statusLabel": "Status",
+        "scopeLabel": "Scope",
+        "resultsCount": "{visible} post(s) shown of {total}",
+        "emptyFiltered": "No posts match these filters.",
+        "batchTitle": "Batch from {date}",
+        "batchCount": "{count, plural, one {# post} other {# posts}}",
+        "status": {
+          "all": "All",
+          "pending": "To publish",
+          "draft": "Draft",
+          "refining": "Refining",
+          "validated": "Validated"
+        },
+        "scope": {
+          "all": "All scopes",
+          "generalist": "Generalist",
+          "niche": "Niche"
+        }
+      },
       "emptyPending": "No pending posts. Create a new batch or view validated posts.",
       "needPersona": "Validate your Persona before generating posts.",
       "goPersona": "Go to Persona →",

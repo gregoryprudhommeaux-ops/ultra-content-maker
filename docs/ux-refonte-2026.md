@@ -74,7 +74,15 @@
 - [x] Thématiques en drawer optionnel  
 - [x] Retravailler un post → bibliothèque  
 
-### Phase 4–5 — Profil avancé, bibliothèque
+### Phase 5 — Bibliothèque
+
+- [x] Recherche texte (accroche, corps, brief)  
+- [x] Filtres statut (tous / à publier / brouillon / affinage / validé)  
+- [x] Filtres portée (généraliste / niche)  
+- [x] Compteur de résultats + lots datés  
+- [ ] Aide contextuelle Persona (backlog)  
+
+### Phase 4–5 — Profil avancé
 
 Voir backlog produit initial.
 

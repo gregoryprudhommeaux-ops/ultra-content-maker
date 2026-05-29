@@ -643,6 +643,33 @@
         "pending": "À publier",
         "all": "Tous les posts"
       },
+      "library": {
+        "title": "Bibliothèque",
+        "description": "Recherchez, filtrez par statut ou portée, et retravaillez vos posts par lot.",
+        "descriptionPending": "Posts en brouillon ou en affinage — prêts à finaliser pour LinkedIn.",
+        "toolbarLabel": "Filtres de la bibliothèque",
+        "searchLabel": "Rechercher dans les posts",
+        "searchPlaceholder": "Rechercher par accroche, contenu ou brief…",
+        "resetFilters": "Réinitialiser les filtres",
+        "statusLabel": "Statut",
+        "scopeLabel": "Portée",
+        "resultsCount": "{visible} post(s) affiché(s) sur {total}",
+        "emptyFiltered": "Aucun post ne correspond à ces filtres.",
+        "batchTitle": "Lot du {date}",
+        "batchCount": "{count, plural, one {# post} other {# posts}}",
+        "status": {
+          "all": "Tous",
+          "pending": "À publier",
+          "draft": "Brouillon",
+          "refining": "En affinage",
+          "validated": "Validé"
+        },
+        "scope": {
+          "all": "Toutes portées",
+          "generalist": "Généraliste",
+          "niche": "Niche"
+        }
+      },
       "emptyPending": "Aucun post en attente. Créez un nouveau lot ou consultez les posts validés.",
       "needPersona": "Validez votre Persona avant de générer des posts.",
       "goPersona": "Aller au Persona →",
