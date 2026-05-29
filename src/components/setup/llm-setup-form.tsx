@@ -65,7 +65,7 @@ export function LlmSetupForm() {
   const guides = useProviderGuides(t);
   const { user } = useAuth();
   const router = useRouter();
-  const [provider, setProvider] = useState<LlmProvider>("perplexity");
+  const [provider, setProvider] = useState<LlmProvider>("openai");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [errorInfo, setErrorInfo] = useState<UserErrorInfo | null>(null);

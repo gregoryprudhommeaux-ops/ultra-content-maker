@@ -1,6 +1,6 @@
 import {
   fetchInspirationUrlExcerpt,
-  resolveLlmConfigsForUrlFetch,
+  resolveUserLlmConfig,
 } from "@/lib/inspiration/fetch-url-excerpt";
 import { getLlmConfig } from "@/lib/llm/config";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
@@ -35,48 +35,35 @@ export async function POST(request: Request) {
   }
 
   const contentLanguage = (body.contentLanguage || "fr") as ContentLanguage;
-  const userLlm =
-    body.llm?.apiKey?.trim()
-      ? resolveLlmConfigsForUrlFetch({
-          provider: body.llm.provider,
-          apiKey: body.llm.apiKey.trim(),
-          model: body.llm.model,
-        })
-      : null;
+  const llm = body.llm?.apiKey?.trim()
+    ? resolveUserLlmConfig({
+        provider: body.llm.provider,
+        apiKey: body.llm.apiKey.trim(),
+        model: body.llm.model,
+      })
+    : getLlmConfig();
 
-  const envLlm = getLlmConfig();
-  const primary = userLlm?.primary ?? envLlm;
-  if (!primary) {
+  if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
-
-  const perplexity = userLlm?.perplexity ?? (envLlm?.provider === "perplexity" ? envLlm : null);
 
   try {
     const result = await fetchInspirationUrlExcerpt({
       url: body.url,
       contentLanguage,
-      llm: primary,
-      fallbackLlm: perplexity,
+      llm,
     });
 
     return NextResponse.json({
       excerpt: result.excerpt,
       title: result.title,
       method: result.method,
-      perplexityRecommended: primary.provider !== "perplexity" && !perplexity,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Unknown";
 
     if (message === "url_invalid" || message === "url_blocked") {
       return NextResponse.json({ error: message }, { status: 400 });
-    }
-    if (message === "linkedin_requires_perplexity") {
-      return NextResponse.json(
-        { error: message, perplexityRecommended: true },
-        { status: 422 },
-      );
     }
     if (message === "no_content") {
       return NextResponse.json({ error: message }, { status: 502 });

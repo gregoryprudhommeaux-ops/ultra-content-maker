@@ -306,7 +306,7 @@
     },
     "llm": {
       "title": "Tu clave API",
-      "subtitle": "Cada cuenta usa su propia clave. Se guarda en tu espacio Firestore (solo tú puedes leerla) y sirve para generar la Persona y los posts.",
+      "subtitle": "Una sola clave basta (ChatGPT, Claude, Gemini o Perplexity) para todo el producto: Persona, posts, actualidad, inspiración y análisis LinkedIn. Guardada en tu espacio, solo tú puedes leerla.",
       "privacyNote": "No compartas tu clave. Puedes revocarla o regenerarla en cualquier momento en tu proveedor.",
       "provider": "Proveedor de IA",
       "howToGetKey": "Cómo obtener tu clave",

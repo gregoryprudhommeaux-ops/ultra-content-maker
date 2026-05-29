@@ -11,7 +11,6 @@ type Props = {
   onSearch: () => void;
   searching: boolean;
   errorMessage?: string | null;
-  perplexityHint?: boolean;
   errorCode?: string | null;
 };
 
@@ -21,7 +20,6 @@ export function NewsEmptyRefinePanel({
   onSearch,
   searching,
   errorMessage,
-  perplexityHint,
   errorCode,
 }: Props) {
   const t = useTranslations("setup.articles.news");
@@ -40,9 +38,6 @@ export function NewsEmptyRefinePanel({
         <p className="mt-1 text-sm text-ns-secondary">{t(hintKey)}</p>
         {errorMessage && (
           <p className="mt-2 text-sm text-amber-900">{errorMessage}</p>
-        )}
-        {perplexityHint && (
-          <p className="mt-2 text-xs text-amber-800">{t("perplexityHint")}</p>
         )}
       </div>
 

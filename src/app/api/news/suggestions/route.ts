@@ -103,7 +103,6 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error,
-          perplexityRecommended: llm.provider !== "perplexity",
           stats: { rawCount, rejectedByAge, rejectedIncomplete },
         },
         { status: 502 },
@@ -113,7 +112,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
       news,
       provider: llm.provider,
-      perplexityRecommended: llm.provider !== "perplexity",
     });
   } catch (e) {
     return NextResponse.json(

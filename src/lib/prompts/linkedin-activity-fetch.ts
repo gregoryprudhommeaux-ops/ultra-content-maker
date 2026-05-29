@@ -25,7 +25,8 @@ export function buildLinkedInActivityFetchSystemPrompt(
         ? "Hooks and excerpts in Spanish when posts are in Spanish."
         : "Keep hooks in each post's original language.";
 
-  return `You list a LinkedIn member's public posts from their activity feed for editorial strategy (not republication).
+  return `You help infer a LinkedIn member's recent public posting patterns for editorial strategy (not republication).
+Use the activity URL as context. If you cannot verify posts from the page, set accessible to false and posts to [] — do not invent posts.
 
 Return JSON only:
 {
@@ -53,7 +54,7 @@ Rules:
 }
 
 export function buildLinkedInActivityFetchUserPrompt(activityUrl: string): string {
-  return `List public LinkedIn posts from the last ~2 months on this activity URL:\n${activityUrl}`;
+  return `Activity URL (public feed if reachable):\n${activityUrl}\n\nList verifiable posts from the last ~2 months, or return accessible:false if none can be confirmed.`;
 }
 
 export function normalizeLinkedInActivityPosts(

@@ -52,7 +52,6 @@ export function CreationStrategyGuidePanel({
   const [guide, setGuide] = useState<CreationStrategyGuide | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorInfo, setErrorInfo] = useState<UserErrorInfo | null>(null);
-  const [perplexityHint, setPerplexityHint] = useState(false);
   const [steering, setSteering] = useState("");
   const fetchedRef = useRef(false);
 
@@ -62,8 +61,6 @@ export function CreationStrategyGuidePanel({
 
       setLoading(true);
       setErrorInfo(null);
-      setPerplexityHint(false);
-
       try {
         const auth = getClientAuth();
         const token = auth ? await auth.currentUser?.getIdToken() : null;
@@ -109,7 +106,6 @@ export function CreationStrategyGuidePanel({
           guide?: CreationStrategyGuide;
           cache?: { activityUrl: string; analyzedAt: string; guide: CreationStrategyGuide };
           detail?: string;
-          perplexityRecommended?: boolean;
         };
 
         if (!res.ok) {
@@ -120,11 +116,6 @@ export function CreationStrategyGuidePanel({
               detail: data.detail,
               fallbackMessage: t("failed"),
             }),
-          );
-          setPerplexityHint(
-            code === "linkedin_requires_perplexity" ||
-              code === "linkedin_fetch_unavailable" ||
-              !!data.perplexityRecommended,
           );
           return;
         }
@@ -220,13 +211,7 @@ export function CreationStrategyGuidePanel({
           detail={errorInfo.detail}
           onRetry={() => void runAnalysis(true)}
           retryLabel={t("retry")}
-        >
-          {perplexityHint ? (
-            <Link href="/setup/llm" className="text-sm font-semibold underline">
-              {t("perplexityCta")}
-            </Link>
-          ) : null}
-        </UserErrorBanner>
+        />
       )}
 
       {guide && !loading && (

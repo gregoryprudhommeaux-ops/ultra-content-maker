@@ -14,7 +14,6 @@ type Props = {
   onSelect: (item: NewsSuggestion) => void;
   loading: boolean;
   onRefresh: () => void;
-  perplexityHint?: boolean;
   newsError?: string | null;
   newsErrorCode?: string | null;
   newsInterestQuery?: string;
@@ -32,7 +31,6 @@ export function NewsPickerPanel({
   onSelect,
   loading,
   onRefresh,
-  perplexityHint,
   newsError,
   newsErrorCode,
   newsInterestQuery = "",
@@ -60,9 +58,6 @@ export function NewsPickerPanel({
         <div>
           <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
           <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
-          {perplexityHint && (
-            <p className="mt-2 text-xs text-amber-800">{t("perplexityHint")}</p>
-          )}
         </div>
         <button
           type="button"
@@ -86,7 +81,6 @@ export function NewsPickerPanel({
           searching={loading}
           errorMessage={newsError}
           errorCode={newsErrorCode}
-          perplexityHint={perplexityHint}
         />
       )}
 

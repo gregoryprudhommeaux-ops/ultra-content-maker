@@ -306,7 +306,7 @@
     },
     "llm": {
       "title": "Your API key",
-      "subtitle": "Each account uses its own key. It is stored in your Firestore workspace (only you can read it) and powers Persona and post generation.",
+      "subtitle": "One key is enough (ChatGPT, Claude, Gemini, or Perplexity) for the whole product: Persona, posts, news, inspiration, and LinkedIn analysis. Stored in your workspace, readable only by you.",
       "privacyNote": "Never share your key. You can revoke or rotate it anytime at your provider.",
       "provider": "AI provider",
       "howToGetKey": "How to get your key",

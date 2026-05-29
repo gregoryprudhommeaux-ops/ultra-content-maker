@@ -38,7 +38,6 @@ export function InspirationUrlStep({
   const [fetching, setFetching] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetchedTitle, setFetchedTitle] = useState<string | null>(null);
-  const [perplexityHint, setPerplexityHint] = useState(false);
 
   const urlOk = isValidUrl(url);
   const excerptOk = excerpt.trim().length >= MIN_EXCERPT;
@@ -47,7 +46,6 @@ export function InspirationUrlStep({
     if (!user || !urlOk) return;
     setFetching(true);
     setFetchError(null);
-    setPerplexityHint(false);
     setFetchedTitle(null);
 
     try {
@@ -88,11 +86,6 @@ export function InspirationUrlStep({
       };
 
       if (!res.ok) {
-        if (data.error === "linkedin_requires_perplexity") {
-          setFetchError(t("fetchLinkedInPerplexity"));
-          setPerplexityHint(true);
-          return;
-        }
         if (data.error === "no_content") {
           setFetchError(t("fetchNoContent"));
           return;
@@ -106,7 +99,6 @@ export function InspirationUrlStep({
           return;
         }
         setFetchError(t("fetchFailed"));
-        if (data.perplexityRecommended) setPerplexityHint(true);
         return;
       }
 
@@ -116,7 +108,6 @@ export function InspirationUrlStep({
       } else {
         setFetchError(t("fetchNoContent"));
       }
-      if (data.perplexityRecommended) setPerplexityHint(true);
     } catch {
       setFetchError(t("fetchFailed"));
     } finally {
@@ -166,9 +157,6 @@ export function InspirationUrlStep({
         </div>
         {fetchError && (
           <p className="mt-2 text-xs text-amber-800">{fetchError}</p>
-        )}
-        {perplexityHint && (
-          <p className="mt-1 text-xs text-amber-800">{t("fetchPerplexityHint")}</p>
         )}
       </div>
       <div>

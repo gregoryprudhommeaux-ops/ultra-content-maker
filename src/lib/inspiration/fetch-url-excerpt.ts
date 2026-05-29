@@ -7,7 +7,7 @@ import {
   normalizeInspirationUrlFetchResult,
   type InspirationUrlFetchLlmResult,
 } from "@/lib/prompts/inspiration-url-fetch";
-import type { ContentLanguage } from "@/types/workspace";
+import type { ContentLanguage, LlmProvider } from "@/types/workspace";
 import {
   extractTextFromHtml,
   trimExcerpt,
@@ -98,9 +98,8 @@ async function fetchViaLlm(
 export type FetchInspirationUrlExcerptInput = {
   url: string;
   contentLanguage: ContentLanguage;
+  /** User's single configured provider (OpenAI, Anthropic, Google, or Perplexity). */
   llm: LlmConfig;
-  /** Prefer Perplexity for LinkedIn / when HTTP fails */
-  fallbackLlm?: LlmConfig | null;
 };
 
 export async function fetchInspirationUrlExcerpt(
@@ -119,39 +118,27 @@ export async function fetchInspirationUrlExcerpt(
     }
   }
 
-  const llmForWeb =
-    input.llm.provider === "perplexity"
-      ? input.llm
-      : input.fallbackLlm?.provider === "perplexity"
-        ? input.fallbackLlm
-        : null;
-
-  if (linkedIn && !llmForWeb) {
-    throw new Error("linkedin_requires_perplexity");
-  }
-
-  if (!llmForWeb) {
-    throw new Error("no_content");
-  }
-
-  const llmResult = await fetchViaLlm(url, llmForWeb, input.contentLanguage);
+  const llmResult = await fetchViaLlm(url, input.llm, input.contentLanguage);
   if (llmResult) return llmResult;
 
   throw new Error("no_content");
 }
 
-export function resolveLlmConfigsForUrlFetch(input: {
-  provider: import("@/types/workspace").LlmProvider;
+/** Build LLM config from the user's one API key (no secondary provider). */
+export function resolveUserLlmConfig(input: {
+  provider: LlmProvider;
   apiKey: string;
   model?: string;
-}): { primary: LlmConfig; perplexity: LlmConfig | null } {
-  const primary = configFromUserLlm(input);
-  const envPerplexity = process.env.PERPLEXITY_API_KEY?.trim();
-  const perplexity =
-    input.provider === "perplexity"
-      ? primary
-      : envPerplexity
-        ? configFromUserLlm({ provider: "perplexity", apiKey: envPerplexity })
-        : null;
-  return { primary, perplexity };
+}): LlmConfig {
+  return configFromUserLlm(input);
+}
+
+/** @deprecated Use resolveUserLlmConfig — kept for import compatibility during migration. */
+export function resolveLlmConfigsForUrlFetch(input: {
+  provider: LlmProvider;
+  apiKey: string;
+  model?: string;
+}): { primary: LlmConfig; perplexity: null } {
+  const primary = resolveUserLlmConfig(input);
+  return { primary, perplexity: null };
 }

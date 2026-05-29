@@ -306,7 +306,7 @@
     },
     "llm": {
       "title": "Votre clé API",
-      "subtitle": "Chaque compte utilise sa propre clé. Elle est stockée dans votre espace Firestore (accessible uniquement par vous) et sert à générer le Persona et les posts.",
+      "subtitle": "Une seule clé suffit (ChatGPT, Claude, Gemini ou Perplexity) pour tout le produit : Persona, posts, actu, inspiration et analyse LinkedIn. Stockée dans votre espace, accessible uniquement par vous.",
       "privacyNote": "Ne partagez jamais votre clé. Vous pouvez la révoquer ou la régénérer à tout moment chez votre fournisseur.",
       "provider": "Fournisseur IA",
       "howToGetKey": "Comment obtenir votre clé",

@@ -1,6 +1,6 @@
 import { analyzeCreationStrategy } from "@/lib/linkedin/analyze-creation-strategy";
 import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
-import { resolveLlmConfigsForUrlFetch } from "@/lib/inspiration/fetch-url-excerpt";
+import { resolveUserLlmConfig } from "@/lib/inspiration/fetch-url-excerpt";
 import { getLlmConfig } from "@/lib/llm/config";
 import {
   classifyProviderErrorMessage,
@@ -87,25 +87,17 @@ export async function POST(request: Request) {
     }
   }
 
-  const userLlm = body.llm?.apiKey?.trim()
-    ? resolveLlmConfigsForUrlFetch({
+  const llm = body.llm?.apiKey?.trim()
+    ? resolveUserLlmConfig({
         provider: body.llm.provider,
         apiKey: body.llm.apiKey.trim(),
         model: body.llm.model,
       })
-    : null;
+    : getLlmConfig();
 
-  const envLlm = getLlmConfig();
-  const primary = userLlm?.primary ?? envLlm;
-  if (!primary) {
+  if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
-
-  const envPerplexity =
-    userLlm?.perplexity ?? (envLlm?.provider === "perplexity" ? envLlm : null);
-  const fetchLlm = envPerplexity ?? primary;
-  const fetchUsesPlatformPerplexity =
-    Boolean(envPerplexity) && body.llm?.provider !== "perplexity";
 
   const authorSteering = resolveAuthorSteering({
     authorSteering: body.authorSteering,
@@ -126,8 +118,8 @@ export async function POST(request: Request) {
       },
       userSteering: steering || undefined,
       authorSteering,
-      strategyLlm: primary,
-      fetchLlm,
+      strategyLlm: llm,
+      fetchLlm: llm,
     });
 
     const analyzedAt = new Date().toISOString();
@@ -166,16 +158,6 @@ export async function POST(request: Request) {
     }
 
     if (providerKind === "invalid_key") {
-      if (fetchUsesPlatformPerplexity && failedProvider === "perplexity") {
-        return NextResponse.json(
-          {
-            error: "linkedin_fetch_unavailable",
-            detail: message,
-            perplexityRecommended: true,
-          },
-          { status: 503 },
-        );
-      }
       return NextResponse.json(
         { error: "invalid_api_key", detail: message, provider: failedProvider },
         { status: 401 },

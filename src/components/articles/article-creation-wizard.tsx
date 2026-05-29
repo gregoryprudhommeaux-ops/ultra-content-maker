@@ -107,7 +107,6 @@ export function ArticleCreationWizard() {
   const [selectedNews, setSelectedNews] = useState<NewsSuggestion | null>(null);
   const [newsDetailItem, setNewsDetailItem] = useState<NewsSuggestion | null>(null);
   const [newsLoading, setNewsLoading] = useState(false);
-  const [newsHintPerplexity, setNewsHintPerplexity] = useState(false);
   const [newsInterestQuery, setNewsInterestQuery] = useState("");
   const [newsErrorCode, setNewsErrorCode] = useState<string | null>(null);
 
@@ -325,11 +324,9 @@ export function ArticleCreationWizard() {
             }),
           );
           setNewsItems([]);
-          setNewsHintPerplexity(!!data.perplexityRecommended);
           return;
         }
         setNewsItems(data.news ?? []);
-        setNewsHintPerplexity(!!data.perplexityRecommended);
         setErrorInfo(null);
         setNewsErrorCode(null);
         if (data.news?.length) {
@@ -845,7 +842,6 @@ export function ArticleCreationWizard() {
             onSelect={setSelectedNews}
             loading={newsLoading}
             onRefresh={() => void loadNews()}
-            perplexityHint={newsHintPerplexity}
             newsError={errorInfo?.message ?? null}
             newsErrorCode={newsErrorCode}
             newsInterestQuery={newsInterestQuery}
