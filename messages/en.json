@@ -478,7 +478,13 @@
       "skip": "Skip for now",
       "continue": "Continue to Persona",
       "back": "← Back to My profile",
-      "saveFailed": "Could not save."
+      "saveFailed": "Could not save.",
+      "savingProfile": "Saving your audience…",
+      "syncingPersona": "Updating your expert Persona…",
+      "openingPersona": "Opening Persona…",
+      "syncingPersonaHint": "AI is merging your audience and preferences into the Persona. This may take 30–90 seconds — please keep this tab open.",
+      "continuePending": "Preparing…",
+      "skipPending": "Please wait…"
     },
     "persona": {
       "title": "Your expert Persona",
@@ -555,7 +561,7 @@
       },
       "recentUpdates": {
         "title": "Latest Persona updates",
-        "subtitle": "Short summary of what was recently merged (profile, article feedback, your notes).",
+        "subtitle": "The last 2 integrations (profile, article feedback, your notes).",
         "source": {
           "generate": "Generation",
           "profile_sync": "Profile",

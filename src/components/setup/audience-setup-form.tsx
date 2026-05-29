@@ -1,6 +1,10 @@
 "use client";
 
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
+import {
+  ButtonSpinner,
+  GeneratingIndicator,
+} from "@/components/ui/generating-indicator";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { useAuth } from "@/components/auth/auth-provider";
 import { getAudienceProfile, saveAudienceProfile, skipAudienceStep } from "@/lib/workspace/audience";
@@ -26,6 +30,9 @@ export function AudienceSetupForm() {
   const [emojiLevel, setEmojiLevel] = useState<EmojiLevel>("light");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [pendingPhase, setPendingPhase] = useState<"idle" | "save" | "sync" | "done">(
+    "idle",
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -43,8 +50,9 @@ export function AudienceSetupForm() {
   }, [user]);
 
   async function goToPersona(skipped: boolean) {
-    if (!user) return;
+    if (!user || pending) return;
     setPending(true);
+    setPendingPhase("save");
     setError(null);
     try {
       if (skipped) {
@@ -57,6 +65,7 @@ export function AudienceSetupForm() {
           skipped: false,
         });
       }
+      setPendingPhase("sync");
       const author = await import("@/lib/workspace/author").then((m) =>
         m.getAuthorProfile(user.uid),
       );
@@ -65,12 +74,13 @@ export function AudienceSetupForm() {
         emojiLevel,
         author?.contentLanguage ?? "fr",
       );
+      setPendingPhase("done");
       await updateSetupStep(user.uid, "persona");
       notifyOnboardingProgressChanged();
       router.push("/persona");
     } catch {
       setError(t("saveFailed"));
-    } finally {
+      setPendingPhase("idle");
       setPending(false);
     }
   }
@@ -90,7 +100,7 @@ export function AudienceSetupForm() {
         <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
 
-      <form onSubmit={onSubmit} className="max-w-xl space-y-4">
+      <form onSubmit={onSubmit} className="max-w-xl space-y-4" aria-busy={pending}>
         <div>
           <OptionalLabel htmlFor="target">{t("targetLabel")}</OptionalLabel>
           <input
@@ -99,6 +109,7 @@ export function AudienceSetupForm() {
             onChange={(e) => setTargetLabel(e.target.value)}
             placeholder={t("targetPlaceholder")}
             className={INPUT_CLASS}
+            disabled={pending}
           />
         </div>
         <div>
@@ -110,6 +121,7 @@ export function AudienceSetupForm() {
             onChange={(e) => setContentFocus(e.target.value)}
             placeholder={t("focusPlaceholder")}
             className={INPUT_CLASS}
+            disabled={pending}
           />
         </div>
         <div>
@@ -120,15 +132,32 @@ export function AudienceSetupForm() {
             value={optionalNotes}
             onChange={(e) => setOptionalNotes(e.target.value)}
             className={INPUT_CLASS}
+            disabled={pending}
           />
         </div>
 
         <p className="text-xs text-ns-secondary">{t("optionalNote")}</p>
 
-        <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-4">
+        <div
+          className={`rounded-xl border border-gray-100 bg-ns-brand-light p-4 ${pending ? "pointer-events-none opacity-60" : ""}`}
+        >
           <p className="mb-3 text-sm font-medium text-ns-tertiary">{t("emojiIntro")}</p>
           <EmojiLevelPicker value={emojiLevel} onChange={setEmojiLevel} />
         </div>
+
+        {pending && (
+          <GeneratingIndicator
+            label={
+              pendingPhase === "sync"
+                ? t("syncingPersona")
+                : pendingPhase === "done"
+                  ? t("openingPersona")
+                  : t("savingProfile")
+            }
+            hint={t("syncingPersonaHint")}
+            className="max-w-xl"
+          />
+        )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -137,16 +166,18 @@ export function AudienceSetupForm() {
             type="button"
             disabled={pending}
             onClick={() => goToPersona(true)}
-            className="rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
           >
-            {t("skip")}
+            {pending ? <ButtonSpinner className="border-ns-alternate border-t-zinc-800" /> : null}
+            {pending ? t("skipPending") : t("skip")}
           </button>
           <button
             type="submit"
             disabled={pending}
-            className="rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
+            className="inline-flex min-w-[12rem] items-center justify-center gap-2 rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-70"
           >
-            {t("continue")}
+            {pending && <ButtonSpinner />}
+            {pending ? t("continuePending") : t("continue")}
           </button>
         </div>
       </form>

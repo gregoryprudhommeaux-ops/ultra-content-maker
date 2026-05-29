@@ -478,7 +478,13 @@
       "skip": "Passer pour l'instant",
       "continue": "Continuer vers le Persona",
       "back": "← Retour à Mon profil",
-      "saveFailed": "Enregistrement impossible."
+      "saveFailed": "Enregistrement impossible.",
+      "savingProfile": "Enregistrement de votre cible…",
+      "syncingPersona": "Mise à jour du Persona expert…",
+      "openingPersona": "Ouverture du Persona…",
+      "syncingPersonaHint": "L’IA intègre votre audience et vos préférences dans le Persona. Comptez 30 à 90 secondes — ne fermez pas la page.",
+      "continuePending": "Préparation en cours…",
+      "skipPending": "Patientez…"
     },
     "persona": {
       "title": "Votre Persona expert",
@@ -555,7 +561,7 @@
       },
       "recentUpdates": {
         "title": "Dernières mises à jour du Persona",
-        "subtitle": "Synthèse des derniers éléments intégrés (profil, retours articles, vos précisions).",
+        "subtitle": "Les 2 dernières intégrations (profil, retours articles, vos précisions).",
         "source": {
           "generate": "Génération",
           "profile_sync": "Profil",

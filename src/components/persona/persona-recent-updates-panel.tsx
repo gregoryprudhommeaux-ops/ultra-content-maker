@@ -20,7 +20,7 @@ export function PersonaRecentUpdatesPanel({ changes }: Props) {
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
       <ul className="space-y-2">
-        {changes.slice(0, 6).map((change, index) => (
+        {changes.slice(0, 2).map((change, index) => (
           <li
             key={`${change.at.toISOString()}-${index}`}
             className="rounded-lg border border-emerald-100 bg-white px-3 py-2 text-sm"

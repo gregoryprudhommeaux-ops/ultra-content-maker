@@ -478,7 +478,13 @@
       "skip": "Omitir por ahora",
       "continue": "Continuar a la Persona",
       "back": "← Volver a Mi perfil",
-      "saveFailed": "No se pudo guardar."
+      "saveFailed": "No se pudo guardar.",
+      "savingProfile": "Guardando tu audiencia…",
+      "syncingPersona": "Actualizando tu Persona experto…",
+      "openingPersona": "Abriendo Persona…",
+      "syncingPersonaHint": "La IA integra tu audiencia y preferencias en el Persona. Puede tardar 30–90 s — no cierres esta pestaña.",
+      "continuePending": "Preparando…",
+      "skipPending": "Espera…"
     },
     "persona": {
       "title": "Tu Persona experta",
@@ -555,7 +561,7 @@
       },
       "recentUpdates": {
         "title": "Últimas actualizaciones del Persona",
-        "subtitle": "Resumen de lo integrado recientemente (perfil, feedback de posts, tus notas).",
+        "subtitle": "Las 2 últimas integraciones (perfil, feedback de posts, tus notas).",
         "source": {
           "generate": "Generación",
           "profile_sync": "Perfil",
