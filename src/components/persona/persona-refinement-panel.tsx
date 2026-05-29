@@ -1,5 +1,6 @@
 "use client";
 
+import { ContextHelp } from "@/components/ui/context-help";
 import { ButtonSpinner } from "@/components/ui/generating-indicator";
 import { refreshPersonaFromProfile } from "@/lib/persona/refresh-persona-from-profile";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
@@ -62,7 +63,10 @@ export function PersonaRefinementPanel({
   return (
     <section className="rounded-xl border border-amber-200/70 bg-amber-50/40 p-5 space-y-3">
       <div>
-        <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+        <h2 className="flex items-center gap-2 text-base font-semibold text-ns-tertiary">
+          {t("title")}
+          <ContextHelp label={t("title")}>{t("help")}</ContextHelp>
+        </h2>
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
       <textarea

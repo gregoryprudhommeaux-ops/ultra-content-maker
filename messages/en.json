@@ -5,6 +5,7 @@
     "footer": {
       "tagline": "Ultra Content Maker: AI ghostwriter for LinkedIn — an NS Suite tool for entrepreneurs.",
       "home": "Home",
+      "library": "Library",
       "dashboard": "Articles",
       "login": "Sign in",
       "signup": "Create account",
@@ -228,9 +229,12 @@
     }
   },
   "nav": {
+    "home": "Home",
+    "create": "Create",
+    "library": "Library",
     "content": "Content",
     "postCreation": "Post creation",
-    "profile": "My profile",
+    "profile": "Profile",
     "setup": "My profile",
     "persona": "Persona",
     "articles": "Articles",
@@ -278,6 +282,37 @@
         "complete": "Done",
         "locked": "Complete the previous step first"
       },
+      "welcome": {
+        "eyebrow": "Welcome",
+        "title": "Your LinkedIn ghostwriter in 4 steps",
+        "subtitle": "Set up your workspace once: API key, profile, audience, and Persona. Then create posts aligned with your voice in minutes.",
+        "pillars": [
+          "A personal API key — you control cost and models.",
+          "Profile and audience — the AI learns who you are and who you write for.",
+          "A validated Persona — your Content Brain for every generation."
+        ],
+        "resumeHint": "You have already made progress ({percent}%). Pick up where you left off.",
+        "ctaStart": "Start setup",
+        "ctaResume": "Resume setup",
+        "ctaReady": "I'm ready to create"
+      },
+      "ready": {
+        "loading": "Loading…",
+        "title": "You're ready to create",
+        "subtitle": "Your Persona is validated. Launch your first LinkedIn post or refine your Content Brain further.",
+        "check": {
+          "apiKey": "API key configured",
+          "profile": "Author profile complete",
+          "audience": "Audience defined (or step skipped)",
+          "persona": "Persona validated"
+        },
+        "ctaCreate": "Create my first post",
+        "ctaReviewPersona": "Review my Persona"
+      },
+      "wizard": {
+        "stepLabel": "Step {current} of {total}",
+        "backToWelcome": "Back to onboarding home"
+      },
       "banner": {
         "persona": {
           "title": "Validate your Persona before generating",
@@ -302,6 +337,10 @@
         "progressHint": "Profile {percent}% complete",
         "cta": "Continue: {step}",
         "ctaDefault": "Next step"
+      },
+      "guard": {
+        "checking": "Checking your setup…",
+        "redirecting": "Redirecting to the next setup step…"
       }
     },
     "llm": {
@@ -372,6 +411,17 @@
     "author": {
       "title": "My profile",
       "subtitle": "Add links to your professional presence. No copy-paste — URLs only for examples.",
+      "tabs": {
+        "ariaLabel": "Author profile sections",
+        "essential": "Essentials",
+        "voice": "Voice",
+        "inspirations": "Inspirations",
+        "hint": {
+          "essential": "LinkedIn and web links — foundation for strategy analysis and Persona.",
+          "voice": "Role, positioning, language, and examples of your own posts.",
+          "inspirations": "Content you admire — tone, angle, and format to enrich your Persona."
+        }
+      },
       "linkedin": "LinkedIn profile URL",
       "linkedinActivity": "LinkedIn activity URL (your posts)",
       "linkedinActivityHint": "Your profile’s recent activity page — the AI analyzes ~2 months of posts for strategic recommendations.",
@@ -497,10 +547,43 @@
       "validate": "Validate Persona",
       "goArticles": "Continue to sample posts →",
       "back": "← Back to target",
+      "help": {
+        "guideTitle": "Understand your Content Brain",
+        "guideHint": "Topic DNA, LinkedIn rules, auto-learning — in brief.",
+        "promptLabel": "Persona prompt",
+        "promptBody": "Text the AI reads on every generation. Look for ## Topic DNA and ## LinkedIn operating rules — your editorial DNA.",
+        "sections": {
+          "contentBrain": {
+            "title": "Content Brain",
+            "body": "The Persona is the expert system behind every post: voice, structure, allowed and forbidden topics. The sharper it is, the less you edit after generation."
+          },
+          "topicDna": {
+            "title": "Topic DNA",
+            "body": "Content pillars (3–5 recurring themes), belief statements (what you stand for), and off-topic list (what to refuse). Your LinkedIn thematic compass."
+          },
+          "operatingRules": {
+            "title": "LinkedIn rules",
+            "body": "Native format, credible proof, anti-AI patterns, goal of qualified comments. These rules avoid generic content and engagement bait."
+          },
+          "learned": {
+            "title": "Learned preferences",
+            "body": "At the bottom of the prompt, a section added from your post feedback (tone, emojis, length). It grows without wiping your base."
+          },
+          "validate": {
+            "title": "Validation",
+            "body": "Validate when the prompt reflects your voice. Until validated, post creation stays blocked — your quality gate."
+          },
+          "measurement": {
+            "title": "Measurement loop",
+            "body": "After validation, record signals on published posts (saves, comments, DMs). The AI suggests Persona tweaks based on what performs."
+          }
+        }
+      },
       "gapsTitle": "Assumptions / gaps",
       "gaps": {
         "title": "Complete your profile",
         "subtitle": "Answer these questions to refine your Persona and future LinkedIn posts. You can save partially and come back later.",
+        "help": "AI-generated questions when info is missing (sector, proof, CTA…). Answers enrich your profile and future Persona versions.",
         "textPlaceholder": "Your answer…",
         "save": "Save answers",
         "saving": "Saving…",
@@ -547,6 +630,7 @@
       "insights": {
         "title": "Measurement loop → Persona",
         "subtitle": "Synthesize what works on your published posts (signals entered after validation) to refine your Persona.",
+        "help": "After publishing on LinkedIn, record saves, qualified comments, or DMs on each validated post. The AI suggests Topic DNA adjustments from these signals.",
         "counts": "{validated} validated post(s) · {withSignals} with signals recorded",
         "synthesize": "Synthesize from my posts",
         "generating": "Analyzing performance…",
@@ -562,6 +646,7 @@
       "recentUpdates": {
         "title": "Latest Persona updates",
         "subtitle": "The last 2 integrations (profile, article feedback, your notes).",
+        "help": "Journal of recent changes — not full history. Useful to see what the AI integrated since your last visit.",
         "source": {
           "generate": "Generation",
           "profile_sync": "Profile",
@@ -573,6 +658,7 @@
       "refinement": {
         "title": "Refine your Persona",
         "subtitle": "Add precise instructions: tone, topics, avoid list, examples. The AI updates the prompt and bumps the version.",
+        "help": "Your instructions in plain language. The AI rewrites the Persona keeping Topic DNA and rules — ideal to fix drift without full regeneration.",
         "placeholder": "E.g. Emphasize international networking, less tech jargon, always end with an open question…",
         "apply": "Update Persona",
         "applying": "Updating…",
@@ -592,6 +678,33 @@
         "label": "Filter posts",
         "pending": "To publish",
         "all": "All posts"
+      },
+      "library": {
+        "title": "Library",
+        "description": "Search, filter by status or scope, and rework posts by batch.",
+        "descriptionPending": "Draft or refining posts — ready to finalize for LinkedIn.",
+        "toolbarLabel": "Library filters",
+        "searchLabel": "Search posts",
+        "searchPlaceholder": "Search by hook, content, or brief…",
+        "resetFilters": "Reset filters",
+        "statusLabel": "Status",
+        "scopeLabel": "Scope",
+        "resultsCount": "{visible} post(s) shown of {total}",
+        "emptyFiltered": "No posts match these filters.",
+        "batchTitle": "Batch from {date}",
+        "batchCount": "{count, plural, one {# post} other {# posts}}",
+        "status": {
+          "all": "All",
+          "pending": "To publish",
+          "draft": "Draft",
+          "refining": "Refining",
+          "validated": "Validated"
+        },
+        "scope": {
+          "all": "All scopes",
+          "generalist": "Generalist",
+          "niche": "Niche"
+        }
       },
       "emptyPending": "No pending posts. Create a new batch or view validated posts.",
       "needPersona": "Validate your Persona before generating posts.",
@@ -625,6 +738,8 @@
           "heroPill3": "Ready to paste on LinkedIn",
           "recommended": "Recommended",
           "start": "Get started",
+          "strategyDrawerTitle": "LinkedIn analysis & recommendations",
+          "strategyDrawerHint": "Optional — recommended path and 4 themes based on your recent posts.",
           "guide": {
             "title": "Not sure where to start?",
             "subtitle": "Pick the intent that fits you — we’ll highlight the right path.",
@@ -659,6 +774,8 @@
             "patternLabel": "What the AI sees",
             "postsCount": "{count, plural, =0 {No recent posts detected} one {# post analyzed · {period}} other {# posts analyzed · {period}}}",
             "modeLabel": "Recommended path",
+            "whyRecommendTitle": "Why this recommendation?",
+            "themesDrawerTitle": "4 strategic themes",
             "highlightMode": "Highlight this path",
             "themesLabel": "4 strategic themes",
             "newsHook": "News",
@@ -809,13 +926,22 @@
         "pastedPreviewLabel": "Reference excerpt",
         "progress": {
           "ariaLabel": "Creation steps",
-          "mode": "Mode",
+          "intent": "Intent",
           "contextProfile": "Profile",
           "contextNews": "News",
           "contextInspiration": "Reference",
-          "brief": "Brief",
+          "briefing": "Brief",
           "result": "Result",
-          "generating": "Generating…"
+          "generation": "Generating…"
+        },
+        "intentSummary": {
+          "label": "Path:",
+          "change": "Change intent",
+          "modes": {
+            "profile": "From my profile",
+            "news": "From the news",
+            "inspiration": "From existing content"
+          }
         }
       },
       "news": {

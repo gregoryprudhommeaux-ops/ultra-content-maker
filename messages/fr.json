@@ -5,6 +5,7 @@
     "footer": {
       "tagline": "Ultra Content Maker : Ghostwriter IA pour LinkedIn — un outil NS Suite pour les entrepreneurs.",
       "home": "Page d'accueil",
+      "library": "Bibliothèque",
       "dashboard": "Articles",
       "login": "Connexion",
       "signup": "Créer un compte",
@@ -228,9 +229,12 @@
     }
   },
   "nav": {
+    "home": "Accueil",
+    "create": "Créer",
+    "library": "Bibliothèque",
     "content": "Contenu",
     "postCreation": "Création des posts",
-    "profile": "Mon profil",
+    "profile": "Profil",
     "setup": "Mon profil",
     "persona": "Persona",
     "articles": "Articles",
@@ -278,6 +282,37 @@
         "complete": "Terminé",
         "locked": "Complétez l'étape précédente"
       },
+      "welcome": {
+        "eyebrow": "Bienvenue",
+        "title": "Votre ghostwriter LinkedIn en 4 étapes",
+        "subtitle": "Configurez votre espace une fois : clé API, profil, cible et Persona. Ensuite, créez des posts alignés sur votre voix en quelques minutes.",
+        "pillars": [
+          "Une clé API personnelle — vous gardez le contrôle des coûts et des modèles.",
+          "Un profil et une cible — l’IA comprend qui vous êtes et pour qui vous écrivez.",
+          "Un Persona validé — votre Content Brain pour chaque génération."
+        ],
+        "resumeHint": "Vous avez déjà avancé ({percent} %). Reprenez où vous vous êtes arrêté.",
+        "ctaStart": "Commencer la configuration",
+        "ctaResume": "Reprendre la configuration",
+        "ctaReady": "Je suis prêt à créer"
+      },
+      "ready": {
+        "loading": "Chargement…",
+        "title": "Vous êtes prêt à créer",
+        "subtitle": "Votre Persona est validé. Lancez votre premier post LinkedIn ou affinez encore votre Content Brain.",
+        "check": {
+          "apiKey": "Clé API configurée",
+          "profile": "Profil auteur complété",
+          "audience": "Cible définie (ou étape passée)",
+          "persona": "Persona validé"
+        },
+        "ctaCreate": "Créer mon premier post",
+        "ctaReviewPersona": "Relire mon Persona"
+      },
+      "wizard": {
+        "stepLabel": "Étape {current} sur {total}",
+        "backToWelcome": "Retour à l’accueil onboarding"
+      },
       "banner": {
         "persona": {
           "title": "Validez votre Persona avant de générer",
@@ -302,6 +337,10 @@
         "progressHint": "Profil complété à {percent} %",
         "cta": "Continuer : {step}",
         "ctaDefault": "Étape suivante"
+      },
+      "guard": {
+        "checking": "Vérification de votre configuration…",
+        "redirecting": "Redirection vers l’étape à compléter…"
       }
     },
     "llm": {
@@ -372,6 +411,17 @@
     "author": {
       "title": "Mon profil",
       "subtitle": "Ajoutez des liens vers votre présence professionnelle. Pas de copier-coller — des URLs pour les exemples.",
+      "tabs": {
+        "ariaLabel": "Sections du profil auteur",
+        "essential": "Essentiel",
+        "voice": "Voix",
+        "inspirations": "Inspirations",
+        "hint": {
+          "essential": "Liens LinkedIn et web — base pour l’analyse stratégique et le Persona.",
+          "voice": "Rôle, positionnement, langue et exemples de vos propres posts.",
+          "inspirations": "Contenus que vous admirez — ton, angle, format pour enrichir le Persona."
+        }
+      },
       "linkedin": "URL profil LinkedIn",
       "linkedinActivity": "URL activité LinkedIn (vos posts)",
       "linkedinActivityHint": "Page « activité récente » de votre profil — l’IA analyse vos ~2 derniers mois de posts pour des recommandations stratégiques.",
@@ -497,10 +547,43 @@
       "validate": "Valider le Persona",
       "goArticles": "Continuer vers les posts exemples →",
       "back": "← Retour à la cible",
+      "help": {
+        "guideTitle": "Comprendre votre Content Brain",
+        "guideHint": "Topic DNA, règles LinkedIn, affinage automatique — en bref.",
+        "promptLabel": "Prompt Persona",
+        "promptBody": "Texte lu par l’IA à chaque génération. Cherchez les sections ## Topic DNA et ## LinkedIn operating rules — c’est votre ADN éditorial.",
+        "sections": {
+          "contentBrain": {
+            "title": "Content Brain",
+            "body": "Le Persona est le système expert qui pilote chaque post : voix, structure, sujets autorisés et interdits. Plus il est précis, moins vous corrigez après génération."
+          },
+          "topicDna": {
+            "title": "Topic DNA",
+            "body": "Piliers de contenu (3–5 thèmes récurrents), convictions (ce que vous défendez) et liste off-topic (ce qu’il faut refuser). C’est la boussole thématique de LinkedIn."
+          },
+          "operatingRules": {
+            "title": "Règles LinkedIn",
+            "body": "Format natif, preuves crédibles, anti-patterns IA, objectif commentaires qualifiés. Ces règles évitent le contenu générique ou le engagement bait."
+          },
+          "learned": {
+            "title": "Préférences apprises",
+            "body": "En bas du prompt, une section ajoutée après vos retours sur les posts (ton, emojis, longueur). Elle s’enrichit sans effacer votre base."
+          },
+          "validate": {
+            "title": "Validation",
+            "body": "Validez quand le prompt reflète votre voix. Tant qu’il n’est pas validé, la création de posts reste bloquée — c’est votre contrôle qualité."
+          },
+          "measurement": {
+            "title": "Boucle de mesure",
+            "body": "Après validation, renseignez les signaux sur vos posts publiés (saves, commentaires, DM). L’IA propose des ajustements Persona basés sur ce qui performe."
+          }
+        }
+      },
       "gapsTitle": "Hypothèses / manques",
       "gaps": {
         "title": "Complétez votre profil",
         "subtitle": "Répondez à ces questions pour affiner votre Persona et vos futurs posts LinkedIn. Vous pouvez enregistrer partiellement et revenir plus tard.",
+        "help": "Questions générées par l’IA quand des infos manquent (secteur, preuves, CTA…). Vos réponses enrichissent le profil et les prochaines versions du Persona.",
         "textPlaceholder": "Votre réponse…",
         "save": "Enregistrer les réponses",
         "saving": "Enregistrement…",
@@ -547,6 +630,7 @@
       "insights": {
         "title": "Boucle de mesure → Persona",
         "subtitle": "Synthétisez ce qui performe sur vos posts publiés (signaux saisis après validation) pour affiner votre Persona.",
+        "help": "Après publication LinkedIn, notez saves, commentaires qualifiés ou DM sur chaque post validé. L’IA propose des ajustements Topic DNA basés sur ces signaux.",
         "counts": "{validated} post(s) validé(s) · {withSignals} avec signaux renseignés",
         "synthesize": "Synthétiser depuis mes posts",
         "generating": "Analyse des performances…",
@@ -562,6 +646,7 @@
       "recentUpdates": {
         "title": "Dernières mises à jour du Persona",
         "subtitle": "Les 2 dernières intégrations (profil, retours articles, vos précisions).",
+        "help": "Journal des changements récents — pas tout l’historique. Utile pour voir ce que l’IA a intégré depuis votre dernière visite.",
         "source": {
           "generate": "Génération",
           "profile_sync": "Profil",
@@ -573,6 +658,7 @@
       "refinement": {
         "title": "Affiner le Persona",
         "subtitle": "Ajoutez des instructions précises : ton, sujets, interdits, exemples. L’IA met à jour le prompt et incrémente la version.",
+        "help": "Vos consignes en langage naturel. L’IA réécrit le Persona en conservant Topic DNA et règles — idéal pour corriger une dérive sans tout régénérer.",
         "placeholder": "Ex. : Insister sur le networking international, moins de jargon tech, toujours finir par une question ouverte…",
         "apply": "Mettre à jour le Persona",
         "applying": "Mise à jour…",
@@ -592,6 +678,33 @@
         "label": "Filtrer les posts",
         "pending": "À publier",
         "all": "Tous les posts"
+      },
+      "library": {
+        "title": "Bibliothèque",
+        "description": "Recherchez, filtrez par statut ou portée, et retravaillez vos posts par lot.",
+        "descriptionPending": "Posts en brouillon ou en affinage — prêts à finaliser pour LinkedIn.",
+        "toolbarLabel": "Filtres de la bibliothèque",
+        "searchLabel": "Rechercher dans les posts",
+        "searchPlaceholder": "Rechercher par accroche, contenu ou brief…",
+        "resetFilters": "Réinitialiser les filtres",
+        "statusLabel": "Statut",
+        "scopeLabel": "Portée",
+        "resultsCount": "{visible} post(s) affiché(s) sur {total}",
+        "emptyFiltered": "Aucun post ne correspond à ces filtres.",
+        "batchTitle": "Lot du {date}",
+        "batchCount": "{count, plural, one {# post} other {# posts}}",
+        "status": {
+          "all": "Tous",
+          "pending": "À publier",
+          "draft": "Brouillon",
+          "refining": "En affinage",
+          "validated": "Validé"
+        },
+        "scope": {
+          "all": "Toutes portées",
+          "generalist": "Généraliste",
+          "niche": "Niche"
+        }
       },
       "emptyPending": "Aucun post en attente. Créez un nouveau lot ou consultez les posts validés.",
       "needPersona": "Validez votre Persona avant de générer des posts.",
@@ -625,6 +738,8 @@
           "heroPill3": "Prêt à copier sur LinkedIn",
           "recommended": "Recommandé",
           "start": "Commencer",
+          "strategyDrawerTitle": "Analyse LinkedIn & recommandations",
+          "strategyDrawerHint": "Optionnel — parcours recommandé et 4 thématiques basées sur vos posts récents.",
           "guide": {
             "title": "Pas sûr par où commencer ?",
             "subtitle": "Choisissez l’intention qui vous ressemble — nous mettons en avant le bon parcours.",
@@ -659,6 +774,8 @@
             "patternLabel": "Ce que l’IA observe",
             "postsCount": "{count, plural, =0 {Aucun post récent détecté} one {# post analysé · {period}} other {# posts analysés · {period}}}",
             "modeLabel": "Parcours recommandé",
+            "whyRecommendTitle": "Pourquoi cette recommandation ?",
+            "themesDrawerTitle": "4 thématiques stratégiques",
             "highlightMode": "Mettre en avant ce parcours",
             "themesLabel": "4 thématiques stratégiques",
             "newsHook": "Actu",
@@ -809,13 +926,22 @@
         "pastedPreviewLabel": "Extrait de référence",
         "progress": {
           "ariaLabel": "Étapes de création",
-          "mode": "Mode",
+          "intent": "Intention",
           "contextProfile": "Profil",
           "contextNews": "Actu",
           "contextInspiration": "Référence",
-          "brief": "Brief",
+          "briefing": "Brief",
           "result": "Résultat",
-          "generating": "Génération en cours…"
+          "generation": "Génération en cours…"
+        },
+        "intentSummary": {
+          "label": "Parcours :",
+          "change": "Changer d’intention",
+          "modes": {
+            "profile": "Depuis mon profil",
+            "news": "Depuis l’actualité",
+            "inspiration": "Depuis un contenu existant"
+          }
         }
       },
       "news": {

@@ -3,21 +3,21 @@
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { useTranslations } from "next-intl";
 
-export type WizardStepId = "mode" | "context" | "brief" | "result" | "generating";
+export type WizardPhaseId = "intent" | "context" | "briefing" | "generation" | "result";
 
-function flowForMode(mode: WizardCreationMode | null): WizardStepId[] {
-  if (mode === "profile") return ["mode", "brief", "result"];
-  return ["mode", "context", "brief", "result"];
+function flowForMode(mode: WizardCreationMode | null): WizardPhaseId[] {
+  if (mode === "profile") return ["intent", "briefing", "result"];
+  return ["intent", "context", "briefing", "result"];
 }
 
 export function resolveWizardProgressStep(
   step: string,
   mode: WizardCreationMode | null,
-): WizardStepId {
-  if (step === "mode") return "mode";
-  if (step === "generating") return "generating";
+): WizardPhaseId {
+  if (step === "mode") return "intent";
+  if (step === "generating") return "generation";
   if (step === "draft-done") return "result";
-  if (step === "brief") return "brief";
+  if (step === "brief") return "briefing";
   if (
     step === "news" ||
     step === "paste" ||
@@ -27,21 +27,21 @@ export function resolveWizardProgressStep(
   ) {
     return "context";
   }
-  return "mode";
+  return "intent";
 }
 
 type Props = {
   mode: WizardCreationMode | null;
-  activeStep: WizardStepId;
+  activeStep: WizardPhaseId;
 };
 
 export function WizardProgress({ mode, activeStep }: Props) {
   const t = useTranslations("setup.articles.create.progress");
 
-  if (activeStep === "generating") {
+  if (activeStep === "generation") {
     return (
       <p className="text-xs font-medium text-ns-secondary" aria-live="polite">
-        {t("generating")}
+        {t("generation")}
       </p>
     );
   }
@@ -49,17 +49,17 @@ export function WizardProgress({ mode, activeStep }: Props) {
   const flow = flowForMode(mode);
   const current = flow.indexOf(activeStep);
 
-  const labels: Record<WizardStepId, string> = {
-    mode: t("mode"),
+  const labels: Record<WizardPhaseId, string> = {
+    intent: t("intent"),
     context:
       mode === "news"
         ? t("contextNews")
         : mode === "inspiration"
           ? t("contextInspiration")
           : t("contextProfile"),
-    brief: t("brief"),
+    briefing: t("briefing"),
     result: t("result"),
-    generating: t("generating"),
+    generation: t("generation"),
   };
 
   return (

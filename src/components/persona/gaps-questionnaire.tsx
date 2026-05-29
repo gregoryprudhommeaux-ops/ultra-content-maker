@@ -1,5 +1,6 @@
 "use client";
 
+import { ContextHelp } from "@/components/ui/context-help";
 import type { GapAnswerValue, ProfileGapQuestion } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { useTranslations } from "next-intl";
@@ -81,7 +82,10 @@ export function GapsQuestionnaire({ questions, initialAnswers, onSave }: Props) 
       className="rounded-xl border border-amber-200 bg-amber-50/80 p-5 space-y-6"
     >
       <div>
-        <h2 className="text-base font-semibold text-amber-950">{t("title")}</h2>
+        <h2 className="flex items-center gap-2 text-base font-semibold text-amber-950">
+          {t("title")}
+          <ContextHelp label={t("title")}>{t("help")}</ContextHelp>
+        </h2>
         <p className="mt-1 text-sm text-amber-900/90">{t("subtitle")}</p>
       </div>
 

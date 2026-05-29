@@ -5,72 +5,108 @@ import {
   resolveArticleScope,
   SCOPE_CARD_CLASS,
 } from "@/lib/articles/scope";
+import {
+  articleMatchesLibraryFilters,
+  countArticles,
+  libraryFiltersFromSearchParams,
+} from "@/lib/articles/library-filters";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
-import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
+import { ArticlesLibraryToolbar } from "@/components/articles/articles-library-toolbar";
+import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
 import { listArticleBatches, type ArticleBatchGroup } from "@/lib/workspace/articles";
-import { getPersona } from "@/lib/workspace/persona";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import type { ArticleDoc, ContentLanguage } from "@/types/workspace";
+import type { ArticleDoc, ArticleStatus, ContentLanguage } from "@/types/workspace";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-function filterArticles(articles: ArticleDoc[], pendingOnly: boolean): ArticleDoc[] {
-  if (!pendingOnly) return articles;
-  return articles.filter((a) => a.status !== "validated");
-}
+const STATUS_BADGE: Record<ArticleStatus, string> = {
+  draft: "bg-gray-100 text-ns-secondary",
+  refining: "bg-amber-100 text-amber-900",
+  validated: "bg-emerald-100 text-emerald-900",
+};
 
 export function ArticlesHub() {
   const t = useTranslations("setup.articles");
+  const tRework = useTranslations("setup.articles.create.recentPosts");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const { progress, loading: onboardingLoading } = useOnboardingProgress();
   const searchParams = useSearchParams();
-  const pendingOnly = searchParams.get("pending") === "1";
-  const [personaOk, setPersonaOk] = useState<boolean | null>(null);
+  const urlFilters = libraryFiltersFromSearchParams(searchParams);
+  const [query, setQuery] = useState("");
   const [batches, setBatches] = useState<ArticleBatchGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
 
+  const filters = useMemo(
+    () => ({
+      query,
+      status: urlFilters.status,
+      scope: urlFilters.scope,
+    }),
+    [query, urlFilters.scope, urlFilters.status],
+  );
+
   useEffect(() => {
     if (!user) return;
-    void (async () => {
-      const persona = await getPersona(user.uid);
-      setPersonaOk(!!persona?.validatedAt && !!persona.promptText?.trim());
-      const list = await listArticleBatches(user.uid);
+    void listArticleBatches(user.uid).then((list) => {
       setBatches(list);
       setLoaded(true);
-    })();
+    });
   }, [user]);
+
+  useEffect(() => {
+    if (onboardingLoading || !progress) return;
+    if (!progress.canAccessCreation) {
+      router.replace("/start");
+    }
+  }, [onboardingLoading, progress, router]);
+
+  const totalCount = useMemo(() => countArticles(batches), [batches]);
 
   const visibleBatches = useMemo(
     () =>
       batches
         .map((batch) => ({
           ...batch,
-          articles: filterArticles(batch.articles, pendingOnly),
+          articles: batch.articles.filter((a) => articleMatchesLibraryFilters(a, filters)),
         }))
         .filter((batch) => batch.articles.length > 0),
-    [batches, pendingOnly],
+    [batches, filters],
   );
 
-  if (authLoading || !loaded) {
-    return <GeneratingIndicator label="…" className="max-w-xl" />;
-  }
+  const visibleCount = useMemo(
+    () => countArticles(visibleBatches),
+    [visibleBatches],
+  );
 
-  if (!personaOk) {
-    return <OnboardingBlockedBanner reason="persona" />;
+  const hasAnyPosts = totalCount > 0;
+  const hasFilterResults = visibleCount > 0;
+
+  if (authLoading || !loaded || onboardingLoading || !progress?.canAccessCreation) {
+    return <GeneratingIndicator label="…" className="max-w-xl" />;
   }
 
   return (
     <div className="space-y-6">
-      <ArticlesHubHeader pendingOnly={pendingOnly} />
+      <ArticlesHubHeader statusFilter={filters.status} />
 
-      {visibleBatches.length === 0 && (
+      {hasAnyPosts && (
+        <ArticlesLibraryToolbar
+          filters={filters}
+          onQueryChange={setQuery}
+          onResetQuery={() => setQuery("")}
+          visibleCount={visibleCount}
+          totalCount={totalCount}
+        />
+      )}
+
+      {!hasAnyPosts && (
         <div className="rounded-xl border border-dashed border-gray-200 bg-ns-brand-light/30 p-8 text-center">
-          <p className="text-sm text-ns-secondary">
-            {pendingOnly ? t("emptyPending") : t("empty")}
-          </p>
+          <p className="text-sm text-ns-secondary">{t("empty")}</p>
           <Link
             href="/articles/new"
             className="mt-4 inline-block text-sm font-semibold text-ns-primary underline"
@@ -80,56 +116,82 @@ export function ArticlesHub() {
         </div>
       )}
 
+      {hasAnyPosts && !hasFilterResults && (
+        <div className="rounded-xl border border-dashed border-gray-200 bg-ns-brand-light/30 p-8 text-center">
+          <p className="text-sm text-ns-secondary">{t("library.emptyFiltered")}</p>
+        </div>
+      )}
+
       {visibleBatches.map((batch) => {
         const { generalist, niche } = countScopes(batch.articles);
         return (
           <section key={batch.batchId} className="space-y-3">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <h2 className="text-sm font-medium text-ns-secondary">
-                {t("batchLabel", {
+              <h2 className="text-sm font-semibold text-ns-tertiary">
+                {t("library.batchTitle", {
                   date: batch.createdAt.toLocaleDateString(locale),
                 })}
               </h2>
-              <p className="text-xs text-ns-secondary/60">
+              <p className="text-xs text-ns-secondary/80">
                 {t("scopeMix", { generalist, niche })}
               </p>
-            </div>
-            <div className="flex flex-wrap gap-3 text-xs font-medium">
-              <span className="inline-flex items-center gap-1.5 font-bold text-ns-tertiary">
-                <span className="h-3 w-3 rounded-sm bg-ns-primary" aria-hidden />
-                {t("scope.generalist")}
-              </span>
-              <span className="inline-flex items-center gap-1.5 font-bold text-ns-tertiary">
-                <span
-                  className="h-3 w-3 rounded-sm bg-ns-secondary"
-                  aria-hidden
-                />
-                {t("scope.niche")}
+              <span className="rounded-full bg-ns-brand-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+                {t("library.batchCount", { count: batch.articles.length })}
               </span>
             </div>
             <ul className="grid gap-3 sm:grid-cols-2">
-              {batch.articles.map((a) => {
-                const scope = resolveArticleScope(a);
-                return (
-                  <li key={a.id}>
-                    <Link
-                      href={`/articles/${a.id}`}
-                      className={`block rounded-xl border border-gray-100 p-4 transition-colors ${SCOPE_CARD_CLASS[scope]}`}
-                    >
-                      <p className="text-right text-[11px] font-medium text-ns-secondary">
-                        {t(`status.${a.status}`)}
-                      </p>
-                      <p className="mt-2 line-clamp-2 text-sm font-medium text-ns-tertiary">
-                        {a.hook || t("untitled")}
-                      </p>
-                    </Link>
-                  </li>
-                );
-              })}
+              {batch.articles.map((a) => (
+                <ArticleLibraryCard key={a.id} article={a} reworkLabel={tRework("reworkCta")} t={t} />
+              ))}
             </ul>
           </section>
         );
       })}
     </div>
+  );
+}
+
+function ArticleLibraryCard({
+  article,
+  reworkLabel,
+  t,
+}: {
+  article: ArticleDoc;
+  reworkLabel: string;
+  t: ReturnType<typeof useTranslations<"setup.articles">>;
+}) {
+  const scope = resolveArticleScope(article);
+
+  return (
+    <li
+      className={`overflow-hidden rounded-xl border border-gray-100 ${SCOPE_CARD_CLASS[scope]}`}
+    >
+      <Link
+        href={`/articles/${article.id}`}
+        className="block p-4 transition-colors hover:bg-white/60"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${STATUS_BADGE[article.status]}`}
+          >
+            {t(`status.${article.status}`)}
+          </span>
+          <span className="text-[10px] font-medium uppercase tracking-wide text-ns-secondary">
+            {t(`scope.${scope}`)}
+          </span>
+        </div>
+        <p className="mt-2 line-clamp-3 text-sm font-medium text-ns-tertiary">
+          {article.hook || t("untitled")}
+        </p>
+      </Link>
+      <div className="border-t border-gray-100/80 px-4 py-2">
+        <Link
+          href={`/articles/new?rework=${article.id}`}
+          className="text-xs font-semibold text-ns-primary underline hover:text-ns-tertiary"
+        >
+          {reworkLabel}
+        </Link>
+      </div>
+    </li>
   );
 }

@@ -1,15 +1,8 @@
 "use client";
 
-import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper";
-import { OnboardingProgressProvider } from "@/contexts/onboarding-progress-context";
 import type { ReactNode } from "react";
 
-/** Single stepper + shared progress state for all dashboard routes. */
+/** @deprecated Provider + stepper live in `(dashboard)/layout.tsx`. Pass-through only. */
 export function DashboardOnboardingLayout({ children }: { children: ReactNode }) {
-  return (
-    <OnboardingProgressProvider>
-      <OnboardingStepper placement="dashboard" />
-      {children}
-    </OnboardingProgressProvider>
-  );
+  return <>{children}</>;
 }

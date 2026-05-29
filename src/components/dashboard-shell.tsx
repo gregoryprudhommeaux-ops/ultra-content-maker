@@ -2,27 +2,18 @@
 
 import { NsMark } from "@/components/brand/ns-mark";
 import { AppFooter } from "@/components/layout/app-footer";
-import { MARKETING_LANDING_HREF } from "@/lib/brand/marketing";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import {
+  DASHBOARD_NAV,
+  dashboardNavNeedsAttention,
+  isDashboardNavActive,
+} from "@/lib/navigation/dashboard-nav";
 import { META_LABEL } from "@/lib/ui/nextstep";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
-
-const NAV = [
-  {
-    href: "/articles/new",
-    labelKey: "postCreation" as const,
-    match: ["/articles"],
-  },
-  {
-    href: "/setup/author",
-    labelKey: "profile" as const,
-    match: ["/setup/author", "/setup/audience", "/persona"],
-  },
-  { href: "/setup/llm", labelKey: "settings" as const, match: ["/setup/llm"] },
-] as const;
 
 function navLinkClass(active: boolean) {
   return `${META_LABEL} transition-colors ${
@@ -30,9 +21,19 @@ function navLinkClass(active: boolean) {
   }`;
 }
 
+function NavAttentionDot() {
+  return (
+    <span
+      className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-ns-primary align-middle"
+      aria-hidden
+    />
+  );
+}
+
 export function DashboardShell({ children }: { children: ReactNode }) {
   const t = useTranslations();
   const { signOut } = useAuth();
+  const { progress } = useOnboardingProgress();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -53,9 +54,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     };
   }, [menuOpen]);
 
-  function isActive(match: readonly string[]) {
-    if (!pathname) return false;
-    return match.some((m) => pathname === m || pathname.startsWith(`${m}/`));
+  function renderNavLabel(labelKey: (typeof DASHBOARD_NAV)[number]["labelKey"]) {
+    const needsAttention = dashboardNavNeedsAttention(labelKey, progress);
+    return (
+      <>
+        {t(`nav.${labelKey}`)}
+        {needsAttention && <NavAttentionDot />}
+      </>
+    );
   }
 
   return (
@@ -63,9 +69,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-4 py-3 text-white shadow-sm md:px-8">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
           <Link
-            href={MARKETING_LANDING_HREF}
+            href="/start"
             className="flex min-w-0 items-center gap-3 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary"
-            aria-label={t("app.footer.home")}
+            aria-label={t("nav.home")}
           >
             <NsMark size="sm" />
             <span className="truncate text-base font-bold tracking-tight text-white md:text-lg">
@@ -73,14 +79,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </span>
           </Link>
           <div className="flex items-center gap-2 md:gap-6">
-            <nav className="hidden gap-6 md:flex" aria-label="Main">
-              {NAV.map(({ href, labelKey, match }) => (
+            <nav className="hidden gap-5 lg:flex" aria-label="Main">
+              {DASHBOARD_NAV.map((item) => (
                 <Link
-                  key={href}
-                  href={href}
-                  className={navLinkClass(isActive(match))}
+                  key={item.key}
+                  href={item.href}
+                  className={navLinkClass(isDashboardNavActive(item, pathname))}
+                  aria-current={isDashboardNavActive(item, pathname) ? "page" : undefined}
                 >
-                  {t(`nav.${labelKey}`)}
+                  {renderNavLabel(item.labelKey)}
                 </Link>
               ))}
             </nav>
@@ -94,7 +101,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </button>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 text-white md:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 text-white lg:hidden"
               aria-expanded={menuOpen}
               aria-controls="dashboard-mobile-nav"
               aria-label={menuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
@@ -125,7 +132,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       </header>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-black/50"
@@ -137,18 +144,19 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             className="absolute right-0 top-0 flex h-full w-[min(100%,280px)] flex-col gap-1 border-l border-white/10 bg-ns-hero px-4 pb-8 pt-20 shadow-xl"
             aria-label="Main"
           >
-            {NAV.map(({ href, labelKey, match }) => (
+            {DASHBOARD_NAV.map((item) => (
               <Link
-                key={href}
-                href={href}
+                key={item.key}
+                href={item.href}
                 className={`rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
-                  isActive(match)
+                  isDashboardNavActive(item, pathname)
                     ? "bg-ns-primary/15 text-ns-primary"
                     : "text-white/85 hover:bg-white/5"
                 }`}
+                aria-current={isDashboardNavActive(item, pathname) ? "page" : undefined}
                 onClick={() => setMenuOpen(false)}
               >
-                {t(`nav.${labelKey}`)}
+                {renderNavLabel(item.labelKey)}
               </Link>
             ))}
             <button

@@ -20,7 +20,7 @@ export function resolveInspirationsReturn(
     case "articles-new":
       return { href: "/articles/new?mode=inspiration", labelKey: "backToCreate" };
     case "author":
-      return { href: "/setup/author", labelKey: "backToAuthor" };
+      return { href: "/setup/author?tab=inspirations", labelKey: "backToAuthor" };
     case "persona":
       return { href: "/persona", labelKey: "backToPersona" };
     case "articles":

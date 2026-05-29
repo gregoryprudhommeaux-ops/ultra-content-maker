@@ -5,6 +5,7 @@
     "footer": {
       "tagline": "Ultra Content Maker: Ghostwriter IA para LinkedIn — una herramienta NS Suite para emprendedores.",
       "home": "Inicio",
+      "library": "Biblioteca",
       "dashboard": "Artículos",
       "login": "Iniciar sesión",
       "signup": "Crear cuenta",
@@ -228,9 +229,12 @@
     }
   },
   "nav": {
+    "home": "Inicio",
+    "create": "Crear",
+    "library": "Biblioteca",
     "content": "Contenido",
     "postCreation": "Creación de posts",
-    "profile": "Mi perfil",
+    "profile": "Perfil",
     "setup": "Mi perfil",
     "persona": "Persona",
     "articles": "Artículos",
@@ -278,6 +282,37 @@
         "complete": "Completado",
         "locked": "Completa el paso anterior"
       },
+      "welcome": {
+        "eyebrow": "Bienvenida",
+        "title": "Tu ghostwriter de LinkedIn en 4 pasos",
+        "subtitle": "Configura tu espacio una vez: clave API, perfil, audiencia y Persona. Después, crea posts alineados con tu voz en minutos.",
+        "pillars": [
+          "Una clave API personal: tú controlas costes y modelos.",
+          "Perfil y audiencia: la IA entiende quién eres y para quién escribes.",
+          "Una Persona validada: tu Content Brain para cada generación."
+        ],
+        "resumeHint": "Ya has avanzado ({percent} %). Retoma donde lo dejaste.",
+        "ctaStart": "Empezar la configuración",
+        "ctaResume": "Reanudar la configuración",
+        "ctaReady": "Estoy listo para crear"
+      },
+      "ready": {
+        "loading": "Cargando…",
+        "title": "Estás listo para crear",
+        "subtitle": "Tu Persona está validada. Lanza tu primer post de LinkedIn o afina aún más tu Content Brain.",
+        "check": {
+          "apiKey": "Clave API configurada",
+          "profile": "Perfil de autor completado",
+          "audience": "Audiencia definida (o paso omitido)",
+          "persona": "Persona validada"
+        },
+        "ctaCreate": "Crear mi primer post",
+        "ctaReviewPersona": "Revisar mi Persona"
+      },
+      "wizard": {
+        "stepLabel": "Paso {current} de {total}",
+        "backToWelcome": "Volver al inicio del onboarding"
+      },
       "banner": {
         "persona": {
           "title": "Valida tu Persona antes de generar",
@@ -302,6 +337,10 @@
         "progressHint": "Perfil completado al {percent} %",
         "cta": "Continuar: {step}",
         "ctaDefault": "Siguiente paso"
+      },
+      "guard": {
+        "checking": "Comprobando tu configuración…",
+        "redirecting": "Redirigiendo al siguiente paso…"
       }
     },
     "llm": {
@@ -372,6 +411,17 @@
     "author": {
       "title": "Mi perfil",
       "subtitle": "Añade enlaces a tu presencia profesional. Sin copiar-pegar — solo URLs para ejemplos.",
+      "tabs": {
+        "ariaLabel": "Secciones del perfil de autor",
+        "essential": "Esencial",
+        "voice": "Voz",
+        "inspirations": "Inspiraciones",
+        "hint": {
+          "essential": "Enlaces LinkedIn y web — base para el análisis estratégico y la Persona.",
+          "voice": "Rol, posicionamiento, idioma y ejemplos de tus propios posts.",
+          "inspirations": "Contenidos que admiras — tono, ángulo y formato para enriquecer la Persona."
+        }
+      },
       "linkedin": "URL perfil LinkedIn",
       "linkedinActivity": "URL actividad LinkedIn (tus posts)",
       "linkedinActivityHint": "Página de actividad reciente de tu perfil — la IA analiza ~2 meses de posts para recomendaciones estratégicas.",
@@ -497,10 +547,43 @@
       "validate": "Validar Persona",
       "goArticles": "Continuar a posts de ejemplo →",
       "back": "← Volver al público",
+      "help": {
+        "guideTitle": "Entender tu Content Brain",
+        "guideHint": "Topic DNA, reglas LinkedIn, aprendizaje automático — en breve.",
+        "promptLabel": "Prompt Persona",
+        "promptBody": "Texto que la IA lee en cada generación. Busca ## Topic DNA y ## LinkedIn operating rules — tu ADN editorial.",
+        "sections": {
+          "contentBrain": {
+            "title": "Content Brain",
+            "body": "La Persona es el sistema experto detrás de cada post: voz, estructura, temas permitidos y prohibidos. Cuanto más precisa, menos editas después."
+          },
+          "topicDna": {
+            "title": "Topic DNA",
+            "body": "Pilares de contenido (3–5 temas recurrentes), creencias (lo que defiendes) y lista off-topic (lo que rechazar). Tu brújula temática en LinkedIn."
+          },
+          "operatingRules": {
+            "title": "Reglas LinkedIn",
+            "body": "Formato nativo, pruebas creíbles, anti-patrones IA, objetivo de comentarios cualificados. Evitan contenido genérico y engagement bait."
+          },
+          "learned": {
+            "title": "Preferencias aprendidas",
+            "body": "Al final del prompt, una sección añadida desde tus feedbacks (tono, emojis, longitud). Crece sin borrar tu base."
+          },
+          "validate": {
+            "title": "Validación",
+            "body": "Valida cuando el prompt refleja tu voz. Hasta entonces, la creación de posts permanece bloqueada — tu control de calidad."
+          },
+          "measurement": {
+            "title": "Bucle de medición",
+            "body": "Tras validar, registra señales en posts publicados (saves, comentarios, DM). La IA sugiere ajustes de Topic DNA según lo que funciona."
+          }
+        }
+      },
       "gapsTitle": "Suposiciones / lagunas",
       "gaps": {
         "title": "Completa tu perfil",
         "subtitle": "Responde estas preguntas para afinar tu Persona y tus futuros posts de LinkedIn. Puedes guardar parcialmente y volver más tarde.",
+        "help": "Preguntas generadas por la IA cuando falta información (sector, pruebas, CTA…). Tus respuestas enriquecen el perfil y futuras versiones del Persona.",
         "textPlaceholder": "Tu respuesta…",
         "save": "Guardar respuestas",
         "saving": "Guardando…",
@@ -547,6 +630,7 @@
       "insights": {
         "title": "Bucle de medición → Persona",
         "subtitle": "Sintetiza lo que funciona en tus posts publicados (señales tras validar) para afinar tu Persona.",
+        "help": "Tras publicar en LinkedIn, registra saves, comentarios cualificados o DM en cada post validado. La IA sugiere ajustes de Topic DNA según esas señales.",
         "counts": "{validated} post(s) validado(s) · {withSignals} con señales registradas",
         "synthesize": "Sintetizar desde mis posts",
         "generating": "Analizando rendimiento…",
@@ -562,6 +646,7 @@
       "recentUpdates": {
         "title": "Últimas actualizaciones del Persona",
         "subtitle": "Las 2 últimas integraciones (perfil, feedback de posts, tus notas).",
+        "help": "Diario de cambios recientes — no el historial completo. Útil para ver qué integró la IA desde tu última visita.",
         "source": {
           "generate": "Generación",
           "profile_sync": "Perfil",
@@ -573,6 +658,7 @@
       "refinement": {
         "title": "Afinar el Persona",
         "subtitle": "Añade instrucciones precisas: tono, temas, evitar, ejemplos. La IA actualiza el prompt y sube la versión.",
+        "help": "Tus instrucciones en lenguaje natural. La IA reescribe el Persona conservando Topic DNA y reglas — ideal para corregir sin regenerar todo.",
         "placeholder": "Ej.: insistir en networking internacional, menos jerga técnica, terminar con pregunta abierta…",
         "apply": "Actualizar Persona",
         "applying": "Actualizando…",
@@ -592,6 +678,33 @@
         "label": "Filtrar posts",
         "pending": "Por publicar",
         "all": "Todos los posts"
+      },
+      "library": {
+        "title": "Biblioteca",
+        "description": "Busca, filtra por estado o alcance y retrabaja posts por lote.",
+        "descriptionPending": "Posts en borrador o en refinamiento — listos para finalizar en LinkedIn.",
+        "toolbarLabel": "Filtros de la biblioteca",
+        "searchLabel": "Buscar en los posts",
+        "searchPlaceholder": "Buscar por gancho, contenido o brief…",
+        "resetFilters": "Restablecer filtros",
+        "statusLabel": "Estado",
+        "scopeLabel": "Alcance",
+        "resultsCount": "{visible} post(s) mostrado(s) de {total}",
+        "emptyFiltered": "Ningún post coincide con estos filtros.",
+        "batchTitle": "Lote del {date}",
+        "batchCount": "{count, plural, one {# post} other {# posts}}",
+        "status": {
+          "all": "Todos",
+          "pending": "Por publicar",
+          "draft": "Borrador",
+          "refining": "En refinamiento",
+          "validated": "Validado"
+        },
+        "scope": {
+          "all": "Todos los alcances",
+          "generalist": "Generalista",
+          "niche": "Nicho"
+        }
       },
       "emptyPending": "Ningún post pendiente. Crea un lote nuevo o consulta los validados.",
       "needPersona": "Valida tu Persona antes de generar posts.",
@@ -625,6 +738,8 @@
           "heroPill3": "Listo para LinkedIn",
           "recommended": "Recomendado",
           "start": "Empezar",
+          "strategyDrawerTitle": "Análisis LinkedIn y recomendaciones",
+          "strategyDrawerHint": "Opcional — recorrido recomendado y 4 temas basados en tus posts recientes.",
           "guide": {
             "title": "¿No sabes por dónde empezar?",
             "subtitle": "Elige la intención que te encaje — resaltamos el recorrido adecuado.",
@@ -659,6 +774,8 @@
             "patternLabel": "Lo que ve la IA",
             "postsCount": "{count, plural, =0 {No se detectaron posts recientes} one {# post analizado · {period}} other {# posts analizados · {period}}}",
             "modeLabel": "Recorrido recomendado",
+            "whyRecommendTitle": "¿Por qué esta recomendación?",
+            "themesDrawerTitle": "4 temas estratégicos",
             "highlightMode": "Resaltar este recorrido",
             "themesLabel": "4 temáticas estratégicas",
             "newsHook": "Actualidad",
@@ -809,13 +926,22 @@
         "pastedPreviewLabel": "Extracto de referencia",
         "progress": {
           "ariaLabel": "Pasos de creación",
-          "mode": "Modo",
+          "intent": "Intención",
           "contextProfile": "Perfil",
           "contextNews": "Noticia",
           "contextInspiration": "Referencia",
-          "brief": "Brief",
+          "briefing": "Brief",
           "result": "Resultado",
-          "generating": "Generando…"
+          "generation": "Generando…"
+        },
+        "intentSummary": {
+          "label": "Recorrido:",
+          "change": "Cambiar intención",
+          "modes": {
+            "profile": "Desde mi perfil",
+            "news": "Desde la actualidad",
+            "inspiration": "Desde contenido existente"
+          }
         }
       },
       "news": {
