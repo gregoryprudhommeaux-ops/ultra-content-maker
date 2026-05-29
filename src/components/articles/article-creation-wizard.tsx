@@ -9,6 +9,7 @@ import {
 import { InspirationLibraryStep } from "@/components/articles/creation/inspiration-library-step";
 import { InspirationSourceChoice } from "@/components/articles/creation/inspiration-source-choice";
 import { ArticleEditor } from "@/components/articles/article-editor";
+import { CreationIntentSummary } from "@/components/articles/creation/creation-intent-summary";
 import { CreationModePicker } from "@/components/articles/creation/creation-mode-picker";
 import { InspirationUrlStep } from "@/components/articles/creation/inspiration-url-step";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
