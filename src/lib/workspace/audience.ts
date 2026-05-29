@@ -41,10 +41,12 @@ export async function saveAudienceProfile(
     },
     { merge: true },
   );
-  const { syncPersonaAfterProfileSave } = await import(
+  const { getAuthorProfile } = await import("@/lib/workspace/author");
+  const author = await getAuthorProfile(userId);
+  const { syncPersonaAfterProfileChange } = await import(
     "@/lib/persona/sync-after-profile-save"
   );
-  await syncPersonaAfterProfileSave(userId);
+  await syncPersonaAfterProfileChange(userId, author?.contentLanguage);
 }
 
 export async function skipAudienceStep(userId: string) {

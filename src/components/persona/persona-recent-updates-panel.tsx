@@ -37,7 +37,9 @@ export function PersonaRecentUpdatesPanel({ changes }: Props) {
                 {t(`source.${change.source}`)}
               </span>
             </div>
-            <p className="mt-1 text-ns-tertiary leading-relaxed">{change.summary}</p>
+            <p className="mt-1 text-ns-tertiary leading-relaxed whitespace-pre-wrap">
+              {change.summary.split(" · ").join("\n")}
+            </p>
           </li>
         ))}
       </ul>

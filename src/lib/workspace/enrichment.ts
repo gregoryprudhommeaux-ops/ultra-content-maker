@@ -32,8 +32,10 @@ export async function saveProfileEnrichment(
     details: { ...(prev?.details ?? {}), ...details },
     updatedAt: serverTimestamp(),
   });
-  const { syncPersonaAfterProfileSave } = await import(
+  const { getAuthorProfile } = await import("@/lib/workspace/author");
+  const author = await getAuthorProfile(userId);
+  const { syncPersonaAfterProfileChange } = await import(
     "@/lib/persona/sync-after-profile-save"
   );
-  await syncPersonaAfterProfileSave(userId);
+  await syncPersonaAfterProfileChange(userId, author?.contentLanguage);
 }

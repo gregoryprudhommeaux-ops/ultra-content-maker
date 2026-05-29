@@ -15,6 +15,10 @@ import {
   getLearningProfile,
   stripLearnedSection,
 } from "@/lib/workspace/learning-profile";
+import {
+  enrichmentFingerprint,
+  learningEntriesFingerprint,
+} from "@/lib/persona/persona-changelog";
 import { stripVersionHeader } from "@/lib/persona/persona-version";
 
 export type RefreshPersonaResult =
@@ -117,6 +121,8 @@ export async function refreshPersonaFromProfile(
     changeSummary: summary,
     contentLanguage: lang,
     profileFingerprint: true,
+    learningSyncHash: learningEntriesFingerprint(learning?.entries ?? []),
+    enrichmentFingerprint: enrichmentFingerprint(enrichment?.details ?? {}),
   });
 
   const updated = await getPersona(userId);

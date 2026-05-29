@@ -64,18 +64,45 @@ export async function getLearningProfile(
   };
 }
 
+const EMOJI_PREF_LABELS: Record<ContentLanguage, Record<EmojiLevel, string>> = {
+  fr: {
+    none: "Préférence emojis: aucun",
+    light: "Préférence emojis: un peu",
+    heavy: "Préférence emojis: beaucoup",
+  },
+  en: {
+    none: "Emoji preference: none",
+    light: "Emoji preference: a little",
+    heavy: "Emoji preference: a lot",
+  },
+  es: {
+    none: "Preferencia emojis: ninguno",
+    light: "Preferencia emojis: un poco",
+    heavy: "Preferencia emojis: muchos",
+  },
+};
+
 /** Default emoji preference set during onboarding (audience step). */
 export async function saveDefaultEmojiLevel(
   userId: string,
   emojiLevel: EmojiLevel,
+  contentLanguage: ContentLanguage = "fr",
 ): Promise<void> {
   const prev = await getLearningProfile(userId);
+  const labels = EMOJI_PREF_LABELS[contentLanguage] ?? EMOJI_PREF_LABELS.fr;
+  const kept = (prev?.entries ?? []).filter((e) => e.source !== "emoji");
+  const now = new Date();
+  const entries: LearningEntry[] = [
+    { source: "emoji" as const, text: labels[emojiLevel], createdAt: now },
+    ...kept,
+  ].slice(0, MAX_ENTRIES);
+
   await setDoc(
     learningRef(userId),
     {
       emojiLevel,
       preferredCtaStyle: prev?.preferredCtaStyle ?? null,
-      entries: (prev?.entries ?? []).map(serializeLearningEntry),
+      entries: entries.map(serializeLearningEntry),
       updatedAt: serverTimestamp(),
     },
     { merge: true },
@@ -124,7 +151,12 @@ export async function replaceArticleRefinementLearning(
 ) {
   const prev = await getLearningProfile(userId);
   const now = new Date();
-  const fromRefinement = entriesFromRefinement(refinement, contentLanguage).map((e) => ({
+  const globalEmoji = prev?.emojiLevel ?? "light";
+  const fromRefinement = entriesFromRefinement(
+    refinement,
+    contentLanguage,
+    globalEmoji,
+  ).map((e) => ({
     ...e,
     articleId,
     createdAt: now,
@@ -135,7 +167,7 @@ export async function replaceArticleRefinementLearning(
   const merged: LearningEntry[] = [...fromRefinement, ...kept].slice(0, MAX_ENTRIES);
 
   await setDoc(learningRef(userId), {
-    emojiLevel: refinement.emojiLevel ?? prev?.emojiLevel ?? "light",
+    emojiLevel: prev?.emojiLevel ?? "light",
     preferredCtaStyle: prev?.preferredCtaStyle ?? null,
     entries: merged.map(serializeLearningEntry),
     updatedAt: serverTimestamp(),
@@ -200,14 +232,23 @@ export function entriesFromGapAnswers(
 export function entriesFromRefinement(
   refinement: ArticleRefinement,
   lang: ContentLanguage,
+  globalEmojiLevel: EmojiLevel = "light",
 ): Omit<LearningEntry, "createdAt">[] {
   const labels = REFINEMENT_LABELS[lang] ?? REFINEMENT_LABELS.en;
   const out: Omit<LearningEntry, "createdAt">[] = [];
 
-  if (refinement.emojiLevel) {
+  if (
+    refinement.emojiLevel &&
+    refinement.emojiLevel !== globalEmojiLevel
+  ) {
+    const postLabels: Record<ContentLanguage, string> = {
+      fr: "Emojis pour ce post",
+      en: "Emojis for this post",
+      es: "Emojis para este post",
+    };
     out.push({
-      source: "emoji",
-      text: `Emojis: ${emojiInstruction(refinement.emojiLevel, lang)}`,
+      source: "article_refinement",
+      text: `${postLabels[lang] ?? postLabels.en}: ${emojiInstruction(refinement.emojiLevel, lang)}`,
     });
   }
 

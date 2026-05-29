@@ -110,10 +110,12 @@ export async function addSource(userId: string, input: AddSourceInput): Promise<
     createdAt: serverTimestamp(),
   });
   const id = ref.id;
-  const { syncPersonaAfterProfileSave } = await import(
+  const { getAuthorProfile } = await import("@/lib/workspace/author");
+  const author = await getAuthorProfile(userId);
+  const { syncPersonaAfterProfileChange } = await import(
     "@/lib/persona/sync-after-profile-save"
   );
-  await syncPersonaAfterProfileSave(userId);
+  await syncPersonaAfterProfileChange(userId, author?.contentLanguage);
   return id;
 }
 
@@ -121,8 +123,10 @@ export async function removeSource(userId: string, sourceId: string) {
   const db = getClientFirestore();
   if (!db) throw new Error("Firestore not available");
   await deleteDoc(doc(db, "users", userId, "sources", sourceId));
-  const { syncPersonaAfterProfileSave } = await import(
+  const { getAuthorProfile } = await import("@/lib/workspace/author");
+  const author = await getAuthorProfile(userId);
+  const { syncPersonaAfterProfileChange } = await import(
     "@/lib/persona/sync-after-profile-save"
   );
-  await syncPersonaAfterProfileSave(userId);
+  await syncPersonaAfterProfileChange(userId, author?.contentLanguage);
 }

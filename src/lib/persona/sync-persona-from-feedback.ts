@@ -23,13 +23,32 @@ import {
   entryFromCtaChoice,
 } from "@/lib/workspace/learning-profile";
 import {
-  summarizeNewLearningEntries,
-  summarizeProfileDelta,
+  buildSyncChangeSummary,
+  enrichmentFingerprint,
+  learningEntriesFingerprint,
+  summarizeEnrichmentDelta,
+  summarizeLearningDelta,
+  summarizeProfileDeltaDetailed,
 } from "@/lib/persona/persona-changelog";
 import { stripVersionHeader } from "@/lib/persona/persona-version";
+import { refreshPersonaFromProfile } from "@/lib/persona/refresh-persona-from-profile";
 
 function promptsEqual(a: string, b: string) {
   return a.trim() === b.trim();
+}
+
+function buildRefinementComment(refinement: ArticleRefinement): string | undefined {
+  const parts: string[] = [];
+  if (refinement.globalComment?.trim()) {
+    parts.push(refinement.globalComment.trim());
+  }
+  for (const q of refinement.questions) {
+    if (q.comment?.trim()) {
+      parts.push(q.comment.trim());
+    }
+  }
+  if (parts.length === 0) return undefined;
+  return parts.join("\n");
 }
 
 /** Persist feedback signals and merge them into the Persona prompt. */
@@ -45,46 +64,67 @@ export async function syncPersonaFromFeedback(userId: string) {
   if (!persona?.promptText) return;
 
   const lang = (author?.contentLanguage ?? "fr") as ContentLanguage;
+  const entries = (learning?.entries ?? []) as LearningEntry[];
+  const enrichDetails = enrichment?.details ?? {};
+
   const base = stripLearnedSection(stripVersionHeader(persona.promptText));
   const learned = buildLearnedSectionMarkdown(
     learning,
-    enrichment?.details ?? {},
+    enrichDetails,
     lang,
     author,
     audience,
   );
   const promptText = `${base}\n\n${learned}`;
 
-  if (promptsEqual(promptText, persona.promptText)) return;
-
-  const summaries: string[] = [];
-  const profileSummary = summarizeProfileDelta(
+  const profileLines = summarizeProfileDeltaDetailed(
     persona.profileFingerprint,
     author,
     audience,
     lang,
   );
-  if (profileSummary) summaries.push(profileSummary);
+  const learningLines = summarizeLearningDelta(
+    persona.learningSyncHash,
+    entries,
+    lang,
+  );
+  const enrichmentLines = summarizeEnrichmentDelta(
+    persona.enrichmentFingerprint,
+    enrichDetails,
+    lang,
+  );
 
-  const newestEntries = (learning?.entries ?? []).slice(0, 3) as LearningEntry[];
-  const learningSummary = summarizeNewLearningEntries(newestEntries, lang);
-  if (learningSummary) summaries.push(learningSummary);
+  const changeSummary = buildSyncChangeSummary([
+    ...profileLines,
+    ...learningLines,
+    ...enrichmentLines,
+  ]);
 
-  const changeSummary =
-    summaries.length > 0
-      ? summaries.join(" ")
-      : lang === "fr"
-        ? "Préférences apprises et profil synchronisés dans le Persona."
-        : lang === "es"
-          ? "Preferencias aprendidas y perfil sincronizados en el Persona."
-          : "Learned preferences and profile synced into Persona.";
+  const promptUnchanged = promptsEqual(promptText, persona.promptText);
+  if (promptUnchanged && !changeSummary) return;
+
+  const newLearningHash = learningEntriesFingerprint(entries);
+  const newEnrichmentHash = enrichmentFingerprint(enrichDetails);
+
+  const reason =
+    profileLines.length > 0 || enrichmentLines.length > 0
+      ? "profile_sync"
+      : "feedback_sync";
 
   await commitPersonaPromptUpdate(userId, promptText, {
-    reason: profileSummary ? "profile_sync" : "feedback_sync",
-    changeSummary,
+    reason,
+    changeSummary:
+      changeSummary ??
+      (lang === "fr"
+        ? "Préférences et profil synchronisés dans le Persona."
+        : lang === "es"
+          ? "Preferencias y perfil sincronizados en el Persona."
+          : "Preferences and profile synced into Persona."),
     contentLanguage: lang,
-    bumpVersion: true,
+    bumpVersion: !promptUnchanged || !!changeSummary,
     profileFingerprint: true,
+    learningSyncHash: newLearningHash,
+    enrichmentFingerprint: newEnrichmentHash,
   });
 }
 
@@ -101,6 +141,7 @@ export async function recordGapFeedback(
     await appendLearningEntries(userId, entries);
   }
   await syncPersonaFromFeedback(userId);
+  await tryRefreshPersonaBaseFromProfile(userId);
 }
 
 export async function recordArticleRefinementFeedback(
@@ -116,6 +157,11 @@ export async function recordArticleRefinementFeedback(
     contentLanguage,
   );
   await syncPersonaFromFeedback(userId);
+
+  const comment = buildRefinementComment(refinement);
+  if (comment && comment.length >= 40) {
+    await tryRefreshPersonaBaseFromProfile(userId, contentLanguage, comment);
+  }
 }
 
 /** Persist refinement to Firestore and merge into Persona (debounced field edits). */
@@ -161,6 +207,12 @@ export async function recordArticleValidateFeedback(
     },
   );
   await syncPersonaFromFeedback(userId);
+  if (refinement) {
+    const comment = buildRefinementComment(refinement);
+    if (comment) {
+      await tryRefreshPersonaBaseFromProfile(userId, contentLanguage, comment);
+    }
+  }
 }
 
 export async function recordEmojiPreference(
@@ -168,28 +220,21 @@ export async function recordEmojiPreference(
   emojiLevel: EmojiLevel,
   contentLanguage: ContentLanguage,
 ) {
-  const labels: Record<ContentLanguage, Record<EmojiLevel, string>> = {
-    fr: {
-      none: "Préférence emojis: aucun",
-      light: "Préférence emojis: un peu",
-      heavy: "Préférence emojis: beaucoup",
-    },
-    en: {
-      none: "Emoji preference: none",
-      light: "Emoji preference: a little",
-      heavy: "Emoji preference: a lot",
-    },
-    es: {
-      none: "Preferencia emojis: ninguno",
-      light: "Preferencia emojis: un poco",
-      heavy: "Preferencia emojis: muchos",
-    },
-  };
-  const { appendLearningEntries } = await import("@/lib/workspace/learning-profile");
-  await appendLearningEntries(
-    userId,
-    [{ source: "emoji", text: labels[contentLanguage]?.[emojiLevel] ?? labels.en[emojiLevel] }],
-    { emojiLevel },
-  );
+  const { saveDefaultEmojiLevel } = await import("@/lib/workspace/learning-profile");
+  await saveDefaultEmojiLevel(userId, emojiLevel, contentLanguage);
   await syncPersonaFromFeedback(userId);
+}
+
+async function tryRefreshPersonaBaseFromProfile(
+  userId: string,
+  contentLanguage?: ContentLanguage,
+  userComment?: string,
+) {
+  try {
+    const author = await getAuthorProfile(userId);
+    const lang = (contentLanguage ?? author?.contentLanguage ?? "fr") as ContentLanguage;
+    await refreshPersonaFromProfile(userId, lang, userComment);
+  } catch {
+    /* no persona or no API key */
+  }
 }

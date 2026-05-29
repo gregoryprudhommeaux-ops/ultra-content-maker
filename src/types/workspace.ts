@@ -166,6 +166,10 @@ export interface PersonaDoc {
   recentChanges?: PersonaRecentChange[];
   /** Fingerprint of author + audience fields for change detection. */
   profileFingerprint?: string;
+  /** Fingerprint of learning entry texts at last successful sync. */
+  learningSyncHash?: string;
+  /** Fingerprint of enrichment questionnaire answers. */
+  enrichmentFingerprint?: string;
 }
 
 export type PersonaHistoryReason =

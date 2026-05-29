@@ -57,7 +57,14 @@ export function AudienceSetupForm() {
           skipped: false,
         });
       }
-      await saveDefaultEmojiLevel(user.uid, emojiLevel);
+      const author = await import("@/lib/workspace/author").then((m) =>
+        m.getAuthorProfile(user.uid),
+      );
+      await saveDefaultEmojiLevel(
+        user.uid,
+        emojiLevel,
+        author?.contentLanguage ?? "fr",
+      );
       await updateSetupStep(user.uid, "persona");
       notifyOnboardingProgressChanged();
       router.push("/persona");

@@ -69,10 +69,10 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
   );
   const lang =
     input.contentLanguage ?? prev?.contentLanguage ?? "fr";
-  const { syncPersonaAfterAuthorProfileSave } = await import(
+  const { syncPersonaAfterProfileChange } = await import(
     "@/lib/persona/sync-after-profile-save"
   );
-  await syncPersonaAfterAuthorProfileSave(userId, lang);
+  await syncPersonaAfterProfileChange(userId, lang);
 }
 
 export async function completeAuthorStep(userId: string) {

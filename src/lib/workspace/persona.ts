@@ -15,9 +15,13 @@ import {
   stripVersionHeader,
 } from "@/lib/persona/persona-version";
 import {
+  enrichmentFingerprint,
+  learningEntriesFingerprint,
   mapReasonToSource,
   profileFingerprint,
 } from "@/lib/persona/persona-changelog";
+import { getProfileEnrichment } from "./enrichment";
+import { getLearningProfile } from "./learning-profile";
 import { getAuthorProfile } from "./author";
 import { getAudienceProfile } from "./audience";
 
@@ -112,6 +116,12 @@ export async function getPersona(userId: string): Promise<PersonaDoc | null> {
       typeof d.profileFingerprint === "string"
         ? d.profileFingerprint
         : undefined,
+    learningSyncHash:
+      typeof d.learningSyncHash === "string" ? d.learningSyncHash : undefined,
+    enrichmentFingerprint:
+      typeof d.enrichmentFingerprint === "string"
+        ? d.enrichmentFingerprint
+        : undefined,
   };
 }
 
@@ -121,6 +131,8 @@ type CommitPersonaOptions = {
   contentLanguage?: ContentLanguage;
   bumpVersion?: boolean;
   profileFingerprint?: boolean;
+  learningSyncHash?: string;
+  enrichmentFingerprint?: string;
   model?: string;
   gapQuestions?: ProfileGapQuestion[];
   status?: PersonaStatus;
@@ -148,10 +160,11 @@ export async function commitPersonaPromptUpdate(
   const promptText = applyVersionHeader(body, versionNumber, updatedAt, lang);
 
   let recentChanges = [...(prev?.recentChanges ?? [])];
-  if (opts.changeSummary?.trim()) {
+  const summaryText = opts.changeSummary?.trim();
+  if (summaryText && summaryText !== recentChanges[0]?.summary) {
     recentChanges = [
       {
-        summary: opts.changeSummary.trim(),
+        summary: summaryText,
         source: mapReasonToSource(opts.reason),
         at: updatedAt,
       },
@@ -177,6 +190,9 @@ export async function commitPersonaPromptUpdate(
       versionNumber,
       recentChanges: recentChanges.map(serializeRecentChange),
       profileFingerprint: nextFingerprint ?? null,
+      learningSyncHash: opts.learningSyncHash ?? prev?.learningSyncHash ?? null,
+      enrichmentFingerprint:
+        opts.enrichmentFingerprint ?? prev?.enrichmentFingerprint ?? null,
       updatedAt: serverTimestamp(),
       ...(opts.model !== undefined ? { model: opts.model } : {}),
       ...(opts.gapQuestions !== undefined
@@ -197,6 +213,11 @@ export async function savePersonaDraft(
   gapQuestions?: ProfileGapQuestion[],
   contentLanguage?: ContentLanguage,
 ) {
+  const [learning, enrichment] = await Promise.all([
+    getLearningProfile(userId),
+    getProfileEnrichment(userId),
+  ]);
+
   const summary =
     contentLanguage === "fr"
       ? "Persona généré ou régénéré à partir de votre profil et de vos sources."
@@ -209,6 +230,8 @@ export async function savePersonaDraft(
     changeSummary: summary,
     contentLanguage,
     profileFingerprint: true,
+    learningSyncHash: learningEntriesFingerprint(learning?.entries ?? []),
+    enrichmentFingerprint: enrichmentFingerprint(enrichment?.details ?? {}),
     model,
     gapQuestions,
     status: "draft",

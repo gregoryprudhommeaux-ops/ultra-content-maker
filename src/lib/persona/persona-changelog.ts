@@ -3,6 +3,7 @@ import type {
   AudienceProfile,
   AuthorProfile,
   ContentLanguage,
+  GapAnswerValue,
   PersonaUpdateSource,
 } from "@/types/workspace";
 
@@ -26,117 +27,170 @@ export function profileFingerprint(
   });
 }
 
-const FIELD_LABELS: Record<
-  ContentLanguage,
-  Record<string, string>
-> = {
+export function enrichmentFingerprint(
+  details: Record<string, GapAnswerValue>,
+): string {
+  return JSON.stringify(details);
+}
+
+/** Stable hash of learning entry texts (order matters — newest first). */
+export function learningEntriesFingerprint(entries: LearningEntry[]): string {
+  return entries.map((e) => e.text.trim()).join("\x1e");
+}
+
+function truncate(text: string, max = 120): string {
+  const t = text.replace(/\s+/g, " ").trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
+const FIELD_LABELS: Record<ContentLanguage, Record<string, string>> = {
   fr: {
-    roleTitle: "rôle",
-    positioningLine: "positionnement",
-    linkedinProfileUrl: "LinkedIn profil",
-    linkedinActivityUrl: "activité LinkedIn",
-    websiteUrl: "site web",
-    blogUrl: "blog",
-    creationStrategySteering: "pilotage stratégie",
-    targetLabel: "cible",
-    contentFocus: "focus contenu",
-    optionalNotes: "notes audience",
-    newsInterestQuery: "mots-clés actus",
+    roleTitle: "Rôle",
+    positioningLine: "Positionnement",
+    linkedinProfileUrl: "LinkedIn",
+    linkedinActivityUrl: "Activité LinkedIn",
+    websiteUrl: "Site web",
+    blogUrl: "Blog",
+    creationStrategySteering: "Pilotage stratégie",
+    targetLabel: "Cible",
+    contentFocus: "Focus contenu",
+    optionalNotes: "Notes",
+    newsInterestQuery: "Mots-clés actus",
   },
   en: {
-    roleTitle: "role",
-    positioningLine: "positioning",
-    linkedinProfileUrl: "LinkedIn profile",
+    roleTitle: "Role",
+    positioningLine: "Positioning",
+    linkedinProfileUrl: "LinkedIn",
     linkedinActivityUrl: "LinkedIn activity",
-    websiteUrl: "website",
-    blogUrl: "blog",
-    creationStrategySteering: "strategy steering",
-    targetLabel: "target",
-    contentFocus: "content focus",
-    optionalNotes: "audience notes",
-    newsInterestQuery: "news keywords",
+    websiteUrl: "Website",
+    blogUrl: "Blog",
+    creationStrategySteering: "Strategy steering",
+    targetLabel: "Target",
+    contentFocus: "Content focus",
+    optionalNotes: "Notes",
+    newsInterestQuery: "News keywords",
   },
   es: {
-    roleTitle: "rol",
-    positioningLine: "posicionamiento",
-    linkedinProfileUrl: "perfil LinkedIn",
-    linkedinActivityUrl: "actividad LinkedIn",
-    websiteUrl: "sitio web",
-    blogUrl: "blog",
-    creationStrategySteering: "dirección estrategia",
-    targetLabel: "objetivo",
-    contentFocus: "enfoque contenido",
-    optionalNotes: "notas audiencia",
-    newsInterestQuery: "palabras clave noticias",
+    roleTitle: "Rol",
+    positioningLine: "Posicionamiento",
+    linkedinProfileUrl: "LinkedIn",
+    linkedinActivityUrl: "Actividad LinkedIn",
+    websiteUrl: "Sitio web",
+    blogUrl: "Blog",
+    creationStrategySteering: "Dirección estrategia",
+    targetLabel: "Objetivo",
+    contentFocus: "Enfoque contenido",
+    optionalNotes: "Notas",
+    newsInterestQuery: "Palabras clave noticias",
   },
 };
 
-export function summarizeProfileDelta(
+/** Human-readable lines with actual field values (not just field names). */
+export function summarizeProfileDeltaDetailed(
   prevFingerprint: string | undefined,
   author: AuthorProfile | null,
   audience: AudienceProfile | null,
   lang: ContentLanguage,
-): string | null {
+): string[] {
   const next = profileFingerprint(author, audience);
-  if (!prevFingerprint || prevFingerprint === next) return null;
+  if (prevFingerprint && prevFingerprint === next) return [];
 
-  let prev: Record<string, string>;
-  try {
-    prev = JSON.parse(prevFingerprint) as Record<string, string>;
-  } catch {
-    return profileSummaryGeneric(lang);
+  let prev: Record<string, string> = {};
+  if (prevFingerprint) {
+    try {
+      prev = JSON.parse(prevFingerprint) as Record<string, string>;
+    } catch {
+      prev = {};
+    }
   }
 
   const nextObj = JSON.parse(next) as Record<string, string>;
   const labels = FIELD_LABELS[lang] ?? FIELD_LABELS.fr;
-  const changed: string[] = [];
+  const lines: string[] = [];
 
   for (const key of Object.keys(labels)) {
-    if ((prev[key] ?? "") !== (nextObj[key] ?? "")) {
-      changed.push(labels[key] ?? key);
+    const before = (prev[key] ?? "").trim();
+    const after = (nextObj[key] ?? "").trim();
+    if (before === after || !after) continue;
+    lines.push(`${labels[key]} : ${truncate(after)}`);
+  }
+
+  if (lines.length === 0 && !prevFingerprint) {
+    const intro =
+      lang === "fr"
+        ? "Profil initial enregistré"
+        : lang === "es"
+          ? "Perfil inicial registrado"
+          : "Initial profile saved";
+    if (nextObj.targetLabel?.trim()) {
+      lines.push(`${intro} — ${labels.targetLabel} : ${truncate(nextObj.targetLabel)}`);
+    }
+    if (nextObj.contentFocus?.trim()) {
+      lines.push(`${labels.contentFocus} : ${truncate(nextObj.contentFocus)}`);
+    }
+    if (nextObj.optionalNotes?.trim()) {
+      lines.push(`${labels.optionalNotes} : ${truncate(nextObj.optionalNotes)}`);
+    }
+    if (nextObj.roleTitle?.trim()) {
+      lines.push(`${labels.roleTitle} : ${truncate(nextObj.roleTitle)}`);
+    }
+    if (nextObj.positioningLine?.trim()) {
+      lines.push(`${labels.positioningLine} : ${truncate(nextObj.positioningLine)}`);
     }
   }
 
-  if (changed.length === 0) return profileSummaryGeneric(lang);
-  if (lang === "fr") {
-    return `Profil mis à jour : ${changed.slice(0, 5).join(", ")}${changed.length > 5 ? "…" : ""}.`;
-  }
-  if (lang === "es") {
-    return `Perfil actualizado: ${changed.slice(0, 5).join(", ")}${changed.length > 5 ? "…" : ""}.`;
-  }
-  return `Profile updated: ${changed.slice(0, 5).join(", ")}${changed.length > 5 ? "…" : ""}.`;
+  return lines;
 }
 
-function profileSummaryGeneric(lang: ContentLanguage): string {
-  if (lang === "fr") return "Profil auteur / audience synchronisé dans le Persona.";
-  if (lang === "es") return "Perfil autor / audiencia sincronizado en el Persona.";
-  return "Author / audience profile synced into Persona.";
-}
-
-export function summarizeNewLearningEntries(
+/** Only entries that were not in the previous sync hash. */
+export function summarizeLearningDelta(
+  prevFingerprint: string | undefined,
   entries: LearningEntry[],
   lang: ContentLanguage,
-  max = 3,
-): string | null {
-  if (entries.length === 0) return null;
-  const texts = entries
+): string[] {
+  const prevTexts = new Set(
+    prevFingerprint ? prevFingerprint.split("\x1e").filter(Boolean) : [],
+  );
+  const newOnes = entries
     .map((e) => e.text.trim())
-    .filter(Boolean)
-    .slice(0, max);
-  if (texts.length === 0) return null;
+    .filter((text) => text && !prevTexts.has(text));
 
-  const joined =
-    texts.length === 1
-      ? texts[0]
-      : texts.map((t) => (t.length > 80 ? `${t.slice(0, 77)}…` : t)).join(" · ");
+  if (newOnes.length === 0) return [];
 
-  if (lang === "fr") {
-    return `Nouveaux retours intégrés : ${joined}`;
+  const prefix =
+    lang === "fr"
+      ? "Retour article / préférence"
+      : lang === "es"
+        ? "Feedback post / preferencia"
+        : "Post feedback / preference";
+
+  return newOnes.slice(0, 5).map((text) => `${prefix} : ${truncate(text, 140)}`);
+}
+
+export function summarizeEnrichmentDelta(
+  prevFingerprint: string | undefined,
+  details: Record<string, GapAnswerValue>,
+  lang: ContentLanguage,
+): string[] {
+  const next = enrichmentFingerprint(details);
+  if (prevFingerprint === next) return [];
+  const lines: string[] = [];
+  const prefix =
+    lang === "fr" ? "Profil complété" : lang === "es" ? "Perfil completado" : "Profile enrichment";
+
+  for (const [key, value] of Object.entries(details).slice(0, 8)) {
+    const text = Array.isArray(value) ? value.join(", ") : String(value).trim();
+    if (!text) continue;
+    lines.push(`${prefix} — ${key} : ${truncate(text)}`);
   }
-  if (lang === "es") {
-    return `Nuevos aprendizajes integrados: ${joined}`;
-  }
-  return `New feedback integrated: ${joined}`;
+  return lines;
+}
+
+export function buildSyncChangeSummary(parts: string[]): string | null {
+  const unique = [...new Set(parts.map((p) => p.trim()).filter(Boolean))];
+  if (unique.length === 0) return null;
+  return unique.join(" · ");
 }
 
 export function mapReasonToSource(reason: string): PersonaUpdateSource {
