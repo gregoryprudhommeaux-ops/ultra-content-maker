@@ -141,6 +141,19 @@ export interface ProfileEnrichment {
   updatedAt: Date;
 }
 
+export type PersonaUpdateSource =
+  | "generate"
+  | "profile_sync"
+  | "feedback_sync"
+  | "user_refinement"
+  | "validate";
+
+export interface PersonaRecentChange {
+  summary: string;
+  source: PersonaUpdateSource;
+  at: Date;
+}
+
 export interface PersonaDoc {
   promptText: string;
   status: PersonaStatus;
@@ -148,11 +161,18 @@ export interface PersonaDoc {
   gapQuestions?: ProfileGapQuestion[];
   validatedAt?: Date;
   updatedAt: Date;
+  /** Monotonic version shown at the top of the prompt. */
+  versionNumber?: number;
+  recentChanges?: PersonaRecentChange[];
+  /** Fingerprint of author + audience fields for change detection. */
+  profileFingerprint?: string;
 }
 
 export type PersonaHistoryReason =
   | "generate"
   | "feedback_sync"
+  | "profile_sync"
+  | "user_refinement"
   | "validate"
   | "restore"
   | "before_restore";

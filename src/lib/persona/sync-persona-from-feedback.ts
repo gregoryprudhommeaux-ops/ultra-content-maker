@@ -2,14 +2,13 @@ import { getAuthorProfile } from "@/lib/workspace/author";
 import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import {
-  appendLearningEntries,
   buildLearnedSectionMarkdown,
   getLearningProfile,
   replaceArticleRefinementLearning,
   stripLearnedSection,
   type LearningEntry,
 } from "@/lib/workspace/learning-profile";
-import { getPersona, updatePersonaPromptText } from "@/lib/workspace/persona";
+import { commitPersonaPromptUpdate, getPersona } from "@/lib/workspace/persona";
 import type {
   ArticleRefinement,
   ContentLanguage,
@@ -23,6 +22,15 @@ import {
   entriesFromRefinement,
   entryFromCtaChoice,
 } from "@/lib/workspace/learning-profile";
+import {
+  summarizeNewLearningEntries,
+  summarizeProfileDelta,
+} from "@/lib/persona/persona-changelog";
+import { stripVersionHeader } from "@/lib/persona/persona-version";
+
+function promptsEqual(a: string, b: string) {
+  return a.trim() === b.trim();
+}
 
 /** Persist feedback signals and merge them into the Persona prompt. */
 export async function syncPersonaFromFeedback(userId: string) {
@@ -37,7 +45,7 @@ export async function syncPersonaFromFeedback(userId: string) {
   if (!persona?.promptText) return;
 
   const lang = (author?.contentLanguage ?? "fr") as ContentLanguage;
-  const base = stripLearnedSection(persona.promptText);
+  const base = stripLearnedSection(stripVersionHeader(persona.promptText));
   const learned = buildLearnedSectionMarkdown(
     learning,
     enrichment?.details ?? {},
@@ -47,7 +55,37 @@ export async function syncPersonaFromFeedback(userId: string) {
   );
   const promptText = `${base}\n\n${learned}`;
 
-  await updatePersonaPromptText(userId, promptText);
+  if (promptsEqual(promptText, persona.promptText)) return;
+
+  const summaries: string[] = [];
+  const profileSummary = summarizeProfileDelta(
+    persona.profileFingerprint,
+    author,
+    audience,
+    lang,
+  );
+  if (profileSummary) summaries.push(profileSummary);
+
+  const newestEntries = (learning?.entries ?? []).slice(0, 3) as LearningEntry[];
+  const learningSummary = summarizeNewLearningEntries(newestEntries, lang);
+  if (learningSummary) summaries.push(learningSummary);
+
+  const changeSummary =
+    summaries.length > 0
+      ? summaries.join(" ")
+      : lang === "fr"
+        ? "Préférences apprises et profil synchronisés dans le Persona."
+        : lang === "es"
+          ? "Preferencias aprendidas y perfil sincronizados en el Persona."
+          : "Learned preferences and profile synced into Persona.";
+
+  await commitPersonaPromptUpdate(userId, promptText, {
+    reason: profileSummary ? "profile_sync" : "feedback_sync",
+    changeSummary,
+    contentLanguage: lang,
+    bumpVersion: true,
+    profileFingerprint: true,
+  });
 }
 
 export async function recordGapFeedback(
@@ -59,6 +97,7 @@ export async function recordGapFeedback(
   await applyGapAnswers(userId, questions, answers);
   const entries = entriesFromGapAnswers(questions, answers);
   if (entries.length > 0) {
+    const { appendLearningEntries } = await import("@/lib/workspace/learning-profile");
     await appendLearningEntries(userId, entries);
   }
   await syncPersonaFromFeedback(userId);
@@ -112,6 +151,7 @@ export async function recordArticleValidateFeedback(
       contentLanguage,
     );
   }
+  const { appendLearningEntries } = await import("@/lib/workspace/learning-profile");
   await appendLearningEntries(
     userId,
     [entryFromCtaChoice(ctaStyle, contentLanguage)],
@@ -145,6 +185,7 @@ export async function recordEmojiPreference(
       heavy: "Preferencia emojis: muchos",
     },
   };
+  const { appendLearningEntries } = await import("@/lib/workspace/learning-profile");
   await appendLearningEntries(
     userId,
     [{ source: "emoji", text: labels[contentLanguage]?.[emojiLevel] ?? labels.en[emojiLevel] }],

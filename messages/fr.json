@@ -528,7 +528,9 @@
           "feedback_sync": "Mise à jour auto (affinage & préférences)",
           "validate": "Avant validation",
           "restore": "Restauration",
-          "before_restore": "Avant restauration"
+          "before_restore": "Avant restauration",
+          "profile_sync": "Mise à jour profil auteur",
+          "user_refinement": "Précisions utilisateur"
         },
         "status": {
           "none": "Brouillon",
@@ -550,7 +552,31 @@
         "noLlmKey": "Configurez votre clé API avant de synthétiser.",
         "invalidApiKey": "Clé API refusée. Mettez à jour dans Clé API.",
         "goLlmSetup": "Configurer ma clé API"
-      }
+      },
+      "recentUpdates": {
+        "title": "Dernières mises à jour du Persona",
+        "subtitle": "Synthèse des derniers éléments intégrés (profil, retours articles, vos précisions).",
+        "source": {
+          "generate": "Génération",
+          "profile_sync": "Profil",
+          "feedback_sync": "Affinage auto",
+          "user_refinement": "Vos précisions",
+          "validate": "Validation"
+        }
+      },
+      "refinement": {
+        "title": "Affiner le Persona",
+        "subtitle": "Ajoutez des instructions précises : ton, sujets, interdits, exemples. L’IA met à jour le prompt et incrémente la version.",
+        "placeholder": "Ex. : Insister sur le networking international, moins de jargon tech, toujours finir par une question ouverte…",
+        "apply": "Mettre à jour le Persona",
+        "applying": "Mise à jour…",
+        "applied": "Persona mis à jour avec vos précisions.",
+        "failed": "Impossible d’appliquer vos précisions. Réessayez.",
+        "noLlmKey": "Configurez votre clé API avant d’affiner le Persona.",
+        "invalidApiKey": "Clé API refusée. Mettez à jour dans Clé API.",
+        "goLlmSetup": "Configurer ma clé API"
+      },
+      "versionBadge": "Version {version} · mise à jour du {date}"
     },
     "articles": {
       "title": "Posts exemples",
@@ -657,13 +683,21 @@
               "title": "Depuis l’actualité",
               "desc": "Scan de 4 actus récentes, choix d’une story, puis 1 post qui commente avec votre voix — source en 1er commentaire.",
               "badge": "Actu < 7 jours",
-              "outputs": ["Scan web ciblé", "1 post réactif", "Citation source"]
+              "outputs": [
+                "Scan web ciblé",
+                "1 post réactif",
+                "Citation source"
+              ]
             },
             "inspiration": {
               "title": "Depuis un contenu existant",
               "desc": "Collez, liez + extrait, ou choisissez une inspiration enregistrée — 1 brouillon réécrit avec un angle distinct.",
               "badge": "1 brouillon ciblé",
-              "outputs": ["Coller · URL · Bibliothèque", "Angle anti-plagiat", "Regénérer l’angle"]
+              "outputs": [
+                "Coller · URL · Bibliothèque",
+                "Angle anti-plagiat",
+                "Regénérer l’angle"
+              ]
             }
           }
         },

@@ -67,10 +67,12 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
     },
     { merge: true },
   );
-  const { syncPersonaAfterProfileSave } = await import(
+  const lang =
+    input.contentLanguage ?? prev?.contentLanguage ?? "fr";
+  const { syncPersonaAfterAuthorProfileSave } = await import(
     "@/lib/persona/sync-after-profile-save"
   );
-  await syncPersonaAfterProfileSave(userId);
+  await syncPersonaAfterAuthorProfileSave(userId, lang);
 }
 
 export async function completeAuthorStep(userId: string) {

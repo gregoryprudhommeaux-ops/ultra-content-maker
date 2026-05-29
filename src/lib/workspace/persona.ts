@@ -1,15 +1,28 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import type {
+  ContentLanguage,
   PersonaDoc,
   PersonaHistoryReason,
+  PersonaRecentChange,
   PersonaStatus,
   ProfileGapQuestion,
 } from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
 import { appendPersonaHistory, getPersonaHistoryEntry } from "./persona-history";
 import { toDate } from "./firestore-utils";
+import {
+  applyVersionHeader,
+  stripVersionHeader,
+} from "@/lib/persona/persona-version";
+import {
+  mapReasonToSource,
+  profileFingerprint,
+} from "@/lib/persona/persona-changelog";
+import { getAuthorProfile } from "./author";
+import { getAudienceProfile } from "./audience";
 
 const CURRENT_ID = "current";
+const MAX_RECENT_CHANGES = 8;
 
 function personaRef(userId: string) {
   const db = getClientFirestore();
@@ -19,6 +32,39 @@ function personaRef(userId: string) {
 
 function promptsEqual(a: string, b: string) {
   return a.trim() === b.trim();
+}
+
+function serializeRecentChange(c: PersonaRecentChange) {
+  return {
+    summary: c.summary,
+    source: c.source,
+    at: c.at,
+  };
+}
+
+function parseRecentChanges(raw: unknown): PersonaRecentChange[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  return raw
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const o = item as Record<string, unknown>;
+      const summary = typeof o.summary === "string" ? o.summary : "";
+      const source = o.source as PersonaRecentChange["source"];
+      if (!summary) return null;
+      return {
+        summary,
+        source:
+          source === "generate" ||
+          source === "profile_sync" ||
+          source === "feedback_sync" ||
+          source === "user_refinement" ||
+          source === "validate"
+            ? source
+            : "feedback_sync",
+        at: o.at instanceof Date ? o.at : toDate(o.at),
+      };
+    })
+    .filter((c): c is PersonaRecentChange => c !== null);
 }
 
 /** Archive current Persona before replacing prompt text. */
@@ -59,7 +105,89 @@ export async function getPersona(userId: string): Promise<PersonaDoc | null> {
       : undefined,
     validatedAt: d.validatedAt ? toDate(d.validatedAt) : undefined,
     updatedAt: toDate(d.updatedAt),
+    versionNumber:
+      typeof d.versionNumber === "number" ? d.versionNumber : undefined,
+    recentChanges: parseRecentChanges(d.recentChanges),
+    profileFingerprint:
+      typeof d.profileFingerprint === "string"
+        ? d.profileFingerprint
+        : undefined,
   };
+}
+
+type CommitPersonaOptions = {
+  reason: PersonaHistoryReason;
+  changeSummary?: string;
+  contentLanguage?: ContentLanguage;
+  bumpVersion?: boolean;
+  profileFingerprint?: boolean;
+  model?: string;
+  gapQuestions?: ProfileGapQuestion[];
+  status?: PersonaStatus;
+};
+
+/** Apply version header, optional changelog, and persist prompt text. */
+export async function commitPersonaPromptUpdate(
+  userId: string,
+  rawPromptText: string,
+  opts: CommitPersonaOptions,
+): Promise<PersonaDoc | null> {
+  const prev = await getPersona(userId);
+  const lang =
+    opts.contentLanguage ??
+    (await getAuthorProfile(userId))?.contentLanguage ??
+    "fr";
+
+  const bump = opts.bumpVersion !== false;
+  const versionNumber = bump
+    ? (prev?.versionNumber ?? 0) + 1
+    : Math.max(prev?.versionNumber ?? 1, 1);
+
+  const updatedAt = new Date();
+  const body = stripVersionHeader(rawPromptText).trim();
+  const promptText = applyVersionHeader(body, versionNumber, updatedAt, lang);
+
+  let recentChanges = [...(prev?.recentChanges ?? [])];
+  if (opts.changeSummary?.trim()) {
+    recentChanges = [
+      {
+        summary: opts.changeSummary.trim(),
+        source: mapReasonToSource(opts.reason),
+        at: updatedAt,
+      },
+      ...recentChanges,
+    ].slice(0, MAX_RECENT_CHANGES);
+  }
+
+  let nextFingerprint = prev?.profileFingerprint;
+  if (opts.profileFingerprint) {
+    const [author, audience] = await Promise.all([
+      getAuthorProfile(userId),
+      getAudienceProfile(userId),
+    ]);
+    nextFingerprint = profileFingerprint(author, audience);
+  }
+
+  await snapshotCurrentPersona(userId, opts.reason, promptText);
+
+  await setDoc(
+    personaRef(userId),
+    {
+      promptText,
+      versionNumber,
+      recentChanges: recentChanges.map(serializeRecentChange),
+      profileFingerprint: nextFingerprint ?? null,
+      updatedAt: serverTimestamp(),
+      ...(opts.model !== undefined ? { model: opts.model } : {}),
+      ...(opts.gapQuestions !== undefined
+        ? { gapQuestions: opts.gapQuestions }
+        : {}),
+      ...(opts.status !== undefined ? { status: opts.status } : {}),
+    },
+    { merge: true },
+  );
+
+  return getPersona(userId);
 }
 
 export async function savePersonaDraft(
@@ -67,46 +195,70 @@ export async function savePersonaDraft(
   promptText: string,
   model?: string,
   gapQuestions?: ProfileGapQuestion[],
+  contentLanguage?: ContentLanguage,
 ) {
-  await snapshotCurrentPersona(userId, "generate", promptText);
-  await setDoc(
-    personaRef(userId),
-    {
-      promptText,
-      status: "draft",
-      model: model ?? null,
-      gapQuestions: gapQuestions ?? null,
-      validatedAt: null,
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true },
-  );
+  const summary =
+    contentLanguage === "fr"
+      ? "Persona généré ou régénéré à partir de votre profil et de vos sources."
+      : contentLanguage === "es"
+        ? "Persona generado o regenerado desde tu perfil y fuentes."
+        : "Persona generated or regenerated from your profile and sources.";
+
+  await commitPersonaPromptUpdate(userId, promptText, {
+    reason: "generate",
+    changeSummary: summary,
+    contentLanguage,
+    profileFingerprint: true,
+    model,
+    gapQuestions,
+    status: "draft",
+  });
 }
 
 /** Update prompt text only — keeps validated/draft status (for learned-preferences merge). */
-export async function updatePersonaPromptText(userId: string, promptText: string) {
-  await snapshotCurrentPersona(userId, "feedback_sync", promptText);
-  await setDoc(
-    personaRef(userId),
-    { promptText, updatedAt: serverTimestamp() },
-    { merge: true },
-  );
+export async function updatePersonaPromptText(
+  userId: string,
+  promptText: string,
+  opts?: {
+    changeSummary?: string;
+    contentLanguage?: ContentLanguage;
+    bumpVersion?: boolean;
+    reason?: PersonaHistoryReason;
+  },
+) {
+  await commitPersonaPromptUpdate(userId, promptText, {
+    reason: opts?.reason ?? "feedback_sync",
+    changeSummary: opts?.changeSummary,
+    contentLanguage: opts?.contentLanguage,
+    bumpVersion: opts?.bumpVersion ?? true,
+  });
 }
 
-export async function validatePersona(userId: string, promptText: string) {
+export async function validatePersona(
+  userId: string,
+  promptText: string,
+  contentLanguage?: ContentLanguage,
+) {
   const prev = await getPersona(userId);
-  if (prev && !promptsEqual(prev.promptText, promptText)) {
-    await snapshotCurrentPersona(userId, "validate", promptText);
-  }
+  const summary =
+    contentLanguage === "fr"
+      ? "Persona validé — utilisé pour toutes les générations de posts."
+      : contentLanguage === "es"
+        ? "Persona validado — se usará en todas las generaciones."
+        : "Persona validated — used for all post generation.";
+
+  await commitPersonaPromptUpdate(userId, promptText, {
+    reason: "validate",
+    changeSummary: summary,
+    contentLanguage,
+    bumpVersion: prev ? !promptsEqual(prev.promptText, promptText) : true,
+    status: "validated",
+    gapQuestions: prev?.gapQuestions,
+  });
+
   await setDoc(
     personaRef(userId),
-    {
-      promptText,
-      status: "validated",
-      gapQuestions: prev?.gapQuestions ?? null,
-      validatedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    },
+    { validatedAt: serverTimestamp() },
     { merge: true },
   );
 }

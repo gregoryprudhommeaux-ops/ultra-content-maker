@@ -8,6 +8,10 @@ import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { PersonaHistoryPanel } from "@/components/persona/persona-history-panel";
 import { PersonaPerformanceInsightsPanel } from "@/components/persona/persona-performance-insights-panel";
+import { PersonaRecentUpdatesPanel } from "@/components/persona/persona-recent-updates-panel";
+import { PersonaRefinementPanel } from "@/components/persona/persona-refinement-panel";
+import { formatVersionLine } from "@/lib/persona/persona-version";
+import type { PersonaRecentChange } from "@/types/workspace";
 import { getPersona, savePersonaDraft, validatePersona } from "@/lib/workspace/persona";
 import { listSources } from "@/lib/workspace/sources";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
@@ -37,6 +41,10 @@ export function PersonaEditor() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [versionNumber, setVersionNumber] = useState<number | null>(null);
+  const [recentChanges, setRecentChanges] = useState<PersonaRecentChange[]>([]);
+  const [personaUpdatedAt, setPersonaUpdatedAt] = useState<Date | null>(null);
+  const [contentLang, setContentLang] = useState<ContentLanguage>(locale);
 
   const load = useCallback(async () => {
     if (!user) {
@@ -44,16 +52,21 @@ export function PersonaEditor() {
       return;
     }
     try {
-      const [p, enrichment] = await Promise.all([
+      const [p, enrichment, author] = await Promise.all([
         getPersona(user.uid),
         getProfileEnrichment(user.uid),
+        getAuthorProfile(user.uid),
       ]);
+      if (author?.contentLanguage) setContentLang(author.contentLanguage);
       if (p) {
         setPromptText(p.promptText);
         setStatus(
           p.status === "validated" ? "validated" : p.promptText ? "draft" : "none",
         );
         setGapQuestions(p.gapQuestions ?? []);
+        setVersionNumber(p.versionNumber ?? null);
+        setRecentChanges(p.recentChanges ?? []);
+        setPersonaUpdatedAt(p.updatedAt);
       }
       if (enrichment) setEnrichmentDetails(enrichment.details);
     } catch {
@@ -138,6 +151,7 @@ export function PersonaEditor() {
         return;
       }
 
+      const lang = (author?.contentLanguage ?? locale) as ContentLanguage;
       setPromptText(data.promptText);
       setGapQuestions(data.gapQuestions ?? []);
       setStatus("draft");
@@ -146,7 +160,15 @@ export function PersonaEditor() {
         data.promptText,
         data.model,
         data.gapQuestions,
+        lang,
       );
+      const saved = await getPersona(user.uid);
+      if (saved) {
+        setPromptText(saved.promptText);
+        setVersionNumber(saved.versionNumber ?? 1);
+        setRecentChanges(saved.recentChanges ?? []);
+        setPersonaUpdatedAt(saved.updatedAt);
+      }
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
         setError(t("generateTimeout"));
@@ -166,7 +188,20 @@ export function PersonaEditor() {
       getPersona(user.uid),
     ]);
     if (enrichment) setEnrichmentDetails(enrichment.details);
-    if (persona?.promptText) setPromptText(persona.promptText);
+    if (persona?.promptText) {
+      setPromptText(persona.promptText);
+      setVersionNumber(persona.versionNumber ?? null);
+      setRecentChanges(persona.recentChanges ?? []);
+      setPersonaUpdatedAt(persona.updatedAt);
+    }
+  }
+
+  function applyPersonaFromStore(p: Awaited<ReturnType<typeof getPersona>>) {
+    if (!p) return;
+    setPromptText(p.promptText);
+    setVersionNumber(p.versionNumber ?? null);
+    setRecentChanges(p.recentChanges ?? []);
+    setPersonaUpdatedAt(p.updatedAt);
   }
 
   async function onValidate() {
@@ -174,7 +209,12 @@ export function PersonaEditor() {
     setPending(true);
     setError(null);
     try {
-      await validatePersona(user.uid, promptText);
+      const author = await getAuthorProfile(user.uid);
+      await validatePersona(
+        user.uid,
+        promptText,
+        author?.contentLanguage ?? locale,
+      );
       await updateSetupStep(user.uid, "articles");
       setStatus("validated");
       notifyOnboardingProgressChanged();
@@ -227,7 +267,7 @@ export function PersonaEditor() {
         <PersonaHistoryPanel
           userId={user.uid}
           currentPromptText={promptText}
-          onRestored={(text, nextStatus) => {
+          onRestored={async (text, nextStatus) => {
             setPromptText(text);
             setStatus(
               nextStatus === "validated"
@@ -236,6 +276,10 @@ export function PersonaEditor() {
                   ? "draft"
                   : "none",
             );
+            if (user) {
+              const p = await getPersona(user.uid);
+              applyPersonaFromStore(p);
+            }
           }}
         />
       )}
@@ -250,6 +294,12 @@ export function PersonaEditor() {
             />
           )}
 
+          {versionNumber != null && personaUpdatedAt && (
+            <p className="text-sm font-medium text-ns-tertiary">
+              {formatVersionLine(versionNumber, personaUpdatedAt, contentLang)}
+            </p>
+          )}
+
           <textarea
             value={promptText}
             onChange={(e) => setPromptText(e.target.value)}
@@ -262,6 +312,22 @@ export function PersonaEditor() {
             <PersonaPerformanceInsightsPanel
               personaPromptText={promptText}
               disabled={pending}
+            />
+          )}
+
+          {recentChanges.length > 0 && (
+            <PersonaRecentUpdatesPanel changes={recentChanges} />
+          )}
+
+          {user && (
+            <PersonaRefinementPanel
+              userId={user.uid}
+              contentLanguage={contentLang}
+              disabled={pending}
+              onUpdated={(text) => {
+                setPromptText(text);
+                void getPersona(user.uid).then(applyPersonaFromStore);
+              }}
             />
           )}
 

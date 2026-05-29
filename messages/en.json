@@ -528,7 +528,9 @@
           "feedback_sync": "Auto-update (refinement & preferences)",
           "validate": "Before validation",
           "restore": "Restore",
-          "before_restore": "Before restore"
+          "before_restore": "Before restore",
+          "profile_sync": "Author profile update",
+          "user_refinement": "User refinement"
         },
         "status": {
           "none": "Draft",
@@ -550,7 +552,31 @@
         "noLlmKey": "Configure your API key before synthesizing.",
         "invalidApiKey": "API key rejected. Update it in API key setup.",
         "goLlmSetup": "Configure my API key"
-      }
+      },
+      "recentUpdates": {
+        "title": "Latest Persona updates",
+        "subtitle": "Short summary of what was recently merged (profile, article feedback, your notes).",
+        "source": {
+          "generate": "Generation",
+          "profile_sync": "Profile",
+          "feedback_sync": "Auto sync",
+          "user_refinement": "Your notes",
+          "validate": "Validation"
+        }
+      },
+      "refinement": {
+        "title": "Refine your Persona",
+        "subtitle": "Add precise instructions: tone, topics, avoid list, examples. The AI updates the prompt and bumps the version.",
+        "placeholder": "E.g. Emphasize international networking, less tech jargon, always end with an open question…",
+        "apply": "Update Persona",
+        "applying": "Updating…",
+        "applied": "Persona updated with your notes.",
+        "failed": "Could not apply your notes. Try again.",
+        "noLlmKey": "Configure your API key before refining the Persona.",
+        "invalidApiKey": "API key rejected. Update it in API key setup.",
+        "goLlmSetup": "Configure my API key"
+      },
+      "versionBadge": "Version {version} · updated {date}"
     },
     "articles": {
       "title": "Sample posts",
@@ -657,13 +683,21 @@
               "title": "From the news",
               "desc": "Scan 4 recent stories, pick one, then 1 post that comments in your voice — source in the first comment.",
               "badge": "News < 7 days",
-              "outputs": ["Targeted web scan", "1 reactive post", "Source citation"]
+              "outputs": [
+                "Targeted web scan",
+                "1 reactive post",
+                "Source citation"
+              ]
             },
             "inspiration": {
               "title": "From existing content",
               "desc": "Paste, link + excerpt, or pick a saved inspiration — 1 rewritten draft with a distinct angle.",
               "badge": "1 focused draft",
-              "outputs": ["Paste · URL · Library", "Anti-plagiarism angle", "Regenerate angle"]
+              "outputs": [
+                "Paste · URL · Library",
+                "Anti-plagiarism angle",
+                "Regenerate angle"
+              ]
             }
           }
         },

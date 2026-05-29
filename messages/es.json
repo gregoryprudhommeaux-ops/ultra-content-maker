@@ -528,7 +528,9 @@
           "feedback_sync": "Actualización auto (refinado y preferencias)",
           "validate": "Antes de validar",
           "restore": "Restauración",
-          "before_restore": "Antes de restaurar"
+          "before_restore": "Antes de restaurar",
+          "profile_sync": "Actualización perfil autor",
+          "user_refinement": "Precisión del usuario"
         },
         "status": {
           "none": "Borrador",
@@ -550,7 +552,31 @@
         "noLlmKey": "Configura tu clave API antes de sintetizar.",
         "invalidApiKey": "Clave API rechazada. Actualízala en Clave API.",
         "goLlmSetup": "Configurar mi clave API"
-      }
+      },
+      "recentUpdates": {
+        "title": "Últimas actualizaciones del Persona",
+        "subtitle": "Resumen de lo integrado recientemente (perfil, feedback de posts, tus notas).",
+        "source": {
+          "generate": "Generación",
+          "profile_sync": "Perfil",
+          "feedback_sync": "Sincronización auto",
+          "user_refinement": "Tus notas",
+          "validate": "Validación"
+        }
+      },
+      "refinement": {
+        "title": "Afinar el Persona",
+        "subtitle": "Añade instrucciones precisas: tono, temas, evitar, ejemplos. La IA actualiza el prompt y sube la versión.",
+        "placeholder": "Ej.: insistir en networking internacional, menos jerga técnica, terminar con pregunta abierta…",
+        "apply": "Actualizar Persona",
+        "applying": "Actualizando…",
+        "applied": "Persona actualizado con tus notas.",
+        "failed": "No se pudieron aplicar tus notas. Reintenta.",
+        "noLlmKey": "Configura tu clave API antes de afinar el Persona.",
+        "invalidApiKey": "Clave API rechazada. Actualízala en Clave API.",
+        "goLlmSetup": "Configurar mi clave API"
+      },
+      "versionBadge": "Versión {version} · actualizado {date}"
     },
     "articles": {
       "title": "Posts de ejemplo",
@@ -657,13 +683,21 @@
               "title": "Desde la actualidad",
               "desc": "Escaneo de 4 noticias recientes, eliges una y obtienes 1 post con tu voz — fuente en el primer comentario.",
               "badge": "Noticias < 7 días",
-              "outputs": ["Escaneo web dirigido", "1 post reactivo", "Cita de fuente"]
+              "outputs": [
+                "Escaneo web dirigido",
+                "1 post reactivo",
+                "Cita de fuente"
+              ]
             },
             "inspiration": {
               "title": "Desde contenido existente",
               "desc": "Pega, enlace + extracto o inspiración guardada — 1 borrador reescrito con ángulo distinto.",
               "badge": "1 borrador enfocado",
-              "outputs": ["Pegar · URL · Biblioteca", "Ángulo anti-plagio", "Regenerar ángulo"]
+              "outputs": [
+                "Pegar · URL · Biblioteca",
+                "Ángulo anti-plagio",
+                "Regenerar ángulo"
+              ]
             }
           }
         },
