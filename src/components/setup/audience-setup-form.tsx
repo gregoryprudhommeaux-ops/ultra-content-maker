@@ -5,6 +5,7 @@ import {
   ButtonSpinner,
   GeneratingIndicator,
 } from "@/components/ui/generating-indicator";
+import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { useAuth } from "@/components/auth/auth-provider";
 import { getAudienceProfile, saveAudienceProfile, skipAudienceStep } from "@/lib/workspace/audience";
@@ -92,6 +93,7 @@ export function AudienceSetupForm() {
 
   return (
     <div className="space-y-8">
+      <OnboardingStepBanner stepKey="audience" />
       <Link href="/setup/author" className="text-sm text-ns-secondary hover:text-ns-tertiary">
         {t("back")}
       </Link>

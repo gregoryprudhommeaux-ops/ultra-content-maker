@@ -41,7 +41,7 @@ export function OnboardingGuard({
 
   const redirectHref =
     mode === "creation"
-      ? progress?.creationRedirectHref ?? progress?.nextHref
+      ? progress?.creationRedirectHref ?? "/start"
       : progress?.nextHref;
 
   useEffect(() => {

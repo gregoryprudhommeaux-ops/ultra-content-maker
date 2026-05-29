@@ -1,5 +1,6 @@
 "use client";
 
+import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { InspirationsEditor } from "@/components/setup/inspirations-editor";
 import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
@@ -125,6 +126,7 @@ export function AuthorSetupForm() {
 
   return (
     <div className="space-y-8">
+      <OnboardingStepBanner stepKey="author" />
       <div>
         <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
         <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>

@@ -109,6 +109,8 @@ export async function loadOnboardingProgress(
   const setupCompletion = completionFromSteps(steps, completedCount);
   const gate = evaluateCreationGate(setupCompletion);
 
+  const { ONBOARDING_WELCOME_PATH } = await import("./onboarding-routes");
+
   return {
     steps,
     percent,
@@ -117,6 +119,6 @@ export async function loadOnboardingProgress(
     nextHref: next?.href ?? null,
     completion: setupCompletion,
     canAccessCreation: gate.allowed,
-    creationRedirectHref: gate.redirectHref,
+    creationRedirectHref: gate.allowed ? null : ONBOARDING_WELCOME_PATH,
   };
 }

@@ -6,6 +6,7 @@ import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-
 import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
+import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { PersonaHistoryPanel } from "@/components/persona/persona-history-panel";
 import { PersonaPerformanceInsightsPanel } from "@/components/persona/persona-performance-insights-panel";
 import { PersonaRecentUpdatesPanel } from "@/components/persona/persona-recent-updates-panel";
@@ -218,7 +219,7 @@ export function PersonaEditor() {
       await updateSetupStep(user.uid, "articles");
       setStatus("validated");
       notifyOnboardingProgressChanged();
-      router.push("/articles");
+      router.push("/start/ready");
     } catch {
       setError(t("saveFailed"));
     } finally {
@@ -237,6 +238,7 @@ export function PersonaEditor() {
 
   return (
     <div className="space-y-6">
+      <OnboardingStepBanner stepKey="persona" />
       <Link href="/setup/audience" className="text-sm text-ns-secondary hover:text-ns-tertiary">
         {t("back")}
       </Link>

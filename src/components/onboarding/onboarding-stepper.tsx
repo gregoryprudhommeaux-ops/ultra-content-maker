@@ -2,7 +2,7 @@
 
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import type { StepVisualStatus } from "@/lib/workspace/onboarding-progress";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -74,7 +74,12 @@ export function OnboardingStepper({ placement = "dashboard" }: Props) {
   const t = useTranslations("setup.onboarding");
   const tSteps = useTranslations("setup.steps");
   const { progress, loading } = useOnboardingProgress();
+  const pathname = usePathname();
   const isSettings = placement === "settings";
+
+  if (placement === "dashboard" && pathname?.startsWith("/start")) {
+    return null;
+  }
   const [expanded, setExpanded] = useState(!isSettings);
   const prevCompleteRef = useRef<boolean | null>(null);
 

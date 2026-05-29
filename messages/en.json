@@ -278,6 +278,37 @@
         "complete": "Done",
         "locked": "Complete the previous step first"
       },
+      "welcome": {
+        "eyebrow": "Welcome",
+        "title": "Your LinkedIn ghostwriter in 4 steps",
+        "subtitle": "Set up your workspace once: API key, profile, audience, and Persona. Then create posts aligned with your voice in minutes.",
+        "pillars": [
+          "A personal API key — you control cost and models.",
+          "Profile and audience — the AI learns who you are and who you write for.",
+          "A validated Persona — your Content Brain for every generation."
+        ],
+        "resumeHint": "You have already made progress ({percent}%). Pick up where you left off.",
+        "ctaStart": "Start setup",
+        "ctaResume": "Resume setup",
+        "ctaReady": "I'm ready to create"
+      },
+      "ready": {
+        "loading": "Loading…",
+        "title": "You're ready to create",
+        "subtitle": "Your Persona is validated. Launch your first LinkedIn post or refine your Content Brain further.",
+        "check": {
+          "apiKey": "API key configured",
+          "profile": "Author profile complete",
+          "audience": "Audience defined (or step skipped)",
+          "persona": "Persona validated"
+        },
+        "ctaCreate": "Create my first post",
+        "ctaReviewPersona": "Review my Persona"
+      },
+      "wizard": {
+        "stepLabel": "Step {current} of {total}",
+        "backToWelcome": "Back to onboarding home"
+      },
       "banner": {
         "persona": {
           "title": "Validate your Persona before generating",

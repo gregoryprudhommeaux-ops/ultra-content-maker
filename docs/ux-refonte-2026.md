@@ -53,9 +53,11 @@
 
 ### Phase 2 — Premier usage
 
-- [ ] Welcome / Start here  
-- [ ] Wizard onboarding Clé API → Profil → Cible → Persona → Premier post  
-- [ ] Écran « Vous êtes prêt »  
+- [x] Welcome `/start`  
+- [x] Bannières « Étape X sur Y » sur setup + Persona  
+- [x] Écran « Vous êtes prêt » `/start/ready`  
+- [x] Landing post-login via `onboarding-routes`  
+- [ ] Premier post intégré au wizard (Phase 3)  
 
 ### Phase 3 — Création guidée
 

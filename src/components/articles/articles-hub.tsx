@@ -6,12 +6,11 @@ import {
   SCOPE_CARD_CLASS,
 } from "@/lib/articles/scope";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
-import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
+import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
 import { listArticleBatches, type ArticleBatchGroup } from "@/lib/workspace/articles";
-import { getPersona } from "@/lib/workspace/persona";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { ArticleDoc, ContentLanguage } from "@/types/workspace";
 import { useSearchParams } from "next/navigation";
@@ -26,22 +25,27 @@ export function ArticlesHub() {
   const t = useTranslations("setup.articles");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const { progress, loading: onboardingLoading } = useOnboardingProgress();
   const searchParams = useSearchParams();
   const pendingOnly = searchParams.get("pending") === "1";
-  const [personaOk, setPersonaOk] = useState<boolean | null>(null);
   const [batches, setBatches] = useState<ArticleBatchGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    void (async () => {
-      const persona = await getPersona(user.uid);
-      setPersonaOk(!!persona?.validatedAt && !!persona.promptText?.trim());
-      const list = await listArticleBatches(user.uid);
+    void listArticleBatches(user.uid).then((list) => {
       setBatches(list);
       setLoaded(true);
-    })();
+    });
   }, [user]);
+
+  useEffect(() => {
+    if (onboardingLoading || !progress) return;
+    if (!progress.canAccessCreation) {
+      router.replace("/start");
+    }
+  }, [onboardingLoading, progress, router]);
 
   const visibleBatches = useMemo(
     () =>
@@ -54,12 +58,8 @@ export function ArticlesHub() {
     [batches, pendingOnly],
   );
 
-  if (authLoading || !loaded) {
+  if (authLoading || !loaded || onboardingLoading || !progress?.canAccessCreation) {
     return <GeneratingIndicator label="…" className="max-w-xl" />;
-  }
-
-  if (!personaOk) {
-    return <OnboardingBlockedBanner reason="persona" />;
   }
 
   return (
