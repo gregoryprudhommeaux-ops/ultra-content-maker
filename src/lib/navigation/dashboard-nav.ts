@@ -1,4 +1,5 @@
 import type { OnboardingProgress } from "@/lib/workspace/onboarding-progress";
+import { resolveHomeHrefFromProgress } from "@/lib/workspace/onboarding-routes";
 
 export type DashboardNavKey = "home" | "create" | "library" | "profile" | "settings";
 
@@ -35,11 +36,29 @@ export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
   { key: "settings", href: "/setup/llm", labelKey: "settings", match: ["/setup/llm"] },
 ] as const;
 
+const LOCALE_PREFIXES = ["/en", "/fr", "/es"] as const;
+
+/** Pathname without query, trailing slash, or locale prefix (for nav matching). */
+export function normalizeDashboardPathname(pathname: string | null): string | null {
+  if (!pathname) return null;
+  let path = pathname.split("?")[0].replace(/\/$/, "") || "/";
+  for (const locale of LOCALE_PREFIXES) {
+    if (path === locale) return "/";
+    if (path.startsWith(`${locale}/`)) {
+      path = path.slice(locale.length) || "/";
+      break;
+    }
+  }
+  return path;
+}
+
 export function isDashboardNavActive(
   item: DashboardNavItem,
   pathname: string | null,
 ): boolean {
-  if (!pathname) return false;
+  const path = normalizeDashboardPathname(pathname);
+  if (!path) return false;
+  pathname = path;
   if (
     item.exclude?.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
@@ -52,36 +71,43 @@ export function isDashboardNavActive(
   );
 }
 
-/** Path used as Accueil after onboarding (`resolveHomeHrefFromProgress`). */
-export function isPostOnboardingHomePath(pathname: string | null): boolean {
-  if (!pathname) return false;
-  return (
-    pathname === "/articles/new" || pathname.startsWith("/articles/new/")
-  );
+/** Creation assistant entry — same URL as Accueil when `canAccessCreation`. */
+export function isCreationHubPath(pathname: string | null): boolean {
+  const path = normalizeDashboardPathname(pathname);
+  if (!path) return false;
+  return path === "/articles/new" || path.startsWith("/articles/new/");
 }
 
 /**
  * Nav highlight aligned with dynamic Accueil href (`resolveHomeHrefFromProgress`).
- * When onboarding is complete, `/articles/new` is Accueil — not Créer.
+ * When Accueil points to `/articles/new`, only Accueil is active on that route.
  */
 export function resolveDashboardNavActive(
   item: DashboardNavItem,
   pathname: string | null,
   progress: OnboardingProgress | null | undefined,
+  options?: { creationHubIsHome?: boolean },
 ): boolean {
-  if (!pathname) return false;
+  const path = normalizeDashboardPathname(pathname);
+  if (!path) return false;
 
-  if (progress?.completion.isOnboardingComplete) {
-    if (item.key === "home") {
-      return (
-        pathname === "/start" ||
-        pathname.startsWith("/start/") ||
-        isPostOnboardingHomePath(pathname)
-      );
-    }
-    if (item.key === "create" && isPostOnboardingHomePath(pathname)) {
-      return false;
-    }
+  const homeHref = resolveHomeHrefFromProgress(progress);
+  const creationHubIsHome =
+    options?.creationHubIsHome ?? homeHref === "/articles/new";
+
+  if (creationHubIsHome && isCreationHubPath(path)) {
+    if (item.key === "home") return true;
+    if (item.key === "create") return false;
+  }
+
+  if (item.key === "home") {
+    return (
+      path === homeHref ||
+      path.startsWith(`${homeHref}/`) ||
+      (homeHref === "/articles/new" && isCreationHubPath(path)) ||
+      path === "/start" ||
+      path.startsWith("/start/")
+    );
   }
 
   return isDashboardNavActive(item, pathname);

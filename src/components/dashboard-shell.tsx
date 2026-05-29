@@ -8,6 +8,7 @@ import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import {
   DASHBOARD_NAV,
   dashboardNavNeedsAttention,
+  isCreationHubPath,
   resolveDashboardNavActive,
   type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
@@ -18,8 +19,10 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 
 function navLinkClass(active: boolean) {
-  return `${META_LABEL} transition-colors ${
-    active ? "text-ns-primary" : "text-white/70 hover:text-ns-primary"
+  return `${META_LABEL} rounded-md px-2 py-1 transition-colors ${
+    active
+      ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
+      : "text-white/70 hover:bg-white/5 hover:text-ns-primary"
   }`;
 }
 
@@ -35,7 +38,7 @@ function NavAttentionDot() {
 export function DashboardShell({ children }: { children: ReactNode }) {
   const t = useTranslations();
   const { signOut } = useAuth();
-  const { progress } = useOnboardingProgress();
+  const { progress, loading: progressLoading } = useOnboardingProgress();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -74,7 +77,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   function isNavItemActive(item: DashboardNavItem) {
-    return resolveDashboardNavActive(item, pathname, progress);
+    return resolveDashboardNavActive(item, pathname, progress, {
+      /** Évite un flash « Créer » actif pendant le chargement du progress sur /articles/new. */
+      creationHubIsHome: progressLoading ? isCreationHubPath(pathname) : undefined,
+    });
   }
 
   const logoHref = resolveHomeHrefFromProgress(progress);
@@ -165,8 +171,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 href={navItemHref(item)}
                 className={`rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
                   isNavItemActive(item)
-                    ? "bg-ns-primary/15 text-ns-primary"
-                    : "text-white/85 hover:bg-white/5"
+                    ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
+                    : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
                 }`}
                 aria-current={isNavItemActive(item) ? "page" : undefined}
                 onClick={() => setMenuOpen(false)}

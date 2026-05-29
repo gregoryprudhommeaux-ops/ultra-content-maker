@@ -12,12 +12,9 @@ export function resolveHomeHrefFromProgress(
 ): string {
   if (!progress) return ONBOARDING_WELCOME_PATH;
 
-  if (progress.completion.isOnboardingComplete) {
+  /** Assistant de création = hub d’accueil dès que la création est débloquée. */
+  if (progress.canAccessCreation) {
     return "/articles/new";
-  }
-
-  if (progress.canAccessCreation && !progress.completion.hasGeneratedPost) {
-    return ONBOARDING_READY_PATH;
   }
 
   return ONBOARDING_WELCOME_PATH;
