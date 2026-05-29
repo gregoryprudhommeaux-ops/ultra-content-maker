@@ -11,14 +11,4 @@ export function parseLlmJson<T>(raw: string): T {
   return JSON.parse(text) as T;
 }
 
-export function isInvalidApiKeyError(message: string): boolean {
-  const m = message.toLowerCase();
-  return (
-    m.includes("invalid api key") ||
-    m.includes("incorrect api key") ||
-    m.includes("invalid_api_key") ||
-    m.includes("authentication") ||
-    m.includes("unauthorized") ||
-    m.includes("401")
-  );
-}
+export { isInvalidApiKeyError, isInsufficientCreditsError } from "@/lib/llm/provider-errors";

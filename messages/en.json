@@ -272,6 +272,7 @@
       "errors": {
         "keyTooShort": "The API key looks too short. Make sure you copied the full key.",
         "invalidKey": "This API key was rejected by the provider. Check that it is active and matches the selected service.",
+        "insufficientCredits": "Insufficient credits on this provider account (Anthropic, OpenAI, etc.). Add billing on the provider console, then try again.",
         "verifyFailed": "Key test failed: {detail}",
         "saveFailed": "Could not save the key. Try again."
       },
@@ -457,6 +458,7 @@
       "noOpenAi": "Add OPENAI_API_KEY to .env.local to generate.",
       "noLlmKey": "Set up your API key before generating.",
       "invalidApiKey": "Your API key was rejected by the provider. Update it in the API key step.",
+      "insufficientCredits": "Insufficient credits on your provider account (e.g. Anthropic). Top up on the provider console, then try again.",
       "goLlmSetup": "Configure my API key",
       "loadFailed": "Could not load the Persona page. Check your connection and try again.",
       "generateTimeout": "Generation took too long (over 2 minutes). Try again.",
@@ -567,7 +569,10 @@
             "perplexityRequired": "LinkedIn post analysis requires Perplexity (Sonar) in Settings.",
             "perplexityCta": "Configure Perplexity →",
             "notActivityUrl": "Invalid activity URL — use …/recent-activity/all/",
-            "invalidKey": "API key rejected by the provider.",
+            "invalidKey": "API key rejected by the provider. Check Settings → API key.",
+            "insufficientCredits": "Insufficient credits on your Claude (Anthropic) account. Top up at console.anthropic.com, then try again.",
+            "fetchUnavailable": "Live LinkedIn analysis is unavailable. Add a Perplexity (Sonar) key in Settings for a reliable scan, or try again later.",
+            "rateLimit": "Rate limit reached. Wait a few minutes and try again.",
             "retry": "Retry",
             "refresh": "Re-run analysis",
             "steeringLabel": "Angle, leads, or keywords (optional)",

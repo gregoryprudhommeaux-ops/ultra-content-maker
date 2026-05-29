@@ -1,8 +1,12 @@
-import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
+import {
+  classifyProviderErrorMessage,
+  isInvalidApiKeyError,
+} from "@/lib/llm/provider-errors";
 
 export type LlmErrorKind =
   | "no_key"
   | "invalid_key"
+  | "insufficient_credits"
   | "empty_response"
   | "invalid_json"
   | "rate_limit"
@@ -18,6 +22,10 @@ export function classifyLlmApiError(
   const code = (errorCode ?? "").toLowerCase();
 
   if (code === "no_llm_key") return { kind: "no_key", detail: d };
+  if (code === "insufficient_credits") return { kind: "insufficient_credits", detail: d };
+  const providerKind = classifyProviderErrorMessage(d);
+  if (providerKind === "insufficient_credits")
+    return { kind: "insufficient_credits", detail: d };
   if (isInvalidApiKeyError(d)) return { kind: "invalid_key", detail: d };
   if (code === "empty revision" || code === "empty_response")
     return { kind: "empty_response", detail: d };

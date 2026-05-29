@@ -442,6 +442,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
     switch (kind) {
       case "no_key":
         return { message: tArticles("noLlmKey"), technical: undefined };
+      case "insufficient_credits":
+        return { message: tArticles("insufficientCredits"), technical: undefined };
       case "invalid_key":
         return { message: tArticles("invalidApiKey"), technical: undefined };
       case "empty_response":

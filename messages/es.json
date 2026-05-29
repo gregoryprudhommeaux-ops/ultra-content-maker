@@ -272,6 +272,7 @@
       "errors": {
         "keyTooShort": "La clave parece demasiado corta. Comprueba que copiaste la clave completa.",
         "invalidKey": "El proveedor rechazó esta clave API. Comprueba que está activa y corresponde al servicio elegido.",
+        "insufficientCredits": "Créditos insuficientes en esta cuenta del proveedor (Anthropic, OpenAI, etc.). Recarga la facturación en la consola del proveedor y vuelve a intentarlo.",
         "verifyFailed": "Prueba de clave fallida: {detail}",
         "saveFailed": "No se pudo guardar la clave. Inténtalo de nuevo."
       },
@@ -457,6 +458,7 @@
       "noOpenAi": "Añade OPENAI_API_KEY en .env.local para generar.",
       "noLlmKey": "Configura tu clave API antes de generar.",
       "invalidApiKey": "Tu clave API fue rechazada por el proveedor. Actualízala en el paso « Clave API ».",
+      "insufficientCredits": "Créditos insuficientes en tu cuenta del proveedor (p. ej. Anthropic). Recarga en la consola del proveedor y vuelve a intentarlo.",
       "goLlmSetup": "Configurar mi clave API",
       "loadFailed": "No se pudo cargar la página Persona. Comprueba tu conexión e inténtalo de nuevo.",
       "generateTimeout": "La generación tardó demasiado (más de 2 minutos). Inténtalo de nuevo.",
@@ -567,7 +569,10 @@
             "perplexityRequired": "El análisis de posts de LinkedIn requiere Perplexity (Sonar) en Ajustes.",
             "perplexityCta": "Configurar Perplexity →",
             "notActivityUrl": "URL de actividad no válida — usa …/recent-activity/all/",
-            "invalidKey": "Clave API rechazada por el proveedor.",
+            "invalidKey": "Clave API rechazada por el proveedor. Revisa Ajustes → Clave API.",
+            "insufficientCredits": "Créditos insuficientes en tu cuenta Claude (Anthropic). Recarga en console.anthropic.com y vuelve a intentarlo.",
+            "fetchUnavailable": "El análisis LinkedIn en directo no está disponible. Añade una clave Perplexity (Sonar) en Ajustes para un escaneo fiable, o inténtalo más tarde.",
+            "rateLimit": "Límite de solicitudes alcanzado. Espera unos minutos y vuelve a intentarlo.",
             "retry": "Reintentar",
             "refresh": "Volver a analizar",
             "steeringLabel": "Ángulo, pistas o palabras clave (opcional)",

@@ -2,7 +2,11 @@ import { analyzeCreationStrategy } from "@/lib/linkedin/analyze-creation-strateg
 import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
 import { resolveLlmConfigsForUrlFetch } from "@/lib/inspiration/fetch-url-excerpt";
 import { getLlmConfig } from "@/lib/llm/config";
-import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
+import {
+  classifyProviderErrorMessage,
+  isInvalidApiKeyError,
+  providerFromErrorMessage,
+} from "@/lib/llm/provider-errors";
 import {
   resolveAuthorSteering,
   type AuthorSteeringPayload,
@@ -97,15 +101,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
-  const perplexity =
+  const envPerplexity =
     userLlm?.perplexity ?? (envLlm?.provider === "perplexity" ? envLlm : null);
-
-  if (!perplexity) {
-    return NextResponse.json(
-      { error: "linkedin_requires_perplexity", perplexityRecommended: true },
-      { status: 422 },
-    );
-  }
+  const fetchLlm = envPerplexity ?? primary;
+  const fetchUsesPlatformPerplexity =
+    Boolean(envPerplexity) && body.llm?.provider !== "perplexity";
 
   const authorSteering = resolveAuthorSteering({
     authorSteering: body.authorSteering,
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
       userSteering: steering || undefined,
       authorSteering,
       strategyLlm: primary,
-      fetchLlm: perplexity,
+      fetchLlm,
     });
 
     const analyzedAt = new Date().toISOString();
@@ -148,12 +148,42 @@ export async function POST(request: Request) {
     if (message === "strategy_parse_failed") {
       return NextResponse.json({ error: "strategy_parse_failed" }, { status: 502 });
     }
-    if (isInvalidApiKeyError(message)) {
-      return NextResponse.json({ error: "invalid_api_key" }, { status: 401 });
+    const providerKind = classifyProviderErrorMessage(message);
+    const failedProvider = providerFromErrorMessage(message);
+
+    if (providerKind === "insufficient_credits") {
+      return NextResponse.json(
+        { error: "insufficient_credits", detail: message, provider: failedProvider },
+        { status: 402 },
+      );
+    }
+
+    if (providerKind === "rate_limit") {
+      return NextResponse.json(
+        { error: "rate_limit", detail: message, provider: failedProvider },
+        { status: 429 },
+      );
+    }
+
+    if (providerKind === "invalid_key") {
+      if (fetchUsesPlatformPerplexity && failedProvider === "perplexity") {
+        return NextResponse.json(
+          {
+            error: "linkedin_fetch_unavailable",
+            detail: message,
+            perplexityRecommended: true,
+          },
+          { status: 503 },
+        );
+      }
+      return NextResponse.json(
+        { error: "invalid_api_key", detail: message, provider: failedProvider },
+        { status: 401 },
+      );
     }
 
     return NextResponse.json(
-      { error: "analysis_failed", detail: message },
+      { error: "analysis_failed", detail: message, provider: failedProvider },
       { status: 502 },
     );
   }

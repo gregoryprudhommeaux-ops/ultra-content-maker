@@ -1,5 +1,6 @@
 import { configFromUserLlm } from "@/lib/llm/config";
 import { chatCompletionJson } from "@/lib/llm/chat";
+import { classifyProviderErrorMessage } from "@/lib/llm/provider-errors";
 import type { LlmProvider } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -37,6 +38,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (e) {
     const detail = e instanceof Error ? e.message : "Unknown error";
+    const kind = classifyProviderErrorMessage(detail);
+    if (kind === "insufficient_credits") {
+      return NextResponse.json({ error: "insufficient_credits", detail }, { status: 402 });
+    }
+    if (kind === "invalid_key") {
+      return NextResponse.json({ error: "invalid_api_key", detail }, { status: 401 });
+    }
+    if (kind === "rate_limit") {
+      return NextResponse.json({ error: "rate_limit", detail }, { status: 429 });
+    }
     return NextResponse.json({ error: "verify_failed", detail }, { status: 502 });
   }
 }

@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/components/auth/auth-provider";
 import { getClientAuth } from "@/lib/firebase/client";
-import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
@@ -119,8 +118,21 @@ export function CreationStrategyGuidePanel({
             setError(t("notActivityUrl"));
             return;
           }
-          if (data.error === "invalid_api_key" || isInvalidApiKeyError(data.detail ?? "")) {
+          if (data.error === "insufficient_credits") {
+            setError(t("insufficientCredits"));
+            return;
+          }
+          if (data.error === "linkedin_fetch_unavailable") {
+            setError(t("fetchUnavailable"));
+            setPerplexityHint(true);
+            return;
+          }
+          if (data.error === "invalid_api_key") {
             setError(t("invalidKey"));
+            return;
+          }
+          if (data.error === "rate_limit") {
+            setError(t("rateLimit"));
             return;
           }
           setError(t("failed"));

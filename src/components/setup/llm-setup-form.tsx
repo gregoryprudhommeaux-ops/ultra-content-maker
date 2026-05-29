@@ -100,12 +100,16 @@ export function LlmSetupForm() {
       const verifyData = await verifyRes.json();
       if (!verifyRes.ok) {
         const detail = typeof verifyData.detail === "string" ? verifyData.detail : "";
-        setError(
-          detail.toLowerCase().includes("invalid api key") ||
-            detail.includes("401")
-            ? t("errors.invalidKey")
-            : t("errors.verifyFailed", { detail: detail.slice(0, 120) }),
-        );
+        const code = typeof verifyData.error === "string" ? verifyData.error : "";
+        if (code === "insufficient_credits") {
+          setError(t("errors.insufficientCredits"));
+          return;
+        }
+        if (code === "invalid_api_key") {
+          setError(t("errors.invalidKey"));
+          return;
+        }
+        setError(t("errors.verifyFailed", { detail: detail.slice(0, 120) }));
         return;
       }
 
