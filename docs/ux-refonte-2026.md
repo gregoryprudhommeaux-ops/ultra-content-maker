@@ -43,13 +43,20 @@
 
 ## Phases d’exécution
 
-### Phase 1 — Fondations (en cours)
+### Phase 1 — Fondations
 
 - [x] `SetupCompletion` + `loadSetupCompletion`  
 - [x] `canAccessCreation` / redirect  
 - [x] `OnboardingGuard` sur `/articles/new`  
 - [x] `SetupProgress` (alias stepper)  
-- [ ] Nav conditionnelle (badges)  
+- [x] Nav conditionnelle (badges)  
+
+### Phase 4 — Navigation & profil
+
+- [x] Nav Accueil / Créer / Bibliothèque / Profil / Réglages  
+- [x] Badges d’attention sur items incomplets  
+- [x] `/setup/author` onglets Essentiel / Voix / Inspirations  
+- [x] Redirection `/setup/inspirations` → author?tab=inspirations  
 
 ### Phase 2 — Premier usage
 

@@ -1,11 +1,16 @@
 "use client";
 
+import {
+  AuthorProfileTabs,
+  parseAuthorTab,
+} from "@/components/setup/author-profile-tabs";
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { InspirationsEditor } from "@/components/setup/inspirations-editor";
 import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { useAuth } from "@/components/auth/auth-provider";
 import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
+import { resolveInspirationsReturn } from "@/lib/navigation/inspirations-return";
 import { completeAuthorStep, getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
@@ -14,13 +19,24 @@ import { OptionalLabel } from "@/components/setup/optional-label";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { FormEvent, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 export function AuthorSetupForm() {
   const t = useTranslations("setup.author");
+  const tInspirations = useTranslations("setup.inspirations");
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = parseAuthorTab(searchParams.get("tab"));
+  const fromParam = searchParams.get("from");
+  const returnTarget = useMemo(
+    () => (fromParam ? resolveInspirationsReturn(fromParam) : null),
+    [fromParam],
+  );
+  const tabQuerySuffix = fromParam ? `from=${encodeURIComponent(fromParam)}` : "";
+
   const [linkedinProfileUrl, setLinkedinProfileUrl] = useState("");
   const [linkedinActivityUrl, setLinkedinActivityUrl] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
@@ -51,7 +67,7 @@ export function AuthorSetupForm() {
   }, [user]);
 
   async function persist(markComplete: boolean) {
-    if (!user) return;
+    if (!user) return false;
     const urls = [linkedinProfileUrl, websiteUrl, blogUrl]
       .map((u) => u.trim())
       .filter((u) => u.length > 0);
@@ -132,103 +148,53 @@ export function AuthorSetupForm() {
         <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
 
-      <form onSubmit={onContinue} className="max-w-xl space-y-6">
-        <div>
-          <OptionalLabel htmlFor="linkedin">{t("linkedin")}</OptionalLabel>
-          <input
-            id="linkedin"
-            type="text"
-            inputMode="url"
-            autoComplete="url"
-            value={linkedinProfileUrl}
-            onChange={(e) => setLinkedinProfileUrl(e.target.value)}
-            placeholder="https://www.linkedin.com/in/..."
-            className={INPUT_CLASS}
-          />
-        </div>
-        <div>
-          <OptionalLabel htmlFor="linkedin-activity">{t("linkedinActivity")}</OptionalLabel>
-          <p className="mb-2 text-xs text-ns-secondary">{t("linkedinActivityHint")}</p>
-          <input
-            id="linkedin-activity"
-            type="text"
-            inputMode="url"
-            autoComplete="url"
-            value={linkedinActivityUrl}
-            onChange={(e) => setLinkedinActivityUrl(e.target.value)}
-            placeholder="https://www.linkedin.com/in/.../recent-activity/all/"
-            className={INPUT_CLASS}
-          />
-        </div>
-        <div>
-          <OptionalLabel htmlFor="website">{t("website")}</OptionalLabel>
-          <input
-            id="website"
-            type="text"
-            inputMode="url"
-            autoComplete="url"
-            value={websiteUrl}
-            onChange={(e) => setWebsiteUrl(e.target.value)}
-            className={INPUT_CLASS}
-          />
-        </div>
-        <div>
-          <OptionalLabel htmlFor="blog">{t("blog")}</OptionalLabel>
-          <input
-            id="blog"
-            type="text"
-            inputMode="url"
-            autoComplete="url"
-            value={blogUrl}
-            onChange={(e) => setBlogUrl(e.target.value)}
-            className={INPUT_CLASS}
-          />
-        </div>
-        <div>
-          <OptionalLabel htmlFor="role">{t("role")}</OptionalLabel>
-          <input
-            id="role"
-            value={roleTitle}
-            onChange={(e) => setRoleTitle(e.target.value)}
-            className={INPUT_CLASS}
-          />
-        </div>
-        <div>
-          <OptionalLabel htmlFor="positioning">{t("positioning")}</OptionalLabel>
-          <input
-            id="positioning"
-            value={positioningLine}
-            onChange={(e) => setPositioningLine(e.target.value)}
-            className={INPUT_CLASS}
-          />
-        </div>
-        <div>
-          <OptionalLabel htmlFor="lang">{t("contentLanguage")}</OptionalLabel>
-          <select
-            id="lang"
-            value={contentLanguage}
-            onChange={(e) => setContentLanguage(e.target.value as ContentLanguage)}
-            className={INPUT_CLASS}
-          >
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-          </select>
-        </div>
+      <AuthorProfileTabs active={activeTab} querySuffix={tabQuerySuffix} />
 
-        {user && (
-          <>
-            <MyPostsLinksEditor userId={user.uid} />
-            <InspirationsEditor
-              userId={user.uid}
-              showMyPosts={false}
-              showPersonaHint={false}
-              hidePageHeader
-            />
-          </>
+      <p className="text-sm text-ns-secondary">{t(`tabs.hint.${activeTab}`)}</p>
+
+      <form onSubmit={onContinue} className="max-w-xl space-y-6">
+        {activeTab === "essential" && (
+          <EssentialFields
+            t={t}
+            linkedinProfileUrl={linkedinProfileUrl}
+            setLinkedinProfileUrl={setLinkedinProfileUrl}
+            linkedinActivityUrl={linkedinActivityUrl}
+            setLinkedinActivityUrl={setLinkedinActivityUrl}
+            websiteUrl={websiteUrl}
+            setWebsiteUrl={setWebsiteUrl}
+            blogUrl={blogUrl}
+            setBlogUrl={setBlogUrl}
+          />
         )}
 
-        <p className="text-xs text-ns-secondary">{t("optionalNote")}</p>
+        {activeTab === "voice" && user && (
+          <VoiceFields
+            t={t}
+            userId={user.uid}
+            roleTitle={roleTitle}
+            setRoleTitle={setRoleTitle}
+            positioningLine={positioningLine}
+            setPositioningLine={setPositioningLine}
+            contentLanguage={contentLanguage}
+            setContentLanguage={setContentLanguage}
+          />
+        )}
+
+        {activeTab === "inspirations" && user && (
+          <InspirationsEditor
+            userId={user.uid}
+            showMyPosts={false}
+            showPersonaHint={false}
+            hidePageHeader
+            returnHref={returnTarget?.href}
+            returnLabel={returnTarget ? tInspirations(returnTarget.labelKey) : undefined}
+          />
+        )}
+
+        {activeTab !== "inspirations" && (
+          <p className="text-xs text-ns-secondary">{t("optionalNote")}</p>
+        )}
+
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="flex flex-wrap gap-3">
@@ -250,5 +216,140 @@ export function AuthorSetupForm() {
         </div>
       </form>
     </div>
+  );
+}
+
+function EssentialFields({
+  t,
+  linkedinProfileUrl,
+  setLinkedinProfileUrl,
+  linkedinActivityUrl,
+  setLinkedinActivityUrl,
+  websiteUrl,
+  setWebsiteUrl,
+  blogUrl,
+  setBlogUrl,
+}: {
+  t: ReturnType<typeof useTranslations<"setup.author">>;
+  linkedinProfileUrl: string;
+  setLinkedinProfileUrl: (v: string) => void;
+  linkedinActivityUrl: string;
+  setLinkedinActivityUrl: (v: string) => void;
+  websiteUrl: string;
+  setWebsiteUrl: (v: string) => void;
+  blogUrl: string;
+  setBlogUrl: (v: string) => void;
+}) {
+  return (
+    <>
+      <div>
+        <OptionalLabel htmlFor="linkedin">{t("linkedin")}</OptionalLabel>
+        <input
+          id="linkedin"
+          type="text"
+          inputMode="url"
+          autoComplete="url"
+          value={linkedinProfileUrl}
+          onChange={(e) => setLinkedinProfileUrl(e.target.value)}
+          placeholder="https://www.linkedin.com/in/..."
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div>
+        <OptionalLabel htmlFor="linkedin-activity">{t("linkedinActivity")}</OptionalLabel>
+        <p className="mb-2 text-xs text-ns-secondary">{t("linkedinActivityHint")}</p>
+        <input
+          id="linkedin-activity"
+          type="text"
+          inputMode="url"
+          autoComplete="url"
+          value={linkedinActivityUrl}
+          onChange={(e) => setLinkedinActivityUrl(e.target.value)}
+          placeholder="https://www.linkedin.com/in/.../recent-activity/all/"
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div>
+        <OptionalLabel htmlFor="website">{t("website")}</OptionalLabel>
+        <input
+          id="website"
+          type="text"
+          inputMode="url"
+          autoComplete="url"
+          value={websiteUrl}
+          onChange={(e) => setWebsiteUrl(e.target.value)}
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div>
+        <OptionalLabel htmlFor="blog">{t("blog")}</OptionalLabel>
+        <input
+          id="blog"
+          type="text"
+          inputMode="url"
+          autoComplete="url"
+          value={blogUrl}
+          onChange={(e) => setBlogUrl(e.target.value)}
+          className={INPUT_CLASS}
+        />
+      </div>
+    </>
+  );
+}
+
+function VoiceFields({
+  t,
+  userId,
+  roleTitle,
+  setRoleTitle,
+  positioningLine,
+  setPositioningLine,
+  contentLanguage,
+  setContentLanguage,
+}: {
+  t: ReturnType<typeof useTranslations<"setup.author">>;
+  userId: string;
+  roleTitle: string;
+  setRoleTitle: (v: string) => void;
+  positioningLine: string;
+  setPositioningLine: (v: string) => void;
+  contentLanguage: ContentLanguage;
+  setContentLanguage: (v: ContentLanguage) => void;
+}) {
+  return (
+    <>
+      <div>
+        <OptionalLabel htmlFor="role">{t("role")}</OptionalLabel>
+        <input
+          id="role"
+          value={roleTitle}
+          onChange={(e) => setRoleTitle(e.target.value)}
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div>
+        <OptionalLabel htmlFor="positioning">{t("positioning")}</OptionalLabel>
+        <input
+          id="positioning"
+          value={positioningLine}
+          onChange={(e) => setPositioningLine(e.target.value)}
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div>
+        <OptionalLabel htmlFor="lang">{t("contentLanguage")}</OptionalLabel>
+        <select
+          id="lang"
+          value={contentLanguage}
+          onChange={(e) => setContentLanguage(e.target.value as ContentLanguage)}
+          className={INPUT_CLASS}
+        >
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
+        </select>
+      </div>
+      <MyPostsLinksEditor userId={userId} />
+    </>
   );
 }

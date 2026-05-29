@@ -45,7 +45,7 @@ export function ArticlesHubHeader({ pendingOnly }: Props) {
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <Link
-            href="/setup/inspirations?from=articles"
+            href="/setup/author?tab=inspirations&from=articles"
             className="w-full rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-center text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light sm:w-auto"
           >
             {t("updateInspirations")}

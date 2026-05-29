@@ -62,7 +62,7 @@ export function InspirationSourceChoice({ onSelect, libraryCount }: Props) {
       <p className="text-xs text-ns-secondary">
         {t("manageLibrary")}{" "}
         <Link
-          href="/setup/inspirations?from=articles-new"
+          href="/setup/author?tab=inspirations&from=articles-new"
           className="font-medium underline"
         >
           {t("manageLibraryLink")}

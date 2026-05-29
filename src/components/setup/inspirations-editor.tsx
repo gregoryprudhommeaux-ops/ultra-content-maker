@@ -310,7 +310,7 @@ export function InspirationsEditor({
           <p className="mt-1 text-sm text-ns-secondary">
             {t("embeddedSubtitle")}{" "}
             <Link
-              href="/setup/inspirations"
+              href="/setup/author?tab=inspirations"
               className="font-medium text-ns-tertiary underline"
             >
               {t("embeddedManageLink")}

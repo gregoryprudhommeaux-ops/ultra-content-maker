@@ -1,7 +1,6 @@
 "use client";
 
 import { NsMark } from "@/components/brand/ns-mark";
-import { MARKETING_LANDING_HREF } from "@/lib/brand/marketing";
 import { NEXTSTEP_COMPANY } from "@/lib/brand/ns-suite";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -65,7 +64,7 @@ export function AppFooter({
             {showAppLinks && (
               <>
                 <Link
-                  href={MARKETING_LANDING_HREF}
+                  href="/start"
                   className={isDark ? "text-ns-primary hover:text-ns-primary/90" : "text-ns-tertiary hover:text-ns-primary"}
                 >
                   {t("home")}
@@ -74,7 +73,7 @@ export function AppFooter({
                   href="/articles"
                   className={isDark ? "text-white/80 hover:text-white" : "text-ns-secondary hover:text-ns-tertiary"}
                 >
-                  {t("dashboard")}
+                  {t("library")}
                 </Link>
               </>
             )}

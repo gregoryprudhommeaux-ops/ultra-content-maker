@@ -5,6 +5,7 @@
     "footer": {
       "tagline": "Ultra Content Maker: Ghostwriter IA para LinkedIn — una herramienta NS Suite para emprendedores.",
       "home": "Inicio",
+      "library": "Biblioteca",
       "dashboard": "Artículos",
       "login": "Iniciar sesión",
       "signup": "Crear cuenta",
@@ -228,9 +229,12 @@
     }
   },
   "nav": {
+    "home": "Inicio",
+    "create": "Crear",
+    "library": "Biblioteca",
     "content": "Contenido",
     "postCreation": "Creación de posts",
-    "profile": "Mi perfil",
+    "profile": "Perfil",
     "setup": "Mi perfil",
     "persona": "Persona",
     "articles": "Artículos",
@@ -407,6 +411,17 @@
     "author": {
       "title": "Mi perfil",
       "subtitle": "Añade enlaces a tu presencia profesional. Sin copiar-pegar — solo URLs para ejemplos.",
+      "tabs": {
+        "ariaLabel": "Secciones del perfil de autor",
+        "essential": "Esencial",
+        "voice": "Voz",
+        "inspirations": "Inspiraciones",
+        "hint": {
+          "essential": "Enlaces LinkedIn y web — base para el análisis estratégico y la Persona.",
+          "voice": "Rol, posicionamiento, idioma y ejemplos de tus propios posts.",
+          "inspirations": "Contenidos que admiras — tono, ángulo y formato para enriquecer la Persona."
+        }
+      },
       "linkedin": "URL perfil LinkedIn",
       "linkedinActivity": "URL actividad LinkedIn (tus posts)",
       "linkedinActivityHint": "Página de actividad reciente de tu perfil — la IA analiza ~2 meses de posts para recomendaciones estratégicas.",

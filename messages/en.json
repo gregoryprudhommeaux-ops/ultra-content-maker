@@ -5,6 +5,7 @@
     "footer": {
       "tagline": "Ultra Content Maker: AI ghostwriter for LinkedIn — an NS Suite tool for entrepreneurs.",
       "home": "Home",
+      "library": "Library",
       "dashboard": "Articles",
       "login": "Sign in",
       "signup": "Create account",
@@ -228,9 +229,12 @@
     }
   },
   "nav": {
+    "home": "Home",
+    "create": "Create",
+    "library": "Library",
     "content": "Content",
     "postCreation": "Post creation",
-    "profile": "My profile",
+    "profile": "Profile",
     "setup": "My profile",
     "persona": "Persona",
     "articles": "Articles",
@@ -407,6 +411,17 @@
     "author": {
       "title": "My profile",
       "subtitle": "Add links to your professional presence. No copy-paste — URLs only for examples.",
+      "tabs": {
+        "ariaLabel": "Author profile sections",
+        "essential": "Essentials",
+        "voice": "Voice",
+        "inspirations": "Inspirations",
+        "hint": {
+          "essential": "LinkedIn and web links — foundation for strategy analysis and Persona.",
+          "voice": "Role, positioning, language, and examples of your own posts.",
+          "inspirations": "Content you admire — tone, angle, and format to enrich your Persona."
+        }
+      },
       "linkedin": "LinkedIn profile URL",
       "linkedinActivity": "LinkedIn activity URL (your posts)",
       "linkedinActivityHint": "Your profile’s recent activity page — the AI analyzes ~2 months of posts for strategic recommendations.",
