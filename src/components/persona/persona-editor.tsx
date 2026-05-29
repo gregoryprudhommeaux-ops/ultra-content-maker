@@ -241,9 +241,6 @@ export function PersonaEditor() {
   return (
     <div className="space-y-6">
       <OnboardingStepBanner stepKey="persona" />
-      <Link href="/setup/audience" className="text-sm text-ns-secondary hover:text-ns-tertiary">
-        {t("back")}
-      </Link>
       <div>
         <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
         <p className="mt-2 max-w-2xl text-sm text-ns-secondary">{t("subtitle")}</p>

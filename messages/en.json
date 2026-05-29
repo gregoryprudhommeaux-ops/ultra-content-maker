@@ -718,6 +718,7 @@
         "title": "Create LinkedIn posts",
         "subtitle": "Choose how to start: from your profile, recent news, or existing content to repurpose.",
         "backToList": "Back to posts",
+        "viewLibrary": "View my library",
         "back": "← Previous step",
         "briefSubtitleShort": "Objective required; other fields are AI-suggested and editable.",
         "briefSuggesting": "Suggesting brief…",

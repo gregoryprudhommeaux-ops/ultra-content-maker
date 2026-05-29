@@ -793,17 +793,6 @@ export function ArticleCreationWizard() {
       }`}
     >
       {step !== "mode" && (
-        <div className="flex items-center gap-3">
-          <Link
-            href="/articles"
-            className="text-sm text-ns-secondary hover:text-ns-tertiary"
-          >
-            ← {t("backToList")}
-          </Link>
-        </div>
-      )}
-
-      {step !== "mode" && (
         <header>
           <h1 className="text-2xl font-bold tracking-tight text-ns-tertiary">
             {t("title")}
@@ -1066,7 +1055,7 @@ export function ArticleCreationWizard() {
             />
           )}
           <Link href="/articles" className={`inline-block ${BTN_PRIMARY}`}>
-            {t("backToList")}
+            {t("viewLibrary")}
           </Link>
         </div>
       )}

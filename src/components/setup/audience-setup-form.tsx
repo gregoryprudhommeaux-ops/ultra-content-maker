@@ -17,7 +17,7 @@ import { updateSetupStep } from "@/lib/workspace/user";
 import type { EmojiLevel } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import { INPUT_CLASS } from "@/types/workspace";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
 
@@ -94,9 +94,6 @@ export function AudienceSetupForm() {
   return (
     <div className="space-y-8">
       <OnboardingStepBanner stepKey="audience" />
-      <Link href="/setup/author" className="text-sm text-ns-secondary hover:text-ns-tertiary">
-        {t("back")}
-      </Link>
       <div>
         <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
         <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>
