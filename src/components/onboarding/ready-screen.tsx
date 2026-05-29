@@ -31,6 +31,10 @@ export function ReadyScreen() {
     return null;
   }
 
+  if (progress.completion.isOnboardingComplete) {
+    return <GeneratingIndicator label={t("loading")} className="max-w-xl" />;
+  }
+
   const checklist = [
     { done: progress.completion.hasApiKey, label: t("check.apiKey") },
     { done: progress.completion.hasProfileMinimum, label: t("check.profile") },

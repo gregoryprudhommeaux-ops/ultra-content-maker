@@ -9,7 +9,9 @@ import {
   DASHBOARD_NAV,
   dashboardNavNeedsAttention,
   isDashboardNavActive,
+  type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
+import { resolveHomeHrefFromProgress } from "@/lib/workspace/onboarding-routes";
 import { META_LABEL } from "@/lib/ui/nextstep";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -64,12 +66,28 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     );
   }
 
+  function navItemHref(item: DashboardNavItem) {
+    if (item.key === "home") {
+      return resolveHomeHrefFromProgress(progress);
+    }
+    return item.href;
+  }
+
+  function isNavItemActive(item: DashboardNavItem) {
+    if (item.key === "home" && progress?.completion.isOnboardingComplete) {
+      return pathname === "/start" || pathname?.startsWith("/start/");
+    }
+    return isDashboardNavActive(item, pathname);
+  }
+
+  const logoHref = resolveHomeHrefFromProgress(progress);
+
   return (
     <div className="flex min-h-screen flex-col bg-ns-background">
       <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-4 py-3 text-white shadow-sm md:px-8">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
           <Link
-            href="/start"
+            href={logoHref}
             className="flex min-w-0 items-center gap-3 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary"
             aria-label={t("nav.home")}
           >
@@ -83,9 +101,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               {DASHBOARD_NAV.map((item) => (
                 <Link
                   key={item.key}
-                  href={item.href}
-                  className={navLinkClass(isDashboardNavActive(item, pathname))}
-                  aria-current={isDashboardNavActive(item, pathname) ? "page" : undefined}
+                  href={navItemHref(item)}
+                  className={navLinkClass(isNavItemActive(item))}
+                  aria-current={isNavItemActive(item) ? "page" : undefined}
                 >
                   {renderNavLabel(item.labelKey)}
                 </Link>
@@ -147,13 +165,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             {DASHBOARD_NAV.map((item) => (
               <Link
                 key={item.key}
-                href={item.href}
+                href={navItemHref(item)}
                 className={`rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
-                  isDashboardNavActive(item, pathname)
+                  isNavItemActive(item)
                     ? "bg-ns-primary/15 text-ns-primary"
                     : "text-white/85 hover:bg-white/5"
                 }`}
-                aria-current={isDashboardNavActive(item, pathname) ? "page" : undefined}
+                aria-current={isNavItemActive(item) ? "page" : undefined}
                 onClick={() => setMenuOpen(false)}
               >
                 {renderNavLabel(item.labelKey)}

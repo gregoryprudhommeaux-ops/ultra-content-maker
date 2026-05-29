@@ -2,6 +2,8 @@
 
 import { SetupProgress } from "@/components/onboarding/setup-progress";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { GeneratingIndicator } from "@/components/ui/generating-indicator";
+import { resolveWelcomeRedirect } from "@/lib/workspace/onboarding-routes";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -9,19 +11,26 @@ import { useEffect } from "react";
 
 export function WelcomeScreen() {
   const t = useTranslations("setup.onboarding.welcome");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const { progress, loading } = useOnboardingProgress();
 
+  const redirectHref = resolveWelcomeRedirect(progress);
+
   useEffect(() => {
-    if (loading || !progress) return;
-    if (progress.completion.isOnboardingComplete) {
-      router.replace("/articles/new");
-      return;
-    }
-    if (progress.canAccessCreation && !progress.completion.hasGeneratedPost) {
-      router.replace("/start/ready");
-    }
-  }, [loading, progress, router]);
+    if (loading || !redirectHref) return;
+    router.replace(redirectHref);
+  }, [loading, redirectHref, router]);
+
+  if (loading || redirectHref) {
+    return (
+      <GeneratingIndicator label={tCommon("loading")} className="max-w-xl" />
+    );
+  }
+
+  if (!progress) {
+    return null;
+  }
 
   const ctaHref =
     progress?.nextHref ??
