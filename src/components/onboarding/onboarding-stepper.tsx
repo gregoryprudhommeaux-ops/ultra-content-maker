@@ -76,10 +76,8 @@ export function OnboardingStepper({ placement = "dashboard" }: Props) {
   const { progress, loading } = useOnboardingProgress();
   const pathname = usePathname();
   const isSettings = placement === "settings";
+  const hiddenOnStart = placement === "dashboard" && pathname?.startsWith("/start");
 
-  if (placement === "dashboard" && pathname?.startsWith("/start")) {
-    return null;
-  }
   const [expanded, setExpanded] = useState(!isSettings);
   const prevCompleteRef = useRef<boolean | null>(null);
 
@@ -93,6 +91,10 @@ export function OnboardingStepper({ placement = "dashboard" }: Props) {
     prevCompleteRef.current = complete;
     setExpanded(isSettings ? false : !complete);
   }, [progress?.completedCount, progress?.steps.length, isSettings]);
+
+  if (hiddenOnStart) {
+    return null;
+  }
 
   if (!isSettings && isComplete) {
     return null;
