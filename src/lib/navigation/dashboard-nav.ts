@@ -1,5 +1,5 @@
 import type { OnboardingProgress } from "@/lib/workspace/onboarding-progress";
-import { resolveHomeHrefFromProgress } from "@/lib/workspace/onboarding-routes";
+import { APP_HOME_PATH } from "@/lib/workspace/onboarding-routes";
 
 export type DashboardNavKey = "home" | "create" | "library" | "profile" | "settings";
 
@@ -13,7 +13,7 @@ export type DashboardNavItem = {
 };
 
 export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
-  { key: "home", href: "/start", labelKey: "home", match: ["/start"] },
+  { key: "home", href: APP_HOME_PATH, labelKey: "home", match: [APP_HOME_PATH, "/start"] },
   {
     key: "create",
     href: "/articles/new",
@@ -78,36 +78,25 @@ export function isCreationHubPath(pathname: string | null): boolean {
   return path === "/articles/new" || path.startsWith("/articles/new/");
 }
 
-/**
- * Nav highlight aligned with dynamic Accueil href (`resolveHomeHrefFromProgress`).
- * When Accueil points to `/articles/new`, only Accueil is active on that route.
- */
+/** Accueil = landing `/` · Créer = `/articles/new` · hub setup = `/start`. */
 export function resolveDashboardNavActive(
   item: DashboardNavItem,
   pathname: string | null,
-  progress: OnboardingProgress | null | undefined,
-  options?: { creationHubIsHome?: boolean },
+  _progress?: OnboardingProgress | null | undefined,
 ): boolean {
   const path = normalizeDashboardPathname(pathname);
   if (!path) return false;
 
-  const homeHref = resolveHomeHrefFromProgress(progress);
-  const creationHubIsHome =
-    options?.creationHubIsHome ?? homeHref === "/articles/new";
-
-  if (creationHubIsHome && isCreationHubPath(path)) {
-    if (item.key === "home") return true;
-    if (item.key === "create") return false;
-  }
-
   if (item.key === "home") {
     return (
-      path === homeHref ||
-      path.startsWith(`${homeHref}/`) ||
-      (homeHref === "/articles/new" && isCreationHubPath(path)) ||
+      path === APP_HOME_PATH ||
       path === "/start" ||
       path.startsWith("/start/")
     );
+  }
+
+  if (item.key === "create") {
+    return isCreationHubPath(path);
   }
 
   return isDashboardNavActive(item, pathname);

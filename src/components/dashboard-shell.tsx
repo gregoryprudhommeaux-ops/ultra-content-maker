@@ -8,7 +8,6 @@ import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import {
   DASHBOARD_NAV,
   dashboardNavNeedsAttention,
-  isCreationHubPath,
   resolveDashboardNavActive,
   type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
@@ -38,7 +37,7 @@ function NavAttentionDot() {
 export function DashboardShell({ children }: { children: ReactNode }) {
   const t = useTranslations();
   const { signOut } = useAuth();
-  const { progress, loading: progressLoading } = useOnboardingProgress();
+  const { progress } = useOnboardingProgress();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -77,10 +76,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   function isNavItemActive(item: DashboardNavItem) {
-    return resolveDashboardNavActive(item, pathname, progress, {
-      /** Évite un flash « Créer » actif pendant le chargement du progress sur /articles/new. */
-      creationHubIsHome: progressLoading ? isCreationHubPath(pathname) : undefined,
-    });
+    return resolveDashboardNavActive(item, pathname, progress);
   }
 
   const logoHref = resolveHomeHrefFromProgress(progress);
