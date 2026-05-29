@@ -6,12 +6,12 @@ import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-bloc
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import {
   ARCHIVED_NEWS_DISPLAY_LIMIT,
   listArchivedNews,
   type ArchivedNewsDoc,
 } from "@/lib/workspace/news-archive";
-import { getPersona } from "@/lib/workspace/persona";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { ContentLanguage } from "@/types/workspace";
@@ -21,7 +21,7 @@ export function NewsArchiveList() {
   const t = useTranslations("setup.news");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
-  const [personaOk, setPersonaOk] = useState<boolean | null>(null);
+  const { progress, status, loading: onboardingLoading } = useOnboardingProgress();
   const [archived, setArchived] = useState<ArchivedNewsDoc[]>([]);
   const [selected, setSelected] = useState<ArchivedNewsDoc | null>(null);
   const [detailItem, setDetailItem] = useState<ArchivedNewsDoc | null>(null);
@@ -29,11 +29,7 @@ export function NewsArchiveList() {
 
   const reload = useCallback(async () => {
     if (!user) return;
-    const [p, items] = await Promise.all([
-      getPersona(user.uid),
-      listArchivedNews(user.uid, ARCHIVED_NEWS_DISPLAY_LIMIT),
-    ]);
-    setPersonaOk(!!p?.validatedAt && !!p?.promptText?.trim());
+    const items = await listArchivedNews(user.uid, ARCHIVED_NEWS_DISPLAY_LIMIT);
     setArchived(items);
     setLoaded(true);
   }, [user]);
@@ -47,16 +43,28 @@ export function NewsArchiveList() {
     reload().catch(() => setLoaded(true));
   }, [user, authLoading, reload]);
 
-  if (!loaded) {
-    return <GeneratingIndicator label="…" className="max-w-xl" />;
-  }
+  const canCreateFromNews = progress?.canAccessCreation ?? false;
+  const setupNextHref = status?.nextHref ?? "/start";
 
-  if (!personaOk) {
-    return <OnboardingBlockedBanner reason="persona" />;
+  if (!loaded || onboardingLoading) {
+    return <GeneratingIndicator label="…" className="max-w-xl" />;
   }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      {!canCreateFromNews && progress && (
+        <OnboardingBlockedBanner
+          reason={
+            !progress.completion.hasApiKey
+              ? "llm"
+              : !progress.completion.hasProfileMinimum
+                ? "author"
+                : !progress.completion.hasAudience
+                  ? "audience"
+                  : "persona"
+          }
+        />
+      )}
       <header className="space-y-2">
         <Link
           href="/articles/new?mode=news"
@@ -119,12 +127,18 @@ export function NewsArchiveList() {
             {selected.summary}
           </p>
           <p className="text-xs text-ns-secondary">{t("archiveCreateHint")}</p>
-          <Link
-            href={`/articles/new?mode=news&newsId=${encodeURIComponent(selected.id)}`}
-            className={`inline-block ${BTN_PRIMARY}`}
-          >
-            {t("createPostFromArchive")}
-          </Link>
+          {canCreateFromNews ? (
+            <Link
+              href={`/articles/new?mode=news&newsId=${encodeURIComponent(selected.id)}`}
+              className={`inline-block ${BTN_PRIMARY}`}
+            >
+              {t("createPostFromArchive")}
+            </Link>
+          ) : (
+            <Link href={setupNextHref} className={`inline-block ${BTN_PRIMARY}`}>
+              {t("briefOnArticles")}
+            </Link>
+          )}
         </section>
       )}
 

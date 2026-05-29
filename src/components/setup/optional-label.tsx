@@ -16,8 +16,10 @@ export function OptionalLabel({ htmlFor, children, optional = true }: Props) {
   return (
     <label className={LABEL_CLASS} htmlFor={htmlFor}>
       {children}
-      {optional && (
+      {optional ? (
         <span className="font-normal text-ns-secondary/60"> {t("optional")}</span>
+      ) : (
+        <span className="font-normal text-ns-primary"> {t("required")}</span>
       )}
     </label>
   );

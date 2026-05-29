@@ -12,13 +12,19 @@ import {
 } from "@/lib/articles/library-filters";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
 import { ArticlesLibraryToolbar } from "@/components/articles/articles-library-toolbar";
+import { ContextHelp } from "@/components/ui/context-help";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
 import { listArticleBatches, type ArticleBatchGroup } from "@/lib/workspace/articles";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import type { ArticleDoc, ArticleStatus, ContentLanguage } from "@/types/workspace";
+import type {
+  ArticleCreationMode,
+  ArticleDoc,
+  ArticleStatus,
+  ContentLanguage,
+} from "@/types/workspace";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -28,8 +34,24 @@ const STATUS_BADGE: Record<ArticleStatus, string> = {
   validated: "bg-emerald-100 text-emerald-900",
 };
 
+const SESSION_BADGE: Record<ArticleCreationMode, string> = {
+  profile: "bg-ns-brand-light text-ns-tertiary",
+  news: "bg-sky-100 text-sky-900",
+  inspiration: "bg-violet-100 text-violet-900",
+};
+
+function formatBatchDateTime(date: Date, locale: ContentLanguage): string {
+  const tag =
+    locale === "en" ? "en-US" : locale === "es" ? "es-MX" : "fr-FR";
+  return new Intl.DateTimeFormat(tag, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
 export function ArticlesHub() {
   const t = useTranslations("setup.articles");
+  const tSession = useTranslations("setup.articles.create.intentSummary.modes");
   const tRework = useTranslations("setup.articles.create.recentPosts");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
@@ -74,7 +96,8 @@ export function ArticlesHub() {
           ...batch,
           articles: batch.articles.filter((a) => articleMatchesLibraryFilters(a, filters)),
         }))
-        .filter((batch) => batch.articles.length > 0),
+        .filter((batch) => batch.articles.length > 0)
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
     [batches, filters],
   );
 
@@ -126,14 +149,22 @@ export function ArticlesHub() {
         const { generalist, niche } = countScopes(batch.articles);
         return (
           <section key={batch.batchId} className="space-y-3">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <h2 className="text-sm font-semibold text-ns-tertiary">
                 {t("library.batchTitle", {
-                  date: batch.createdAt.toLocaleDateString(locale),
+                  dateTime: formatBatchDateTime(batch.createdAt, locale),
                 })}
               </h2>
-              <p className="text-xs text-ns-secondary/80">
-                {t("scopeMix", { generalist, niche })}
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${SESSION_BADGE[batch.sessionMode]}`}
+              >
+                {tSession(batch.sessionMode)}
+              </span>
+              <p className="flex items-center gap-1.5 text-xs text-ns-secondary/80">
+                <span>{t("scopeMix", { generalist, niche })}</span>
+                <ContextHelp label={t("help.scopeMix.label")}>
+                  {t("help.scopeMix.body")}
+                </ContextHelp>
               </p>
               <span className="rounded-full bg-ns-brand-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
                 {t("library.batchCount", { count: batch.articles.length })}

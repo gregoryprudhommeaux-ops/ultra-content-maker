@@ -6,6 +6,7 @@ import {
   GeneratingIndicator,
 } from "@/components/ui/generating-indicator";
 import type { ArticleQualityScores, ArticleDoc } from "@/types/workspace";
+import { ContextHelp } from "@/components/ui/context-help";
 import { useTranslations } from "next-intl";
 
 type Props = {
@@ -44,7 +45,10 @@ export function ArticleQualityPanel({
     <section className="rounded-xl border border-gray-100 bg-ns-brand-light/30 p-4 md:p-5 space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+            <ContextHelp label={t("help.label")}>{t("help.body")}</ContextHelp>
+          </div>
           <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
         </div>
         <button

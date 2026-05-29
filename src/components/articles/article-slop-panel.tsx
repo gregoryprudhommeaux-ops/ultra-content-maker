@@ -1,6 +1,7 @@
 "use client";
 
 import { detectSlop } from "@/lib/articles/slop-detector";
+import { ContextHelp } from "@/components/ui/context-help";
 import type { ArticleDoc, SlopAnalysis } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
@@ -54,7 +55,10 @@ export function ArticleSlopPanel({ article, disabled, onSave }: Props) {
     <section className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1 space-y-2">
-          <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+            <ContextHelp label={t("help.label")}>{t("help.body")}</ContextHelp>
+          </div>
           <p className="text-sm leading-relaxed text-ns-secondary">{t("intro")}</p>
         </div>
         {onSave && (

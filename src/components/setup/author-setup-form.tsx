@@ -3,6 +3,7 @@
 import {
   AuthorProfileTabs,
   parseAuthorTab,
+  type AuthorProfileTab,
 } from "@/components/setup/author-profile-tabs";
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
@@ -11,7 +12,7 @@ import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { useAuth } from "@/components/auth/auth-provider";
 import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
 import { resolveInspirationsReturn } from "@/lib/navigation/inspirations-return";
-import { completeAuthorStep, getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
+import { completeAuthorStep, getAuthorProfile, isAuthorProfileMinimumComplete, saveAuthorProfile } from "@/lib/workspace/author";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import type { ContentLanguage } from "@/types/workspace";
@@ -24,6 +25,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 export function AuthorSetupForm() {
   const t = useTranslations("setup.author");
+  const tCommon = useTranslations("common");
   const tInspirations = useTranslations("setup.inspirations");
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
@@ -86,7 +88,8 @@ export function AuthorSetupForm() {
       setError(t("linkedinActivityNotActivity"));
       return false;
     }
-    await saveAuthorProfile(user.uid, {
+
+    const draft = {
       linkedinProfileUrl: linkedinProfileUrl.trim() || undefined,
       linkedinActivityUrl: linkedinActivityUrl.trim() || undefined,
       websiteUrl: websiteUrl.trim() || undefined,
@@ -94,10 +97,29 @@ export function AuthorSetupForm() {
       roleTitle: roleTitle.trim() || undefined,
       positioningLine: positioningLine.trim() || undefined,
       contentLanguage,
+    };
+
+    if (markComplete && !isAuthorProfileMinimumComplete(draft)) {
+      const missingTab = resolveMissingAuthorTab(draft);
+      if (missingTab !== activeTab) {
+        navigateToTab(missingTab);
+      }
+      setError(t("errors.requiredFields"));
+      return false;
+    }
+
+    await saveAuthorProfile(user.uid, {
+      ...draft,
       status: markComplete ? "complete" : "in_progress",
     });
     if (markComplete) await completeAuthorStep(user.uid);
     return true;
+  }
+
+  function navigateToTab(tab: AuthorProfileTab) {
+    const params = new URLSearchParams({ tab });
+    if (fromParam) params.set("from", fromParam);
+    router.push(`/setup/author?${params.toString()}`);
   }
 
   async function onSave(e: FormEvent) {
@@ -150,6 +172,10 @@ export function AuthorSetupForm() {
 
       <AuthorProfileTabs active={activeTab} querySuffix={tabQuerySuffix} />
 
+      <p className="text-xs text-ns-secondary">
+        {tCommon("required")} · {tCommon("optional")}
+      </p>
+
       <p className="text-sm text-ns-secondary">{t(`tabs.hint.${activeTab}`)}</p>
 
       <form onSubmit={onContinue} className="max-w-xl space-y-6">
@@ -191,9 +217,7 @@ export function AuthorSetupForm() {
           />
         )}
 
-        {activeTab !== "inspirations" && (
-          <p className="text-xs text-ns-secondary">{t("optionalNote")}</p>
-        )}
+        <p className="text-xs text-ns-secondary">{t(`tabs.requiredNote.${activeTab}`)}</p>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -243,7 +267,9 @@ function EssentialFields({
   return (
     <>
       <div>
-        <OptionalLabel htmlFor="linkedin">{t("linkedin")}</OptionalLabel>
+        <OptionalLabel htmlFor="linkedin" optional={false}>
+          {t("linkedin")}
+        </OptionalLabel>
         <input
           id="linkedin"
           type="text"
@@ -319,7 +345,9 @@ function VoiceFields({
   return (
     <>
       <div>
-        <OptionalLabel htmlFor="role">{t("role")}</OptionalLabel>
+        <OptionalLabel htmlFor="role" optional={false}>
+          {t("role")}
+        </OptionalLabel>
         <input
           id="role"
           value={roleTitle}
@@ -328,7 +356,9 @@ function VoiceFields({
         />
       </div>
       <div>
-        <OptionalLabel htmlFor="positioning">{t("positioning")}</OptionalLabel>
+        <OptionalLabel htmlFor="positioning" optional={false}>
+          {t("positioning")}
+        </OptionalLabel>
         <input
           id="positioning"
           value={positioningLine}
@@ -337,7 +367,9 @@ function VoiceFields({
         />
       </div>
       <div>
-        <OptionalLabel htmlFor="lang">{t("contentLanguage")}</OptionalLabel>
+        <OptionalLabel htmlFor="lang" optional={false}>
+          {t("contentLanguage")}
+        </OptionalLabel>
         <select
           id="lang"
           value={contentLanguage}
@@ -352,4 +384,12 @@ function VoiceFields({
       <MyPostsLinksEditor userId={userId} />
     </>
   );
+}
+
+function resolveMissingAuthorTab(
+  profile: Parameters<typeof isAuthorProfileMinimumComplete>[0],
+): AuthorProfileTab {
+  const linkedin = profile?.linkedinProfileUrl?.trim() ?? "";
+  if (!linkedin || !isValidUrl(linkedin)) return "essential";
+  return "voice";
 }

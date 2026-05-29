@@ -14,6 +14,12 @@ const TAB_ACTIVE =
 const TAB_IDLE =
   "flex-1 rounded-md px-3 py-2 text-center text-sm font-medium text-ns-secondary transition-colors hover:text-ns-tertiary";
 
+const TAB_TIER: Record<AuthorProfileTab, "required" | "optional" | "later"> = {
+  essential: "required",
+  voice: "required",
+  inspirations: "later",
+};
+
 type Props = {
   active: AuthorProfileTab;
   /** Preserved query string without leading ? (e.g. from=articles). */
@@ -44,7 +50,10 @@ export function AuthorProfileTabs({ active, querySuffix = "" }: Props) {
           aria-selected={active === tab}
           className={active === tab ? TAB_ACTIVE : TAB_IDLE}
         >
-          {t(tab)}
+          <span className="block">{t(tab)}</span>
+          <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-ns-secondary/80">
+            {t(`tier.${TAB_TIER[tab]}`)}
+          </span>
         </Link>
       ))}
     </nav>

@@ -8,6 +8,8 @@ import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { PersonaContextGuide } from "@/components/persona/persona-context-guide";
+import { PersonaReveal } from "@/components/persona/persona-reveal";
+import { buildPersonaRevealSummary } from "@/lib/persona/extract-persona-summary";
 import { PersonaHistoryPanel } from "@/components/persona/persona-history-panel";
 import { PersonaPerformanceInsightsPanel } from "@/components/persona/persona-performance-insights-panel";
 import { PersonaRecentUpdatesPanel } from "@/components/persona/persona-recent-updates-panel";
@@ -23,11 +25,11 @@ import { serializeForApi } from "@/lib/workspace/serialize-profile";
 import { updateSetupStep } from "@/lib/workspace/user";
 import { getClientAuth } from "@/lib/firebase/client";
 import { ContextHelp } from "@/components/ui/context-help";
-import { ButtonSpinner, GeneratingIndicator } from "@/components/ui/generating-indicator";
+import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { ContentLanguage, GapAnswerValue, ProfileGapQuestion } from "@/types/workspace";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function PersonaEditor() {
   const t = useTranslations("setup.persona");
@@ -48,6 +50,12 @@ export function PersonaEditor() {
   const [recentChanges, setRecentChanges] = useState<PersonaRecentChange[]>([]);
   const [personaUpdatedAt, setPersonaUpdatedAt] = useState<Date | null>(null);
   const [contentLang, setContentLang] = useState<ContentLanguage>(locale);
+  const [authorProfile, setAuthorProfile] = useState<
+    Awaited<ReturnType<typeof getAuthorProfile>>
+  >(null);
+  const [audienceProfile, setAudienceProfile] = useState<
+    Awaited<ReturnType<typeof getAudienceProfile>>
+  >(null);
 
   const load = useCallback(async () => {
     if (!user) {
@@ -55,11 +63,14 @@ export function PersonaEditor() {
       return;
     }
     try {
-      const [p, enrichment, author] = await Promise.all([
+      const [p, enrichment, author, audience] = await Promise.all([
         getPersona(user.uid),
         getProfileEnrichment(user.uid),
         getAuthorProfile(user.uid),
+        getAudienceProfile(user.uid),
       ]);
+      setAuthorProfile(author);
+      setAudienceProfile(audience);
       if (author?.contentLanguage) setContentLang(author.contentLanguage);
       if (p) {
         setPromptText(p.promptText);
@@ -78,6 +89,13 @@ export function PersonaEditor() {
       setLoaded(true);
     }
   }, [user, t]);
+
+  const revealSummary = useMemo(
+    () => buildPersonaRevealSummary(authorProfile, audienceProfile, promptText),
+    [authorProfile, audienceProfile, promptText],
+  );
+
+  const audienceSkipped = Boolean(audienceProfile?.skipped);
 
   useEffect(() => {
     if (authLoading) return;
@@ -246,7 +264,27 @@ export function PersonaEditor() {
         <p className="mt-2 max-w-2xl text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
 
-      <PersonaContextGuide />
+      {promptText ? (
+        <PersonaReveal
+          {...(status === "validated"
+            ? {
+                mode: "validated" as const,
+                summary: revealSummary,
+                audienceSkipped,
+              }
+            : {
+                mode: "draft" as const,
+                summary: revealSummary,
+                audienceSkipped,
+                onRegenerate: onGenerate,
+                onValidate,
+                validateDisabled: promptText.length < 200,
+                pending,
+              })}
+        />
+      ) : (
+        <PersonaContextGuide />
+      )}
 
       {pending && (
         <GeneratingIndicator
@@ -266,29 +304,29 @@ export function PersonaEditor() {
         </button>
       )}
 
-      {user && promptText && (
-        <PersonaHistoryPanel
-          userId={user.uid}
-          currentPromptText={promptText}
-          onRestored={async (text, nextStatus) => {
-            setPromptText(text);
-            setStatus(
-              nextStatus === "validated"
-                ? "validated"
-                : text
-                  ? "draft"
-                  : "none",
-            );
-            if (user) {
-              const p = await getPersona(user.uid);
-              applyPersonaFromStore(p);
-            }
-          }}
-        />
-      )}
-
       {promptText && (
         <>
+          {user && (
+            <PersonaHistoryPanel
+              userId={user.uid}
+              currentPromptText={promptText}
+              onRestored={async (text, nextStatus) => {
+                setPromptText(text);
+                setStatus(
+                  nextStatus === "validated"
+                    ? "validated"
+                    : text
+                      ? "draft"
+                      : "none",
+                );
+                if (user) {
+                  const p = await getPersona(user.uid);
+                  applyPersonaFromStore(p);
+                }
+              }}
+            />
+          )}
+
           {gapQuestions.length > 0 && status !== "validated" && (
             <GapsQuestionnaire
               questions={gapQuestions}
@@ -303,20 +341,36 @@ export function PersonaEditor() {
             </p>
           )}
 
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-semibold text-ns-tertiary">
-              {t("help.promptLabel")}
-            </label>
-            <ContextHelp label={t("help.promptLabel")}>{t("help.promptBody")}</ContextHelp>
-          </div>
-
-          <textarea
-            value={promptText}
-            onChange={(e) => setPromptText(e.target.value)}
-            rows={20}
-            className="w-full rounded-xl border border-ns-alternate bg-white p-4 font-mono text-sm text-ns-tertiary leading-relaxed"
-            readOnly={status === "validated"}
-          />
+          <details className="rounded-xl border border-gray-100 bg-white">
+            <summary className="cursor-pointer list-none px-4 py-3 marker:content-none [&::-webkit-details-marker]:hidden">
+              <span className="flex items-center justify-between gap-2 text-sm font-semibold text-ns-tertiary">
+                {t("reveal.promptToggle")}
+                <span className="text-xs font-medium text-ns-secondary" aria-hidden>
+                  ▾
+                </span>
+              </span>
+              <p className="mt-1 text-xs font-medium text-ns-secondary">
+                {t("reveal.promptHint")}
+              </p>
+            </summary>
+            <div className="space-y-3 border-t border-gray-100 px-4 py-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-ns-tertiary">
+                  {t("help.promptLabel")}
+                </span>
+                <ContextHelp label={t("help.promptLabel")}>
+                  {t("help.promptBody")}
+                </ContextHelp>
+              </div>
+              <textarea
+                value={promptText}
+                onChange={(e) => setPromptText(e.target.value)}
+                rows={16}
+                className="w-full rounded-xl border border-ns-alternate bg-white p-4 font-mono text-sm text-ns-tertiary leading-relaxed"
+                readOnly={status === "validated"}
+              />
+            </div>
+          </details>
 
           {status === "validated" && (
             <PersonaPerformanceInsightsPanel
@@ -341,50 +395,24 @@ export function PersonaEditor() {
             />
           )}
 
-          <div className="flex flex-wrap gap-3">
-            {status !== "validated" && (
-              <>
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={onGenerate}
-                  className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
-                >
-                  {pending ? (
-                    <>
-                      <ButtonSpinner className="border-ns-alternate border-t-zinc-800" />
-                      {t("regenerating")}
-                    </>
-                  ) : (
-                    t("regenerate")
-                  )}
-                </button>
-                <button
-                  type="button"
-                  disabled={pending || promptText.length < 200}
-                  onClick={onValidate}
-                  className="inline-flex items-center gap-2 rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
-                >
-                  {pending ? (
-                    <>
-                      <ButtonSpinner />
-                      {tCommon("loading")}
-                    </>
-                  ) : (
-                    t("validate")
-                  )}
-                </button>
-              </>
-            )}
-            {status === "validated" && (
+          {status === "validated" && (
+            <div className="flex flex-wrap gap-3">
               <Link
-                href="/articles"
+                href="/start/ready"
                 className="rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90"
               >
-                {t("goArticles")}
+                {t("reveal.goCreate")}
               </Link>
-            )}
-          </div>
+              <Link
+                href="/setup/author?tab=essential"
+                className="rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light"
+              >
+                {t("reveal.completeProfile")}
+              </Link>
+            </div>
+          )}
+
+          <PersonaContextGuide />
         </>
       )}
 

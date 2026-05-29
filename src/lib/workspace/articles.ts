@@ -11,6 +11,7 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import type {
+  ArticleCreationMode,
   ArticleDoc,
   ArticlePerformanceSignals,
   ArticleQualityScores,
@@ -41,6 +42,10 @@ import type {
   ArticleInspirationSource,
   ArticleNewsSource,
 } from "@/types/workspace";
+import {
+  batchSessionCreatedAt,
+  inferBatchSessionMode,
+} from "@/lib/articles/batch-session";
 import { normalizeArticleScope } from "@/lib/articles/scope";
 import {
   countLinkedInCharacters,
@@ -121,6 +126,7 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
 export type ArticleBatchGroup = {
   batchId: string;
   createdAt: Date;
+  sessionMode: ArticleCreationMode;
   articles: ArticleDoc[];
 };
 
@@ -157,11 +163,16 @@ export async function listArticleBatches(userId: string): Promise<ArticleBatchGr
     list.push(article);
     byBatch.set(article.batchId, list);
   }
-  return [...byBatch.entries()].map(([batchId, articles]) => ({
-    batchId,
-    createdAt: articles[0]?.createdAt ?? new Date(),
-    articles: articles.sort((a, b) => a.indexInBatch - b.indexInBatch),
-  }));
+  const groups = [...byBatch.entries()].map(([batchId, articles]) => {
+    const sorted = [...articles].sort((a, b) => a.indexInBatch - b.indexInBatch);
+    return {
+      batchId,
+      createdAt: batchSessionCreatedAt(sorted),
+      sessionMode: inferBatchSessionMode(sorted),
+      articles: sorted,
+    };
+  });
+  return groups.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 export async function getArticle(

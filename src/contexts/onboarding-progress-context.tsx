@@ -5,6 +5,10 @@ import {
   loadOnboardingProgress,
   type OnboardingProgress,
 } from "@/lib/workspace/onboarding-progress";
+import {
+  getOnboardingStatusFromProgress,
+  type OnboardingStatus,
+} from "@/lib/workspace/onboarding-status";
 import { usePathname } from "@/i18n/navigation";
 import {
   createContext,
@@ -19,6 +23,8 @@ const CHANGED_EVENT = "onboarding-progress-changed";
 
 type OnboardingProgressContextValue = {
   progress: OnboardingProgress | null;
+  /** Derived from progress — single source for guards, /start hub, nav. */
+  status: OnboardingStatus | null;
   loading: boolean;
   reload: () => Promise<void>;
 };
@@ -66,8 +72,12 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
     return () => window.removeEventListener(CHANGED_EVENT, onChanged);
   }, [reload]);
 
+  const status = progress ? getOnboardingStatusFromProgress(progress) : null;
+
   return (
-    <OnboardingProgressContext.Provider value={{ progress, loading, reload }}>
+    <OnboardingProgressContext.Provider
+      value={{ progress, status, loading, reload }}
+    >
       {children}
     </OnboardingProgressContext.Provider>
   );

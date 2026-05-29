@@ -284,8 +284,8 @@
       },
       "welcome": {
         "eyebrow": "Bienvenue",
-        "title": "Votre ghostwriter LinkedIn en 4 étapes",
-        "subtitle": "Configurez votre espace une fois : clé API, profil, cible et Persona. Ensuite, créez des posts alignés sur votre voix en quelques minutes.",
+        "title": "Préparez votre moteur de contenu",
+        "subtitle": "Clé API → profil → cible → Persona : chaque étape alimente l’assistant de création. Une fois prêt, vos posts LinkedIn suivent votre voix.",
         "pillars": [
           "Une clé API personnelle — vous gardez le contrôle des coûts et des modèles.",
           "Un profil et une cible — l’IA comprend qui vous êtes et pour qui vous écrivez.",
@@ -295,6 +295,42 @@
         "ctaStart": "Commencer la configuration",
         "ctaResume": "Reprendre la configuration",
         "ctaReady": "Je suis prêt à créer"
+      },
+      "hub": {
+        "nextActionTitle": "Prochaine action",
+        "completedTitle": "Déjà complété",
+        "completedEmpty": "Aucune étape terminée pour l’instant — commencez par la clé API.",
+        "ctaContinue": "Continuer",
+        "steps": {
+          "setupLlm": {
+            "title": "Configurer votre clé API",
+            "description": "Une clé personnelle active la génération IA (Persona, posts, actu). Vous gardez le contrôle des coûts."
+          },
+          "authorEssential": {
+            "title": "Compléter l’essentiel du profil",
+            "description": "LinkedIn, rôle et positionnement : le minimum pour que l’IA comprenne qui vous êtes."
+          },
+          "audience": {
+            "title": "Définir votre cible",
+            "description": "Une esquisse d’audience améliore la pertinence — ou passez cette étape si vous préférez avancer."
+          },
+          "persona": {
+            "title": "Valider votre Persona",
+            "description": "Relisez ce que l’IA a compris de vous, puis validez votre Content Brain avant de créer."
+          },
+          "startReady": {
+            "title": "Lancer votre premier post",
+            "description": "Tout est prêt : ouvrez l’assistant de création et générez votre premier lot."
+          },
+          "articlesNew": {
+            "title": "Créer un nouveau post",
+            "description": "Retournez à l’assistant pour un nouveau brief ou une nouvelle intention."
+          },
+          "startHub": {
+            "title": "Reprendre la configuration",
+            "description": "Consultez votre progression et continuez là où vous vous êtes arrêté."
+          }
+        }
       },
       "ready": {
         "loading": "Chargement…",
@@ -448,6 +484,16 @@
           "essential": "Liens LinkedIn et web — base pour l’analyse stratégique et le Persona.",
           "voice": "Rôle, positionnement, langue et exemples de vos propres posts.",
           "inspirations": "Contenus que vous admirez — ton, angle, format pour enrichir le Persona."
+        },
+        "tier": {
+          "required": "Obligatoire",
+          "optional": "Optionnel",
+          "later": "À faire plus tard"
+        },
+        "requiredNote": {
+          "essential": "LinkedIn est requis pour continuer. Site, blog et activité LinkedIn améliorent la qualité mais restent optionnels.",
+          "voice": "Rôle, positionnement et langue sont requis. Vos posts de référence enrichissent le Persona mais restent optionnels.",
+          "inspirations": "Tout est optionnel ici — ajoutez des inspirations quand vous voulez enrichir le Persona (onglet « À faire plus tard » acceptable)."
         }
       },
       "linkedin": "URL profil LinkedIn",
@@ -459,7 +505,9 @@
       "role": "Rôle / titre",
       "positioning": "Positionnement en une ligne",
       "contentLanguage": "Langue des posts LinkedIn générés",
-      "optionalNote": "Tous les champs sont optionnels : vous pouvez continuer sans rien remplir et compléter plus tard.",
+      "errors": {
+        "requiredFields": "Complétez les champs obligatoires (LinkedIn, rôle, positionnement, langue) avant de continuer."
+      },
       "save": "Enregistrer le brouillon",
       "continue": "Continuer vers la cible",
       "invalidUrl": "Entrez une URL http(s) valide.",
@@ -546,6 +594,7 @@
     "audience": {
       "title": "Pour qui vous écrivez",
       "subtitle": "Une esquisse légère de votre lecteur idéal.",
+      "stepBadge": "Étape optionnelle",
       "targetLabel": "Type de cible général",
       "targetPlaceholder": "ex. dirigeants de PME françaises qui s'internationalisent",
       "contentFocus": "Ce qu'il faut mettre en avant dans le contenu",
@@ -566,7 +615,7 @@
     },
     "persona": {
       "title": "Votre Persona expert",
-      "subtitle": "Ce long prompt est votre assistant rédactionnel LinkedIn. Générez-le à partir de vos liens et de la cible, puis éditez et validez.",
+      "subtitle": "L’IA synthétise votre profil en Content Brain. Validez quand le résumé vous ressemble — c’est la base de chaque post.",
       "generate": "Générer le Persona",
       "generating": "Génération du Persona en cours…",
       "generatingHint": "L’IA analyse vos liens et votre cible. Cela peut prendre 30 à 90 secondes.",
@@ -574,6 +623,41 @@
       "regenerating": "Régénération…",
       "validate": "Valider le Persona",
       "goArticles": "Continuer vers les posts exemples →",
+      "reveal": {
+        "eyebrow": "Synthèse IA",
+        "title": "Voici ce que l’IA a compris de vous",
+        "subtitle": "Relisez ces quatre piliers avant de valider. Ils alimentent chaque génération LinkedIn — le prompt complet reste accessible en dessous.",
+        "validatedEyebrow": "Content Brain actif",
+        "validatedTitle": "Persona validé",
+        "validatedSubtitle": "Ce résumé reste votre boussole éditoriale. Vous pouvez affiner le prompt ou lancer la création.",
+        "cards": {
+          "positioning": {
+            "label": "Positionnement"
+          },
+          "audience": {
+            "label": "Audience"
+          },
+          "angle": {
+            "label": "Angle éditorial"
+          },
+          "tone": {
+            "label": "Ton"
+          }
+        },
+        "fromPersona": "Extrait du prompt Persona",
+        "fromProfile": "Issu de votre profil",
+        "audienceSkipped": "Étape audience passée — l’IA infère votre lecteur depuis le profil.",
+        "audienceEmpty": "Audience non précisée — complétez la cible ou validez quand même.",
+        "cardEmpty": "Information à compléter dans le profil ou le prompt.",
+        "regenerate": "Regénérer",
+        "regenerating": "Régénération…",
+        "validate": "Valider ma Persona",
+        "validating": "Validation…",
+        "completeProfile": "Compléter mon profil →",
+        "promptToggle": "Voir le prompt Persona complet",
+        "promptHint": "Texte lu par l’IA à chaque génération — éditable avant validation.",
+        "goCreate": "Créer mon premier post →"
+      },
       "back": "← Retour à la cible",
       "help": {
         "guideTitle": "Comprendre votre Content Brain",
@@ -719,7 +803,7 @@
         "scopeLabel": "Portée",
         "resultsCount": "{visible} post(s) affiché(s) sur {total}",
         "emptyFiltered": "Aucun post ne correspond à ces filtres.",
-        "batchTitle": "Lot du {date}",
+        "batchTitle": "Session du {dateTime}",
         "batchCount": "{count, plural, one {# post} other {# posts}}",
         "status": {
           "all": "Tous",
@@ -732,6 +816,24 @@
           "all": "Toutes portées",
           "generalist": "Généraliste",
           "niche": "Niche"
+        }
+      },
+      "help": {
+        "scope": {
+          "label": "Aide : portée du post",
+          "body": "Généraliste = angle large, lisible hors de votre niche immédiate. Niche = angle expert, ICP précis, vocabulaire métier assumé. En lot multi-posts, le mix équilibre portée et crédibilité."
+        },
+        "lot": {
+          "label": "Aide : lot de posts",
+          "body": "Un lot regroupe les posts générés lors d’une même session (même intention et brief). Pratique pour comparer des variantes ou reprendre une série créée le même jour."
+        },
+        "scopeFilter": {
+          "label": "Aide : filtre portée",
+          "body": "Filtrez par posts généralistes (angle large) ou niche (expert). L’étiquette vient du scope choisi à la création ou de la position dans le lot (2 généralistes · 2 niches)."
+        },
+        "scopeMix": {
+          "label": "Aide : mix généraliste / niche",
+          "body": "Sur un lot de 4 posts, l’équilibre type est 2 généralistes + 2 niches : portée large et crédibilité expert. Les compteurs reflètent les posts de cette session."
         }
       },
       "emptyPending": "Aucun post en attente. Créez un nouveau lot ou consultez les posts validés.",
@@ -748,6 +850,26 @@
         "backToList": "Retour aux posts",
         "viewLibrary": "Voir ma bibliothèque",
         "back": "← Étape précédente",
+        "setupReadyBanner": {
+          "eyebrow": "Setup terminé",
+          "title": "Votre Content Brain est prêt",
+          "description": "Votre Persona alimente chaque génération. Choisissez une intention ci-dessous — le brief (problème, point de vue, preuve) donnera du sens au post.",
+          "dismiss": "Fermer"
+        },
+        "briefReminder": {
+          "title": "Votre brief donne du sens au post",
+          "description": "Choisissez un parcours ci-dessous. Au brief, l’IA s’appuiera sur votre Persona plus ces trois piliers — surtout pour « Depuis mon profil ».",
+          "help": {
+            "label": "Comprendre le brief",
+            "body": "Le brief oriente la génération : problème (ce que vit votre lecteur), point de vue (votre angle distinct), preuve (exemple, chiffre, observation). L’objectif LinkedIn (crédibilité, conversation…) vient en plus au parcours profil."
+          },
+          "pillars": {
+            "problem": "Problème",
+            "pov": "Point de vue",
+            "proof": "Preuve"
+          },
+          "dismiss": "Fermer"
+        },
         "briefSubtitleShort": "Objectif obligatoire ; les autres champs sont suggérés par l’IA et modifiables.",
         "briefSuggesting": "Suggestion du brief en cours…",
         "briefSuggestFailed": "Impossible de suggérer le brief. Complétez les champs manuellement.",
@@ -1031,6 +1153,20 @@
         "proof": "Preuve ou expérience",
         "proofPlaceholder": "Ex. : Cas client, chiffre interne, observation terrain (obligatoire)",
         "incomplete": "Renseignez au moins 8 caractères pour le problème, le POV et la preuve.",
+        "help": {
+          "objective": {
+            "label": "Aide : objectif",
+            "body": "Crédibilité, conversation, visibilité ou demandes — oriente le ton et le CTA. Obligatoire dans tous les parcours de création."
+          },
+          "problem": {
+            "label": "Aide : problème",
+            "body": "Le pain concret de votre lecteur cible. Plus c’est spécifique (secteur, situation), plus le post sonne expert."
+          },
+          "proof": {
+            "label": "Aide : preuve",
+            "body": "Exemple vécu, chiffre, cas client ou observation terrain — ce qui rend le post crédible et non générique."
+          }
+        },
         "niche": {
           "title": "Clarté niche",
           "deepen": "Analyse IA approfondie",
@@ -1105,6 +1241,10 @@
       },
       "slop": {
         "title": "Formulations génériques (style IA / LinkedIn)",
+        "help": {
+          "label": "Aide : détection de clichés",
+          "body": "Repère les tournures « template » LinkedIn / IA (game changer, ravi de partager, leçons numérotées…). Analyse locale instantanée, sans appel API. Ce n’est pas une note globale du post — un signal pour personnaliser avant publication."
+        },
         "intro": "Ce panneau repère les tournures que tout le monde voit sur LinkedIn et que les IA recopient souvent (« game changer », « ravi de partager », leçons numérotées, etc.). Ce n’est pas une note de qualité globale du post : c’est un signal pour le rendre plus personnel, concret et crédible.",
         "howItWorksTitle": "Comment ça marche",
         "howItWorks": "L’app compare votre texte à une liste de formules connues — analyse instantanée, sans appel à votre clé API. Les scores se mettent à jour dès que vous modifiez l’accroche ou le corps du post.",
@@ -1146,6 +1286,10 @@
       "quality": {
         "title": "Qualité LinkedIn",
         "subtitle": "Scores et leviers pour un post crédible, niche et conversationnel.",
+        "help": {
+          "label": "Aide : Quality Panel",
+          "body": "Quatre scores (clarté niche, voix humaine, preuve, conversation) plus des leviers de réécriture ciblée. Ce n’est pas une note « LinkedIn officielle » — un guide pour affiner avant publication."
+        },
         "analyze": "Analyser ce post",
         "refresh": "Ré-analyser",
         "loadFailed": "Impossible d’analyser le post.",
@@ -1185,6 +1329,10 @@
         "regenerate": "Régénérer les 3 CTA",
         "loadFailed": "Impossible de générer les CTA. Réessayez.",
         "pickOne": "Sélectionnez un CTA (doux, moyen ou pushy).",
+        "help": {
+          "label": "Aide : CTA",
+          "body": "Trois intensités (doux, moyen, pushy) alignées sur votre brief. La validation intègre le CTA choisi, les hashtags et prépare le texte à coller sur LinkedIn."
+        },
         "styles": {
           "soft": "Doux",
           "medium": "Moyen",
@@ -1293,7 +1441,39 @@
         "readSource": "Lire l’article source",
         "inspirationAnchor": "Post inspiré d’un contenu existant",
         "inspirationAnchorHint": "Généré depuis une référence — angle réécrit avec votre Persona, sans plagiat.",
-        "readInspirationSource": "Ouvrir la source d’inspiration"
+        "readInspirationSource": "Ouvrir la source d’inspiration",
+        "personaAlignedHint": "Génération alignée sur votre Persona",
+        "help": {
+          "topicDna": {
+            "label": "Aide : Topic DNA",
+            "body": "Thèmes récurrents, convictions et sujets interdits définis dans votre Persona (section ## Topic DNA). Chaque post et CTA s’y conforme — modifiez le Persona si le ton dérive."
+          }
+        },
+        "sections": {
+          "refine": {
+            "hint": "Répondez aux questions, ajustez le ton, puis régénérez le post avant de choisir un CTA."
+          },
+          "analysis": {
+            "title": "Qualité & formulations génériques",
+            "hint": "Scores LinkedIn, leviers de réécriture et détection de clichés — ouvrez quand vous voulez affiner avant validation.",
+            "hintValidated": "Vérifiez encore les clichés avant de republier une variante."
+          },
+          "cta": {
+            "hint": "3 propositions de CTA + validation pour préparer la copie LinkedIn (hashtags inclus)."
+          },
+          "enrich": {
+            "title": "Format, traduction & republication",
+            "hint": "Format recommandé, carrousel, script vidéo, 1er commentaire, calendrier et traductions."
+          },
+          "illustration": {
+            "title": "Illustration",
+            "hint": "Suggestions de visuels et prompts image — chargées à l’ouverture de cette section."
+          },
+          "share": {
+            "title": "Partager",
+            "hint": "Envoyer le post par e-mail ou WhatsApp (mention Ultra Content Maker, pas dans la copie LinkedIn)."
+          }
+        }
       },
       "share": {
         "title": "PARTAGER",
@@ -1438,6 +1618,7 @@
     "save": "Enregistrer",
     "cancel": "Annuler",
     "comingSoon": "Bientôt disponible",
-    "optional": "(optionnel)"
+    "optional": "(optionnel)",
+    "required": "(obligatoire)"
   }
 }

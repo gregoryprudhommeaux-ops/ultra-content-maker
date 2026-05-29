@@ -12,6 +12,7 @@ import type {
   PostObjective,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { ContextHelp } from "@/components/ui/context-help";
 import { useTranslations } from "next-intl";
 
 const OBJECTIVES: PostObjective[] = [
@@ -48,7 +49,9 @@ export function PostBriefForm({
   briefSuggesting,
 }: Props) {
   const t = useTranslations("setup.articles.brief");
+  const tBriefHelp = useTranslations("setup.articles.brief.help");
   const tCreate = useTranslations("setup.articles.create");
+  const tHelp = useTranslations("setup.articles.help");
 
   function set<K extends keyof PostBrief>(key: K, value: PostBrief[K]) {
     onChange({ ...brief, [key]: value });
@@ -72,7 +75,10 @@ export function PostBriefForm({
 
       {showScope && onScopeChange && (
         <div>
-          <span className={LABEL_CLASS}>{tCreate("scopeLabel")}</span>
+          <div className="flex items-center gap-2">
+            <span className={LABEL_CLASS}>{tCreate("scopeLabel")}</span>
+            <ContextHelp label={tHelp("scope.label")}>{tHelp("scope.body")}</ContextHelp>
+          </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {(["generalist", "niche"] as const).map((scope) => (
               <button
@@ -94,7 +100,12 @@ export function PostBriefForm({
       )}
 
       <div>
-        <span className={LABEL_CLASS}>{t("objective")}</span>
+        <div className="flex items-center gap-2">
+          <span className={LABEL_CLASS}>{t("objective")}</span>
+          <ContextHelp label={tBriefHelp("objective.label")}>
+            {tBriefHelp("objective.body")}
+          </ContextHelp>
+        </div>
         <div className="mt-2 flex flex-wrap gap-2">
           {OBJECTIVES.map((obj) => (
             <button
@@ -114,9 +125,12 @@ export function PostBriefForm({
       </div>
 
       <div>
-        <label className={LABEL_CLASS} htmlFor="brief-problem">
-          {t("problem")}
-        </label>
+        <div className="flex items-center gap-2">
+          <label className={LABEL_CLASS} htmlFor="brief-problem">
+            {t("problem")}
+          </label>
+          <ContextHelp label={tBriefHelp("problem.label")}>{tBriefHelp("problem.body")}</ContextHelp>
+        </div>
         <textarea
           id="brief-problem"
           rows={2}
@@ -142,9 +156,12 @@ export function PostBriefForm({
       </div>
 
       <div>
-        <label className={LABEL_CLASS} htmlFor="brief-proof">
-          {t("proof")}
-        </label>
+        <div className="flex items-center gap-2">
+          <label className={LABEL_CLASS} htmlFor="brief-proof">
+            {t("proof")}
+          </label>
+          <ContextHelp label={tBriefHelp("proof.label")}>{tBriefHelp("proof.body")}</ContextHelp>
+        </div>
         <textarea
           id="brief-proof"
           rows={2}

@@ -1,10 +1,9 @@
 "use client";
 
 import { ArticleFormatPanel } from "@/components/articles/article-format-panel";
-import { ArticleIllustrationPanel } from "@/components/articles/article-illustration-panel";
-import { ArticleQualityPanel } from "@/components/articles/article-quality-panel";
-import { ArticleSlopPanel } from "@/components/articles/article-slop-panel";
-import { ArticleShareActions } from "@/components/articles/article-share-actions";
+import { EditorCollapsibleSection } from "@/components/articles/editor-collapsible-section";
+import { EditorPanelPlaceholder } from "@/components/articles/editor-panel-placeholder";
+import dynamic from "next/dynamic";
 import {
   getReviseIntentPrompt,
   type ReviseIntent,
@@ -17,6 +16,7 @@ import {
   ButtonSpinner,
   GeneratingIndicator,
 } from "@/components/ui/generating-indicator";
+import { ContextHelp } from "@/components/ui/context-help";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
@@ -70,6 +70,35 @@ import type {
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+const ArticleQualityPanelLazy = dynamic(
+  () =>
+    import("@/components/articles/article-quality-panel").then((m) => m.ArticleQualityPanel),
+  { loading: () => <EditorPanelPlaceholder lines={4} /> },
+);
+
+const ArticleSlopPanelLazy = dynamic(
+  () => import("@/components/articles/article-slop-panel").then((m) => m.ArticleSlopPanel),
+  { loading: () => <EditorPanelPlaceholder lines={3} /> },
+);
+
+const ArticleFormatPanelLazy = dynamic(
+  () => import("@/components/articles/article-format-panel").then((m) => m.ArticleFormatPanel),
+  { loading: () => <EditorPanelPlaceholder lines={5} /> },
+);
+
+const ArticleShareActionsLazy = dynamic(
+  () => import("@/components/articles/article-share-actions").then((m) => m.ArticleShareActions),
+  { loading: () => <EditorPanelPlaceholder lines={2} /> },
+);
+
+const ArticleIllustrationPanelLazy = dynamic(
+  () =>
+    import("@/components/articles/article-illustration-panel").then(
+      (m) => m.ArticleIllustrationPanel,
+    ),
+  { loading: () => <EditorPanelPlaceholder lines={3} /> },
+);
+
 type Props = {
   articleId: string;
   /** In wizard: hide nav/extra panels; show draft + refine + CTA inline. */
@@ -82,6 +111,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
   const tArticles = useTranslations("setup.articles");
   const tRef = useTranslations("setup.articles.refinement");
   const tCta = useTranslations("setup.articles.cta");
+  const tDetailHelp = useTranslations("setup.articles.detail.help");
   const tIll = useTranslations("setup.articles.illustration");
   const tQuality = useTranslations("setup.articles.quality");
   const { user, loading: authLoading } = useAuth();
@@ -254,14 +284,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
   const refinementSyncGenRef = useRef(0);
   const refineSectionRef = useRef<HTMLDivElement>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
-
-  const scrollToRefineSection = useCallback(() => {
-    refineSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
-
-  const scrollToCtaSection = useCallback(() => {
-    ctaSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+  const [refineSectionOpen, setRefineSectionOpen] = useState(true);
+  const [ctaSectionOpen, setCtaSectionOpen] = useState(false);
 
   function getMergedRefinement(): ArticleRefinement | null {
     if (!article) return null;
@@ -272,7 +296,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
     illustrationFetchedRef.current = null;
   }, [articleId]);
 
-  useEffect(() => {
+  const ensureCtaLoaded = useCallback(() => {
     if (
       !loaded ||
       !article ||
@@ -283,22 +307,40 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
       return;
     }
     ctaFetchedRef.current = true;
-    loadCtaSuggestions();
+    void loadCtaSuggestions();
   }, [loaded, article, personaText, loadCtaSuggestions]);
 
   useEffect(() => {
-    if (!loaded || !article) return;
+    if (!isWizard) return;
+    ensureCtaLoaded();
+  }, [isWizard, ensureCtaLoaded]);
+
+  const ensureIllustrationLoaded = useCallback(() => {
+    if (!article) return;
     if (article.illustration) {
       setIllustration(article.illustration);
       return;
     }
     if (illustrationFetchedRef.current === article.id) return;
-    const loadEarly = !isWizard && article.status !== "validated";
-    const loadWhenValidated = article.status === "validated";
-    if (!loadEarly && !loadWhenValidated) return;
     illustrationFetchedRef.current = article.id;
-    void loadIllustrationSuggestions(false, { quiet: loadWhenValidated });
-  }, [loaded, article, loadIllustrationSuggestions, isWizard]);
+    const quiet = article.status === "validated";
+    void loadIllustrationSuggestions(false, { quiet });
+  }, [article, loadIllustrationSuggestions]);
+
+  const scrollToRefineSection = useCallback(() => {
+    setRefineSectionOpen(true);
+    requestAnimationFrame(() => {
+      refineSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
+
+  const scrollToCtaSection = useCallback(() => {
+    setCtaSectionOpen(true);
+    ensureCtaLoaded();
+    requestAnimationFrame(() => {
+      ctaSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [ensureCtaLoaded]);
 
   useEffect(() => {
     if (!user || !article?.refinement || article.status === "validated") return;
@@ -899,6 +941,15 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
         </div>
       )}
 
+      {!isWizard && (
+        <p className="flex flex-wrap items-center gap-2 text-xs font-medium text-ns-secondary">
+          <span>{t("personaAlignedHint")}</span>
+          <ContextHelp label={tDetailHelp("topicDna.label")}>
+            {tDetailHelp("topicDna.body")}
+          </ContextHelp>
+        </p>
+      )}
+
       <div className="rounded-2xl border border-gray-100 bg-ns-surface p-5">
         <div className="mb-3 flex justify-end">
           <LinkedInCharCount
@@ -938,6 +989,40 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
         )}
       </div>
 
+      {isValidated && article.exportText && (
+        <div className="space-y-3">
+          <div className="flex items-end justify-between gap-3">
+            <h2 className="text-sm font-medium text-ns-tertiary">{t("exportPreview")}</h2>
+            <LinkedInCharCount text={article.exportText} />
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-4">
+            <pre className="whitespace-pre-wrap text-sm text-ns-tertiary">{article.exportText}</pre>
+            <ArticleIllustrationPanelLazy
+              variant="inline"
+              illustration={illustration}
+              loading={illustrationLoading}
+              regenerateDisabled={isBusy}
+              onRegenerate={() => {
+                illustrationFetchedRef.current = null;
+                void loadIllustrationSuggestions(true);
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={onCopyToLinkedIn}
+              className="rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90"
+            >
+              {copied ? t("copied") : t("copyLinkedIn")}
+            </button>
+          </div>
+          <p className="text-xs font-medium leading-relaxed text-ns-secondary">
+            {t("copyLinkedInHint")}
+          </p>
+        </div>
+      )}
+
       {hasBodyLink && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {article.newsSource
@@ -946,8 +1031,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
         </div>
       )}
 
-      {!isValidated && (
-        <ArticleQualityPanel
+      {isWizard && !isValidated && (
+        <ArticleQualityPanelLazy
           article={article}
           scores={qualityScores}
           alternativeHooks={alternativeHooks}
@@ -960,40 +1045,144 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
         />
       )}
 
-      {!isWizard && (
-        <ArticleSlopPanel
-          article={article}
-          disabled={isBusy}
-          onSave={async (slop) => {
-            if (!user) return;
-            await saveArticleSlopAnalysis(user.uid, article.id, slop);
-            setArticle((prev) => (prev ? { ...prev, slopAnalysis: slop } : prev));
-          }}
-        />
-      )}
+      {!isValidated && article.refinement && !isWizard ? (
+        <EditorCollapsibleSection
+          title={tRef("title")}
+          hint={t("sections.refine.hint")}
+          open={refineSectionOpen}
+          onOpenChange={setRefineSectionOpen}
+          sectionRef={refineSectionRef}
+        >
+          <div className="space-y-5 rounded-xl bg-ns-brand-light p-4 md:p-5">
+          {error && errorScope === "refine" && (
+            <UserErrorBanner
+              surface="article-editor-refine"
+              userMessage={error}
+              technical={errorDetail ?? errorApiRawDetail}
+              errorCode={errorApiCode}
+              detail={errorApiRawDetail}
+            >
+              {error === t("reviseFailed") && !errorDetail && !errorApiRawDetail ? (
+                <p className="text-xs">{t("reviseFailedHint")}</p>
+              ) : null}
+              {(error === tArticles("noLlmKey") ||
+                error === tArticles("invalidApiKey") ||
+                error === tArticles("insufficientCredits") ||
+                error === tArticles("needPersona")) && (
+                <Link
+                  href={
+                    error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+                  }
+                  className="text-sm font-semibold underline"
+                >
+                  →{" "}
+                  {error === tArticles("needPersona")
+                    ? tArticles("goPersona")
+                    : tArticles("goLlmSetup")}
+                </Link>
+              )}
+            </UserErrorBanner>
+          )}
+          {article.refinement.questions.map((q) => {
+            const answerOptions: RefinementAnswer[] = ["yes", "no", "partial"];
+            const questionLabel =
+              q.id === "tone"
+                ? tRef("tone")
+                : q.id === "theme"
+                  ? tRef("theme")
+                  : q.id === "length"
+                    ? tRef("length")
+                    : tRef("hook");
 
-      <ArticleFormatPanel
-        article={article}
-        personaText={personaText}
-        disabled={isBusy}
-        onUpdated={(patch) => setArticle((prev) => (prev ? { ...prev, ...patch } : prev))}
-      />
+            return (
+              <div key={q.id} className="space-y-2">
+                <p className="text-sm font-medium text-ns-tertiary">{questionLabel}</p>
+                <div className="flex flex-wrap gap-2">
+                  {answerOptions.map((ans) => (
+                    <button
+                      key={ans}
+                      type="button"
+                      onClick={() => setQuestionAnswer(q.id, { answer: ans })}
+                      className={
+                        q.answer === ans
+                          ? "rounded-sm bg-ns-tertiary px-3 py-1.5 text-xs font-black uppercase text-ns-primary"
+                          : "rounded-lg border border-ns-alternate px-3 py-1.5 text-xs text-ns-tertiary"
+                      }
+                    >
+                      {ans === "yes"
+                        ? tRef("answers.yes")
+                        : ans === "no"
+                          ? tRef("answers.no")
+                          : tRef("answers.partial")}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  value={q.comment ?? ""}
+                  onChange={(e) =>
+                    setQuestionAnswer(q.id, { comment: e.target.value })
+                  }
+                  placeholder={tRef("commentPlaceholder")}
+                  className={INPUT_CLASS}
+                />
+              </div>
+            );
+          })}
+          <ToneEdgePicker
+            value={(article.refinement.toneEdge ?? "default") as ToneEdge}
+            onChange={(toneEdge) => updateRefinement({ toneEdge })}
+          />
+          <EmojiLevelPicker
+            variant="compact"
+            value={(article.refinement.emojiLevel ?? "light") as EmojiLevel}
+            onChange={(emojiLevel) => updateRefinement({ emojiLevel })}
+          />
+          {(article.refinement.toneEdge ?? "default") === "corrosive" && (
+            <button
+              type="button"
+              disabled={isBusy}
+              onClick={onApplyFeedback}
+              className="w-full rounded-lg border border-ns-tertiary/30 bg-white px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50 sm:w-auto"
+            >
+              {isRevising ? tRef("toneEdgeApplying") : tRef("toneEdgeApply")}
+            </button>
+          )}
+          <div>
+            <label className={LABEL_CLASS}>{tRef("globalComment")}</label>
+            <textarea
+              rows={3}
+              value={article.refinement.globalComment ?? ""}
+              onChange={(e) => updateRefinement({ globalComment: e.target.value })}
+              className={INPUT_CLASS}
+            />
+          </div>
+          {isRevising && (
+            <GeneratingIndicator
+              label={t("revising")}
+              hint={t("revisingHint")}
+              className="max-w-xl"
+            />
+          )}
+          <button
+            type="button"
+            disabled={isBusy || (!canApplyFeedback && !isRevising)}
+            onClick={() => void onApplyFeedback()}
+            className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isRevising && (
+              <ButtonSpinner className="border-ns-alternate border-t-zinc-800" />
+            )}
+            {isRevising ? t("revising") : t("applyFeedback")}
+          </button>
+          {!canApplyFeedback && !isRevising && (
+            <p className="text-xs text-ns-secondary">{t("needRefinement")}</p>
+          )}
+          </div>
+        </EditorCollapsibleSection>
+      ) : null}
 
-      {!isWizard && <ArticleShareActions article={article} />}
-
-      {!isWizard && !isValidated && (
-        <ArticleIllustrationPanel
-          illustration={illustration}
-          loading={illustrationLoading}
-          regenerateDisabled={isBusy}
-          onRegenerate={() => {
-            illustrationFetchedRef.current = null;
-            void loadIllustrationSuggestions(true);
-          }}
-        />
-      )}
-
-      {!isValidated && article.refinement && (
+      {!isValidated && article.refinement && isWizard ? (
         <div
           ref={refineSectionRef}
           className="rounded-xl border border-gray-100 bg-ns-brand-light p-5 space-y-5"
@@ -1124,15 +1313,179 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
             <p className="text-xs text-ns-secondary">{t("needRefinement")}</p>
           )}
         </div>
+      ) : null}
+
+      {!isWizard && !isValidated && (
+        <EditorCollapsibleSection
+          title={t("sections.analysis.title")}
+          hint={t("sections.analysis.hint")}
+          defaultOpen={false}
+          lazyMount
+        >
+          <ArticleQualityPanelLazy
+            article={article}
+            scores={qualityScores}
+            alternativeHooks={alternativeHooks}
+            critique={qualityCritique}
+            loading={qualityLoading}
+            onAnalyze={loadQualityAnalysis}
+            onApplyHook={onApplyHook}
+            onReviseIntent={onReviseIntent}
+            revising={isRevising}
+          />
+          <ArticleSlopPanelLazy
+            article={article}
+            disabled={isBusy}
+            onSave={async (slop) => {
+              if (!user) return;
+              await saveArticleSlopAnalysis(user.uid, article.id, slop);
+              setArticle((prev) => (prev ? { ...prev, slopAnalysis: slop } : prev));
+            }}
+          />
+        </EditorCollapsibleSection>
       )}
 
-      {!isValidated && (
+      {!isWizard && isValidated && (
+        <EditorCollapsibleSection
+          title={t("sections.analysis.title")}
+          hint={t("sections.analysis.hintValidated")}
+          defaultOpen={false}
+          lazyMount
+        >
+          <ArticleSlopPanelLazy
+            article={article}
+            disabled={isBusy}
+            onSave={async (slop) => {
+              if (!user) return;
+              await saveArticleSlopAnalysis(user.uid, article.id, slop);
+              setArticle((prev) => (prev ? { ...prev, slopAnalysis: slop } : prev));
+            }}
+          />
+        </EditorCollapsibleSection>
+      )}
+
+      {!isValidated && !isWizard ? (
+        <EditorCollapsibleSection
+          title={tCta("title")}
+          hint={t("sections.cta.hint")}
+          open={ctaSectionOpen}
+          onOpenChange={(open) => {
+            setCtaSectionOpen(open);
+            if (open) ensureCtaLoaded();
+          }}
+          onFirstOpen={ensureCtaLoaded}
+          lazyMount
+          sectionRef={ctaSectionRef}
+        >
+          <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-ns-tertiary">{tCta("title")}</h3>
+              <ContextHelp label={tCta("help.label")}>{tCta("help.body")}</ContextHelp>
+            </div>
+            <button
+              type="button"
+              disabled={ctaLoading || isBusy}
+              onClick={loadCtaSuggestions}
+              className="text-sm text-ns-secondary underline hover:text-ns-tertiary"
+            >
+              {ctaLoading ? "…" : tCta("regenerate")}
+            </button>
+          </div>
+          <p className="text-sm text-ns-secondary">{tCta("subtitle")}</p>
+
+          {ctaLoading && (
+            <GeneratingIndicator label={tCta("loading")} className="max-w-md" />
+          )}
+
+          {!ctaLoading && ctaSuggestions.length > 0 && (
+            <ul className="grid gap-3 sm:grid-cols-3">
+              {ctaSuggestions.map((s) => (
+                <li key={s.style}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCtaStyle(s.style)}
+                    className={
+                      selectedCtaStyle === s.style
+                        ? "h-full w-full rounded-xl border-2 border-zinc-900 bg-ns-brand-light p-4 text-left"
+                        : "h-full w-full rounded-2xl border border-gray-100 bg-ns-surface p-4 text-left hover:border-ns-primary"
+                    }
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-wide text-ns-secondary">
+                      {tCta(`styles.${s.style}`)}
+                    </p>
+                    <p className="mt-2 text-sm text-ns-tertiary whitespace-pre-wrap">
+                      {s.text}
+                    </p>
+                    {s.linkUrl && (
+                      <p className="mt-2 truncate text-xs text-ns-secondary">{s.linkUrl}</p>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {isValidating && (
+            <GeneratingIndicator
+              label={t("validating")}
+              hint={t("validatingHint")}
+              className="max-w-xl"
+            />
+          )}
+
+          <button
+            type="button"
+            disabled={isBusy || ctaLoading || !selectedCtaStyle}
+            onClick={() => void onValidate()}
+            className="inline-flex items-center gap-2 rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
+          >
+            {isValidating && <ButtonSpinner />}
+            {isValidating ? t("validating") : t("validate")}
+          </button>
+          {error && errorScope === "cta" && (
+            <UserErrorBanner
+              surface="article-editor-validate"
+              userMessage={error}
+              technical={errorApiRawDetail}
+              errorCode={errorApiCode}
+              detail={errorApiRawDetail}
+            >
+              {error === t("validateFailed") ? (
+                <p className="text-xs">{t("validateFailedHint")}</p>
+              ) : null}
+              {(error === tArticles("noLlmKey") ||
+                error === tArticles("invalidApiKey") ||
+                error === tArticles("insufficientCredits") ||
+                error === tArticles("needPersona")) && (
+                <Link
+                  href={
+                    error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+                  }
+                  className="text-sm font-semibold underline"
+                >
+                  →{" "}
+                  {error === tArticles("needPersona")
+                    ? tArticles("goPersona")
+                    : tArticles("goLlmSetup")}
+                </Link>
+              )}
+            </UserErrorBanner>
+          )}
+          </div>
+        </EditorCollapsibleSection>
+      ) : null}
+
+      {!isValidated && isWizard ? (
         <div
           ref={ctaSectionRef}
           className="rounded-xl border border-gray-100 p-5 space-y-4"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-base font-semibold text-ns-tertiary">{tCta("title")}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-ns-tertiary">{tCta("title")}</h2>
+              <ContextHelp label={tCta("help.label")}>{tCta("help.body")}</ContextHelp>
+            </div>
             <button
               type="button"
               disabled={ctaLoading || isBusy}
@@ -1223,40 +1576,65 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
             </UserErrorBanner>
           )}
         </div>
+      ) : null}
+
+      {!isWizard ? (
+        <EditorCollapsibleSection
+          title={t("sections.enrich.title")}
+          hint={t("sections.enrich.hint")}
+          defaultOpen={false}
+          lazyMount
+        >
+          <ArticleFormatPanelLazy
+            article={article}
+            personaText={personaText}
+            disabled={isBusy}
+            onUpdated={(patch) =>
+              setArticle((prev) => (prev ? { ...prev, ...patch } : prev))
+            }
+          />
+        </EditorCollapsibleSection>
+      ) : (
+        <ArticleFormatPanel
+          article={article}
+          personaText={personaText}
+          disabled={isBusy}
+          onUpdated={(patch) => setArticle((prev) => (prev ? { ...prev, ...patch } : prev))}
+        />
       )}
 
-      {isValidated && article.exportText && (
-        <div className="space-y-3">
-          <div className="flex items-end justify-between gap-3">
-            <h2 className="text-sm font-medium text-ns-tertiary">{t("exportPreview")}</h2>
-            <LinkedInCharCount text={article.exportText} />
-          </div>
-          <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-4">
-            <pre className="whitespace-pre-wrap text-sm text-ns-tertiary">{article.exportText}</pre>
-            <ArticleIllustrationPanel
-              variant="inline"
-              illustration={illustration}
-              loading={illustrationLoading}
-              regenerateDisabled={isBusy}
-              onRegenerate={() => {
-                illustrationFetchedRef.current = null;
-                void loadIllustrationSuggestions(true);
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <button
-              type="button"
-              onClick={onCopyToLinkedIn}
-              className="rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90"
-            >
-              {copied ? t("copied") : t("copyLinkedIn")}
-            </button>
-          </div>
-          <p className="text-xs font-medium leading-relaxed text-ns-secondary">
-            {t("copyLinkedInHint")}
-          </p>
-        </div>
+      {!isWizard && (
+        <EditorCollapsibleSection
+          title={t("sections.share.title")}
+          hint={t("sections.share.hint")}
+          defaultOpen={false}
+          lazyMount
+        >
+          <ArticleShareActionsLazy article={article} />
+        </EditorCollapsibleSection>
+      )}
+
+      {!isWizard && !isValidated && (
+        <EditorCollapsibleSection
+          title={t("sections.illustration.title")}
+          hint={t("sections.illustration.hint")}
+          defaultOpen={false}
+          lazyMount
+          onFirstOpen={ensureIllustrationLoaded}
+          onOpenChange={(open) => {
+            if (open) ensureIllustrationLoaded();
+          }}
+        >
+          <ArticleIllustrationPanelLazy
+            illustration={illustration}
+            loading={illustrationLoading}
+            regenerateDisabled={isBusy}
+            onRegenerate={() => {
+              illustrationFetchedRef.current = null;
+              void loadIllustrationSuggestions(true);
+            }}
+          />
+        </EditorCollapsibleSection>
       )}
 
       {error && isValidated && (
