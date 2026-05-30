@@ -67,7 +67,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       );
       setBootstrap(result);
     } catch {
-      const isPlatformAdmin = isPlatformAdminIdentity({ uid: user.uid, email });
+      const isPlatformAdmin = isPlatformAdminIdentity({ uid: user.uid, email: emailForBootstrap });
       setActiveWorkspaceScope({ ownerId: user.uid, accountId: DEFAULT_ACCOUNT_ID });
       setBootstrap({
         scope: { ownerId: user.uid, accountId: DEFAULT_ACCOUNT_ID },
