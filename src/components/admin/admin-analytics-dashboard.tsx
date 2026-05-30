@@ -3,7 +3,7 @@
 import { KpiCard, UsageBarChart } from "@/components/admin/analytics-charts";
 import { UsersMetricsTable } from "@/components/admin/users-metrics-table";
 import { useAuth } from "@/components/auth/auth-provider";
-import { useWorkspace } from "@/contexts/workspace-context";
+import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import type {
   AdminAnalyticsPayload,
   ConnectionGranularity,
@@ -18,7 +18,7 @@ const PERIODS: ConnectionGranularity[] = ["day", "week", "month", "year"];
 export function AdminAnalyticsDashboard() {
   const t = useTranslations("adminAnalytics");
   const { user } = useAuth();
-  const { isPlatformAdmin, loading: workspaceLoading } = useWorkspace();
+  const isPlatformAdmin = usePlatformAdmin();
   const router = useRouter();
   const [period, setPeriod] = useState<ConnectionGranularity>("day");
   const [data, setData] = useState<AdminAnalyticsPayload | null>(null);
@@ -57,15 +57,18 @@ export function AdminAnalyticsDashboard() {
   }, [user, router, t]);
 
   useEffect(() => {
-    if (workspaceLoading) return;
     if (!isPlatformAdmin) {
       router.replace("/articles/new");
       return;
     }
     void load();
-  }, [isPlatformAdmin, workspaceLoading, load, router]);
+  }, [isPlatformAdmin, load, router]);
 
-  if (workspaceLoading || (!data && loading)) {
+  if (!isPlatformAdmin) {
+    return null;
+  }
+
+  if (!data && loading) {
     return (
       <div className="rounded-2xl border border-ns-alternate/80 bg-ns-surface p-8 text-center text-ns-secondary">
         {t("loading")}

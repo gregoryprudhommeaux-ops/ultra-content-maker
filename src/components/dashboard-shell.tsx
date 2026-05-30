@@ -4,8 +4,8 @@ import { NsMark } from "@/components/brand/ns-mark";
 import { AppFooter } from "@/components/layout/app-footer";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useAuth } from "@/components/auth/auth-provider";
+import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
-import { useWorkspace } from "@/contexts/workspace-context";
 import {
   DASHBOARD_NAV,
   dashboardNavNeedsAttention,
@@ -40,7 +40,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const t = useTranslations();
   const { signOut } = useAuth();
   const { progress } = useOnboardingProgress();
-  const { isPlatformAdmin } = useWorkspace();
+  const isPlatformAdmin = usePlatformAdmin();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -104,6 +104,21 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </Link>
         </div>
         <AccountSwitcher />
+        {isPlatformAdmin && (
+          <nav className="flex flex-col gap-1 border-b border-white/10 px-3 py-3" aria-label="Admin">
+            <p className={`${META_LABEL} mb-1 px-2 text-white/45`}>{t("nav.admin")}</p>
+            <Link
+              href="/admin/analytics"
+              className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                isAdminRoute
+                  ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
+                  : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
+              }`}
+            >
+              {t("adminAnalytics.shortNav")}
+            </Link>
+          </nav>
+        )}
         <div className="mt-auto border-t border-white/10 px-3 py-3">
           <LanguageSwitcher variant="dark" />
           <button
@@ -198,6 +213,19 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <div className="px-1">
               <AccountSwitcher />
             </div>
+            {isPlatformAdmin && (
+              <Link
+                href="/admin/analytics"
+                className={`mx-4 mb-2 rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
+                  isAdminRoute
+                    ? "bg-ns-primary/15 text-ns-primary"
+                    : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
+                }`}
+                onClick={() => setMenuOpen(false)}
+              >
+                {t("adminAnalytics.shortNav")}
+              </Link>
+            )}
             <nav className="flex flex-col gap-1 px-4">
             {navItems.map((item) => (
               <Link

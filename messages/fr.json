@@ -229,6 +229,7 @@
     }
   },
   "adminAnalytics": {
+    "shortNav": "Statistiques plateforme",
     "eyebrow": "Plateforme",
     "title": "Tableau de bord d'utilisation",
     "subtitle": "Connexions uniques, profils, brouillons et activité par utilisateur.",

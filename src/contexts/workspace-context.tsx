@@ -9,8 +9,10 @@ import {
   type WorkspaceBootstrapResult,
 } from "@/lib/workspace/accounts";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
+import { isPlatformAdminEmail } from "@/lib/workspace/platform-admin";
+import { resolveUserEmail } from "@/lib/workspace/resolve-user-email";
 import type { ContentLanguage } from "@/types/workspace";
-import type { WorkspaceScope } from "@/lib/workspace/workspace-scope";
+import { DEFAULT_ACCOUNT_ID, setActiveWorkspaceScope, type WorkspaceScope } from "@/lib/workspace/workspace-scope";
 import {
   createContext,
   useCallback,
@@ -41,21 +43,36 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
-    if (!user?.email) {
+    if (!user) {
       setBootstrap(null);
       setLoading(false);
       return;
     }
+
+    const email = resolveUserEmail(user);
+    if (!email) {
+      setBootstrap(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const result = await bootstrapWorkspaceAccounts(
         user.uid,
-        user.email,
+        email,
         user.displayName ?? undefined,
       );
       setBootstrap(result);
     } catch {
-      setBootstrap(null);
+      const isPlatformAdmin = isPlatformAdminEmail(email);
+      setActiveWorkspaceScope({ ownerId: user.uid, accountId: DEFAULT_ACCOUNT_ID });
+      setBootstrap({
+        scope: { ownerId: user.uid, accountId: DEFAULT_ACCOUNT_ID },
+        accounts: [],
+        isPlatformAdmin,
+        canManageAccounts: isPlatformAdmin,
+      });
     } finally {
       setLoading(false);
     }

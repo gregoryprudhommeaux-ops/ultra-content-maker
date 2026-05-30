@@ -4,8 +4,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  orderBy,
-  query,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -81,9 +79,10 @@ export function storeActiveAccountId(ownerId: string, accountId: string): void {
 }
 
 export async function listWorkspaceAccounts(ownerId: string): Promise<WorkspaceAccount[]> {
-  const q = query(accountsCollection(ownerId), orderBy("updatedAt", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => mapAccount(d.id, d.data()));
+  const snap = await getDocs(accountsCollection(ownerId));
+  return snap.docs
+    .map((d) => mapAccount(d.id, d.data()))
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 }
 
 export async function getWorkspaceAccount(
@@ -230,7 +229,11 @@ async function ensureDefaultAccount(
   const hasLegacy = await legacyAuthorExists(ownerId);
   const hasScoped = await scopedAuthorExists(ownerId, DEFAULT_ACCOUNT_ID);
   if (hasLegacy && !hasScoped) {
-    await copyLegacyWorkspaceToAccount(ownerId, DEFAULT_ACCOUNT_ID);
+    try {
+      await copyLegacyWorkspaceToAccount(ownerId, DEFAULT_ACCOUNT_ID);
+    } catch {
+      /* legacy fallback reads still work at root paths */
+    }
   }
 
   const created = await getWorkspaceAccount(ownerId, DEFAULT_ACCOUNT_ID);
@@ -257,7 +260,11 @@ export async function bootstrapWorkspaceAccounts(
     email.split("@")[0]?.replace(/\./g, " ") ||
     "Mon compte";
 
-  await ensureDefaultAccount(ownerId, defaultName);
+  try {
+    await ensureDefaultAccount(ownerId, defaultName);
+  } catch {
+    /* continue with default scope below */
+  }
 
   if (isPlatformAdmin) {
     const db = getClientFirestore();
@@ -269,17 +276,35 @@ export async function bootstrapWorkspaceAccounts(
     }
   }
 
-  let accounts = await listWorkspaceAccounts(ownerId);
-  if (accounts.length === 0) {
-    await ensureDefaultAccount(ownerId, defaultName);
+  let accounts: WorkspaceAccount[] = [];
+  try {
     accounts = await listWorkspaceAccounts(ownerId);
+  } catch {
+    accounts = [];
+  }
+
+  if (accounts.length === 0) {
+    try {
+      await ensureDefaultAccount(ownerId, defaultName);
+      accounts = await listWorkspaceAccounts(ownerId);
+    } catch {
+      accounts = [];
+    }
   }
 
   const storedId = readStoredActiveAccountId(ownerId);
-  const userSnap = await getDoc(doc(getClientFirestore()!, "users", ownerId));
-  const userActiveId = userSnap.exists()
-    ? (userSnap.data().activeAccountId as string | undefined)
-    : undefined;
+  let userActiveId: string | undefined;
+  try {
+    const db = getClientFirestore();
+    if (db) {
+      const userSnap = await getDoc(doc(db, "users", ownerId));
+      userActiveId = userSnap.exists()
+        ? (userSnap.data().activeAccountId as string | undefined)
+        : undefined;
+    }
+  } catch {
+    userActiveId = undefined;
+  }
 
   const preferredId =
     (storedId && accounts.some((a) => a.id === storedId) && storedId) ||

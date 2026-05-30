@@ -1,6 +1,7 @@
 "use client";
 
 import { useWorkspace } from "@/contexts/workspace-context";
+import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { META_LABEL, INPUT_CLASS } from "@/lib/ui/nextstep";
 import type { ContentLanguage } from "@/types/workspace";
 import { useTranslations } from "next-intl";
@@ -10,6 +11,7 @@ const LANGUAGES: ContentLanguage[] = ["fr", "en", "es"];
 
 export function AccountSwitcher() {
   const t = useTranslations("workspaceAccounts");
+  const isPlatformAdmin = usePlatformAdmin();
   const {
     accounts,
     activeAccount,
@@ -37,11 +39,11 @@ export function AccountSwitcher() {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [open]);
 
-  if (!loading && !canManageAccounts && accounts.length <= 1) {
+  if (!isPlatformAdmin && !loading && !canManageAccounts && accounts.length <= 1) {
     return null;
   }
 
-  if (loading && accounts.length === 0) {
+  if (isPlatformAdmin && loading && accounts.length === 0) {
     return (
       <div className="px-3 py-4">
         <p className={`${META_LABEL} text-white/50`}>{t("loading")}</p>

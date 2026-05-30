@@ -229,6 +229,7 @@
     }
   },
   "adminAnalytics": {
+    "shortNav": "Platform analytics",
     "eyebrow": "Platform",
     "title": "Usage dashboard",
     "subtitle": "Unique connections, profiles, drafts, and per-user activity.",

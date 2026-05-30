@@ -229,6 +229,7 @@
     }
   },
   "adminAnalytics": {
+    "shortNav": "Estadísticas plataforma",
     "eyebrow": "Plataforma",
     "title": "Panel de uso",
     "subtitle": "Conexiones únicas, perfiles, borradores y actividad por usuario.",
