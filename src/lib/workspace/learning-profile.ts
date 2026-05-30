@@ -11,8 +11,8 @@ import type {
 } from "@/types/workspace";
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
 import { emojiInstruction } from "@/lib/prompts/emoji-instruction";
-import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
+import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
 
 const DOC_ID = "profile";
 const MAX_ENTRIES = 40;
@@ -39,18 +39,11 @@ export interface LearningProfile {
   updatedAt: Date;
 }
 
-function learningRef(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return doc(db, "users", userId, "learning", DOC_ID);
-}
-
 export async function getLearningProfile(
   userId: string,
 ): Promise<LearningProfile | null> {
-  const snap = await getDoc(learningRef(userId));
-  if (!snap.exists()) return null;
-  const d = snap.data();
+  const d = await readScopedOrLegacyDoc(userId, (x) => x, "learning", DOC_ID);
+  if (!d) return null;
   const entries = (d.entries as LearningEntry[] | undefined) ?? [];
   return {
     emojiLevel: (d.emojiLevel as EmojiLevel) ?? "light",
@@ -98,7 +91,7 @@ export async function saveDefaultEmojiLevel(
   ].slice(0, MAX_ENTRIES);
 
   await setDoc(
-    learningRef(userId),
+    workspaceDocRef(userId, "learning", DOC_ID),
     {
       emojiLevel,
       preferredCtaStyle: prev?.preferredCtaStyle ?? null,
@@ -125,7 +118,7 @@ export async function appendLearningEntries(
     ...(prev?.entries ?? []),
   ].slice(0, MAX_ENTRIES);
 
-  await setDoc(learningRef(userId), {
+  await setDoc(workspaceDocRef(userId, "learning", DOC_ID), {
     emojiLevel: prefs?.emojiLevel ?? prev?.emojiLevel ?? "light",
     preferredCtaStyle: prefs?.preferredCtaStyle ?? prev?.preferredCtaStyle ?? null,
     entries: merged.map(serializeLearningEntry),
@@ -166,7 +159,7 @@ export async function replaceArticleRefinementLearning(
   );
   const merged: LearningEntry[] = [...fromRefinement, ...kept].slice(0, MAX_ENTRIES);
 
-  await setDoc(learningRef(userId), {
+  await setDoc(workspaceDocRef(userId, "learning", DOC_ID), {
     emojiLevel: prev?.emojiLevel ?? "light",
     preferredCtaStyle: prev?.preferredCtaStyle ?? null,
     entries: merged.map(serializeLearningEntry),

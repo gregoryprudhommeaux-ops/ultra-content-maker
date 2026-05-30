@@ -1,13 +1,7 @@
-import { doc, getDoc, setDoc, serverTimestamp, type DocumentData } from "firebase/firestore";
+import { setDoc, serverTimestamp, type DocumentData } from "firebase/firestore";
 import type { PersonaPerformanceInsights } from "@/types/workspace";
-import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
-
-function insightsRef(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return doc(db, "users", userId, "insights", "performance");
-}
+import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
 
 function mapInsights(d: DocumentData): PersonaPerformanceInsights {
   return {
@@ -21,9 +15,9 @@ function mapInsights(d: DocumentData): PersonaPerformanceInsights {
 export async function getPersonaPerformanceInsights(
   userId: string,
 ): Promise<PersonaPerformanceInsights | null> {
-  const snap = await getDoc(insightsRef(userId));
-  if (!snap.exists()) return null;
-  return mapInsights(snap.data());
+  const d = await readScopedOrLegacyDoc(userId, (x) => x, "insights", "performance");
+  if (!d) return null;
+  return mapInsights(d);
 }
 
 export async function savePersonaPerformanceInsights(
@@ -31,7 +25,7 @@ export async function savePersonaPerformanceInsights(
   data: Omit<PersonaPerformanceInsights, "generatedAt"> & { generatedAt?: Date },
 ) {
   await setDoc(
-    insightsRef(userId),
+    workspaceDocRef(userId, "insights", "performance"),
     {
       summary: data.summary,
       suggestions: data.suggestions,

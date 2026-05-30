@@ -10,18 +10,27 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import type { CtaDoc } from "@/types/workspace";
-import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
+import {
+  legacyCollectionRef,
+  legacyDocRef,
+  workspaceCollectionRef,
+  workspaceDocRef,
+} from "./workspace-scope";
 
 function ctasCollection(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return collection(db, "users", userId, "ctas");
+  return workspaceCollectionRef(userId, "ctas");
+}
+
+async function listCtasSnap(userId: string) {
+  const q = query(ctasCollection(userId), orderBy("updatedAt", "desc"));
+  const scoped = await getDocs(q);
+  if (!scoped.empty) return scoped;
+  return getDocs(query(legacyCollectionRef(userId, "ctas"), orderBy("updatedAt", "desc")));
 }
 
 export async function listCtas(userId: string): Promise<CtaDoc[]> {
-  const q = query(ctasCollection(userId), orderBy("updatedAt", "desc"));
-  const snap = await getDocs(q);
+  const snap = await listCtasSnap(userId);
   return snap.docs.map((d) => {
     const data = d.data();
     return {
@@ -37,9 +46,10 @@ export async function listCtas(userId: string): Promise<CtaDoc[]> {
 }
 
 export async function getCta(userId: string, ctaId: string): Promise<CtaDoc | null> {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  const snap = await getDoc(doc(db, "users", userId, "ctas", ctaId));
+  let snap = await getDoc(workspaceDocRef(userId, "ctas", ctaId));
+  if (!snap.exists()) {
+    snap = await getDoc(legacyDocRef(userId, "ctas", ctaId));
+  }
   if (!snap.exists()) return null;
   const data = snap.data();
   return {

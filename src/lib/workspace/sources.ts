@@ -13,13 +13,22 @@ import type {
   SourceType,
 } from "@/types/workspace";
 import { isInspirationAspect } from "@/lib/inspiration/aspects";
-import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
+import {
+  legacyCollectionRef,
+  legacyDocRef,
+  workspaceCollectionRef,
+  workspaceDocRef,
+} from "./workspace-scope";
 
 function sourcesCollection(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return collection(db, "users", userId, "sources");
+  return workspaceCollectionRef(userId, "sources");
+}
+
+async function listSourcesSnap(userId: string) {
+  const scoped = await getDocs(sourcesCollection(userId));
+  if (!scoped.empty) return scoped;
+  return getDocs(legacyCollectionRef(userId, "sources"));
 }
 
 function normalizeCategory(
@@ -61,7 +70,7 @@ function normalizeUrl(url: string): string {
 }
 
 export async function listSources(userId: string): Promise<SourceLink[]> {
-  const snap = await getDocs(sourcesCollection(userId));
+  const snap = await listSourcesSnap(userId);
   const items = snap.docs.map((d, i) =>
     mapDoc(d.id, d.data() as Record<string, unknown>, i),
   );
@@ -120,9 +129,7 @@ export async function addSource(userId: string, input: AddSourceInput): Promise<
 }
 
 export async function removeSource(userId: string, sourceId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await deleteDoc(doc(db, "users", userId, "sources", sourceId));
+  await deleteDoc(workspaceDocRef(userId, "sources", sourceId));
   const { getAuthorProfile } = await import("@/lib/workspace/author");
   const author = await getAuthorProfile(userId);
   const { syncPersonaAfterProfileChange } = await import(

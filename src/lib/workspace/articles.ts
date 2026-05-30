@@ -61,13 +61,28 @@ import {
   sanitizeCtaLinkUrl,
   stripGenericLinkedInUrlsFromText,
 } from "@/lib/linkedin/sanitize-post-link";
-import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
+import {
+  legacyCollectionRef,
+  legacyDocRef,
+  workspaceCollectionRef,
+  workspaceDocRef,
+} from "./workspace-scope";
 
 function articlesCollection(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return collection(db, "users", userId, "articles");
+  return workspaceCollectionRef(userId, "articles");
+}
+
+function articleDocRef(userId: string, articleId: string) {
+  return workspaceDocRef(userId, "articles", articleId);
+}
+
+async function articlesCollectionWithLegacyFallback(userId: string) {
+  const scoped = articlesCollection(userId);
+  const scopedSnap = await getDocs(query(scoped, orderBy("createdAt", "desc")));
+  if (!scopedSnap.empty) return scopedSnap;
+  const legacy = legacyCollectionRef(userId, "articles");
+  return getDocs(query(legacy, orderBy("createdAt", "desc")));
 }
 
 function mapArticle(id: string, d: DocumentData): ArticleDoc {
@@ -154,8 +169,7 @@ export async function listRecentArticles(
 }
 
 export async function listArticleBatches(userId: string): Promise<ArticleBatchGroup[]> {
-  const q = query(articlesCollection(userId), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
+  const snap = await articlesCollectionWithLegacyFallback(userId);
   const byBatch = new Map<string, ArticleDoc[]>();
   for (const d of snap.docs) {
     const article = mapArticle(d.id, d.data());
@@ -179,9 +193,10 @@ export async function getArticle(
   userId: string,
   articleId: string,
 ): Promise<ArticleDoc | null> {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  const snap = await getDoc(doc(db, "users", userId, "articles", articleId));
+  let snap = await getDoc(articleDocRef(userId, articleId));
+  if (!snap.exists()) {
+    snap = await getDoc(legacyDocRef(userId, "articles", articleId));
+  }
   if (!snap.exists()) return null;
   return mapArticle(snap.id, snap.data());
 }
@@ -240,9 +255,7 @@ export async function saveArticleFormatPlan(
   articleId: string,
   plan: PostFormatPlan,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     postFormatPlan: {
       primaryFormat: plan.primaryFormat,
       rationale: plan.rationale,
@@ -259,13 +272,11 @@ export async function saveArticleTranslation(
   variant: ArticleTranslationVariant,
   existing?: ArticleTranslations,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
   const translations: ArticleTranslations = {
     ...(existing ?? {}),
     [targetLanguage]: variant,
   };
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     translations,
     updatedAt: serverTimestamp(),
   });
@@ -277,9 +288,7 @@ export async function saveArticleRepurpose(
   articleId: string,
   repurpose: ArticleRepurpose,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     repurpose: {
       carousel: repurpose.carousel
         ? {
@@ -305,9 +314,7 @@ export async function saveArticlePerformanceSignals(
   articleId: string,
   signals: ArticlePerformanceSignals,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     performanceSignals: {
       saves: signals.saves ?? null,
       qualifiedComments: signals.qualifiedComments ?? null,
@@ -326,9 +333,7 @@ export async function saveArticleSlopAnalysis(
   articleId: string,
   slop: SlopAnalysis,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     slopAnalysis: {
       humanScore: slop.humanScore,
       slopScore: slop.slopScore,
@@ -344,9 +349,7 @@ export async function saveSuggestedFirstComment(
   articleId: string,
   comment: string,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     suggestedFirstComment: comment,
     updatedAt: serverTimestamp(),
   });
@@ -357,9 +360,7 @@ export async function saveArticleScheduledPublishAt(
   articleId: string,
   scheduledPublishAt: Date | null,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     scheduledPublishAt: scheduledPublishAt ?? null,
     updatedAt: serverTimestamp(),
   });
@@ -374,9 +375,7 @@ export async function saveArticleQuality(
     qualityCritique?: string;
   },
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     qualityScores: data.qualityScores,
     alternativeHooks: data.alternativeHooks.slice(0, 3),
     qualityCritique: data.qualityCritique ?? null,
@@ -389,9 +388,7 @@ export async function saveArticleIllustration(
   articleId: string,
   illustration: ArticleIllustration,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     illustration: {
       format: illustration.format,
       rationale: illustration.rationale,
@@ -414,9 +411,7 @@ export async function updateArticleContent(
     hashtags?: string[];
   },
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     hook: data.hook,
     body: data.body,
     ps: data.ps ?? null,
@@ -439,9 +434,7 @@ export async function replaceArticleDraft(
   },
   postBrief?: PostBrief,
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     hook: item.hook,
     body: item.body,
     ps: item.ps ?? null,
@@ -467,9 +460,7 @@ export async function saveArticleRefinement(
   refinement: ArticleRefinement,
   status: ArticleStatus = "refining",
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     refinement: serializeRefinementForFirestore(refinement),
     status,
     updatedAt: serverTimestamp(),
@@ -499,10 +490,8 @@ export async function validateArticleWithCta(
   },
   hashtags?: string[],
 ) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
   const normalized = hashtags?.length ? normalizeHashtags(hashtags) : [];
-  await updateDoc(doc(db, "users", userId, "articles", articleId), {
+  await updateDoc(articleDocRef(userId, articleId), {
     exportText,
     hashtags: normalized.length ? normalized : null,
     selectedCtaId: cta.ctaId ?? null,

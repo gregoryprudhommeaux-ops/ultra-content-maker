@@ -1,11 +1,11 @@
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { serverTimestamp, setDoc } from "firebase/firestore";
 import type {
   AuthorProfile,
   ContentLanguage,
   CreationStrategyCache,
 } from "@/types/workspace";
-import { getClientFirestore } from "@/lib/firebase/client";
 import { isValidUrl, toDate } from "./firestore-utils";
+import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
 
 /** Minimum fields before the author step counts as complete (onboarding gate). */
 export function isAuthorProfileMinimumComplete(
@@ -27,16 +27,9 @@ export function isAuthorProfileMinimumComplete(
 
 const DOC_ID = "profile";
 
-function authorRef(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return doc(db, "users", userId, "author", DOC_ID);
-}
-
 export async function getAuthorProfile(userId: string): Promise<AuthorProfile | null> {
-  const snap = await getDoc(authorRef(userId));
-  if (!snap.exists()) return null;
-  const d = snap.data();
+  const d = await readScopedOrLegacyDoc(userId, (x) => x, "author", DOC_ID);
+  if (!d) return null;
   return {
     linkedinProfileUrl: d.linkedinProfileUrl as string | undefined,
     linkedinActivityUrl: d.linkedinActivityUrl as string | undefined,
@@ -66,7 +59,7 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
     input.status ??
     (prev?.status === "complete" ? "complete" : "in_progress");
   await setDoc(
-    authorRef(userId),
+    workspaceDocRef(userId, "author", DOC_ID),
     {
       linkedinProfileUrl: input.linkedinProfileUrl ?? prev?.linkedinProfileUrl ?? null,
       linkedinActivityUrl:

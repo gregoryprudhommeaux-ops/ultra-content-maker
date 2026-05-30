@@ -1,7 +1,13 @@
 import type { OnboardingProgress } from "@/lib/workspace/onboarding-progress";
 import { APP_HOME_PATH } from "@/lib/workspace/onboarding-routes";
 
-export type DashboardNavKey = "home" | "create" | "library" | "profile" | "settings";
+export type DashboardNavKey =
+  | "home"
+  | "create"
+  | "library"
+  | "profile"
+  | "settings"
+  | "admin";
 
 export type DashboardNavItem = {
   key: DashboardNavKey;
@@ -34,6 +40,12 @@ export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
     match: ["/setup/author", "/setup/audience", "/persona"],
   },
   { key: "settings", href: "/setup/llm", labelKey: "settings", match: ["/setup/llm"] },
+  {
+    key: "admin",
+    href: "/admin/analytics",
+    labelKey: "admin",
+    match: ["/admin"],
+  },
 ] as const;
 
 const LOCALE_PREFIXES = ["/en", "/fr", "/es"] as const;
