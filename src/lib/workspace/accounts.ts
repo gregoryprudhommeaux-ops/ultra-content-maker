@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import type { ContentLanguage, SetupStep } from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
-import { isPlatformAdminEmail } from "./platform-admin";
+import { isPlatformAdminIdentity } from "./platform-admin";
 import { toDate } from "./firestore-utils";
 import {
   DEFAULT_ACCOUNT_ID,
@@ -254,7 +254,7 @@ export async function bootstrapWorkspaceAccounts(
   email: string,
   displayName?: string,
 ): Promise<WorkspaceBootstrapResult> {
-  const isPlatformAdmin = isPlatformAdminEmail(email);
+  const isPlatformAdmin = isPlatformAdminIdentity({ uid: ownerId, email });
   const defaultName =
     displayName?.trim() ||
     email.split("@")[0]?.replace(/\./g, " ") ||

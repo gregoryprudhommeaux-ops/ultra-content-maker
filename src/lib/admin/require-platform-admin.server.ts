@@ -1,6 +1,12 @@
 import { getAdminAuth } from "@/lib/firebase/admin-auth";
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import { isPlatformAdminEmail } from "@/lib/workspace/platform-admin";
+import { ensurePlatformAdminClaim } from "@/lib/admin/ensure-platform-admin-claim.server";
+import {
+  hasPlatformAdminClaim,
+  isPlatformAdminEmail,
+  isPlatformAdminIdentity,
+  isPlatformAdminUid,
+} from "@/lib/workspace/platform-admin";
 import { NextResponse } from "next/server";
 
 export type PlatformAdminContext = {
@@ -26,15 +32,28 @@ export async function requirePlatformAdmin(
     const authUser = await adminAuth.getUser(decoded.uid);
     const email = (authUser.email ?? decoded.email ?? "").trim();
 
-    if (isPlatformAdminEmail(email)) {
-      return { uid: decoded.uid, email };
+    if (hasPlatformAdminClaim(decoded as Record<string, unknown>)) {
+      return { uid: decoded.uid, email: email || "admin@local" };
+    }
+
+    if (
+      isPlatformAdminIdentity({
+        uid: decoded.uid,
+        email,
+        claims: decoded as Record<string, unknown>,
+      })
+    ) {
+      await ensurePlatformAdminClaim(adminAuth, decoded.uid, email).catch(() => {});
+      return { uid: decoded.uid, email: email || "admin@local" };
     }
 
     const db = getAdminFirestore();
     if (db) {
       const userSnap = await db.doc(`users/${decoded.uid}`).get();
       if (userSnap.exists && userSnap.data()?.isPlatformAdmin === true) {
-        return { uid: decoded.uid, email: email || "admin@local" };
+        if (isPlatformAdminUid(decoded.uid) || isPlatformAdminEmail(email)) {
+          return { uid: decoded.uid, email: email || "admin@local" };
+        }
       }
     }
 

@@ -9,7 +9,7 @@ import {
   type WorkspaceBootstrapResult,
 } from "@/lib/workspace/accounts";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
-import { isPlatformAdminEmail } from "@/lib/workspace/platform-admin";
+import { isPlatformAdminIdentity, isPlatformAdminUid } from "@/lib/workspace/platform-admin";
 import { resolveUserEmail } from "@/lib/workspace/resolve-user-email";
 import type { ContentLanguage } from "@/types/workspace";
 import { DEFAULT_ACCOUNT_ID, setActiveWorkspaceScope, type WorkspaceScope } from "@/lib/workspace/workspace-scope";
@@ -50,22 +50,24 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
 
     const email = resolveUserEmail(user);
-    if (!email) {
+    if (!email && !isPlatformAdminUid(user.uid)) {
       setBootstrap(null);
       setLoading(false);
       return;
     }
 
+    const emailForBootstrap = email ?? "admin@local";
+
     setLoading(true);
     try {
       const result = await bootstrapWorkspaceAccounts(
         user.uid,
-        email,
+        emailForBootstrap,
         user.displayName ?? undefined,
       );
       setBootstrap(result);
     } catch {
-      const isPlatformAdmin = isPlatformAdminEmail(email);
+      const isPlatformAdmin = isPlatformAdminIdentity({ uid: user.uid, email });
       setActiveWorkspaceScope({ ownerId: user.uid, accountId: DEFAULT_ACCOUNT_ID });
       setBootstrap({
         scope: { ownerId: user.uid, accountId: DEFAULT_ACCOUNT_ID },

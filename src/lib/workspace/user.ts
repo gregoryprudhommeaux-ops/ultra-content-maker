@@ -1,7 +1,7 @@
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import type { SetupStep, UserDoc } from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
-import { isPlatformAdminEmail } from "./platform-admin";
+import { isPlatformAdminIdentity } from "./platform-admin";
 import {
   getActiveWorkspaceScope,
   requireWorkspaceScope,
@@ -39,7 +39,7 @@ export async function ensureUserDoc(
   const existing = await getUserDoc(userId);
   if (existing) return existing;
   const now = serverTimestamp();
-  const isPlatformAdmin = isPlatformAdminEmail(email);
+  const isPlatformAdmin = isPlatformAdminIdentity({ uid: userId, email });
   await setDoc(userRef(userId), {
     email,
     displayName: displayName ?? null,

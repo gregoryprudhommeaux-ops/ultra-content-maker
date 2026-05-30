@@ -1,5 +1,6 @@
 import { getAdminAuth } from "@/lib/firebase/admin-auth";
 import { getAdminFirestore } from "@/lib/firebase/admin";
+import { ensurePlatformAdminClaim } from "@/lib/admin/ensure-platform-admin-claim.server";
 import { recordLoginEvent } from "@/lib/admin/record-login-event.server";
 import {
   isLoginNotifyConfigured,
@@ -59,6 +60,10 @@ export async function POST(request: Request) {
         locale: payload.locale,
       }).catch(() => {});
     }
+
+    await ensurePlatformAdminClaim(adminAuth, decoded.uid, user.email ?? decoded.email).catch(
+      () => {},
+    );
 
     if (isLoginNotifyConfigured()) {
       await sendLoginNotificationEmail(payload);
