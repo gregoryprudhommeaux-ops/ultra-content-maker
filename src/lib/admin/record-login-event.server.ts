@@ -37,9 +37,13 @@ export async function recordLoginEvent(
   const ts = FieldValue.serverTimestamp();
 
   const loginRef = db.collection("analytics").doc("logins").collection("events").doc();
-  const dailyRef = db.doc(`analytics/daily/${dateKey}/users/${payload.userId}`);
-  const monthlyRef = db.doc(`analytics/monthly/${monthKey}/users/${payload.userId}`);
-  const yearlyRef = db.doc(`analytics/yearly/${yearKey}/users/${payload.userId}`);
+  const dailyRef = db.collection("analytics").doc("daily").collection(dateKey).doc(payload.userId);
+  const monthlyRef = db
+    .collection("analytics")
+    .doc("monthly")
+    .collection(monthKey)
+    .doc(payload.userId);
+  const yearlyRef = db.collection("analytics").doc("yearly").collection(yearKey).doc(payload.userId);
 
   const batch = db.batch();
 

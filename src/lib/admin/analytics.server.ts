@@ -102,23 +102,35 @@ function computeCompletionPercent(
   return Math.round((steps.filter(Boolean).length / steps.length) * 100);
 }
 
+function dailyUsersCollection(db: Firestore, dateKey: string) {
+  return db.collection("analytics").doc("daily").collection(dateKey);
+}
+
+function monthlyUsersCollection(db: Firestore, monthKey: string) {
+  return db.collection("analytics").doc("monthly").collection(monthKey);
+}
+
+function yearlyUsersCollection(db: Firestore, yearKey: string) {
+  return db.collection("analytics").doc("yearly").collection(yearKey);
+}
+
 async function countUniqueUsersForDay(db: Firestore, dateKey: string): Promise<number> {
-  const snap = await db.collection(`analytics/daily/${dateKey}/users`).get();
+  const snap = await dailyUsersCollection(db, dateKey).get();
   return snap.size;
 }
 
 async function uniqueUsersForDay(db: Firestore, dateKey: string): Promise<Set<string>> {
-  const snap = await db.collection(`analytics/daily/${dateKey}/users`).get();
+  const snap = await dailyUsersCollection(db, dateKey).get();
   return new Set(snap.docs.map((d) => d.id));
 }
 
 async function countUniqueUsersForMonth(db: Firestore, monthKey: string): Promise<number> {
-  const snap = await db.collection(`analytics/monthly/${monthKey}/users`).get();
+  const snap = await monthlyUsersCollection(db, monthKey).get();
   return snap.size;
 }
 
 async function countUniqueUsersForYear(db: Firestore, yearKey: string): Promise<number> {
-  const snap = await db.collection(`analytics/yearly/${yearKey}/users`).get();
+  const snap = await yearlyUsersCollection(db, yearKey).get();
   return snap.size;
 }
 
@@ -150,9 +162,10 @@ export async function loadConnectionBuckets(
       const start = addDays(weekStart, w * -7);
       const end = addDays(start, 6);
       const union = new Set<string>();
-      for (let d = 0; d < 7; d += 1) {
-        const day = addDays(start, d);
-        const ids = await uniqueUsersForDay(db, dateKeyFromDate(day));
+      const daySets = await Promise.all(
+        Array.from({ length: 7 }, (_, d) => uniqueUsersForDay(db, dateKeyFromDate(addDays(start, d)))),
+      );
+      for (const ids of daySets) {
         ids.forEach((id) => union.add(id));
       }
       buckets.push({
