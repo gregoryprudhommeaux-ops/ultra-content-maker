@@ -25,6 +25,11 @@ export function yearKeyFromDate(date: Date): string {
   return String(date.getUTCFullYear());
 }
 
+/** Per-user login aggregate: analytics/users/byUser/{userId} */
+export function userLoginStatsRef(db: Firestore, userId: string) {
+  return db.collection("analytics").doc("users").collection("byUser").doc(userId);
+}
+
 /** Persists login/signup for admin analytics (server-only writes). */
 export async function recordLoginEvent(
   db: Firestore,
@@ -69,7 +74,7 @@ export async function recordLoginEvent(
   batch.set(yearlyRef, hitPayload, { merge: true });
 
   batch.set(
-    db.doc(`analytics/users/${payload.userId}`),
+    userLoginStatsRef(db, payload.userId),
     {
       email: payload.email,
       displayName: payload.displayName ?? null,
