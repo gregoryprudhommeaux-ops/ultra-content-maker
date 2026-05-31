@@ -44,7 +44,14 @@ export function AdminAnalyticsDashboard() {
         return;
       }
       if (!res.ok) {
-        setError(t("errors.loadFailed"));
+        const body = (await res.json().catch(() => null)) as { error?: string; detail?: string } | null;
+        const code = body?.error ?? `http_${res.status}`;
+        const detail = body?.detail?.trim();
+        setError(
+          detail
+            ? `${t("errors.loadFailed")} (${code}: ${detail})`
+            : `${t("errors.loadFailed")} (${code})`,
+        );
         return;
       }
       const json = (await res.json()) as AdminAnalyticsPayload;
