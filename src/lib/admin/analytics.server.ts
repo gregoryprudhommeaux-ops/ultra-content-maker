@@ -1,5 +1,5 @@
 import type { Firestore, DocumentData } from "firebase-admin/firestore";
-import { dateKeyFromDate, monthKeyFromDate, yearKeyFromDate } from "./record-login-event.server";
+import { dateKeyFromDate, monthKeyFromDate, userLoginStatsRef, yearKeyFromDate } from "./record-login-event.server";
 
 export type ConnectionGranularity = "day" | "week" | "month" | "year";
 
@@ -308,7 +308,7 @@ async function getUserLoginStats(
   db: Firestore,
   userId: string,
 ): Promise<{ hits: number; lastLoginAt: string | null }> {
-  const snap = await db.doc(`analytics/users/${userId}`).get();
+  const snap = await userLoginStatsRef(db, userId).get();
   if (!snap.exists) {
     return { hits: 0, lastLoginAt: null };
   }
