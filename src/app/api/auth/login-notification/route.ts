@@ -1,4 +1,7 @@
 import { getAdminAuth } from "@/lib/firebase/admin-auth";
+import { getAdminFirestore } from "@/lib/firebase/admin";
+import { ensurePlatformAdminClaim } from "@/lib/admin/ensure-platform-admin-claim.server";
+import { recordLoginEvent } from "@/lib/admin/record-login-event.server";
 import {
   isLoginNotifyConfigured,
   sendLoginNotificationEmail,
@@ -19,10 +22,6 @@ export async function POST(request: Request) {
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (!isLoginNotifyConfigured()) {
-    return NextResponse.json({ error: "email_not_configured" }, { status: 503 });
   }
 
   const adminAuth = getAdminAuth();
@@ -50,7 +49,26 @@ export async function POST(request: Request) {
       locale: body.locale,
     };
 
-    await sendLoginNotificationEmail(payload);
+    const db = getAdminFirestore();
+    if (db) {
+      await recordLoginEvent(db, {
+        userId: payload.userId,
+        email: payload.userEmail,
+        displayName: payload.displayName,
+        method: payload.method,
+        event: payload.event,
+        locale: payload.locale,
+      }).catch(() => {});
+    }
+
+    await ensurePlatformAdminClaim(adminAuth, decoded.uid, user.email ?? decoded.email).catch(
+      () => {},
+    );
+
+    if (isLoginNotifyConfigured()) {
+      await sendLoginNotificationEmail(payload);
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     const detail = e instanceof Error ? e.message : "Unknown";

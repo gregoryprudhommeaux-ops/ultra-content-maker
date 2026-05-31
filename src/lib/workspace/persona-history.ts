@@ -16,8 +16,13 @@ import type {
   PersonaStatus,
   ProfileGapQuestion,
 } from "@/types/workspace";
-import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
+import {
+  legacyCollectionRef,
+  legacyDocRef,
+  workspaceCollectionRef,
+  workspaceDocRef,
+} from "./workspace-scope";
 
 /** Max versions shown and kept (most recent updates). */
 export const PERSONA_HISTORY_LIST_MAX = 10;
@@ -30,9 +35,16 @@ export function personaHistoryCutoffDate(): Date {
 }
 
 function historyCollection(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return collection(db, "users", userId, "personaHistory");
+  return workspaceCollectionRef(userId, "personaHistory");
+}
+
+async function listHistorySnap(userId: string, max: number) {
+  const q = query(historyCollection(userId), orderBy("createdAt", "desc"), limit(max));
+  const scoped = await getDocs(q);
+  if (!scoped.empty) return scoped;
+  return getDocs(
+    query(legacyCollectionRef(userId, "personaHistory"), orderBy("createdAt", "desc"), limit(max)),
+  );
 }
 
 function mapHistoryDoc(
@@ -94,12 +106,7 @@ export async function appendPersonaHistory(
 export async function listPersonaHistory(
   userId: string,
 ): Promise<PersonaHistoryEntry[]> {
-  const q = query(
-    historyCollection(userId),
-    orderBy("createdAt", "desc"),
-    limit(PERSONA_HISTORY_LIST_MAX),
-  );
-  const snap = await getDocs(q);
+  const snap = await listHistorySnap(userId, PERSONA_HISTORY_LIST_MAX);
   return snap.docs
     .map((d) => mapHistoryDoc(d.id, d.data() as Record<string, unknown>))
     .filter((e) => isWithinRetention(e.createdAt));
@@ -109,9 +116,10 @@ export async function getPersonaHistoryEntry(
   userId: string,
   historyId: string,
 ): Promise<PersonaHistoryEntry | null> {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  const snap = await getDoc(doc(db, "users", userId, "personaHistory", historyId));
+  let snap = await getDoc(workspaceDocRef(userId, "personaHistory", historyId));
+  if (!snap.exists()) {
+    snap = await getDoc(legacyDocRef(userId, "personaHistory", historyId));
+  }
   if (!snap.exists()) return null;
   const entry = mapHistoryDoc(snap.id, snap.data() as Record<string, unknown>);
   if (!isWithinRetention(entry.createdAt)) return null;

@@ -228,6 +228,79 @@
       "googleRedirectTimeout": "Google sign-in timed out. Click Cancel, then try the Google button again (popup) or use email sign-in."
     }
   },
+  "adminAnalytics": {
+    "shortNav": "Platform analytics",
+    "eyebrow": "Platform",
+    "title": "Usage dashboard",
+    "subtitle": "Unique connections, profiles, drafts, and per-user activity.",
+    "generatedAt": "Updated {date}",
+    "loading": "Loading analytics…",
+    "refresh": "Refresh",
+    "retry": "Retry",
+    "backToApp": "Back to app",
+    "footnote": "Connections are tracked from the next login/signup onward. Usage score combines articles, rework, and logins.",
+    "periods": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "year": "Year"
+    },
+    "connections": {
+      "title": "Unique connections",
+      "subtitle": {
+        "day": "Last 30 days",
+        "week": "Last 12 weeks (user union)",
+        "month": "Last 12 months",
+        "year": "Last 5 years"
+      }
+    },
+    "kpis": {
+      "registeredUsers": "Registered users",
+      "workspaceAccounts": "Client workspaces",
+      "avgCompletion": "Avg. profile completion",
+      "draftArticles": "Draft posts",
+      "reworkedArticles": "Reworked posts",
+      "totalArticles": "Total posts"
+    },
+    "usersTable": {
+      "title": "Users (sortable ranking)",
+      "rank": "#",
+      "name": "Name",
+      "email": "Email",
+      "linkedin": "LinkedIn",
+      "createdAt": "Signed up",
+      "accounts": "Accounts",
+      "completion": "Profile %",
+      "drafts": "Drafts",
+      "reworked": "Reworked",
+      "totalArticles": "Posts",
+      "usage": "Score",
+      "lastLogin": "Last login",
+      "sortBy": "Click a column header to sort",
+      "noLinkedin": "—",
+      "noDate": "—"
+    },
+    "errors": {
+      "notAuthenticated": "Session expired.",
+      "loadFailed": "Could not load analytics."
+    }
+  },
+  "workspaceAccounts": {
+    "label": "Active account",
+    "loading": "Loading…",
+    "unnamed": "Unnamed account",
+    "createAccount": "+ New client account",
+    "newAccountName": "Account name",
+    "newAccountNamePlaceholder": "e.g. Company A",
+    "newAccountLanguage": "Primary content language",
+    "createSubmit": "Create",
+    "cancel": "Cancel",
+    "language": {
+      "fr": "French",
+      "en": "English",
+      "es": "Spanish"
+    }
+  },
   "nav": {
     "home": "Home",
     "create": "Create",
@@ -240,6 +313,7 @@
     "articles": "Articles",
     "settings": "Settings",
     "signOut": "Sign out",
+    "admin": "Admin",
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
   },

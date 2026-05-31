@@ -1,20 +1,13 @@
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { serverTimestamp, setDoc } from "firebase/firestore";
 import type { AudienceProfile } from "@/types/workspace";
-import { getClientFirestore } from "@/lib/firebase/client";
 import { toDate } from "./firestore-utils";
+import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
 
 const DOC_ID = "profile";
 
-function audienceRef(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return doc(db, "users", userId, "audience", DOC_ID);
-}
-
 export async function getAudienceProfile(userId: string): Promise<AudienceProfile | null> {
-  const snap = await getDoc(audienceRef(userId));
-  if (!snap.exists()) return null;
-  const d = snap.data();
+  const d = await readScopedOrLegacyDoc(userId, (x) => x, "audience", DOC_ID);
+  if (!d) return null;
   return {
     targetLabel: d.targetLabel as string | undefined,
     contentFocus: d.contentFocus as string | undefined,
@@ -30,7 +23,7 @@ export async function saveAudienceProfile(
   input: Partial<Omit<AudienceProfile, "updatedAt">> & { skipped?: boolean },
 ) {
   await setDoc(
-    audienceRef(userId),
+    workspaceDocRef(userId, "audience", DOC_ID),
     {
       targetLabel: input.targetLabel ?? null,
       contentFocus: input.contentFocus ?? null,

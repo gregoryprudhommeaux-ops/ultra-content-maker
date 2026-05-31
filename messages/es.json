@@ -228,6 +228,79 @@
       "googleRedirectTimeout": "El inicio de sesión con Google ha caducado. Pulsa Cancelar y vuelve a intentarlo (popup) o usa el correo."
     }
   },
+  "adminAnalytics": {
+    "shortNav": "Estadísticas plataforma",
+    "eyebrow": "Plataforma",
+    "title": "Panel de uso",
+    "subtitle": "Conexiones únicas, perfiles, borradores y actividad por usuario.",
+    "generatedAt": "Actualizado el {date}",
+    "loading": "Cargando estadísticas…",
+    "refresh": "Actualizar",
+    "retry": "Reintentar",
+    "backToApp": "Volver a la app",
+    "footnote": "Las conexiones se contarán desde el próximo inicio de sesión. La puntuación combina artículos, retrabajo y conexiones.",
+    "periods": {
+      "day": "Día",
+      "week": "Semana",
+      "month": "Mes",
+      "year": "Año"
+    },
+    "connections": {
+      "title": "Conexiones únicas",
+      "subtitle": {
+        "day": "Últimos 30 días",
+        "week": "Últimas 12 semanas",
+        "month": "Últimos 12 meses",
+        "year": "Últimos 5 años"
+      }
+    },
+    "kpis": {
+      "registeredUsers": "Cuentas creadas",
+      "workspaceAccounts": "Espacios cliente",
+      "avgCompletion": "Perfil medio %",
+      "draftArticles": "Borradores",
+      "reworkedArticles": "Retrabajados",
+      "totalArticles": "Artículos totales"
+    },
+    "usersTable": {
+      "title": "Usuarios (clasificación)",
+      "rank": "#",
+      "name": "Nombre",
+      "email": "Correo",
+      "linkedin": "LinkedIn",
+      "createdAt": "Alta",
+      "accounts": "Cuentas",
+      "completion": "Perfil %",
+      "drafts": "Borradores",
+      "reworked": "Retrabajados",
+      "totalArticles": "Artículos",
+      "usage": "Puntuación",
+      "lastLogin": "Última conexión",
+      "sortBy": "Pulse un encabezado para ordenar",
+      "noLinkedin": "—",
+      "noDate": "—"
+    },
+    "errors": {
+      "notAuthenticated": "Sesión caducada.",
+      "loadFailed": "No se pudieron cargar las estadísticas."
+    }
+  },
+  "workspaceAccounts": {
+    "label": "Cuenta activa",
+    "loading": "Cargando…",
+    "unnamed": "Cuenta sin nombre",
+    "createAccount": "+ Nueva cuenta cliente",
+    "newAccountName": "Nombre de la cuenta",
+    "newAccountNamePlaceholder": "ej. Empresa A",
+    "newAccountLanguage": "Idioma principal del contenido",
+    "createSubmit": "Crear",
+    "cancel": "Cancelar",
+    "language": {
+      "fr": "Francés",
+      "en": "Inglés",
+      "es": "Español"
+    }
+  },
   "nav": {
     "home": "Inicio",
     "create": "Crear",
@@ -240,6 +313,7 @@
     "articles": "Artículos",
     "settings": "Ajustes",
     "signOut": "Cerrar sesión",
+    "admin": "Admin",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú"
   },

@@ -1,6 +1,13 @@
 import type { OnboardingProgress } from "@/lib/workspace/onboarding-progress";
+import { APP_HOME_PATH } from "@/lib/workspace/onboarding-routes";
 
-export type DashboardNavKey = "home" | "create" | "library" | "profile" | "settings";
+export type DashboardNavKey =
+  | "home"
+  | "create"
+  | "library"
+  | "profile"
+  | "settings"
+  | "admin";
 
 export type DashboardNavItem = {
   key: DashboardNavKey;
@@ -12,7 +19,7 @@ export type DashboardNavItem = {
 };
 
 export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
-  { key: "home", href: "/start", labelKey: "home", match: ["/start"] },
+  { key: "home", href: APP_HOME_PATH, labelKey: "home", match: [APP_HOME_PATH, "/start"] },
   {
     key: "create",
     href: "/articles/new",
@@ -33,13 +40,37 @@ export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
     match: ["/setup/author", "/setup/audience", "/persona"],
   },
   { key: "settings", href: "/setup/llm", labelKey: "settings", match: ["/setup/llm"] },
+  {
+    key: "admin",
+    href: "/admin/analytics",
+    labelKey: "admin",
+    match: ["/admin"],
+  },
 ] as const;
+
+const LOCALE_PREFIXES = ["/en", "/fr", "/es"] as const;
+
+/** Pathname without query, trailing slash, or locale prefix (for nav matching). */
+export function normalizeDashboardPathname(pathname: string | null): string | null {
+  if (!pathname) return null;
+  let path = pathname.split("?")[0].replace(/\/$/, "") || "/";
+  for (const locale of LOCALE_PREFIXES) {
+    if (path === locale) return "/";
+    if (path.startsWith(`${locale}/`)) {
+      path = path.slice(locale.length) || "/";
+      break;
+    }
+  }
+  return path;
+}
 
 export function isDashboardNavActive(
   item: DashboardNavItem,
   pathname: string | null,
 ): boolean {
-  if (!pathname) return false;
+  const path = normalizeDashboardPathname(pathname);
+  if (!path) return false;
+  pathname = path;
   if (
     item.exclude?.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
@@ -50,6 +81,37 @@ export function isDashboardNavActive(
   return item.match.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
+}
+
+/** Creation assistant entry — same URL as Accueil when `canAccessCreation`. */
+export function isCreationHubPath(pathname: string | null): boolean {
+  const path = normalizeDashboardPathname(pathname);
+  if (!path) return false;
+  return path === "/articles/new" || path.startsWith("/articles/new/");
+}
+
+/** Accueil = landing `/` · Créer = `/articles/new` · hub setup = `/start`. */
+export function resolveDashboardNavActive(
+  item: DashboardNavItem,
+  pathname: string | null,
+  _progress?: OnboardingProgress | null | undefined,
+): boolean {
+  const path = normalizeDashboardPathname(pathname);
+  if (!path) return false;
+
+  if (item.key === "home") {
+    return (
+      path === APP_HOME_PATH ||
+      path === "/start" ||
+      path.startsWith("/start/")
+    );
+  }
+
+  if (item.key === "create") {
+    return isCreationHubPath(path);
+  }
+
+  return isDashboardNavActive(item, pathname);
 }
 
 /** Small dot when setup attention is needed on this nav item. */

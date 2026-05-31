@@ -7,7 +7,7 @@ import type {
   PersonaStatus,
   ProfileGapQuestion,
 } from "@/types/workspace";
-import { getClientFirestore } from "@/lib/firebase/client";
+import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
 import { appendPersonaHistory, getPersonaHistoryEntry } from "./persona-history";
 import { toDate } from "./firestore-utils";
 import {
@@ -29,9 +29,7 @@ const CURRENT_ID = "current";
 const MAX_RECENT_CHANGES = 8;
 
 function personaRef(userId: string) {
-  const db = getClientFirestore();
-  if (!db) throw new Error("Firestore not available");
-  return doc(db, "users", userId, "persona", CURRENT_ID);
+  return workspaceDocRef(userId, "persona", CURRENT_ID);
 }
 
 function promptsEqual(a: string, b: string) {
@@ -97,9 +95,8 @@ async function snapshotCurrentPersona(
 }
 
 export async function getPersona(userId: string): Promise<PersonaDoc | null> {
-  const snap = await getDoc(personaRef(userId));
-  if (!snap.exists()) return null;
-  const d = snap.data();
+  const d = await readScopedOrLegacyDoc(userId, (x) => x, "persona", CURRENT_ID);
+  if (!d) return null;
   return {
     promptText: (d.promptText as string) ?? "",
     status: (d.status as PersonaStatus) ?? "none",

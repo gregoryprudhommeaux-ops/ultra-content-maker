@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { getClientAuth } from "@/lib/firebase/client";
 import { useRouter } from "@/i18n/navigation";
@@ -12,6 +13,7 @@ type PendingAction = "reset" | "delete" | null;
 export function ProfileDataManagement() {
   const t = useTranslations("setup.llm.dataManagement");
   const { user } = useAuth();
+  const { scope } = useWorkspace();
   const router = useRouter();
   const [pending, setPending] = useState<PendingAction>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,11 @@ export function ProfileDataManagement() {
 
     const res = await fetch(path, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accountId: scope?.accountId }),
     });
 
     if (!res.ok) {

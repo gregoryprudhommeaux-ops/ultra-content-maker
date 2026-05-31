@@ -4,13 +4,15 @@ import { NsMark } from "@/components/brand/ns-mark";
 import { AppFooter } from "@/components/layout/app-footer";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useAuth } from "@/components/auth/auth-provider";
+import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import {
   DASHBOARD_NAV,
   dashboardNavNeedsAttention,
-  isDashboardNavActive,
+  resolveDashboardNavActive,
   type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
+import { AccountSwitcher } from "@/components/workspace/account-switcher";
 import { resolveHomeHrefFromProgress } from "@/lib/workspace/onboarding-routes";
 import { META_LABEL } from "@/lib/ui/nextstep";
 import { Link, usePathname } from "@/i18n/navigation";
@@ -18,8 +20,10 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 
 function navLinkClass(active: boolean) {
-  return `${META_LABEL} transition-colors ${
-    active ? "text-ns-primary" : "text-white/70 hover:text-ns-primary"
+  return `${META_LABEL} rounded-md px-2 py-1 transition-colors ${
+    active
+      ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
+      : "text-white/70 hover:bg-white/5 hover:text-ns-primary"
   }`;
 }
 
@@ -36,6 +40,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const t = useTranslations();
   const { signOut } = useAuth();
   const { progress } = useOnboardingProgress();
+  const isPlatformAdmin = usePlatformAdmin();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -74,16 +79,59 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   function isNavItemActive(item: DashboardNavItem) {
-    if (item.key === "home" && progress?.completion.isOnboardingComplete) {
-      return pathname === "/start" || pathname?.startsWith("/start/");
-    }
-    return isDashboardNavActive(item, pathname);
+    return resolveDashboardNavActive(item, pathname, progress);
   }
 
   const logoHref = resolveHomeHrefFromProgress(progress);
 
+  const navItems = DASHBOARD_NAV.filter(
+    (item) => item.key !== "admin" || isPlatformAdmin,
+  );
+
+  const isAdminRoute = pathname?.includes("/admin");
+
   return (
-    <div className="flex min-h-screen flex-col bg-ns-background">
+    <div className="flex min-h-screen bg-ns-background">
+      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-white/10 bg-ns-hero lg:flex">
+        <div className="border-b border-white/10 px-4 py-4">
+          <Link
+            href={logoHref}
+            className="flex items-center gap-2 rounded-lg transition-opacity hover:opacity-90"
+            aria-label={t("nav.home")}
+          >
+            <NsMark size="sm" />
+            <span className="truncate text-sm font-bold text-white">{t("app.name")}</span>
+          </Link>
+        </div>
+        <AccountSwitcher />
+        {isPlatformAdmin && (
+          <nav className="flex flex-col gap-1 border-b border-white/10 px-3 py-3" aria-label="Admin">
+            <p className={`${META_LABEL} mb-1 px-2 text-white/45`}>{t("nav.admin")}</p>
+            <Link
+              href="/admin/analytics"
+              className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                isAdminRoute
+                  ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
+                  : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
+              }`}
+            >
+              {t("adminAnalytics.shortNav")}
+            </Link>
+          </nav>
+        )}
+        <div className="mt-auto border-t border-white/10 px-3 py-3">
+          <LanguageSwitcher variant="dark" />
+          <button
+            type="button"
+            onClick={() => signOut()}
+            className={`${META_LABEL} mt-3 w-full rounded-md px-2 py-2 text-left text-white/60 transition-colors hover:bg-white/5 hover:text-ns-primary`}
+          >
+            {t("nav.signOut")}
+          </button>
+        </div>
+      </aside>
+
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-4 py-3 text-white shadow-sm md:px-8">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
           <Link
@@ -98,7 +146,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </Link>
           <div className="flex items-center gap-2 md:gap-6">
             <nav className="hidden gap-5 lg:flex" aria-label="Main">
-              {DASHBOARD_NAV.map((item) => (
+              {navItems.map((item) => (
                 <Link
                   key={item.key}
                   href={navItemHref(item)}
@@ -159,17 +207,34 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           />
           <nav
             id="dashboard-mobile-nav"
-            className="absolute right-0 top-0 flex h-full w-[min(100%,280px)] flex-col gap-1 border-l border-white/10 bg-ns-hero px-4 pb-8 pt-20 shadow-xl"
+            className="absolute right-0 top-0 flex h-full w-[min(100%,300px)] flex-col border-l border-white/10 bg-ns-hero pb-8 pt-16 shadow-xl"
             aria-label="Main"
           >
-            {DASHBOARD_NAV.map((item) => (
+            <div className="px-1">
+              <AccountSwitcher />
+            </div>
+            {isPlatformAdmin && (
+              <Link
+                href="/admin/analytics"
+                className={`mx-4 mb-2 rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
+                  isAdminRoute
+                    ? "bg-ns-primary/15 text-ns-primary"
+                    : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
+                }`}
+                onClick={() => setMenuOpen(false)}
+              >
+                {t("adminAnalytics.shortNav")}
+              </Link>
+            )}
+            <nav className="flex flex-col gap-1 px-4">
+            {navItems.map((item) => (
               <Link
                 key={item.key}
                 href={navItemHref(item)}
                 className={`rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
                   isNavItemActive(item)
-                    ? "bg-ns-primary/15 text-ns-primary"
-                    : "text-white/85 hover:bg-white/5"
+                    ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
+                    : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
                 }`}
                 aria-current={isNavItemActive(item) ? "page" : undefined}
                 onClick={() => setMenuOpen(false)}
@@ -177,9 +242,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 {renderNavLabel(item.labelKey)}
               </Link>
             ))}
+            </nav>
             <button
               type="button"
-              className="mt-4 rounded-lg px-3 py-3 text-left text-sm font-semibold text-white/60 transition-colors hover:bg-white/5 hover:text-ns-primary"
+              className="mx-4 mt-4 rounded-lg px-3 py-3 text-left text-sm font-semibold text-white/60 transition-colors hover:bg-white/5 hover:text-ns-primary"
               onClick={() => {
                 setMenuOpen(false);
                 signOut();
@@ -191,8 +257,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="mx-auto max-w-5xl flex-1 px-4 py-8 md:px-6">{children}</main>
+      <main
+        className={`mx-auto w-full flex-1 px-4 py-8 md:px-6 ${
+          isAdminRoute ? "max-w-[1400px]" : "max-w-5xl"
+        }`}
+      >
+        {children}
+      </main>
       <AppFooter variant="light" showAppLinks />
+      </div>
     </div>
   );
 }

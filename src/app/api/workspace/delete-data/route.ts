@@ -34,8 +34,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "admin_not_configured" }, { status: 503 });
   }
 
+  let accountId: string | undefined;
   try {
-    await deleteAllUserData(db, auth);
+    const body = (await request.json()) as { accountId?: string };
+    accountId = body.accountId?.trim() || undefined;
+  } catch {
+    accountId = undefined;
+  }
+
+  try {
+    await deleteAllUserData(db, auth, accountId);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "delete_failed" }, { status: 500 });

@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "eslint",
     "i18n:sync": "tsx scripts/i18n-sync.ts",
-    "icons:generate": "node scripts/generate-brand-icons.mjs"
+    "icons:generate": "node scripts/generate-brand-icons.mjs",
+    "admin:set-claim": "tsx scripts/set-platform-admin-claim.ts"
   },
   "dependencies": {
     "lucide-react": "^0.511.0",

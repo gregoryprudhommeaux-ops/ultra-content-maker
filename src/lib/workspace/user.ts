@@ -1,6 +1,12 @@
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import type { SetupStep, UserDoc } from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
+import { isPlatformAdminIdentity } from "./platform-admin";
+import {
+  getActiveWorkspaceScope,
+  requireWorkspaceScope,
+} from "./workspace-scope";
+import { updateAccountSetupStep } from "./accounts";
 import { toDate } from "./firestore-utils";
 
 function userRef(userId: string) {
@@ -18,6 +24,8 @@ export async function getUserDoc(userId: string): Promise<UserDoc | null> {
     displayName: d.displayName as string | undefined,
     preferredLocale: d.preferredLocale as UserDoc["preferredLocale"],
     setupStep: (d.setupStep as SetupStep) ?? "llm",
+    activeAccountId: d.activeAccountId as string | undefined,
+    isPlatformAdmin: Boolean(d.isPlatformAdmin),
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),
   };
@@ -31,10 +39,12 @@ export async function ensureUserDoc(
   const existing = await getUserDoc(userId);
   if (existing) return existing;
   const now = serverTimestamp();
+  const isPlatformAdmin = isPlatformAdminIdentity({ uid: userId, email });
   await setDoc(userRef(userId), {
     email,
     displayName: displayName ?? null,
     setupStep: "llm",
+    isPlatformAdmin,
     createdAt: now,
     updatedAt: now,
   });
@@ -42,13 +52,18 @@ export async function ensureUserDoc(
     email,
     displayName,
     setupStep: "llm",
+    isPlatformAdmin,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 }
 
 export async function updateSetupStep(userId: string, setupStep: SetupStep) {
-  await updateDoc(userRef(userId), { setupStep, updatedAt: serverTimestamp() });
+  const scope = getActiveWorkspaceScope() ?? requireWorkspaceScope(userId);
+  await updateAccountSetupStep(scope.ownerId, scope.accountId, setupStep);
+  await updateDoc(userRef(userId), { setupStep, updatedAt: serverTimestamp() }).catch(
+    () => {},
+  );
 }
 
 export function setupStepToPath(step: SetupStep): string {

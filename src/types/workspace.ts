@@ -44,6 +44,9 @@ export interface UserDoc {
   displayName?: string;
   preferredLocale?: ContentLanguage;
   setupStep: SetupStep;
+  /** Active workspace account (client) for multi-account admins. */
+  activeAccountId?: string;
+  isPlatformAdmin?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

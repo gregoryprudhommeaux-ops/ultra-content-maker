@@ -6,21 +6,14 @@ import { ONBOARDING_STEPS } from "./onboarding-progress";
 export const ONBOARDING_WELCOME_PATH = "/start";
 export const ONBOARDING_READY_PATH = "/start/ready";
 
-/** Client-side home link from cached onboarding progress (logo, nav Accueil). */
+/** Public product home (locale root, e.g. /fr). */
+export const APP_HOME_PATH = "/" as const;
+
+/** Logo + nav Accueil → landing locale root, not the creation wizard. */
 export function resolveHomeHrefFromProgress(
-  progress: OnboardingProgress | null | undefined,
+  _progress?: OnboardingProgress | null | undefined,
 ): string {
-  if (!progress) return ONBOARDING_WELCOME_PATH;
-
-  if (progress.completion.isOnboardingComplete) {
-    return "/articles/new";
-  }
-
-  if (progress.canAccessCreation && !progress.completion.hasGeneratedPost) {
-    return ONBOARDING_READY_PATH;
-  }
-
-  return ONBOARDING_WELCOME_PATH;
+  return APP_HOME_PATH;
 }
 
 /** Where /start should redirect when the user should not see the welcome screen. */

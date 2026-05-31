@@ -228,6 +228,79 @@
       "googleRedirectTimeout": "La connexion Google a expiré. Cliquez sur Annuler, puis réessayez avec le bouton Google (fenêtre popup) ou connectez-vous par e-mail."
     }
   },
+  "adminAnalytics": {
+    "shortNav": "Statistiques plateforme",
+    "eyebrow": "Plateforme",
+    "title": "Tableau de bord d'utilisation",
+    "subtitle": "Connexions uniques, profils, brouillons et activité par utilisateur.",
+    "generatedAt": "Mis à jour le {date}",
+    "loading": "Chargement des statistiques…",
+    "refresh": "Actualiser",
+    "retry": "Réessayer",
+    "backToApp": "Retour à l'app",
+    "footnote": "Les connexions sont comptées à partir des prochaines sessions (login/signup). Le score d'usage combine articles, retravail et connexions.",
+    "periods": {
+      "day": "Jour",
+      "week": "Semaine",
+      "month": "Mois",
+      "year": "Année"
+    },
+    "connections": {
+      "title": "Connexions uniques",
+      "subtitle": {
+        "day": "30 derniers jours",
+        "week": "12 dernières semaines (union des utilisateurs)",
+        "month": "12 derniers mois",
+        "year": "5 dernières années"
+      }
+    },
+    "kpis": {
+      "registeredUsers": "Comptes créés",
+      "workspaceAccounts": "Espaces client",
+      "avgCompletion": "Complétion profil moy.",
+      "draftArticles": "Brouillons",
+      "reworkedArticles": "Articles retravaillés",
+      "totalArticles": "Articles totaux"
+    },
+    "usersTable": {
+      "title": "Utilisateurs (classement modifiable)",
+      "rank": "#",
+      "name": "Nom",
+      "email": "E-mail",
+      "linkedin": "LinkedIn",
+      "createdAt": "Inscription",
+      "accounts": "Comptes",
+      "completion": "Profil %",
+      "drafts": "Brouillons",
+      "reworked": "Retravaillés",
+      "totalArticles": "Articles",
+      "usage": "Score",
+      "lastLogin": "Dernière connexion",
+      "sortBy": "Cliquez sur un en-tête pour trier",
+      "noLinkedin": "—",
+      "noDate": "—"
+    },
+    "errors": {
+      "notAuthenticated": "Session expirée.",
+      "loadFailed": "Impossible de charger les statistiques."
+    }
+  },
+  "workspaceAccounts": {
+    "label": "Compte actif",
+    "loading": "Chargement…",
+    "unnamed": "Compte sans nom",
+    "createAccount": "+ Nouveau compte client",
+    "newAccountName": "Nom du compte",
+    "newAccountNamePlaceholder": "ex. Société A",
+    "newAccountLanguage": "Langue principale du contenu",
+    "createSubmit": "Créer",
+    "cancel": "Annuler",
+    "language": {
+      "fr": "Français",
+      "en": "English",
+      "es": "Español"
+    }
+  },
   "nav": {
     "home": "Accueil",
     "create": "Créer",
@@ -240,6 +313,7 @@
     "articles": "Articles",
     "settings": "Réglages",
     "signOut": "Déconnexion",
+    "admin": "Admin",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu"
   },
