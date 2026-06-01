@@ -457,6 +457,18 @@
       "title": "Your API key",
       "subtitle": "One key is enough (ChatGPT, Claude, Gemini, or Perplexity) for the whole product: Persona, posts, news, inspiration, and LinkedIn analysis. Stored in your workspace, readable only by you.",
       "privacyNote": "Never share your key. You can revoke or rotate it anytime at your provider.",
+      "trust": {
+        "eyebrow": "Trust & security",
+        "title": "Your key stays under your control",
+        "summary": "BYOK (Bring Your Own Key): you pay your AI provider directly. Ultra Content Maker does not resell credits.",
+        "bullets": [
+          "Key stored in your personal workspace, isolated from other accounts.",
+          "Sent over HTTPS only when you run a generation.",
+          "Validated once on save — never shown in plain text after that.",
+          "Revocable anytime from your provider console (OpenAI, Anthropic, etc.)."
+        ],
+        "privacyReminder": "Never share your key by email or chat. If it leaks, revoke it at your provider immediately, then save a new key here."
+      },
       "provider": "AI provider",
       "howToGetKey": "How to get your key",
       "apiKey": "API key",

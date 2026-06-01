@@ -16,6 +16,15 @@ export const NS = {
 /** Page shell */
 export const PAGE_BG = "min-h-screen bg-ns-background";
 
+/** Full width inside dashboard `<main>` (shell caps at max-w-5xl; matches articles hub). */
+export const DASHBOARD_PAGE_WIDTH = "w-full";
+export const DASHBOARD_FORM = `${DASHBOARD_PAGE_WIDTH} space-y-6`;
+export const DASHBOARD_FORM_COMPACT = `${DASHBOARD_PAGE_WIDTH} space-y-4`;
+
+/** Subtitle under dashboard page heroes (Accueil, Créer, Profil, Réglages, Admin). */
+export const DASHBOARD_PAGE_DESC =
+  "mt-3 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary md:text-base";
+
 /** Typography */
 export const PAGE_TITLE =
   "text-2xl font-black uppercase tracking-tighter text-ns-tertiary md:text-3xl";

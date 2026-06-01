@@ -8,7 +8,7 @@ export type AuthorProfileTab = "essential" | "voice" | "inspirations";
 const TABS: AuthorProfileTab[] = ["essential", "voice", "inspirations"];
 
 const TAB_SHELL =
-  "inline-flex w-full max-w-lg rounded-lg border border-ns-alternate bg-ns-brand-light p-1";
+  "inline-flex w-full rounded-lg border border-ns-alternate bg-ns-brand-light p-1";
 const TAB_ACTIVE =
   "flex-1 rounded-md bg-ns-surface px-3 py-2 text-center text-sm font-semibold text-ns-tertiary shadow-sm";
 const TAB_IDLE =

@@ -188,7 +188,7 @@ export function PersonaPerformanceInsightsPanel({
         <GeneratingIndicator
           label={t("generating")}
           hint={t("generatingHint")}
-          className="max-w-xl"
+          className="w-full"
         />
       )}
 

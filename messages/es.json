@@ -457,6 +457,18 @@
       "title": "Tu clave API",
       "subtitle": "Una sola clave basta (ChatGPT, Claude, Gemini o Perplexity) para todo el producto: Persona, posts, actualidad, inspiración y análisis LinkedIn. Guardada en tu espacio, solo tú puedes leerla.",
       "privacyNote": "No compartas tu clave. Puedes revocarla o regenerarla en cualquier momento en tu proveedor.",
+      "trust": {
+        "eyebrow": "Confianza y seguridad",
+        "title": "Tu clave sigue bajo tu control",
+        "summary": "Modelo BYOK (Bring Your Own Key): pagas a tu proveedor de IA directamente. Ultra Content Maker no revende créditos.",
+        "bullets": [
+          "Clave guardada en tu espacio personal, aislada de otras cuentas.",
+          "Transmisión cifrada (HTTPS) solo cuando generas contenido.",
+          "Validada al guardar — no se muestra en texto claro después.",
+          "Revocable en cualquier momento desde la consola de tu proveedor (OpenAI, Anthropic, etc.)."
+        ],
+        "privacyReminder": "No compartas tu clave por correo o chat. Si se filtra, revócala de inmediato en tu proveedor y registra una clave nueva aquí."
+      },
       "provider": "Proveedor de IA",
       "howToGetKey": "Cómo obtener tu clave",
       "apiKey": "Clave API",

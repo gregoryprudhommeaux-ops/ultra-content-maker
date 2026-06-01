@@ -1,5 +1,6 @@
 "use client";
 
+import { DashboardPageHero } from "@/components/layout/dashboard-page";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import type { LibraryStatusFilter } from "@/lib/articles/library-filters";
 import { ContextHelp } from "@/components/ui/context-help";
@@ -12,16 +13,22 @@ type Props = {
 
 export function ArticlesHubHeader({ statusFilter }: Props) {
   const t = useTranslations("setup.articles");
+  const tNav = useTranslations("nav");
 
   const isPendingView = statusFilter === "pending";
 
   return (
-    <section className="rounded-2xl border border-gray-100 bg-ns-surface shadow-sm">
-      <div className="flex flex-col gap-4 border-b border-gray-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-end md:px-6">
+    <DashboardPageHero
+      variant="card"
+      eyebrow={tNav("library")}
+      title={t("library.title")}
+      subtitle={isPendingView ? t("library.descriptionPending") : t("library.description")}
+      titleExtra={<ContextHelp label={t("help.lot.label")}>{t("help.lot.body")}</ContextHelp>}
+      toolbar={
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <Link
             href="/setup/author?tab=inspirations&from=articles"
-            className="w-full rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-center text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light sm:w-auto"
+            className="w-full rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-center text-sm font-semibold text-ns-tertiary hover:border-ns-primary hover:bg-ns-brand-light sm:w-auto"
           >
             {t("updateInspirations")}
           </Link>
@@ -29,19 +36,7 @@ export function ArticlesHubHeader({ statusFilter }: Props) {
             {t("createCta")}
           </Link>
         </div>
-      </div>
-
-      <header className="px-4 py-5 md:px-6 md:py-6">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl">
-            {t("library.title")}
-          </h1>
-          <ContextHelp label={t("help.lot.label")}>{t("help.lot.body")}</ContextHelp>
-        </div>
-        <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary">
-          {isPendingView ? t("library.descriptionPending") : t("library.description")}
-        </p>
-      </header>
-    </section>
+      }
+    />
   );
 }
