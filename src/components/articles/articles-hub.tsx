@@ -11,6 +11,7 @@ import {
   libraryFiltersFromSearchParams,
 } from "@/lib/articles/library-filters";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
+import { DashboardPageShell } from "@/components/layout/dashboard-page";
 import { ArticlesLibraryToolbar } from "@/components/articles/articles-library-toolbar";
 import { ContextHelp } from "@/components/ui/context-help";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
@@ -114,7 +115,8 @@ export function ArticlesHub() {
   }
 
   return (
-    <div className="space-y-6">
+    <DashboardPageShell>
+      <div className="space-y-6">
       <ArticlesHubHeader statusFilter={filters.status} />
 
       {hasAnyPosts && (
@@ -178,7 +180,8 @@ export function ArticlesHub() {
           </section>
         );
       })}
-    </div>
+      </div>
+    </DashboardPageShell>
   );
 }
 

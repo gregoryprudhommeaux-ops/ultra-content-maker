@@ -25,6 +25,12 @@ import { serializeForApi } from "@/lib/workspace/serialize-profile";
 import { updateSetupStep } from "@/lib/workspace/user";
 import { getClientAuth } from "@/lib/firebase/client";
 import { ContextHelp } from "@/components/ui/context-help";
+import {
+  DashboardPageHero,
+  DashboardPageSection,
+  DashboardPageShell,
+} from "@/components/layout/dashboard-page";
+import { BTN_PRIMARY, DASHBOARD_PAGE_WIDTH } from "@/lib/ui/nextstep";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -33,6 +39,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function PersonaEditor() {
   const t = useTranslations("setup.persona");
+  const tSteps = useTranslations("setup.steps");
   const tCommon = useTranslations("common");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
@@ -251,19 +258,21 @@ export function PersonaEditor() {
     return (
       <GeneratingIndicator
         label={tCommon("loading")}
-        className="max-w-xl"
+        className={DASHBOARD_PAGE_WIDTH}
       />
     );
   }
 
   return (
-    <div className="space-y-6">
+    <DashboardPageShell>
       <OnboardingStepBanner stepKey="persona" />
-      <div>
-        <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-ns-secondary">{t("subtitle")}</p>
-      </div>
+      <DashboardPageHero
+        eyebrow={tSteps("persona")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
 
+      <DashboardPageSection className="space-y-6">
       {promptText ? (
         <PersonaReveal
           {...(status === "validated"
@@ -290,16 +299,12 @@ export function PersonaEditor() {
         <GeneratingIndicator
           label={t("generating")}
           hint={t("generatingHint")}
-          className="max-w-2xl"
+          className={DASHBOARD_PAGE_WIDTH}
         />
       )}
 
       {status === "none" && !promptText && !pending && (
-        <button
-          type="button"
-          onClick={onGenerate}
-          className="rounded-sm bg-ns-primary px-5 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90"
-        >
+        <button type="button" onClick={onGenerate} className={BTN_PRIMARY}>
           {t("generate")}
         </button>
       )}
@@ -341,7 +346,7 @@ export function PersonaEditor() {
             </p>
           )}
 
-          <details className="rounded-xl border border-gray-100 bg-white">
+          <details className="rounded-xl border border-gray-100 bg-ns-brand-light/40">
             <summary className="cursor-pointer list-none px-4 py-3 marker:content-none [&::-webkit-details-marker]:hidden">
               <span className="flex items-center justify-between gap-2 text-sm font-semibold text-ns-tertiary">
                 {t("reveal.promptToggle")}
@@ -397,10 +402,7 @@ export function PersonaEditor() {
 
           {status === "validated" && (
             <div className="flex flex-wrap gap-3">
-              <Link
-                href="/start/ready"
-                className="rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90"
-              >
+              <Link href="/start/ready" className={BTN_PRIMARY}>
                 {t("reveal.goCreate")}
               </Link>
               <Link
@@ -417,15 +419,16 @@ export function PersonaEditor() {
       )}
 
       {error && (
-        <div className="space-y-2">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="space-y-2 rounded-xl border border-rose-200 bg-rose-50/80 p-4">
+          <p className="text-sm font-medium text-rose-900">{error}</p>
           {(error === t("noLlmKey") || error === t("invalidApiKey")) && (
-            <Link href="/setup/llm" className="text-sm font-medium text-ns-tertiary underline">
+            <Link href="/setup/llm" className="text-sm font-semibold text-ns-tertiary underline">
               → {t("goLlmSetup")}
             </Link>
           )}
         </div>
       )}
-    </div>
+      </DashboardPageSection>
+    </DashboardPageShell>
   );
 }

@@ -16,6 +16,12 @@ import {
 import { updateSetupStep } from "@/lib/workspace/user";
 import type { EmojiLevel } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
+import {
+  DashboardPageHero,
+  DashboardPageSection,
+  DashboardPageShell,
+} from "@/components/layout/dashboard-page";
+import { BTN_PRIMARY, DASHBOARD_FORM_COMPACT, DASHBOARD_PAGE_WIDTH } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -23,6 +29,7 @@ import { FormEvent, useEffect, useState } from "react";
 
 export function AudienceSetupForm() {
   const t = useTranslations("setup.audience");
+  const tSteps = useTranslations("setup.steps");
   const { user } = useAuth();
   const router = useRouter();
   const [targetLabel, setTargetLabel] = useState("");
@@ -92,17 +99,21 @@ export function AudienceSetupForm() {
   }
 
   return (
-    <div className="space-y-8">
+    <DashboardPageShell>
       <OnboardingStepBanner stepKey="audience" />
-      <div>
-        <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
-        <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>
-        <p className="mt-2 inline-flex rounded-full border border-ns-alternate bg-ns-brand-light px-2.5 py-0.5 text-xs font-semibold text-ns-secondary">
-          {t("stepBadge")}
-        </p>
-      </div>
+      <DashboardPageHero
+        eyebrow={tSteps("audience")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+        note={
+          <p className="mt-3 inline-flex rounded-full border border-ns-primary/25 bg-white/80 px-3 py-1 text-xs font-semibold text-ns-tertiary backdrop-blur-sm">
+            {t("stepBadge")}
+          </p>
+        }
+      />
 
-      <form onSubmit={onSubmit} className="max-w-xl space-y-4" aria-busy={pending}>
+      <DashboardPageSection>
+        <form onSubmit={onSubmit} className={DASHBOARD_FORM_COMPACT} aria-busy={pending}>
         <div>
           <OptionalLabel htmlFor="target">{t("targetLabel")}</OptionalLabel>
           <input
@@ -157,7 +168,7 @@ export function AudienceSetupForm() {
                   : t("savingProfile")
             }
             hint={t("syncingPersonaHint")}
-            className="max-w-xl"
+            className={DASHBOARD_PAGE_WIDTH}
           />
         )}
 
@@ -176,13 +187,14 @@ export function AudienceSetupForm() {
           <button
             type="submit"
             disabled={pending}
-            className="inline-flex min-w-[12rem] items-center justify-center gap-2 rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-70"
+            className={`inline-flex min-w-[12rem] items-center justify-center gap-2 ${BTN_PRIMARY} disabled:opacity-70`}
           >
             {pending && <ButtonSpinner />}
             {pending ? t("continuePending") : t("continue")}
           </button>
         </div>
-      </form>
-    </div>
+        </form>
+      </DashboardPageSection>
+    </DashboardPageShell>
   );
 }

@@ -17,6 +17,12 @@ import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import type { ContentLanguage } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
+import {
+  DashboardPageHero,
+  DashboardPageSection,
+  DashboardPageShell,
+} from "@/components/layout/dashboard-page";
+import { BTN_PRIMARY, DASHBOARD_FORM } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -25,6 +31,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 export function AuthorSetupForm() {
   const t = useTranslations("setup.author");
+  const tSteps = useTranslations("setup.steps");
   const tCommon = useTranslations("common");
   const tInspirations = useTranslations("setup.inspirations");
   const locale = useLocale() as ContentLanguage;
@@ -163,22 +170,24 @@ export function AuthorSetupForm() {
   }
 
   return (
-    <div className="space-y-8">
+    <DashboardPageShell>
       <OnboardingStepBanner stepKey="author" />
-      <div>
-        <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
-        <p className="mt-2 text-sm text-ns-secondary">{t("subtitle")}</p>
-      </div>
+      <DashboardPageHero
+        eyebrow={tSteps("author")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
 
-      <AuthorProfileTabs active={activeTab} querySuffix={tabQuerySuffix} />
+      <DashboardPageSection className="space-y-6">
+        <AuthorProfileTabs active={activeTab} querySuffix={tabQuerySuffix} />
 
-      <p className="text-xs text-ns-secondary">
-        {tCommon("required")} · {tCommon("optional")}
-      </p>
+        <p className="text-xs font-medium text-ns-secondary">
+          {tCommon("required")} · {tCommon("optional")}
+        </p>
 
-      <p className="text-sm text-ns-secondary">{t(`tabs.hint.${activeTab}`)}</p>
+        <p className="text-sm font-medium text-ns-secondary">{t(`tabs.hint.${activeTab}`)}</p>
 
-      <form onSubmit={onContinue} className="max-w-xl space-y-6">
+        <form onSubmit={onContinue} className={DASHBOARD_FORM}>
         {activeTab === "essential" && (
           <EssentialFields
             t={t}
@@ -230,16 +239,13 @@ export function AuthorSetupForm() {
           >
             {t("save")}
           </button>
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
-          >
+          <button type="submit" disabled={pending} className={`${BTN_PRIMARY} disabled:opacity-50`}>
             {t("continue")}
           </button>
         </div>
-      </form>
-    </div>
+        </form>
+      </DashboardPageSection>
+    </DashboardPageShell>
   );
 }
 

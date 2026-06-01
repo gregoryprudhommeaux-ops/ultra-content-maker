@@ -2,6 +2,7 @@
 
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper";
+import { LlmTrustPanel } from "@/components/setup/llm-trust-panel";
 import { ProfileDataManagement } from "@/components/setup/profile-data-management";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -16,6 +17,12 @@ import {
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import type { LlmProvider } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
+import {
+  DashboardPageHero,
+  DashboardPageSection,
+  DashboardPageShell,
+} from "@/components/layout/dashboard-page";
+import { BTN_PRIMARY, CARD_SOFT, DASHBOARD_FORM } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -64,6 +71,7 @@ function useProviderGuides(t: ReturnType<typeof useTranslations<"setup.llm">>) {
 
 export function LlmSetupForm() {
   const t = useTranslations("setup.llm");
+  const tSteps = useTranslations("setup.steps");
   const formatError = useFormatUserError();
   const guides = useProviderGuides(t);
   const { user } = useAuth();
@@ -136,17 +144,20 @@ export function LlmSetupForm() {
   if (!loaded) return <p className="text-sm text-ns-secondary">…</p>;
 
   return (
-    <div className="space-y-8">
+    <DashboardPageShell>
       <OnboardingStepBanner stepKey="llm" />
-      <div>
-        <h1 className="text-2xl font-semibold text-ns-tertiary">{t("title")}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-ns-secondary">{t("subtitle")}</p>
-        <p className="mt-2 text-xs text-amber-800">{t("privacyNote")}</p>
-      </div>
+      <DashboardPageHero
+        eyebrow={tSteps("llm")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
+
+      <LlmTrustPanel />
 
       <OnboardingStepper placement="settings" />
 
-      <form onSubmit={onSubmit} className="max-w-xl space-y-6">
+      <DashboardPageSection>
+        <form onSubmit={onSubmit} className={DASHBOARD_FORM}>
         <div>
           <OptionalLabel htmlFor="provider" optional={false}>
             {t("provider")}
@@ -165,7 +176,7 @@ export function LlmSetupForm() {
           </select>
         </div>
 
-        <div className="rounded-xl border border-gray-100 bg-ns-brand-light p-4">
+        <div className={CARD_SOFT}>
           <h3 className="text-sm font-semibold text-ns-tertiary">
             {guides[provider].name} — {t("howToGetKey")}
           </h3>
@@ -222,16 +233,15 @@ export function LlmSetupForm() {
           />
         )}
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-sm bg-ns-primary px-5 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
-        >
+        <button type="submit" disabled={pending} className={`${BTN_PRIMARY} disabled:opacity-50`}>
           {t("continue")}
         </button>
-      </form>
+        </form>
+      </DashboardPageSection>
 
-      <ProfileDataManagement />
-    </div>
+      <DashboardPageSection tone="muted">
+        <ProfileDataManagement />
+      </DashboardPageSection>
+    </DashboardPageShell>
   );
 }

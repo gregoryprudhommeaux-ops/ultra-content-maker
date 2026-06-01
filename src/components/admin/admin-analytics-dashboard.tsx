@@ -8,6 +8,12 @@ import type {
   AdminAnalyticsPayload,
   ConnectionGranularity,
 } from "@/lib/admin/analytics.server";
+import {
+  DashboardPageError,
+  DashboardPageHero,
+  DashboardPageLoading,
+  DashboardPageShell,
+} from "@/components/layout/dashboard-page";
 import { getClientAuth } from "@/lib/firebase/client";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -77,24 +83,21 @@ export function AdminAnalyticsDashboard() {
 
   if (!data && loading) {
     return (
-      <div className="rounded-2xl border border-ns-alternate/80 bg-ns-surface p-8 text-center text-ns-secondary">
-        {t("loading")}
-      </div>
+      <DashboardPageShell>
+        <DashboardPageLoading>{t("loading")}</DashboardPageLoading>
+      </DashboardPageShell>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-900">
-        <p className="font-semibold">{error}</p>
-        <button
-          type="button"
-          onClick={() => void load()}
-          className="mt-4 rounded-lg bg-ns-hero px-4 py-2 text-sm font-semibold text-white"
-        >
-          {t("retry")}
-        </button>
-      </div>
+      <DashboardPageShell>
+        <DashboardPageError
+          message={error}
+          onRetry={() => void load()}
+          retryLabel={t("retry")}
+        />
+      </DashboardPageShell>
     );
   }
 
@@ -103,15 +106,13 @@ export function AdminAnalyticsDashboard() {
   const buckets = data.connections[period];
 
   return (
-    <div className="space-y-8 pb-10">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-ns-secondary">
-            {t("eyebrow")}
-          </p>
-          <h1 className="mt-1 text-2xl font-bold text-ns-hero md:text-3xl">{t("title")}</h1>
-          <p className="mt-2 max-w-2xl text-sm text-ns-secondary">{t("subtitle")}</p>
-          <p className="mt-2 text-xs text-ns-alternate">
+    <DashboardPageShell>
+      <DashboardPageHero
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+        note={
+          <p className="mt-2 text-xs font-medium text-ns-alternate">
             {t("generatedAt", {
               date: new Intl.DateTimeFormat(undefined, {
                 dateStyle: "medium",
@@ -119,15 +120,17 @@ export function AdminAnalyticsDashboard() {
               }).format(new Date(data.generatedAt)),
             })}
           </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => void load()}
-          className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-sm font-semibold text-ns-hero hover:border-ns-primary"
-        >
-          {t("refresh")}
-        </button>
-      </header>
+        }
+        actions={
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-sm font-semibold text-ns-hero hover:border-ns-primary"
+          >
+            {t("refresh")}
+          </button>
+        }
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <KpiCard
@@ -216,6 +219,6 @@ export function AdminAnalyticsDashboard() {
           {t("backToApp")}
         </Link>
       </p>
-    </div>
+    </DashboardPageShell>
   );
 }
