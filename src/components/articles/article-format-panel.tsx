@@ -5,24 +5,13 @@ import { getClientAuth } from "@/lib/firebase/client";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
-  buildFirstCommentReminderDescription,
-  buildGoogleCalendarUrl,
-  buildPublishReminderIcs,
-  defaultScheduleDate,
-  downloadIcsFile,
-  parseDatetimeLocalValue,
-  toDatetimeLocalValue,
-} from "@/lib/calendar/publish-reminder";
-import { joinLinkedInPostParts } from "@/lib/linkedin/fit-linkedin-post";
-import {
   saveArticleFormatPlan,
   saveArticleRepurpose,
-  saveArticleScheduledPublishAt,
   saveSuggestedFirstComment,
 } from "@/lib/workspace/articles";
 import { ArticleTranslationPanel } from "@/components/articles/article-translation-panel";
 import { useAuth } from "@/components/auth/auth-provider";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -39,7 +28,6 @@ export function ArticleFormatPanel({
   onUpdated,
 }: Props) {
   const t = useTranslations("setup.articles.format");
-  const locale = useLocale();
   const { user } = useAuth();
   const [formatPlan, setFormatPlan] = useState<PostFormatPlan | null>(
     article.postFormatPlan ?? null,
@@ -54,9 +42,7 @@ export function ArticleFormatPanel({
   const [loadingRepurpose, setLoadingRepurpose] = useState(false);
   const [loadingComment, setLoadingComment] = useState(false);
   const [copied, setCopied] = useState<"comment" | "carousel" | null>(null);
-  const [scheduleLocal, setScheduleLocal] = useState("");
   const autoCommentForArticleRef = useRef<string | null>(null);
-  const scheduleSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setFormatPlan(article.postFormatPlan ?? null);
@@ -67,16 +53,7 @@ export function ArticleFormatPanel({
     article.postFormatPlan,
     article.repurpose,
     article.suggestedFirstComment,
-    article.scheduledPublishAt,
   ]);
-
-  useEffect(() => {
-    if (article.scheduledPublishAt) {
-      setScheduleLocal(toDatetimeLocalValue(article.scheduledPublishAt));
-    } else {
-      setScheduleLocal(toDatetimeLocalValue(defaultScheduleDate()));
-    }
-  }, [article.id, article.scheduledPublishAt]);
 
   const llmPayload = useCallback(async () => {
     const auth = getClientAuth();
@@ -221,72 +198,6 @@ export function ArticleFormatPanel({
     disabled,
     user,
   ]);
-
-  function persistSchedule(value: string) {
-    if (!user) return;
-    const parsed = parseDatetimeLocalValue(value);
-    if (scheduleSaveTimerRef.current) {
-      clearTimeout(scheduleSaveTimerRef.current);
-    }
-    scheduleSaveTimerRef.current = setTimeout(() => {
-      void saveArticleScheduledPublishAt(user.uid, article.id, parsed).then(() => {
-        onUpdated({
-          scheduledPublishAt: parsed ?? undefined,
-        });
-      });
-    }, 400);
-  }
-
-  function onScheduleChange(value: string) {
-    setScheduleLocal(value);
-    persistSchedule(value);
-  }
-
-  function buildReminderPayload() {
-    const start = parseDatetimeLocalValue(scheduleLocal);
-    if (!start || !firstComment.trim()) return null;
-
-    const postExcerpt = joinLinkedInPostParts({
-      hook: article.hook,
-      body: article.body,
-      ps: article.ps,
-    }).slice(0, 400);
-
-    const articleLink =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/${locale}/articles/${article.id}`
-        : undefined;
-
-    const description = buildFirstCommentReminderDescription({
-      intro: t("calendarEventIntro"),
-      firstComment: firstComment.trim(),
-      postLabel: t("calendarPostExcerptLabel"),
-      postExcerpt,
-      articleLink,
-    });
-
-    return {
-      start,
-      title: t("calendarEventTitle", { hook: article.hook.slice(0, 60) }),
-      description,
-    };
-  }
-
-  function addCalendarReminder() {
-    const payload = buildReminderPayload();
-    if (!payload) return;
-
-    downloadIcsFile(
-      buildPublishReminderIcs(payload),
-      `linkedin-publish-${article.id.slice(0, 8)}.ics`,
-    );
-  }
-
-  function openGoogleCalendarReminder() {
-    const payload = buildReminderPayload();
-    if (!payload) return;
-    window.open(buildGoogleCalendarUrl(payload), "_blank", "noopener,noreferrer");
-  }
 
   async function copyText(text: string, key: "comment" | "carousel") {
     try {
@@ -446,55 +357,6 @@ export function ArticleFormatPanel({
             </button>
           </div>
         )}
-
-        <div className="mt-5 space-y-3 border-t border-gray-100 pt-5">
-          <div>
-            <h4 className="text-sm font-semibold text-ns-tertiary">
-              {t("scheduleTitle")}
-            </h4>
-            <p className="mt-1 text-xs text-ns-secondary">{t("scheduleHint")}</p>
-          </div>
-          <div>
-            <label
-              htmlFor={`publish-schedule-${article.id}`}
-              className="text-xs font-medium text-ns-secondary"
-            >
-              {t("scheduleLabel")}
-            </label>
-            <input
-              id={`publish-schedule-${article.id}`}
-              type="datetime-local"
-              value={scheduleLocal}
-              disabled={disabled}
-              onChange={(e) => onScheduleChange(e.target.value)}
-              className="mt-1 w-full max-w-sm rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-ns-tertiary"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={disabled || !firstComment.trim() || !scheduleLocal}
-              onClick={addCalendarReminder}
-              className="rounded-lg bg-ns-primary px-4 py-2 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
-            >
-              {t("addCalendarReminder")}
-            </button>
-            <button
-              type="button"
-              disabled={disabled || !firstComment.trim() || !scheduleLocal}
-              onClick={openGoogleCalendarReminder}
-              className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-xs font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
-            >
-              {t("openGoogleCalendar")}
-            </button>
-          </div>
-          {!firstComment.trim() && (
-            <p className="text-xs text-ns-secondary">{t("scheduleNeedsComment")}</p>
-          )}
-          {firstComment.trim() && scheduleLocal && (
-            <p className="text-xs text-ns-secondary">{t("scheduleReminderNote")}</p>
-          )}
-        </div>
       </div>
 
       <ArticleTranslationPanel article={article} onUpdated={onUpdated} />
