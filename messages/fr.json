@@ -1392,7 +1392,7 @@
           "less_generic": "Moins générique"
         },
         "revising": "Révision du post en cours…",
-        "revisingHint": "L’IA applique le levier choisi (30–60 s)."
+        "revisingHint": "L’IA applique le levier choisi (en général 10–25 s)."
       },
       "generateBatch": "Générer 4 posts",
       "generating": "Génération des posts…",
@@ -1510,7 +1510,7 @@
         "validating": "Validation en cours…",
         "validatingHint": "Intégration du CTA, relecture de cohérence globale, hashtags et export (20–40 s).",
         "revising": "Révision en cours…",
-        "revisingHint": "L’IA applique vos retours au post (20–60 s).",
+        "revisingHint": "L’IA applique vos retours au post (en général 10–25 s).",
         "exportPreview": "Texte final",
         "hashtagsHint": "4 hashtags LinkedIn seront ajoutés en fin de post (contenu + profil) à la validation.",
         "characterCount": "{count} / {max} caractères (LinkedIn)",

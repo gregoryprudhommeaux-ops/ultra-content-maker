@@ -3,8 +3,11 @@ import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
 import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
 import {
   injectAuthorSteering,
+  slimAuthorSteeringForRevise,
   type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
+
+const REVISE_PERSONA_MAX_CHARS = 3_500;
 import type {
   ArticleNewsSource,
   ArticleRefinement,
@@ -56,7 +59,7 @@ export function buildReviseUserPrompt(
   );
 
   const payload: Record<string, unknown> = {
-    personaPromptText,
+    personaPromptText: personaPromptText.slice(0, REVISE_PERSONA_MAX_CHARS),
     current: article,
     refinement,
     toneEdge: refinement.toneEdge ?? "default",
@@ -69,5 +72,9 @@ export function buildReviseUserPrompt(
       newsSource,
     );
   }
-  return JSON.stringify(injectAuthorSteering(payload, authorSteering), null, 2);
+  return JSON.stringify(
+    injectAuthorSteering(payload, slimAuthorSteeringForRevise(authorSteering)),
+    null,
+    2,
+  );
 }

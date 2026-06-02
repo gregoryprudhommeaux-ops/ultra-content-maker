@@ -614,25 +614,45 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
         return;
       }
 
-      await updateArticleContent(user.uid, article.id, {
+      const revised = {
         hook: data.hook?.trim() ?? article.hook,
         body: data.body.trim(),
         ps: data.ps?.trim() || undefined,
         scope: (data.scope as ArticleScope | undefined) ?? article.scope,
         hashtags: Array.isArray(data.hashtags) ? data.hashtags : article.hashtags,
-      });
-      await markArticleRegenerated(user.uid, article.id, refinement);
-      await recordArticleRefinementFeedback(
-        user.uid,
-        article.id,
-        refinement,
-        article.contentLanguage,
+      };
+
+      await updateArticleContent(user.uid, article.id, revised);
+      setArticle((prev) =>
+        prev
+          ? {
+              ...prev,
+              ...revised,
+              refinement: { ...refinement, status: "draft" },
+            }
+          : prev,
       );
-      const p = await getPersona(user.uid);
-      if (p?.promptText) setPersonaText(p.promptText);
-      illustrationFetchedRef.current = null;
-      await load();
-      void loadIllustrationSuggestions(true, { quiet: true });
+      setPendingAction(null);
+
+      void (async () => {
+        try {
+          await markArticleRegenerated(user.uid, article.id, refinement);
+          await recordArticleRefinementFeedback(
+            user.uid,
+            article.id,
+            refinement,
+            article.contentLanguage,
+          );
+          const p = await getPersona(user.uid);
+          if (p?.promptText) setPersonaText(p.promptText);
+          illustrationFetchedRef.current = null;
+          await load();
+          void loadIllustrationSuggestions(true, { quiet: true });
+        } catch {
+          /* revision already applied in UI */
+        }
+      })();
+      return;
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       const { message, technical } = resolveReviseErrorMessage(undefined, msg);

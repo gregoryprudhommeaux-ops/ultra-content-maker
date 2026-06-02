@@ -1384,7 +1384,7 @@
           "less_generic": "Menos genérico"
         },
         "revising": "Revisando el post…",
-        "revisingHint": "La IA aplica la palanca elegida (30–60 s)."
+        "revisingHint": "La IA aplica la palanca elegida (por lo general 10–25 s)."
       },
       "generateBatch": "Generar 4 posts",
       "generating": "Generando posts…",
@@ -1502,7 +1502,7 @@
         "validating": "Validando…",
         "validatingHint": "Integración del CTA, revisión de coherencia global, hashtags y exportación (20–40 s).",
         "revising": "Revisando…",
-        "revisingHint": "La IA aplica tus comentarios al post (20–60 s).",
+        "revisingHint": "La IA aplica tus comentarios al post (por lo general 10–25 s).",
         "exportPreview": "Texto final",
         "hashtagsHint": "4 hashtags de LinkedIn se añadirán al final (contenido + perfil) al validar.",
         "characterCount": "{count} / {max} caracteres (LinkedIn)",

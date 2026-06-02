@@ -1,5 +1,5 @@
 import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
-import { chatCompletionJson } from "@/lib/llm/chat";
+import { chatCompletionJson, REVISE_CHAT_OPTIONS } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import { normalizeArticleScope } from "@/lib/articles/scope";
 import { normalizeHashtags } from "@/lib/linkedin/hashtags";
@@ -89,23 +89,27 @@ export async function POST(request: Request) {
   try {
     const emojiLevel = body.refinement.emojiLevel ?? "light";
     const corrosiveTone = isCorrosiveToneEdge(body.refinement);
-    const raw = await chatCompletionJson(llm, [
-      {
-        role: "system",
-        content: buildReviseSystemPrompt(contentLanguage, emojiLevel, corrosiveTone),
-      },
-      {
-        role: "user",
-        content: buildReviseUserPrompt(
-          body.personaPromptText,
-          body.article,
-          body.refinement,
-          contentLanguage,
-          body.newsSource,
-          authorSteering,
-        ),
-      },
-    ]);
+    const raw = await chatCompletionJson(
+      llm,
+      [
+        {
+          role: "system",
+          content: buildReviseSystemPrompt(contentLanguage, emojiLevel, corrosiveTone),
+        },
+        {
+          role: "user",
+          content: buildReviseUserPrompt(
+            body.personaPromptText,
+            body.article,
+            body.refinement,
+            contentLanguage,
+            body.newsSource,
+            authorSteering,
+          ),
+        },
+      ],
+      REVISE_CHAT_OPTIONS,
+    );
 
     let parsed: {
       hook?: string;

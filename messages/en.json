@@ -1384,7 +1384,7 @@
           "less_generic": "Less generic"
         },
         "revising": "Revising post…",
-        "revisingHint": "AI is applying the selected lever (30–60 s)."
+        "revisingHint": "AI is applying the selected lever (usually 10–25 s)."
       },
       "generateBatch": "Generate 4 posts",
       "generating": "Generating posts…",
@@ -1502,7 +1502,7 @@
         "validating": "Validating…",
         "validatingHint": "CTA integration, global coherence pass, hashtags, and export (20–40 s).",
         "revising": "Revising…",
-        "revisingHint": "AI is applying your feedback to the post (20–60 s).",
+        "revisingHint": "AI is applying your feedback to the post (usually 10–25 s).",
         "exportPreview": "Final text",
         "hashtagsHint": "4 LinkedIn hashtags will be appended at the end (content + profile) when you validate.",
         "characterCount": "{count} / {max} characters (LinkedIn)",

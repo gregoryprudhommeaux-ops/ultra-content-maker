@@ -2,13 +2,36 @@ import type { LlmConfig } from "./config";
 
 type ChatMessage = { role: "system" | "user"; content: string };
 
+export type ChatCompletionOptions = {
+  maxTokens?: number;
+  temperature?: number;
+  timeoutMs?: number;
+};
+
+const DEFAULT_CHAT_OPTIONS = {
+  maxTokens: 8192,
+  temperature: 0.4,
+  timeoutMs: 120_000,
+} as const;
+
+function resolveChatOptions(options?: ChatCompletionOptions) {
+  return {
+    maxTokens: options?.maxTokens ?? DEFAULT_CHAT_OPTIONS.maxTokens,
+    temperature: options?.temperature ?? DEFAULT_CHAT_OPTIONS.temperature,
+    timeoutMs: options?.timeoutMs ?? DEFAULT_CHAT_OPTIONS.timeoutMs,
+  };
+}
+
 async function openAiCompatibleJson(
   config: LlmConfig,
   messages: ChatMessage[],
+  options?: ChatCompletionOptions,
 ): Promise<string> {
+  const { maxTokens, temperature, timeoutMs } = resolveChatOptions(options);
   const body: Record<string, unknown> = {
     model: config.model,
-    temperature: 0.4,
+    temperature,
+    max_tokens: maxTokens,
     messages,
   };
   // Perplexity often ignores or mishandles response_format; rely on prompt + parseLlmJson.
@@ -23,7 +46,7 @@ async function openAiCompatibleJson(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(120_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
 
   if (!res.ok) {
@@ -41,7 +64,9 @@ async function openAiCompatibleJson(
 async function anthropicJson(
   config: LlmConfig,
   messages: ChatMessage[],
+  options?: ChatCompletionOptions,
 ): Promise<string> {
+  const { maxTokens, timeoutMs } = resolveChatOptions(options);
   const system = messages.find((m) => m.role === "system")?.content ?? "";
   const user = messages.find((m) => m.role === "user")?.content ?? "";
 
@@ -54,11 +79,11 @@ async function anthropicJson(
     },
     body: JSON.stringify({
       model: config.model,
-      max_tokens: 8192,
+      max_tokens: maxTokens,
       system,
       messages: [{ role: "user", content: user }],
     }),
-    signal: AbortSignal.timeout(120_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
 
   if (!res.ok) {
@@ -76,7 +101,9 @@ async function anthropicJson(
 async function geminiJson(
   config: LlmConfig,
   messages: ChatMessage[],
+  options?: ChatCompletionOptions,
 ): Promise<string> {
+  const { maxTokens, temperature, timeoutMs } = resolveChatOptions(options);
   const system = messages.find((m) => m.role === "system")?.content ?? "";
   const user = messages.find((m) => m.role === "user")?.content ?? "";
   const prompt = `${system}\n\n${user}\n\nRespond with valid JSON only.`;
@@ -87,9 +114,13 @@ async function geminiJson(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json" },
+      generationConfig: {
+        responseMimeType: "application/json",
+        maxOutputTokens: maxTokens,
+        temperature,
+      },
     }),
-    signal: AbortSignal.timeout(120_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
 
   if (!res.ok) {
@@ -104,18 +135,26 @@ async function geminiJson(
   return text;
 }
 
+/** Tighter defaults for single-post revision (smaller prompts, faster completion). */
+export const REVISE_CHAT_OPTIONS: ChatCompletionOptions = {
+  maxTokens: 2048,
+  temperature: 0.35,
+  timeoutMs: 90_000,
+};
+
 export async function chatCompletionJson(
   config: LlmConfig,
   messages: ChatMessage[],
+  options?: ChatCompletionOptions,
 ): Promise<string> {
   switch (config.provider) {
     case "anthropic":
-      return anthropicJson(config, messages);
+      return anthropicJson(config, messages, options);
     case "google":
-      return geminiJson(config, messages);
+      return geminiJson(config, messages, options);
     case "openai":
     case "perplexity":
     default:
-      return openAiCompatibleJson(config, messages);
+      return openAiCompatibleJson(config, messages, options);
   }
 }
