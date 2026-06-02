@@ -32,7 +32,7 @@ export function OnboardingRouteGuard({ children }: { children: ReactNode }) {
     router.replace(redirectHref);
   }, [loading, locked, redirectHref, router]);
 
-  if (loading || (locked && redirectHref)) {
+  if ((loading && !progress) || (locked && redirectHref)) {
     return (
       <GeneratingIndicator
         label={t("checking")}

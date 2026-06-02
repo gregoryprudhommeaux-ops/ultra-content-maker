@@ -45,20 +45,27 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (options?: { silent?: boolean }) => {
     if (!user) {
       setProgress(null);
       setLoading(false);
       return;
     }
-    setLoading(true);
+    const silent = options?.silent === true;
+    if (!silent) {
+      setLoading(true);
+    }
     try {
       const data = await loadOnboardingProgress(user.uid, pathname);
       setProgress(data);
     } catch {
-      setProgress(null);
+      if (!silent) {
+        setProgress(null);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, [user, pathname]);
 
@@ -67,7 +74,7 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
   }, [reload]);
 
   useEffect(() => {
-    const onChanged = () => void reload();
+    const onChanged = () => void reload({ silent: true });
     window.addEventListener(CHANGED_EVENT, onChanged);
     return () => window.removeEventListener(CHANGED_EVENT, onChanged);
   }, [reload]);

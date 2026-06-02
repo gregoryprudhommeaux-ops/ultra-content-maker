@@ -50,7 +50,9 @@ export function OnboardingGuard({
     router.replace(redirectHref);
   }, [redirect, blocked, redirectHref, router]);
 
-  if (loading || (redirect && blocked)) {
+  // Only block the tree on the first progress load — silent refreshes (e.g. after
+  // generating a post) must not unmount creation wizards and reset their state.
+  if ((loading && !progress) || (redirect && blocked)) {
     return (
       <GeneratingIndicator
         label={t("checking")}

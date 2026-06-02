@@ -617,7 +617,7 @@ export function ArticleCreationWizard() {
         setDraftRevision((n) => n + 1);
       }
       setStep("draft-done");
-      notifyOnboardingProgressChanged();
+      queueMicrotask(() => notifyOnboardingProgressChanged());
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
         setErrorInfo(
