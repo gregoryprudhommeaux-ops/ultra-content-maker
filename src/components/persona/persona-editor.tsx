@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/components/auth/auth-provider";
 import { GapsQuestionnaire } from "@/components/persona/gaps-questionnaire";
-import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
+import { notifyOnboardingProgressChangedDeferred } from "@/contexts/onboarding-progress-context";
 import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
@@ -245,8 +245,8 @@ export function PersonaEditor() {
       );
       await updateSetupStep(user.uid, "articles");
       setStatus("validated");
-      notifyOnboardingProgressChanged();
       router.push("/start/ready");
+      notifyOnboardingProgressChangedDeferred();
     } catch {
       setError(t("saveFailed"));
     } finally {

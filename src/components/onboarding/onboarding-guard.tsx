@@ -1,6 +1,7 @@
 "use client";
 
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
 import { useRouter } from "@/i18n/navigation";
@@ -29,6 +30,7 @@ export function OnboardingGuard({
   const t = useTranslations("setup.onboarding.guard");
   const router = useRouter();
   const { progress, status, loading } = useOnboardingProgress();
+  const bootstrapping = isOnboardingBootstrapping(loading, progress);
   const didRedirect = useRef(false);
 
   const blocked =
@@ -52,7 +54,7 @@ export function OnboardingGuard({
 
   // Only block the tree on the first progress load — silent refreshes (e.g. after
   // generating a post) must not unmount creation wizards and reset their state.
-  if ((loading && !progress) || (redirect && blocked)) {
+  if (bootstrapping || (redirect && blocked)) {
     return (
       <GeneratingIndicator
         label={t("checking")}

@@ -2,6 +2,7 @@
 
 import { SetupProgress } from "@/components/onboarding/setup-progress";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { resolveWelcomeRedirect } from "@/lib/workspace/onboarding-routes";
 import type { OnboardingNextStep } from "@/lib/workspace/onboarding-status";
@@ -28,15 +29,16 @@ export function WelcomeScreen() {
   const tCommon = useTranslations("common");
   const router = useRouter();
   const { progress, status, loading } = useOnboardingProgress();
+  const bootstrapping = isOnboardingBootstrapping(loading, progress);
 
   const redirectHref = resolveWelcomeRedirect(progress);
 
   useEffect(() => {
-    if (loading || !redirectHref) return;
+    if (bootstrapping || !redirectHref) return;
     router.replace(redirectHref);
-  }, [loading, redirectHref, router]);
+  }, [bootstrapping, redirectHref, router]);
 
-  if (loading || redirectHref) {
+  if (bootstrapping || redirectHref) {
     return (
       <GeneratingIndicator label={tCommon("loading")} className="max-w-xl" />
     );

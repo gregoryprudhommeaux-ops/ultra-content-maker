@@ -15,6 +15,7 @@ import { DashboardPageShell } from "@/components/layout/dashboard-page";
 import { ArticlesLibraryToolbar } from "@/components/articles/articles-library-toolbar";
 import { ContextHelp } from "@/components/ui/context-help";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
 import { listArticleBatches, type ArticleBatchGroup } from "@/lib/workspace/articles";
@@ -58,6 +59,10 @@ export function ArticlesHub() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { progress, loading: onboardingLoading } = useOnboardingProgress();
+  const onboardingBootstrapping = isOnboardingBootstrapping(
+    onboardingLoading,
+    progress,
+  );
   const searchParams = useSearchParams();
   const urlFilters = libraryFiltersFromSearchParams(searchParams);
   const [query, setQuery] = useState("");
@@ -82,11 +87,11 @@ export function ArticlesHub() {
   }, [user]);
 
   useEffect(() => {
-    if (onboardingLoading || !progress) return;
+    if (onboardingBootstrapping || !progress) return;
     if (!progress.canAccessCreation) {
       router.replace("/start");
     }
-  }, [onboardingLoading, progress, router]);
+  }, [onboardingBootstrapping, progress, router]);
 
   const totalCount = useMemo(() => countArticles(batches), [batches]);
 
@@ -110,7 +115,12 @@ export function ArticlesHub() {
   const hasAnyPosts = totalCount > 0;
   const hasFilterResults = visibleCount > 0;
 
-  if (authLoading || !loaded || onboardingLoading || !progress?.canAccessCreation) {
+  if (
+    authLoading ||
+    !loaded ||
+    onboardingBootstrapping ||
+    !progress?.canAccessCreation
+  ) {
     return <GeneratingIndicator label="…" className="max-w-xl" />;
   }
 

@@ -27,17 +27,31 @@ type OnboardingProgressContextValue = {
   /** Derived from progress — single source for guards, /start hub, nav. */
   status: OnboardingStatus | null;
   loading: boolean;
-  reload: () => Promise<void>;
+  reload: (options?: { silent?: boolean }) => Promise<void>;
 };
 
 const OnboardingProgressContext =
   createContext<OnboardingProgressContextValue | null>(null);
+
+const DEFAULT_NOTIFY_DEFER_MS = 1500;
 
 /** Call after any onboarding step is saved so the stepper refreshes. */
 export function notifyOnboardingProgressChanged() {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent(CHANGED_EVENT));
   }
+}
+
+/**
+ * Defer progress refresh until navigation or local UI state has settled — use
+ * after long async flows (post generation, batch create) that must not unmount
+ * wizards or hub lists via guard spinners.
+ */
+export function notifyOnboardingProgressChangedDeferred(
+  ms = DEFAULT_NOTIFY_DEFER_MS,
+) {
+  if (typeof window === "undefined") return;
+  window.setTimeout(() => notifyOnboardingProgressChanged(), ms);
 }
 
 export function OnboardingProgressProvider({ children }: { children: ReactNode }) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { isPathLockedForProgress } from "@/lib/workspace/onboarding-status";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -26,28 +27,19 @@ export function OnboardingRouteGuard({ children }: { children: ReactNode }) {
     didRedirect.current = false;
   }, [pathname]);
 
+  const bootstrapping = isOnboardingBootstrapping(loading, progress);
+
   useEffect(() => {
-    if (loading || !locked || !redirectHref || didRedirect.current) return;
+    if (bootstrapping || !locked || !redirectHref || didRedirect.current) return;
     didRedirect.current = true;
     router.replace(redirectHref);
-  }, [loading, locked, redirectHref, router]);
+  }, [bootstrapping, locked, redirectHref, router]);
 
-  // Keep page content mounted during silent progress refresh — only block first load
-  // or an active locked-route redirect (setup steps opened too early).
-  if (loading && !progress) {
+  // Only block on first progress load — silent refreshes must not unmount page trees.
+  if (bootstrapping) {
     return (
       <GeneratingIndicator
         label={t("checking")}
-        className="max-w-xl"
-      />
-    );
-  }
-
-  if (locked && redirectHref) {
-    return (
-      <GeneratingIndicator
-        label={t("checking")}
-        hint={t("redirecting")}
         className="max-w-xl"
       />
     );

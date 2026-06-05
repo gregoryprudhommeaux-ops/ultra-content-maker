@@ -1,6 +1,7 @@
 "use client";
 
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import {
   ONBOARDING_STEPS,
   type OnboardingStepKey,
@@ -50,7 +51,7 @@ export function OnboardingBlockedBanner({ reason: reasonProp }: Props) {
   const tSteps = useTranslations("setup.steps");
   const { progress, loading } = useOnboardingProgress();
 
-  if (loading) return null;
+  if (isOnboardingBootstrapping(loading, progress)) return null;
 
   const reason = resolveReason(reasonProp, progress?.nextStep ?? null);
   const href = hrefForReason(reason, progress?.nextHref ?? null);

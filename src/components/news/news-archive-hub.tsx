@@ -19,7 +19,7 @@ import {
   type ArchivedNewsDoc,
 } from "@/lib/workspace/news-archive";
 import { getPersona } from "@/lib/workspace/persona";
-import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
+import { notifyOnboardingProgressChangedDeferred } from "@/contexts/onboarding-progress-context";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { ContentLanguage, EmojiLevel } from "@/types/workspace";
@@ -147,8 +147,8 @@ export function NewsArchiveHub() {
         newsSource,
         postBrief,
       );
-      notifyOnboardingProgressChanged();
       router.push("/articles");
+      notifyOnboardingProgressChangedDeferred();
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
         setError(tArticles("generateTimeout"));

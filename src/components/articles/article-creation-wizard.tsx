@@ -28,7 +28,7 @@ import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
 import {
-  notifyOnboardingProgressChanged,
+  notifyOnboardingProgressChangedDeferred,
   useOnboardingProgress,
 } from "@/contexts/onboarding-progress-context";
 import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
@@ -654,7 +654,7 @@ export function ArticleCreationWizard() {
         setDraftRevision((n) => n + 1);
       }
       setStep("draft-done");
-      window.setTimeout(() => notifyOnboardingProgressChanged(), 1500);
+      notifyOnboardingProgressChangedDeferred();
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
         setErrorInfo(

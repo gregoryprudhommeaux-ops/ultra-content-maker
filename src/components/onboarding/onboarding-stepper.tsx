@@ -1,6 +1,7 @@
 "use client";
 
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import type { StepVisualStatus } from "@/lib/workspace/onboarding-progress";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -74,6 +75,7 @@ export function OnboardingStepper({ placement = "dashboard" }: Props) {
   const t = useTranslations("setup.onboarding");
   const tSteps = useTranslations("setup.steps");
   const { progress, loading } = useOnboardingProgress();
+  const bootstrapping = isOnboardingBootstrapping(loading, progress);
   const pathname = usePathname();
   const isSettings = placement === "settings";
   const hiddenOnStart = placement === "dashboard" && pathname?.startsWith("/start");
@@ -100,7 +102,7 @@ export function OnboardingStepper({ placement = "dashboard" }: Props) {
     return null;
   }
 
-  if (loading || !progress) {
+  if (bootstrapping || !progress) {
     if (isSettings) return null;
     return (
       <div
