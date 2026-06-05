@@ -32,6 +32,12 @@ import {
   useOnboardingProgress,
 } from "@/contexts/onboarding-progress-context";
 import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
+import {
+  clearCreationWizardSession,
+  loadCreationWizardSession,
+  saveCreationWizardSession,
+  type WizardSessionStep,
+} from "@/lib/articles/creation-wizard-session";
 import { DEFAULT_POST_BRIEF, saveStoredPostBrief } from "@/lib/articles/post-brief-storage";
 import { newsToSource } from "@/lib/news/to-source";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
@@ -194,6 +200,37 @@ export function ArticleCreationWizard() {
   useEffect(() => {
     saveStoredPostBrief(postBrief);
   }, [postBrief]);
+
+  useEffect(() => {
+    if (!user || !loaded || step === "mode") return;
+
+    saveCreationWizardSession({
+      v: 1,
+      savedAt: Date.now(),
+      step: step as WizardSessionStep,
+      mode,
+      postBrief,
+      inspirationCtx,
+      selectedNewsId: selectedNews?.id ?? null,
+      draftArticleId,
+      draftRevision,
+      targetScope,
+      emojiLevel,
+      briefSuggested: briefSuggestedRef.current,
+    });
+  }, [
+    user,
+    loaded,
+    step,
+    mode,
+    postBrief,
+    inspirationCtx,
+    selectedNews?.id,
+    draftArticleId,
+    draftRevision,
+    targetScope,
+    emojiLevel,
+  ]);
 
   useEffect(() => {
     if (mode === "profile" && isPostBriefComplete(postBrief)) {
@@ -617,7 +654,7 @@ export function ArticleCreationWizard() {
         setDraftRevision((n) => n + 1);
       }
       setStep("draft-done");
-      queueMicrotask(() => notifyOnboardingProgressChanged());
+      window.setTimeout(() => notifyOnboardingProgressChanged(), 1500);
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
         setErrorInfo(
@@ -675,10 +712,13 @@ export function ArticleCreationWizard() {
   }
 
   function resetToIntent() {
+    clearCreationWizardSession();
     setStep("mode");
     setMode(null);
     setInspirationCtx(null);
     setSelectedNews(null);
+    setDraftArticleId(null);
+    setDraftRevision(0);
     briefSuggestedRef.current = false;
   }
 
@@ -737,6 +777,34 @@ export function ArticleCreationWizard() {
   useEffect(() => {
     if (!loaded || !user || initialModeFromUrl.current) return;
 
+    const session = loadCreationWizardSession();
+    if (session && session.step !== "mode" && session.step !== "generating") {
+      initialModeFromUrl.current = true;
+      setMode(session.mode);
+      setStep(session.step as Step);
+      setPostBrief(session.postBrief);
+      setInspirationCtx(session.inspirationCtx);
+      setTargetScope(session.targetScope);
+      setEmojiLevel(session.emojiLevel);
+      briefSuggestedRef.current = session.briefSuggested;
+
+      if (session.draftArticleId) {
+        setDraftArticleId(session.draftArticleId);
+        setDraftRevision(session.draftRevision);
+      }
+
+      if (session.mode === "news" && session.selectedNewsId) {
+        void getArchivedNews(user.uid, session.selectedNewsId).then((item) => {
+          if (item) setSelectedNews(item);
+        });
+      }
+
+      if (session.mode === "inspiration") {
+        void loadInspirationLibrary();
+      }
+      return;
+    }
+
     const modeParam = searchParams.get("mode");
     const newsId = searchParams.get("newsId")?.trim();
 
@@ -794,6 +862,7 @@ export function ArticleCreationWizard() {
     } else if (step === "inspiration-input" || step === "news") {
       resetToIntent();
     } else if (step === "draft-done") {
+      clearCreationWizardSession();
       router.push("/articles");
     } else {
       setStep("mode");

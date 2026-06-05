@@ -32,11 +32,22 @@ export function OnboardingRouteGuard({ children }: { children: ReactNode }) {
     router.replace(redirectHref);
   }, [loading, locked, redirectHref, router]);
 
-  if ((loading && !progress) || (locked && redirectHref)) {
+  // Keep page content mounted during silent progress refresh — only block first load
+  // or an active locked-route redirect (setup steps opened too early).
+  if (loading && !progress) {
     return (
       <GeneratingIndicator
         label={t("checking")}
-        hint={locked ? t("redirecting") : undefined}
+        className="max-w-xl"
+      />
+    );
+  }
+
+  if (locked && redirectHref) {
+    return (
+      <GeneratingIndicator
+        label={t("checking")}
+        hint={t("redirecting")}
         className="max-w-xl"
       />
     );

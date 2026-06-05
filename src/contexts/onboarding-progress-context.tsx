@@ -15,6 +15,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -44,6 +45,7 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
   const pathname = usePathname();
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasLoadedProgressRef = useRef(false);
 
   const reload = useCallback(async (options?: { silent?: boolean }) => {
     if (!user) {
@@ -58,6 +60,7 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
     try {
       const data = await loadOnboardingProgress(user.uid, pathname);
       setProgress(data);
+      hasLoadedProgressRef.current = true;
     } catch {
       if (!silent) {
         setProgress(null);
@@ -70,7 +73,7 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
   }, [user, pathname]);
 
   useEffect(() => {
-    void reload();
+    void reload({ silent: hasLoadedProgressRef.current });
   }, [reload]);
 
   useEffect(() => {
