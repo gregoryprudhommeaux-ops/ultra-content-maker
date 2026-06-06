@@ -2,6 +2,9 @@
   "name": "ultra-content-maker",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/@ns-suite/*"
+  ],
   "scripts": {
     "dev": "bash scripts/dev.sh",
     "dev:quick": "next dev -p 3000 -H 127.0.0.1",
@@ -14,6 +17,7 @@
     "admin:set-claim": "tsx scripts/set-platform-admin-claim.ts"
   },
   "dependencies": {
+    "@ns-suite/ui": "workspace:*",
     "lucide-react": "^0.511.0",
     "firebase": "^12.13.0",
     "firebase-admin": "^13.10.0",

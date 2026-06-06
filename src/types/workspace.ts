@@ -287,9 +287,12 @@ export interface ArticleTranslationVariant {
   generatedAt: string;
 }
 
-/** Alternate-language versions of a validated post (key = target ContentLanguage). */
+/** Regional target locale for stored article translations. */
+export type ArticleTranslationLocale = "fr" | "es-mx" | "es" | "en-gb" | "en-us";
+
+/** Alternate-language versions of a validated post (key = target locale). */
 export type ArticleTranslations = Partial<
-  Record<ContentLanguage, ArticleTranslationVariant>
+  Record<ArticleTranslationLocale, ArticleTranslationVariant>
 >;
 
 /** Post-publication signals (manual entry, Phase 3). */

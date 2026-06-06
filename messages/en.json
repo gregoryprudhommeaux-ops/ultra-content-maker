@@ -1287,29 +1287,25 @@
         "firstCommentHint": "Paste this as your first comment right after posting to seed qualified discussion.",
         "firstCommentHintNews": "For news-based posts: paste this comment right after publishing — it includes the source with the URL (keep links out of the post body).",
         "copyComment": "Copy comment",
-        "copied": "Copied",
-        "scheduleTitle": "Schedule publication",
-        "scheduleHint": "Pick when you will publish on LinkedIn (native scheduler or manual post). The calendar reminder includes the first-comment text to paste right after publishing.",
-        "scheduleLabel": "Planned publish date & time",
-        "addCalendarReminder": "Add to calendar (.ics)",
-        "openGoogleCalendar": "Google Calendar",
-        "scheduleNeedsComment": "Generate the first comment first so its text is included in the reminder.",
-        "scheduleReminderNote": "The event body contains the first comment ready to paste under your post.",
-        "calendarEventTitle": "LinkedIn — publish + first comment · {hook}",
-        "calendarEventIntro": "As soon as the post is live on LinkedIn: publish the post (validated text in Ultra Content Maker), then paste this first comment under the post immediately.",
-        "calendarPostExcerptLabel": "Reminder — post excerpt:"
+        "copied": "Copied"
       },
       "translate": {
         "title": "Translations",
-        "subtitle": "Create versions in your other languages — LinkedIn length and line breaks respected.",
+        "subtitle": "Produce a version in your target language — LinkedIn length and line breaks respected.",
+        "targetLanguageLabel": "1. Target language",
+        "styleLabel": "2. Translation style",
         "literal": "Faithful translation",
         "localized": "Localized rewrite",
-        "literalHint": "Close translation: same structure and meaning, fitted to LinkedIn character limits.",
-        "localizedHint": "Rewritten for the target audience (e.g. French company examples → US or Mexico-relevant references).",
-        "languages": {
+        "literalHint": "Same structure and meaning, fitted to LinkedIn character limits.",
+        "localizedHint": "Rewritten for the local audience (references, spelling, market examples).",
+        "generate": "Generate translation",
+        "regenerate": "Regenerate",
+        "locales": {
           "fr": "French",
-          "en": "English",
-          "es": "Spanish (Mexico)"
+          "es-mx": "Spanish (Mexico)",
+          "es": "Spanish (standard)",
+          "en-gb": "English (British)",
+          "en-us": "English (US)"
         },
         "copy": "Copy version",
         "copied": "Copied",
@@ -1388,7 +1384,7 @@
           "less_generic": "Less generic"
         },
         "revising": "Revising post…",
-        "revisingHint": "AI is applying the selected lever (30–60 s)."
+        "revisingHint": "AI is applying the selected lever (usually 10–25 s)."
       },
       "generateBatch": "Generate 4 posts",
       "generating": "Generating posts…",
@@ -1506,7 +1502,7 @@
         "validating": "Validating…",
         "validatingHint": "CTA integration, global coherence pass, hashtags, and export (20–40 s).",
         "revising": "Revising…",
-        "revisingHint": "AI is applying your feedback to the post (20–60 s).",
+        "revisingHint": "AI is applying your feedback to the post (usually 10–25 s).",
         "exportPreview": "Final text",
         "hashtagsHint": "4 LinkedIn hashtags will be appended at the end (content + profile) when you validate.",
         "characterCount": "{count} / {max} characters (LinkedIn)",
@@ -1541,7 +1537,7 @@
           },
           "enrich": {
             "title": "Format, translation & repurposing",
-            "hint": "Recommended format, carousel, video script, first comment, calendar, and translations."
+            "hint": "Recommended format, carousel, video script, first comment, and translations."
           },
           "illustration": {
             "title": "Illustration",
@@ -1630,7 +1626,7 @@
         "backCta": "Back to persona hub"
       },
       "generate": {
-        "description": "Ideas, calendar, and LinkedIn drafts for this persona. Available soon.",
+        "description": "Ideas and LinkedIn drafts for this persona. Available soon.",
         "backCta": "Back to persona hub"
       },
       "history": {

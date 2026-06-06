@@ -4,29 +4,28 @@ import {
   injectAuthorSteering,
   type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
+import {
+  TRANSLATION_LOCALE_AUDIENCE,
+  TRANSLATION_LOCALE_LABELS,
+} from "@/lib/articles/translation-locale";
 import type {
+  ArticleTranslationLocale,
   ArticleTranslationMode,
   ContentLanguage,
 } from "@/types/workspace";
 
-const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
+const SOURCE_LANGUAGE_LABELS: Record<ContentLanguage, string> = {
   fr: "French (France)",
-  en: "English (US professional B2B)",
-  es: "Spanish (Mexico — professional B2B, localized references)",
-};
-
-const TARGET_AUDIENCE_HINT: Record<ContentLanguage, string> = {
-  fr: "French-speaking professionals in France/EU.",
-  en: "English-speaking professionals (US/UK) — adapt examples away from France-only context when needed.",
-  es: "Spanish-speaking professionals in Mexico/LATAM — adapt examples away from France-only context when needed.",
+  en: "English",
+  es: "Spanish",
 };
 
 export function buildArticleTranslateSystemPrompt(
-  targetLanguage: ContentLanguage,
+  targetLocale: ArticleTranslationLocale,
   mode: ArticleTranslationMode,
 ): string {
-  const target = LANGUAGE_LABELS[targetLanguage];
-  const audience = TARGET_AUDIENCE_HINT[targetLanguage];
+  const target = TRANSLATION_LOCALE_LABELS[targetLocale];
+  const audience = TRANSLATION_LOCALE_AUDIENCE[targetLocale];
 
   const modeRules =
     mode === "literal"
@@ -66,7 +65,7 @@ Rules:
 
 export function buildArticleTranslateUserPrompt(input: {
   sourceLanguage: ContentLanguage;
-  targetLanguage: ContentLanguage;
+  targetLocale: ArticleTranslationLocale;
   mode: ArticleTranslationMode;
   personaExcerpt: string;
   hook: string;
@@ -79,8 +78,8 @@ export function buildArticleTranslateUserPrompt(input: {
   return JSON.stringify(
     injectAuthorSteering(
       {
-        sourceLanguage: LANGUAGE_LABELS[input.sourceLanguage],
-        targetLanguage: LANGUAGE_LABELS[input.targetLanguage],
+        sourceLanguage: SOURCE_LANGUAGE_LABELS[input.sourceLanguage],
+        targetLanguage: TRANSLATION_LOCALE_LABELS[input.targetLocale],
         mode: input.mode,
         personaExcerpt: input.personaExcerpt.slice(0, 5000),
         post: {

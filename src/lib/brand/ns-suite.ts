@@ -1,10 +1,8 @@
-/** Public URL of the NS Suite hub (all entrepreneur tools). Set when the hub page is live. */
-export const NS_SUITE_URL =
-  typeof process.env.NEXT_PUBLIC_NS_SUITE_URL === "string" &&
-  process.env.NEXT_PUBLIC_NS_SUITE_URL.length > 0
-    ? process.env.NEXT_PUBLIC_NS_SUITE_URL
-    : null;
+export {
+  NEXTSTEP_COMPANY,
+  NS_SUITE_NAME,
+  NS_SUITE_URL,
+} from "@ns-suite/ui/brand";
 
-export const NEXTSTEP_COMPANY = "NextStep Services";
-export const NS_SUITE_NAME = "NS Suite";
+/** Product display name for this app (not shared across NS Suite). */
 export const PRODUCT_NAME = "ULTRA CONTENT MAKER";

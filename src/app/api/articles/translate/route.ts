@@ -12,7 +12,9 @@ import {
   maxDraftCharsForArticle,
 } from "@/lib/linkedin/fit-linkedin-post";
 import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
+import { isTranslationLocaleDisabled } from "@/lib/articles/translation-locale";
 import type {
+  ArticleTranslationLocale,
   ArticleTranslationMode,
   ContentLanguage,
   LlmProvider,
@@ -25,7 +27,7 @@ export const dynamic = "force-dynamic";
 
 type Body = {
   sourceLanguage: ContentLanguage;
-  targetLanguage: ContentLanguage;
+  targetLocale: ArticleTranslationLocale;
   mode: ArticleTranslationMode;
   personaPromptText: string;
   hook: string;
@@ -57,12 +59,12 @@ export async function POST(request: Request) {
       !body.personaPromptText?.trim() ||
       !body.hook?.trim() ||
       !body.body?.trim() ||
-      !body.targetLanguage ||
+      !body.targetLocale ||
       !body.mode
     ) {
       throw new Error("invalid");
     }
-    if (body.sourceLanguage === body.targetLanguage) {
+    if (isTranslationLocaleDisabled(body.sourceLanguage, body.targetLocale)) {
       throw new Error("same_language");
     }
   } catch (e) {
@@ -96,13 +98,13 @@ export async function POST(request: Request) {
     const raw = await chatCompletionJson(llm, [
       {
         role: "system",
-        content: buildArticleTranslateSystemPrompt(body.targetLanguage, body.mode),
+        content: buildArticleTranslateSystemPrompt(body.targetLocale, body.mode),
       },
       {
         role: "user",
         content: buildArticleTranslateUserPrompt({
           sourceLanguage: body.sourceLanguage,
-          targetLanguage: body.targetLanguage,
+          targetLocale: body.targetLocale,
           mode: body.mode,
           personaExcerpt: body.personaPromptText,
           hook: body.hook,

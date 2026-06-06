@@ -4,6 +4,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@ns-suite/ui"],
   serverExternalPackages: ["firebase", "firebase-admin", "@grpc/grpc-js", "@grpc/proto-loader"],
   webpack: (config, { dev }) => {
     if (dev) {

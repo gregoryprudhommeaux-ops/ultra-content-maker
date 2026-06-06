@@ -10,6 +10,7 @@ import {
   updateDoc,
   type DocumentData,
 } from "firebase/firestore";
+import { normalizeArticleTranslations } from "@/lib/articles/translation-locale";
 import type {
   ArticleCreationMode,
   ArticleDoc,
@@ -17,6 +18,7 @@ import type {
   ArticleQualityScores,
   ArticleRefinement,
   ArticleRepurpose,
+  ArticleTranslationLocale,
   ArticleTranslations,
   ArticleTranslationVariant,
   ArticleScope,
@@ -129,9 +131,9 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
       ? (d.performanceSignals as ArticlePerformanceSignals)
       : undefined,
     slopAnalysis: d.slopAnalysis ? (d.slopAnalysis as SlopAnalysis) : undefined,
-    translations: d.translations
-      ? (d.translations as ArticleTranslations)
-      : undefined,
+    translations: normalizeArticleTranslations(
+      d.translations as ArticleTranslations | undefined,
+    ),
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),
     validatedAt: d.validatedAt ? toDate(d.validatedAt) : undefined,
@@ -268,13 +270,13 @@ export async function saveArticleFormatPlan(
 export async function saveArticleTranslation(
   userId: string,
   articleId: string,
-  targetLanguage: ContentLanguage,
+  targetLocale: ArticleTranslationLocale,
   variant: ArticleTranslationVariant,
   existing?: ArticleTranslations,
 ) {
   const translations: ArticleTranslations = {
     ...(existing ?? {}),
-    [targetLanguage]: variant,
+    [targetLocale]: variant,
   };
   await updateDoc(articleDocRef(userId, articleId), {
     translations,

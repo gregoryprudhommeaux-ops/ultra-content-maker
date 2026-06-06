@@ -1,6 +1,7 @@
 "use client";
 
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -11,9 +12,10 @@ export function ReadyScreen() {
   const t = useTranslations("setup.onboarding.ready");
   const router = useRouter();
   const { progress, loading } = useOnboardingProgress();
+  const bootstrapping = isOnboardingBootstrapping(loading, progress);
 
   useEffect(() => {
-    if (loading || !progress) return;
+    if (bootstrapping || !progress) return;
     if (!progress.canAccessCreation) {
       router.replace(progress.nextHref ?? "/start");
       return;
@@ -21,9 +23,9 @@ export function ReadyScreen() {
     if (progress.completion.isOnboardingComplete) {
       router.replace("/articles/new?from=ready");
     }
-  }, [loading, progress, router]);
+  }, [bootstrapping, progress, router]);
 
-  if (loading || !progress) {
+  if (bootstrapping || !progress) {
     return <GeneratingIndicator label={t("loading")} className="max-w-xl" />;
   }
 

@@ -7,6 +7,7 @@ import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import {
   ARCHIVED_NEWS_DISPLAY_LIMIT,
   listArchivedNews,
@@ -22,6 +23,10 @@ export function NewsArchiveList() {
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
   const { progress, status, loading: onboardingLoading } = useOnboardingProgress();
+  const onboardingBootstrapping = isOnboardingBootstrapping(
+    onboardingLoading,
+    progress,
+  );
   const [archived, setArchived] = useState<ArchivedNewsDoc[]>([]);
   const [selected, setSelected] = useState<ArchivedNewsDoc | null>(null);
   const [detailItem, setDetailItem] = useState<ArchivedNewsDoc | null>(null);
@@ -46,7 +51,7 @@ export function NewsArchiveList() {
   const canCreateFromNews = progress?.canAccessCreation ?? false;
   const setupNextHref = status?.nextHref ?? "/start";
 
-  if (!loaded || onboardingLoading) {
+  if (!loaded || onboardingBootstrapping) {
     return <GeneratingIndicator label="…" className="max-w-xl" />;
   }
 

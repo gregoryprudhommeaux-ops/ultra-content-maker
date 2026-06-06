@@ -15,6 +15,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -26,11 +27,13 @@ type OnboardingProgressContextValue = {
   /** Derived from progress — single source for guards, /start hub, nav. */
   status: OnboardingStatus | null;
   loading: boolean;
-  reload: () => Promise<void>;
+  reload: (options?: { silent?: boolean }) => Promise<void>;
 };
 
 const OnboardingProgressContext =
   createContext<OnboardingProgressContextValue | null>(null);
+
+const DEFAULT_NOTIFY_DEFER_MS = 1500;
 
 /** Call after any onboarding step is saved so the stepper refreshes. */
 export function notifyOnboardingProgressChanged() {
@@ -39,35 +42,56 @@ export function notifyOnboardingProgressChanged() {
   }
 }
 
+/**
+ * Defer progress refresh until navigation or local UI state has settled — use
+ * after long async flows (post generation, batch create) that must not unmount
+ * wizards or hub lists via guard spinners.
+ */
+export function notifyOnboardingProgressChangedDeferred(
+  ms = DEFAULT_NOTIFY_DEFER_MS,
+) {
+  if (typeof window === "undefined") return;
+  window.setTimeout(() => notifyOnboardingProgressChanged(), ms);
+}
+
 export function OnboardingProgressProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const pathname = usePathname();
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasLoadedProgressRef = useRef(false);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (options?: { silent?: boolean }) => {
     if (!user) {
       setProgress(null);
       setLoading(false);
       return;
     }
-    setLoading(true);
+    const silent = options?.silent === true;
+    if (!silent) {
+      setLoading(true);
+    }
     try {
       const data = await loadOnboardingProgress(user.uid, pathname);
       setProgress(data);
+      hasLoadedProgressRef.current = true;
     } catch {
-      setProgress(null);
+      if (!silent) {
+        setProgress(null);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, [user, pathname]);
 
   useEffect(() => {
-    void reload();
+    void reload({ silent: hasLoadedProgressRef.current });
   }, [reload]);
 
   useEffect(() => {
-    const onChanged = () => void reload();
+    const onChanged = () => void reload({ silent: true });
     window.addEventListener(CHANGED_EVENT, onChanged);
     return () => window.removeEventListener(CHANGED_EVENT, onChanged);
   }, [reload]);

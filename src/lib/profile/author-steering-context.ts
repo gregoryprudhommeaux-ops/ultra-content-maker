@@ -176,6 +176,40 @@ export function injectAuthorSteering<T extends Record<string, unknown>>(
   return { ...payload, authorSteering: steering };
 }
 
+/** Lighter steering for post revision — keeps voice/ICP without full source lists. */
+export function slimAuthorSteeringForRevise(
+  steering?: AuthorSteeringPayload | null,
+): AuthorSteeringPayload | undefined {
+  if (!steering) return undefined;
+
+  const slim: AuthorSteeringPayload = {};
+
+  if (steering.author) {
+    slim.author = {
+      roleTitle: steering.author.roleTitle,
+      positioningLine: steering.author.positioningLine,
+      creationStrategySteering: steering.author.creationStrategySteering,
+    };
+  }
+
+  if (steering.audience) {
+    slim.audience = {
+      targetLabel: steering.audience.targetLabel,
+      contentFocus: steering.audience.contentFocus,
+      newsInterestQuery: steering.audience.newsInterestQuery,
+    };
+  }
+
+  if (steering.linkedInPositioning) {
+    slim.linkedInPositioning = {
+      patternSummary: steering.linkedInPositioning.patternSummary?.slice(0, 400),
+      activeSteering: steering.linkedInPositioning.activeSteering,
+    };
+  }
+
+  return hasSteeringContent(slim) ? slim : undefined;
+}
+
 function hasSteeringContent(s: AuthorSteeringPayload): boolean {
   return !!(
     s.author?.creationStrategySteering ||

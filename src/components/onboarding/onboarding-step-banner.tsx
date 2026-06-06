@@ -1,6 +1,7 @@
 "use client";
 
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -13,7 +14,11 @@ export function OnboardingStepBanner({ stepKey }: Props) {
   const t = useTranslations("setup.onboarding.wizard");
   const { progress, loading } = useOnboardingProgress();
 
-  if (loading || !progress || progress.completion.isOnboardingComplete) {
+  if (
+    isOnboardingBootstrapping(loading, progress) ||
+    !progress ||
+    progress.completion.isOnboardingComplete
+  ) {
     return null;
   }
 

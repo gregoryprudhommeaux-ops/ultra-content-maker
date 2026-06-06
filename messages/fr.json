@@ -1295,29 +1295,25 @@
         "firstCommentHint": "Collez ce commentaire sous votre post juste après publication pour amorcer une discussion qualifiée.",
         "firstCommentHintNews": "Pour les posts issus d’une actu : collez ce commentaire juste après publication — il contient la source avec l’URL (évitez les liens dans le corps du post).",
         "copyComment": "Copier le commentaire",
-        "copied": "Copié",
-        "scheduleTitle": "Planifier la publication",
-        "scheduleHint": "Choisissez l’heure à laquelle vous publierez sur LinkedIn (planification native ou publication manuelle). Le rappel calendrier inclut le texte du 1er commentaire à coller juste après le post.",
-        "scheduleLabel": "Date et heure de publication prévue",
-        "addCalendarReminder": "Ajouter au calendrier (.ics)",
-        "openGoogleCalendar": "Google Calendar",
-        "scheduleNeedsComment": "Générez d’abord le 1er commentaire pour inclure son texte dans le rappel.",
-        "scheduleReminderNote": "Le corps de l’événement contient le 1er commentaire prêt à coller sous votre post.",
-        "calendarEventTitle": "LinkedIn — publier + 1er commentaire · {hook}",
-        "calendarEventIntro": "À faire dès que le post est en ligne sur LinkedIn : publier le post (texte déjà validé dans Ultra Content Maker), puis coller immédiatement ce 1er commentaire sous le post.",
-        "calendarPostExcerptLabel": "Rappel — extrait du post :"
+        "copied": "Copié"
       },
       "translate": {
         "title": "Traductions",
-        "subtitle": "Produisez des versions dans les autres langues — respect du format LinkedIn (longueur, sauts de ligne).",
+        "subtitle": "Produisez une version dans la langue cible — respect du format LinkedIn (longueur, sauts de ligne).",
+        "targetLanguageLabel": "1. Langue cible",
+        "styleLabel": "2. Style de traduction",
         "literal": "Traduction fidèle",
         "localized": "Réinterprétation localisée",
-        "literalHint": "Traduction textuelle : même structure et sens, adaptée à la limite de caractères LinkedIn.",
-        "localizedHint": "Réécriture pour l’audience cible (ex. références françaises → exemples US ou Mexique selon la langue).",
-        "languages": {
+        "literalHint": "Même structure et sens, adaptés à la limite de caractères LinkedIn.",
+        "localizedHint": "Réécriture pour l’audience locale (références, orthographe, exemples du marché cible).",
+        "generate": "Générer la traduction",
+        "regenerate": "Régénérer",
+        "locales": {
           "fr": "Français",
-          "en": "Anglais",
-          "es": "Espagnol (Mexique)"
+          "es-mx": "Espagnol (Mexique)",
+          "es": "Espagnol (standard)",
+          "en-gb": "Anglais (British)",
+          "en-us": "Anglais (USA)"
         },
         "copy": "Copier la version",
         "copied": "Copié",
@@ -1396,7 +1392,7 @@
           "less_generic": "Moins générique"
         },
         "revising": "Révision du post en cours…",
-        "revisingHint": "L’IA applique le levier choisi (30–60 s)."
+        "revisingHint": "L’IA applique le levier choisi (en général 10–25 s)."
       },
       "generateBatch": "Générer 4 posts",
       "generating": "Génération des posts…",
@@ -1514,7 +1510,7 @@
         "validating": "Validation en cours…",
         "validatingHint": "Intégration du CTA, relecture de cohérence globale, hashtags et export (20–40 s).",
         "revising": "Révision en cours…",
-        "revisingHint": "L’IA applique vos retours au post (20–60 s).",
+        "revisingHint": "L’IA applique vos retours au post (en général 10–25 s).",
         "exportPreview": "Texte final",
         "hashtagsHint": "4 hashtags LinkedIn seront ajoutés en fin de post (contenu + profil) à la validation.",
         "characterCount": "{count} / {max} caractères (LinkedIn)",
@@ -1549,7 +1545,7 @@
           },
           "enrich": {
             "title": "Format, traduction & republication",
-            "hint": "Format recommandé, carrousel, script vidéo, 1er commentaire, calendrier et traductions."
+            "hint": "Format recommandé, carrousel, script vidéo, 1er commentaire et traductions."
           },
           "illustration": {
             "title": "Illustration",
@@ -1638,7 +1634,7 @@
         "backCta": "Retour au hub persona"
       },
       "generate": {
-        "description": "Idées, calendrier et brouillons LinkedIn pour ce persona. Bientôt disponible.",
+        "description": "Idées et brouillons LinkedIn pour ce persona. Bientôt disponible.",
         "backCta": "Retour au hub persona"
       },
       "history": {
