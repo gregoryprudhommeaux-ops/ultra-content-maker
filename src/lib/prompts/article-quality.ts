@@ -2,6 +2,7 @@ import {
   injectAuthorSteering,
   type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
+import { primaryPostObjective } from "@/lib/articles/post-brief-objectives";
 import type { ContentLanguage, PostBrief, PostObjective } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -47,7 +48,9 @@ export function buildArticleQualityUserPrompt(input: {
         body: input.body,
         ps: input.ps ?? "",
         postBrief: input.postBrief ?? null,
-        postObjective: input.postObjective ?? input.postBrief?.objective ?? null,
+        postObjective:
+          input.postObjective ??
+          (input.postBrief ? primaryPostObjective(input.postBrief) : null),
         personaExcerpt: input.personaExcerpt.slice(0, 8000),
       },
       input.authorSteering,

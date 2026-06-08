@@ -8,6 +8,7 @@ import {
   getReviseIntentPrompt,
   type ReviseIntent,
 } from "@/lib/prompts/revise-intent-prompts";
+import { primaryPostObjective } from "@/lib/articles/post-brief-objectives";
 import { bodyContainsExternalLink } from "@/lib/linkedin/body-links";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
 import { ToneEdgePicker } from "@/components/articles/tone-edge-picker";
@@ -167,7 +168,9 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
           body: article.body,
           ps: article.ps,
           authorSteering,
-          postObjective: article.postBrief?.objective ?? "credibility",
+          postObjective: article.postBrief
+            ? primaryPostObjective(article.postBrief)
+            : "credibility",
           llm: {
             provider: llmProfile.provider,
             apiKey: llmProfile.apiKey,

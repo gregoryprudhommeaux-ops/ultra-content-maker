@@ -217,8 +217,16 @@ export type CtaIntensity = "soft" | "medium" | "pushy";
 /** Why this post exists on LinkedIn (drives CTA + closing shape). */
 export type PostObjective = "awareness" | "credibility" | "conversation" | "leads";
 
-export interface PostBrief {
+export type PostObjectivePriority = 1 | 2 | 3;
+
+export type RankedPostObjective = {
   objective: PostObjective;
+  priority: PostObjectivePriority;
+};
+
+export interface PostBrief {
+  /** Up to 3 ranked objectives (1 = primary). */
+  objectives: RankedPostObjective[];
   problem: string;
   pointOfView: string;
   proof: string;

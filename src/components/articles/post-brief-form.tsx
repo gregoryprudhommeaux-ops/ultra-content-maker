@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  isObjectiveSelected,
+  objectivePriority,
+  POST_OBJECTIVES,
+  setRankedObjectivePriority,
+  toggleRankedObjective,
+} from "@/lib/articles/post-brief-objectives";
+import {
   isPostBriefComplete,
   isWizardBriefComplete,
   type WizardCreationMode,
@@ -9,18 +16,13 @@ import type {
   ArticleScope,
   BriefNicheCheck,
   PostBrief,
-  PostObjective,
+  PostObjectivePriority,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { ContextHelp } from "@/components/ui/context-help";
 import { useTranslations } from "next-intl";
 
-const OBJECTIVES: PostObjective[] = [
-  "credibility",
-  "conversation",
-  "awareness",
-  "leads",
-];
+const PRIORITIES: PostObjectivePriority[] = [1, 2, 3];
 
 type Props = {
   brief: PostBrief;
@@ -106,22 +108,68 @@ export function PostBriefForm({
             {tBriefHelp("objective.body")}
           </ContextHelp>
         </div>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {OBJECTIVES.map((obj) => (
-            <button
-              key={obj}
-              type="button"
-              onClick={() => set("objective", obj)}
-              className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
-                brief.objective === obj
-                  ? "border-ns-primary bg-ns-brand-light text-ns-tertiary"
-                  : "border-gray-100 text-ns-secondary hover:border-ns-primary/40"
-              }`}
-            >
-              {t(`objectives.${obj}`)}
-            </button>
-          ))}
+        <p className="mt-1 text-xs text-ns-secondary">{t("objectivesHint")}</p>
+        <div className="mt-2 space-y-2">
+          {POST_OBJECTIVES.map((obj) => {
+            const selected = isObjectiveSelected(brief, obj);
+            const priority = objectivePriority(brief, obj);
+            const atMax = brief.objectives.length >= 3;
+
+            return (
+              <div
+                key={obj}
+                className="flex flex-wrap items-center gap-2"
+              >
+                <button
+                  type="button"
+                  disabled={!selected && atMax}
+                  onClick={() => onChange(toggleRankedObjective(brief, obj))}
+                  className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${
+                    selected
+                      ? "border-ns-primary bg-ns-brand-light text-ns-tertiary"
+                      : "border-gray-100 text-ns-secondary hover:border-ns-primary/40"
+                  }`}
+                >
+                  {t(`objectives.${obj}`)}
+                </button>
+                {selected && priority != null && (
+                  <div
+                    className="flex items-center gap-1"
+                    role="group"
+                    aria-label={t("objectivePriorityFor", {
+                      objective: t(`objectives.${obj}`),
+                    })}
+                  >
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-ns-secondary">
+                      {t("priorityLabel")}
+                    </span>
+                    {PRIORITIES.map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() =>
+                          onChange(setRankedObjectivePriority(brief, obj, p))
+                        }
+                        className={`flex h-7 w-7 items-center justify-center rounded-md border text-xs font-bold transition-colors ${
+                          priority === p
+                            ? "border-ns-primary bg-ns-primary text-black"
+                            : "border-gray-200 text-ns-secondary hover:border-ns-primary/50"
+                        }`}
+                        aria-pressed={priority === p}
+                        aria-label={t("priorityOption", { rank: p })}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
+        {brief.objectives.length >= 3 && (
+          <p className="mt-2 text-xs text-ns-secondary">{t("objectivesMax")}</p>
+        )}
       </div>
 
       <div>

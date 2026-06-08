@@ -1,5 +1,6 @@
 import type { WizardInspirationContext } from "@/lib/inspiration/wizard-context";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
+import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import type { ArticleScope, EmojiLevel, PostBrief } from "@/types/workspace";
 
 const STORAGE_KEY = "ucm:creation-wizard-session";
@@ -69,7 +70,7 @@ export function loadCreationWizardSession(): CreationWizardSession | null {
       savedAt: parsed.savedAt,
       step: parsed.step,
       mode: parsed.mode ?? null,
-      postBrief: parsed.postBrief as PostBrief,
+      postBrief: normalizePostBrief(parsed.postBrief),
       inspirationCtx: (parsed.inspirationCtx as WizardInspirationContext | null) ?? null,
       selectedNewsId:
         typeof parsed.selectedNewsId === "string" ? parsed.selectedNewsId : null,

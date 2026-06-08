@@ -101,7 +101,7 @@ export function PersonaPerformanceInsightsPanel({
 
       const payload = withSignals.slice(0, 12).map((p) => ({
         hook: p.hook,
-        objective: p.postBrief?.objective,
+        objectives: p.postBrief?.objectives,
         signals: p.performanceSignals,
         qualityScores: p.qualityScores
           ? {

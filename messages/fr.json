@@ -959,7 +959,7 @@
         "briefSubtitleShort": "Objectif obligatoire ; les autres champs sont suggérés par l’IA et modifiables.",
         "briefSuggesting": "Suggestion du brief en cours…",
         "briefSuggestFailed": "Impossible de suggérer le brief. Complétez les champs manuellement.",
-        "incompleteObjective": "Choisissez un objectif pour continuer.",
+        "incompleteObjective": "Choisissez au moins un objectif pour continuer.",
         "scopeLabel": "Portée du post",
         "scopeHint": "Généraliste = angle large · Niche = angle expert / ICP spécifique.",
         "scope": {
@@ -1226,6 +1226,11 @@
         "title": "Brief du lot",
         "subtitle": "Oriente le brouillon vers votre objectif LinkedIn — le post intégrera problème, POV et preuve.",
         "objective": "Objectif du post",
+        "objectivesHint": "Sélectionnez jusqu’à 3 objectifs. Le chiffre 1 est la priorité principale (ton et CTA).",
+        "objectivesMax": "3 objectifs maximum — désélectionnez-en un pour en ajouter un autre.",
+        "priorityLabel": "Priorité",
+        "priorityOption": "Priorité {rank}",
+        "objectivePriorityFor": "Priorité pour {objective}",
         "objectives": {
           "credibility": "Crédibilité",
           "conversation": "Conversation",
@@ -1242,7 +1247,7 @@
         "help": {
           "objective": {
             "label": "Aide : objectif",
-            "body": "Crédibilité, conversation, visibilité ou demandes — oriente le ton et le CTA. Obligatoire dans tous les parcours de création."
+            "body": "Choisissez 1 à 3 objectifs (crédibilité, conversation, visibilité, demandes) et classez-les par priorité 1–2–3. La priorité 1 pilote le ton et le CTA."
           },
           "problem": {
             "label": "Aide : problème",

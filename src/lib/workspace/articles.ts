@@ -10,6 +10,7 @@ import {
   updateDoc,
   type DocumentData,
 } from "firebase/firestore";
+import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import { normalizeArticleTranslations } from "@/lib/articles/translation-locale";
 import type {
   ArticleCreationMode,
@@ -113,7 +114,7 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     inspirationSource: d.inspirationSource
       ? (d.inspirationSource as ArticleInspirationSource)
       : undefined,
-    postBrief: d.postBrief ? (d.postBrief as PostBrief) : undefined,
+    postBrief: d.postBrief ? normalizePostBrief(d.postBrief) : undefined,
     qualityScores: d.qualityScores
       ? (d.qualityScores as ArticleQualityScores)
       : undefined,

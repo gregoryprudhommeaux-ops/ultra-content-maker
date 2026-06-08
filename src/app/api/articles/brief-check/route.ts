@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   let body: Body;
   try {
     body = (await request.json()) as Body;
-    if (!body.postBrief?.objective) throw new Error("invalid");
+    if (!body.postBrief?.objectives?.length) throw new Error("invalid");
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }

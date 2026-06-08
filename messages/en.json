@@ -951,7 +951,7 @@
         "briefSubtitleShort": "Objective required; other fields are AI-suggested and editable.",
         "briefSuggesting": "Suggesting brief…",
         "briefSuggestFailed": "Could not suggest the brief. Fill in the fields manually.",
-        "incompleteObjective": "Pick an objective to continue.",
+        "incompleteObjective": "Pick at least one objective to continue.",
         "scopeLabel": "Post scope",
         "scopeHint": "Generalist = broad angle · Niche = expert / ICP-specific angle.",
         "scope": {
@@ -1218,6 +1218,11 @@
         "title": "Batch brief",
         "subtitle": "Steers the draft toward your LinkedIn goal — the post will reflect problem, POV, and proof.",
         "objective": "Post objective",
+        "objectivesHint": "Select up to 3 objectives. Rank 1 is the primary driver for tone and CTA.",
+        "objectivesMax": "Maximum 3 objectives — deselect one to add another.",
+        "priorityLabel": "Priority",
+        "priorityOption": "Priority {rank}",
+        "objectivePriorityFor": "Priority for {objective}",
         "objectives": {
           "credibility": "Credibility",
           "conversation": "Conversation",
@@ -1234,7 +1239,7 @@
         "help": {
           "objective": {
             "label": "Help: objective",
-            "body": "Credibility, conversation, awareness, or leads — steers tone and CTA. Required in every creation path."
+            "body": "Pick 1–3 objectives (credibility, conversation, awareness, leads) and rank them 1–3. Priority 1 drives tone and CTA."
           },
           "problem": {
             "label": "Help: problem",
