@@ -13,6 +13,7 @@ import {
   buildArticlesUserPromptWithCount,
   type ArticleGenerateCount,
 } from "@/lib/prompts/articles-generate";
+import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import {
   BATCH_ARTICLE_COUNT,
   enforceBatchScopeMix,
@@ -169,6 +170,10 @@ export async function POST(request: Request) {
   const targetScope: ArticleScope =
     body.targetScope === "niche" ? "niche" : "generalist";
 
+  const postBrief = body.postBrief
+    ? normalizePostBrief(body.postBrief)
+    : undefined;
+
   const llm =
     body.llm?.apiKey?.trim()
       ? configFromUserLlm({
@@ -206,7 +211,7 @@ export async function POST(request: Request) {
         contentLanguage,
         body.inspirationText!,
         targetScope,
-        body.postBrief,
+        postBrief,
         body.profileEnrichment,
         body.inspirationSource,
         authorSteering,
@@ -218,7 +223,7 @@ export async function POST(request: Request) {
         articleCount,
         body.profileEnrichment,
         emojiLevel,
-        body.postBrief,
+        postBrief,
         authorSteering,
       );
       userContent = body.newsSource
@@ -234,7 +239,7 @@ export async function POST(request: Request) {
             },
             contentLanguage,
             articleCount === 1 ? 1 : articleCount === 2 ? 2 : 4,
-            body.postBrief,
+            postBrief,
           )
         : baseUserPrompt;
 

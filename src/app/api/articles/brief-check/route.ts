@@ -7,6 +7,10 @@ import {
   buildBriefCheckUserPrompt,
 } from "@/lib/prompts/article-brief-check";
 import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
+import {
+  hasPostObjectivesFromUnknown,
+  normalizePostBrief,
+} from "@/lib/articles/post-brief-objectives";
 import type { BriefNicheCheck, ContentLanguage, LlmProvider, PostBrief } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -44,12 +48,13 @@ export async function POST(request: Request) {
   let body: Body;
   try {
     body = (await request.json()) as Body;
-    if (!body.postBrief?.objectives?.length) throw new Error("invalid");
+    if (!hasPostObjectivesFromUnknown(body.postBrief)) throw new Error("invalid");
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const heuristic = heuristicBriefNicheCheck(body.postBrief);
+  const postBrief = normalizePostBrief(body.postBrief);
+  const heuristic = heuristicBriefNicheCheck(postBrief);
 
   if (!body.useLlm) {
     return NextResponse.json({ ...heuristic, source: "heuristic" });
@@ -85,7 +90,7 @@ export async function POST(request: Request) {
       {
         role: "user",
         content: buildBriefCheckUserPrompt(
-          body.postBrief,
+          postBrief,
           body.personaPromptText ?? "",
           authorSteering,
         ),

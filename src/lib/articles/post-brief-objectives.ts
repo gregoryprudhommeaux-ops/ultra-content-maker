@@ -28,8 +28,9 @@ function isPriority(v: unknown): v is PostObjectivePriority {
 }
 
 export function sortObjectivesByPriority(
-  objectives: RankedPostObjective[],
+  objectives: RankedPostObjective[] | null | undefined,
 ): RankedPostObjective[] {
+  if (!Array.isArray(objectives)) return [];
   return [...objectives].sort((a, b) => a.priority - b.priority);
 }
 
@@ -81,24 +82,38 @@ export function normalizePostBrief(raw: unknown): PostBrief {
 }
 
 export function primaryPostObjective(brief: PostBrief): PostObjective {
+  return primaryPostObjectiveFromUnknown(brief);
+}
+
+export function primaryPostObjectiveFromUnknown(
+  brief: PostBrief | null | undefined,
+): PostObjective {
   return (
-    sortObjectivesByPriority(brief.objectives)[0]?.objective ?? "credibility"
+    sortObjectivesByPriority(normalizePostBrief(brief).objectives)[0]?.objective ??
+    "credibility"
   );
 }
 
 export function hasPostObjectives(brief: PostBrief): boolean {
-  return brief.objectives.length > 0;
+  return hasPostObjectivesFromUnknown(brief);
+}
+
+export function hasPostObjectivesFromUnknown(
+  brief: PostBrief | null | undefined,
+): boolean {
+  return normalizePostBrief(brief).objectives.length > 0;
 }
 
 export function toggleRankedObjective(
   brief: PostBrief,
   objective: PostObjective,
 ): PostBrief {
-  const existing = brief.objectives.find((o) => o.objective === objective);
+  const normalized = normalizePostBrief(brief);
+  const existing = normalized.objectives.find((o) => o.objective === objective);
   if (existing) {
-    const remaining = brief.objectives.filter((o) => o.objective !== objective);
+    const remaining = normalized.objectives.filter((o) => o.objective !== objective);
     return {
-      ...brief,
+      ...normalized,
       objectives: remaining.map((item, index) => ({
         objective: item.objective,
         priority: (index + 1) as PostObjectivePriority,
@@ -106,18 +121,18 @@ export function toggleRankedObjective(
     };
   }
 
-  if (brief.objectives.length >= MAX_RANKED_OBJECTIVES) {
-    return brief;
+  if (normalized.objectives.length >= MAX_RANKED_OBJECTIVES) {
+    return normalized;
   }
 
-  const usedPriorities = new Set(brief.objectives.map((o) => o.priority));
+  const usedPriorities = new Set(normalized.objectives.map((o) => o.priority));
   const nextPriority =
     ([1, 2, 3] as const).find((p) => !usedPriorities.has(p)) ?? 3;
 
   return {
-    ...brief,
+    ...normalized,
     objectives: sortObjectivesByPriority([
-      ...brief.objectives,
+      ...normalized.objectives,
       { objective, priority: nextPriority },
     ]),
   };
@@ -128,10 +143,11 @@ export function setRankedObjectivePriority(
   objective: PostObjective,
   priority: PostObjectivePriority,
 ): PostBrief {
-  const index = brief.objectives.findIndex((o) => o.objective === objective);
-  if (index < 0) return brief;
+  const normalized = normalizePostBrief(brief);
+  const index = normalized.objectives.findIndex((o) => o.objective === objective);
+  if (index < 0) return normalized;
 
-  const objectives = [...brief.objectives];
+  const objectives = [...normalized.objectives];
   const current = objectives[index];
   const otherIndex = objectives.findIndex(
     (o) => o.priority === priority && o.objective !== objective,
@@ -145,19 +161,22 @@ export function setRankedObjectivePriority(
   }
 
   objectives[index] = { ...current, priority };
-  return { ...brief, objectives: sortObjectivesByPriority(objectives) };
+  return { ...normalized, objectives: sortObjectivesByPriority(objectives) };
 }
 
 export function isObjectiveSelected(
   brief: PostBrief,
   objective: PostObjective,
 ): boolean {
-  return brief.objectives.some((o) => o.objective === objective);
+  return normalizePostBrief(brief).objectives.some((o) => o.objective === objective);
 }
 
 export function objectivePriority(
   brief: PostBrief,
   objective: PostObjective,
 ): PostObjectivePriority | null {
-  return brief.objectives.find((o) => o.objective === objective)?.priority ?? null;
+  return (
+    normalizePostBrief(brief).objectives.find((o) => o.objective === objective)
+      ?.priority ?? null
+  );
 }

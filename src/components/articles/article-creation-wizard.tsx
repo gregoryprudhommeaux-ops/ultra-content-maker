@@ -38,6 +38,7 @@ import {
   saveCreationWizardSession,
   type WizardSessionStep,
 } from "@/lib/articles/creation-wizard-session";
+import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import { DEFAULT_POST_BRIEF, saveStoredPostBrief } from "@/lib/articles/post-brief-storage";
 import { newsToSource } from "@/lib/news/to-source";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
@@ -467,7 +468,7 @@ export function ArticleCreationWizard() {
         );
         return;
       }
-      setPostBrief(data.brief);
+      setPostBrief(normalizePostBrief(data.brief));
     } catch {
       setErrorInfo(
         formatError({
@@ -566,7 +567,7 @@ export function ArticleCreationWizard() {
             contentLanguage: contentLang,
             emojiLevel,
             authorSteering,
-            postBrief,
+            postBrief: normalizePostBrief(postBrief),
             newsSource,
             articleCount,
             inspirationText:
@@ -630,7 +631,7 @@ export function ArticleCreationWizard() {
           user.uid,
           replaceArticleId,
           draftPayload,
-          postBrief,
+          normalizePostBrief(postBrief),
         );
         setDraftArticleId(replaceArticleId);
         setDraftRevision((n) => n + 1);
@@ -647,7 +648,7 @@ export function ArticleCreationWizard() {
           contentLang,
           emojiLevel,
           newsSource,
-          postBrief,
+          normalizePostBrief(postBrief),
           inspirationMeta ?? undefined,
         );
         setDraftArticleId(ids[0]);
@@ -667,6 +668,7 @@ export function ArticleCreationWizard() {
         setErrorInfo(
           formatError({
             errorCode: "llm_request_failed",
+            detail: e instanceof Error ? e.message : undefined,
             fallbackMessage: tArticles("generateFailed"),
           }),
         );
@@ -690,7 +692,7 @@ export function ArticleCreationWizard() {
     setMode(next);
     setErrorInfo(null);
     briefSuggestedRef.current = !!briefSeed;
-    setPostBrief({ ...DEFAULT_POST_BRIEF, ...briefSeed });
+    setPostBrief(normalizePostBrief({ ...DEFAULT_POST_BRIEF, ...briefSeed }));
     setInspirationCtx(null);
     if (next === "profile") {
       setStep("brief");
@@ -733,7 +735,7 @@ export function ArticleCreationWizard() {
       excerpt,
     });
     const briefSeed = article.postBrief
-      ? { ...article.postBrief }
+      ? normalizePostBrief(article.postBrief)
       : {
           problem: article.hook.slice(0, 200),
           pointOfView: "",

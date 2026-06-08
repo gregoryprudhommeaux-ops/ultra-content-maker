@@ -2,6 +2,7 @@
 
 import {
   isObjectiveSelected,
+  normalizePostBrief,
   objectivePriority,
   POST_OBJECTIVES,
   setRankedObjectivePriority,
@@ -56,12 +57,14 @@ export function PostBriefForm({
   const tHelp = useTranslations("setup.articles.help");
 
   function set<K extends keyof PostBrief>(key: K, value: PostBrief[K]) {
-    onChange({ ...brief, [key]: value });
+    onChange(normalizePostBrief({ ...safeBrief, [key]: value }));
   }
 
+  const safeBrief = normalizePostBrief(brief);
+
   const complete = wizardMode
-    ? isWizardBriefComplete(brief, wizardMode)
-    : isPostBriefComplete(brief);
+    ? isWizardBriefComplete(safeBrief, wizardMode)
+    : isPostBriefComplete(safeBrief);
 
   const problemFieldKey =
     wizardMode === "news"
@@ -118,9 +121,9 @@ export function PostBriefForm({
         <p className="mt-1 text-xs text-ns-secondary">{t("objectivesHint")}</p>
         <div className="mt-2 space-y-2">
           {POST_OBJECTIVES.map((obj) => {
-            const selected = isObjectiveSelected(brief, obj);
-            const priority = objectivePriority(brief, obj);
-            const atMax = brief.objectives.length >= 3;
+            const selected = isObjectiveSelected(safeBrief, obj);
+            const priority = objectivePriority(safeBrief, obj);
+            const atMax = safeBrief.objectives.length >= 3;
 
             return (
               <div
@@ -130,7 +133,7 @@ export function PostBriefForm({
                 <button
                   type="button"
                   disabled={!selected && atMax}
-                  onClick={() => onChange(toggleRankedObjective(brief, obj))}
+                  onClick={() => onChange(toggleRankedObjective(safeBrief, obj))}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${
                     selected
                       ? "border-ns-primary bg-ns-brand-light text-ns-tertiary"
@@ -155,7 +158,7 @@ export function PostBriefForm({
                         key={p}
                         type="button"
                         onClick={() =>
-                          onChange(setRankedObjectivePriority(brief, obj, p))
+                          onChange(setRankedObjectivePriority(safeBrief, obj, p))
                         }
                         className={`flex h-7 w-7 items-center justify-center rounded-md border text-xs font-bold transition-colors ${
                           priority === p
@@ -174,7 +177,7 @@ export function PostBriefForm({
             );
           })}
         </div>
-        {brief.objectives.length >= 3 && (
+        {safeBrief.objectives.length >= 3 && (
           <p className="mt-2 text-xs text-ns-secondary">{t("objectivesMax")}</p>
         )}
       </div>
@@ -191,7 +194,7 @@ export function PostBriefForm({
         <textarea
           id="brief-problem"
           rows={2}
-          value={brief.problem}
+          value={safeBrief.problem}
           onChange={(e) => set("problem", e.target.value)}
           placeholder={t(`${problemFieldKey}Placeholder`)}
           className={`${INPUT_CLASS} mt-1`}
@@ -205,7 +208,7 @@ export function PostBriefForm({
         <textarea
           id="brief-pov"
           rows={2}
-          value={brief.pointOfView}
+          value={safeBrief.pointOfView}
           onChange={(e) => set("pointOfView", e.target.value)}
           placeholder={t("pointOfViewPlaceholder")}
           className={`${INPUT_CLASS} mt-1`}
@@ -222,7 +225,7 @@ export function PostBriefForm({
         <textarea
           id="brief-proof"
           rows={2}
-          value={brief.proof}
+          value={safeBrief.proof}
           onChange={(e) => set("proof", e.target.value)}
           placeholder={t("proofPlaceholder")}
           className={`${INPUT_CLASS} mt-1`}
