@@ -12,13 +12,14 @@ import {
   extractTextFromHtml,
   trimExcerpt,
 } from "@/lib/inspiration/extract-html-text";
+import { fetchNotionPageExcerpt, isNotionUrl } from "@/lib/inspiration/notion-page";
 import { assertSafePublicUrl, isLinkedInUrl } from "@/lib/inspiration/url-safety";
 
 const MIN_EXCERPT_CHARS = 40;
 const MAX_HTML_BYTES = 512_000;
 const FETCH_TIMEOUT_MS = 14_000;
 
-export type InspirationFetchMethod = "http" | "llm";
+export type InspirationFetchMethod = "http" | "llm" | "notion";
 
 export type InspirationUrlFetchResult = {
   excerpt: string;
@@ -108,6 +109,21 @@ export async function fetchInspirationUrlExcerpt(
   const safeUrl = assertSafePublicUrl(input.url);
   const url = safeUrl.toString();
   const linkedIn = isLinkedInUrl(url);
+
+  if (isNotionUrl(url)) {
+    try {
+      const notionResult = await fetchNotionPageExcerpt(url);
+      if (notionResult) {
+        return {
+          excerpt: notionResult.excerpt,
+          title: notionResult.title,
+          method: "notion",
+        };
+      }
+    } catch {
+      /* fall through to HTTP / LLM */
+    }
+  }
 
   if (!linkedIn) {
     try {
