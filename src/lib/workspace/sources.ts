@@ -1,9 +1,9 @@
 import {
   addDoc,
-  collection,
   deleteDoc,
-  doc,
+  getDoc,
   getDocs,
+  getDocsFromServer,
   serverTimestamp,
 } from "firebase/firestore";
 import type {
@@ -25,10 +25,11 @@ function sourcesCollection(userId: string) {
   return workspaceCollectionRef(userId, "sources");
 }
 
-async function listSourcesSnap(userId: string) {
-  const scoped = await getDocs(sourcesCollection(userId));
+async function listSourcesSnap(userId: string, fromServer = false) {
+  const read = fromServer ? getDocsFromServer : getDocs;
+  const scoped = await read(sourcesCollection(userId));
   if (!scoped.empty) return scoped;
-  return getDocs(legacyCollectionRef(userId, "sources"));
+  return read(legacyCollectionRef(userId, "sources"));
 }
 
 function normalizeCategory(
@@ -69,8 +70,11 @@ function normalizeUrl(url: string): string {
   return url.trim().toLowerCase().replace(/\/+$/, "");
 }
 
-export async function listSources(userId: string): Promise<SourceLink[]> {
-  const snap = await listSourcesSnap(userId);
+export async function listSources(
+  userId: string,
+  opts?: { fromServer?: boolean },
+): Promise<SourceLink[]> {
+  const snap = await listSourcesSnap(userId, opts?.fromServer);
   const items = snap.docs.map((d, i) =>
     mapDoc(d.id, d.data() as Record<string, unknown>, i),
   );
@@ -84,8 +88,9 @@ export async function listSources(userId: string): Promise<SourceLink[]> {
 export async function listSourcesByCategory(
   userId: string,
   category: SourceCategory,
+  opts?: { fromServer?: boolean },
 ): Promise<SourceLink[]> {
-  const all = await listSources(userId);
+  const all = await listSources(userId, opts);
   return all.filter((s) => s.category === category);
 }
 
@@ -129,7 +134,13 @@ export async function addSource(userId: string, input: AddSourceInput): Promise<
 }
 
 export async function removeSource(userId: string, sourceId: string) {
-  await deleteDoc(workspaceDocRef(userId, "sources", sourceId));
+  const scopedRef = workspaceDocRef(userId, "sources", sourceId);
+  const scopedSnap = await getDoc(scopedRef);
+  if (scopedSnap.exists()) {
+    await deleteDoc(scopedRef);
+  } else {
+    await deleteDoc(legacyDocRef(userId, "sources", sourceId));
+  }
   const { getAuthorProfile } = await import("@/lib/workspace/author");
   const author = await getAuthorProfile(userId);
   const { syncPersonaAfterProfileChange } = await import(

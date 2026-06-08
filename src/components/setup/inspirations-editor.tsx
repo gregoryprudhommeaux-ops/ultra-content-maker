@@ -106,11 +106,12 @@ function InspirationSection({
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (fromServer = false) => {
     setLoading(true);
     try {
-      setSources(await listSourcesByCategory(userId, category));
+      setSources(await listSourcesByCategory(userId, category, { fromServer }));
     } finally {
       setLoading(false);
     }
@@ -151,7 +152,7 @@ function InspirationSection({
       setWhyLike("");
       setAspects([]);
       setSuccess(true);
-      await load();
+      await load(true);
       setTimeout(() => setSuccess(false), 4000);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
@@ -160,6 +161,23 @@ function InspirationSection({
       else setError(t("addFailed"));
     } finally {
       setPending(false);
+    }
+  }
+
+  async function onRemove(id: string) {
+    if (removingId) return;
+    setError(null);
+    setRemovingId(id);
+    const previous = sources;
+    setSources((current) => current.filter((s) => s.id !== id));
+    try {
+      await removeSource(userId, id);
+      await load(true);
+    } catch {
+      setSources(previous);
+      setError(t("removeFailed"));
+    } finally {
+      setRemovingId(null);
     }
   }
 
@@ -184,7 +202,7 @@ function InspirationSection({
       ) : count > 0 ? (
         <SourceList
           sources={sources}
-          onRemove={(id) => removeSource(userId, id).then(load)}
+          onRemove={(id) => void onRemove(id)}
           t={t}
           tAspects={t}
         />

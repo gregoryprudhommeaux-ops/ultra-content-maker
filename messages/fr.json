@@ -596,6 +596,7 @@
         "requiredFields": "Complétez les champs obligatoires (LinkedIn, rôle, positionnement, langue) avant de continuer."
       },
       "save": "Enregistrer le brouillon",
+      "saveSuccess": "Brouillon enregistré",
       "continue": "Continuer vers la cible",
       "invalidUrl": "Entrez une URL http(s) valide.",
       "saveFailed": "Enregistrement impossible. Vérifiez les règles Firestore.",
@@ -610,6 +611,7 @@
         "empty": "Aucun lien pour l'instant.",
         "invalidUrl": "URL invalide.",
         "addFailed": "Impossible d'ajouter le lien.",
+        "removeFailed": "Impossible de supprimer le lien.",
         "types": {
           "linkedin_profile": "Profil LinkedIn",
           "linkedin_post": "Post LinkedIn",
@@ -662,6 +664,7 @@
       "invalidUrl": "URL invalide.",
       "needAspectOrWhy": "Sélectionnez au moins un critère ou décrivez pourquoi vous aimez ce lien.",
       "addFailed": "Impossible d’ajouter.",
+      "removeFailed": "Impossible de supprimer.",
       "personaHint": "Après avoir ajouté des inspirations, régénérez votre Persona pour les intégrer :",
       "personaLink": "Aller au Persona →",
       "guide": {

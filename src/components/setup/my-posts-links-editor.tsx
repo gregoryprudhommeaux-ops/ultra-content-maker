@@ -2,7 +2,7 @@
 
 import { addSource, listSourcesByCategory, removeSource } from "@/lib/workspace/sources";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
-import type { SourceType } from "@/types/workspace";
+import type { SourceLink, SourceType } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useTranslations } from "next-intl";
@@ -14,24 +14,28 @@ type Props = { userId: string };
 
 export function MyPostsLinksEditor({ userId }: Props) {
   const t = useTranslations("setup.author.sources");
-  const [sources, setSources] = useState<Awaited<ReturnType<typeof listSourcesByCategory>>>([]);
+  const [sources, setSources] = useState<SourceLink[]>([]);
   const [type, setType] = useState<SourceType>("linkedin_post");
   const [url, setUrl] = useState("");
   const [label, setLabel] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      setSources(await listSourcesByCategory(userId, "my_post"));
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
+  const load = useCallback(
+    async (fromServer = false) => {
+      setLoading(true);
+      try {
+        setSources(await listSourcesByCategory(userId, "my_post", { fromServer }));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [userId],
+  );
 
   useEffect(() => {
-    load();
+    void load();
   }, [load]);
 
   async function onAdd() {
@@ -50,9 +54,26 @@ export function MyPostsLinksEditor({ userId }: Props) {
       });
       setUrl("");
       setLabel("");
-      await load();
+      await load(true);
     } catch {
       setError(t("addFailed"));
+    }
+  }
+
+  async function onRemove(id: string) {
+    if (removingId) return;
+    setError(null);
+    setRemovingId(id);
+    const previous = sources;
+    setSources((current) => current.filter((s) => s.id !== id));
+    try {
+      await removeSource(userId, id);
+      await load(true);
+    } catch {
+      setSources(previous);
+      setError(t("removeFailed"));
+    } finally {
+      setRemovingId(null);
     }
   }
 
@@ -88,8 +109,9 @@ export function MyPostsLinksEditor({ userId }: Props) {
               </div>
               <button
                 type="button"
-                onClick={() => removeSource(userId, s.id).then(load)}
-                className="shrink-0 text-ns-secondary hover:text-red-600"
+                disabled={removingId === s.id}
+                onClick={() => void onRemove(s.id)}
+                className="shrink-0 text-ns-secondary hover:text-red-600 disabled:opacity-50"
               >
                 {t("remove")}
               </button>
@@ -140,7 +162,7 @@ export function MyPostsLinksEditor({ userId }: Props) {
         {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
         <button
           type="button"
-          onClick={onAdd}
+          onClick={() => void onAdd()}
           className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light sm:col-span-2"
         >
           {t("add")}

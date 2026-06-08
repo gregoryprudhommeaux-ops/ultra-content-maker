@@ -596,6 +596,7 @@
         "requiredFields": "Complete the required fields (LinkedIn, role, positioning, language) before continuing."
       },
       "save": "Save draft",
+      "saveSuccess": "Draft saved",
       "continue": "Continue to target",
       "invalidUrl": "Please enter a valid http(s) URL.",
       "saveFailed": "Could not save. Check Firestore rules.",
@@ -610,6 +611,7 @@
         "empty": "No links yet.",
         "invalidUrl": "Invalid URL.",
         "addFailed": "Could not add link.",
+        "removeFailed": "Could not remove link.",
         "types": {
           "linkedin_profile": "LinkedIn profile",
           "linkedin_post": "LinkedIn post",
@@ -662,6 +664,7 @@
       "invalidUrl": "Invalid URL.",
       "needAspectOrWhy": "Select at least one trait or describe why you like this link.",
       "addFailed": "Could not add.",
+      "removeFailed": "Could not remove.",
       "personaHint": "After adding inspirations, regenerate your Persona to apply them:",
       "personaLink": "Go to Persona →",
       "guide": {

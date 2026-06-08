@@ -22,6 +22,7 @@ import {
   DashboardPageSection,
   DashboardPageShell,
 } from "@/components/layout/dashboard-page";
+import { SaveFeedbackOverlay } from "@/components/ui/save-feedback-overlay";
 import { BTN_PRIMARY, DASHBOARD_FORM } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useRouter } from "@/i18n/navigation";
@@ -56,6 +57,7 @@ export function AuthorSetupForm() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -138,6 +140,7 @@ export function AuthorSetupForm() {
       const ok = await persist(false);
       if (ok) {
         setError(null);
+        setSavedFlash(true);
         notifyOnboardingProgressChanged();
       }
     } catch {
@@ -171,6 +174,11 @@ export function AuthorSetupForm() {
 
   return (
     <DashboardPageShell>
+      <SaveFeedbackOverlay
+        show={savedFlash}
+        message={t("saveSuccess")}
+        onDismiss={() => setSavedFlash(false)}
+      />
       <OnboardingStepBanner stepKey="author" />
       <DashboardPageHero
         eyebrow={tSteps("author")}

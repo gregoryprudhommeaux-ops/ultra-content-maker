@@ -596,6 +596,7 @@
         "requiredFields": "Completa los campos obligatorios (LinkedIn, rol, posicionamiento, idioma) antes de continuar."
       },
       "save": "Guardar borrador",
+      "saveSuccess": "Borrador guardado",
       "continue": "Continuar al público",
       "invalidUrl": "Introduce una URL http(s) válida.",
       "saveFailed": "No se pudo guardar. Revise las reglas de Firestore.",
@@ -610,6 +611,7 @@
         "empty": "Sin enlaces aún.",
         "invalidUrl": "URL inválida.",
         "addFailed": "No se pudo añadir el enlace.",
+        "removeFailed": "No se pudo eliminar el enlace.",
         "types": {
           "linkedin_profile": "Perfil LinkedIn",
           "linkedin_post": "Post LinkedIn",
@@ -662,6 +664,7 @@
       "invalidUrl": "URL inválida.",
       "needAspectOrWhy": "Selecciona al menos un criterio o describe por qué te gusta este enlace.",
       "addFailed": "No se pudo añadir.",
+      "removeFailed": "No se pudo eliminar.",
       "personaHint": "Tras añadir inspiraciones, regenera tu Persona para integrarlas:",
       "personaLink": "Ir a Persona →",
       "guide": {
