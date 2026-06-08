@@ -63,6 +63,13 @@ export function PostBriefForm({
     ? isWizardBriefComplete(brief, wizardMode)
     : isPostBriefComplete(brief);
 
+  const problemFieldKey =
+    wizardMode === "news"
+      ? "problemNews"
+      : wizardMode === "inspiration"
+        ? "problemInspiration"
+        : "problem";
+
   return (
     <section className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4">
       <div>
@@ -175,16 +182,18 @@ export function PostBriefForm({
       <div>
         <div className="flex items-center gap-2">
           <label className={LABEL_CLASS} htmlFor="brief-problem">
-            {t("problem")}
+            {t(`${problemFieldKey}Label`)}
           </label>
-          <ContextHelp label={tBriefHelp("problem.label")}>{tBriefHelp("problem.body")}</ContextHelp>
+          <ContextHelp label={tBriefHelp(`${problemFieldKey}.label`)}>
+            {tBriefHelp(`${problemFieldKey}.body`)}
+          </ContextHelp>
         </div>
         <textarea
           id="brief-problem"
           rows={2}
           value={brief.problem}
           onChange={(e) => set("problem", e.target.value)}
-          placeholder={t("problemPlaceholder")}
+          placeholder={t(`${problemFieldKey}Placeholder`)}
           className={`${INPUT_CLASS} mt-1`}
         />
       </div>

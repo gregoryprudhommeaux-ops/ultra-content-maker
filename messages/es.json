@@ -1229,8 +1229,12 @@
           "awareness": "Visibilidad",
           "leads": "Demanda"
         },
-        "problem": "Problema de la audiencia",
+        "problemLabel": "Problema de la audiencia",
         "problemPlaceholder": "Ej.: PYME exportadoras con dificultad para asegurar la cadena de suministro…",
+        "problemNewsLabel": "Tema o enjeu",
+        "problemNewsPlaceholder": "Ej.: Multas récord en mercados asiáticos — qué cambia para los inversores…",
+        "problemInspirationLabel": "Ángulo del contenido fuente",
+        "problemInspirationPlaceholder": "Ej.: El artículo describe una consolidación del sector — qué debe retener tu lector…",
         "pointOfView": "Punto de vista",
         "pointOfViewPlaceholder": "Ej.: La palanca real no es el precio sino la visibilidad de extremo a extremo…",
         "proof": "Prueba o experiencia",
@@ -1242,8 +1246,16 @@
             "body": "Elige 1 a 3 objetivos (credibilidad, conversación, visibilidad, leads) y ordénalos del 1 al 3. La prioridad 1 guía el tono y el CTA."
           },
           "problem": {
-            "label": "Ayuda: problema",
-            "body": "El pain concreto de tu lector. Cuanto más específico (sector, situación), más experto suena el post."
+            "label": "Ayuda: problema de audiencia",
+            "body": "Lo que vive tu lector objetivo (situación, tensión, enjeu de negocio). Cuanto más preciso el contexto, más experto suena el post."
+          },
+          "problemNews": {
+            "label": "Ayuda: tema o enjeu",
+            "body": "De qué trata la noticia y por qué interesa a tu audiencia. No hace falta inventar un « pain »: la información o la tendencia ya puede ser el ángulo."
+          },
+          "problemInspiration": {
+            "label": "Ayuda: ángulo del contenido",
+            "body": "Qué retienes del contenido pegado y el enjeu para tu lector. Una noticia, un análisis o una opinión bastan — no siempre es un problema de cliente clásico."
           },
           "proof": {
             "label": "Ayuda: prueba",

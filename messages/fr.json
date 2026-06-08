@@ -1237,8 +1237,12 @@
           "awareness": "Visibilité",
           "leads": "Demandes"
         },
-        "problem": "Problème de l’audience",
+        "problemLabel": "Problème de l’audience",
         "problemPlaceholder": "Ex. : PME exportatrices qui peinent à sécuriser leur supply chain…",
+        "problemNewsLabel": "Sujet ou enjeu",
+        "problemNewsPlaceholder": "Ex. : Amendes record sur les marchés asiatiques — ce que ça change pour les investisseurs…",
+        "problemInspirationLabel": "Angle du contenu source",
+        "problemInspirationPlaceholder": "Ex. : L’article décrit une consolidation du secteur — ce que votre lecteur doit en retenir…",
         "pointOfView": "Point de vue",
         "pointOfViewPlaceholder": "Ex. : Le vrai levier n’est pas le prix mais la visibilité bout en bout…",
         "proof": "Preuve ou expérience",
@@ -1250,8 +1254,16 @@
             "body": "Choisissez 1 à 3 objectifs (crédibilité, conversation, visibilité, demandes) et classez-les par priorité 1–2–3. La priorité 1 pilote le ton et le CTA."
           },
           "problem": {
-            "label": "Aide : problème",
-            "body": "Le pain concret de votre lecteur cible. Plus c’est spécifique (secteur, situation), plus le post sonne expert."
+            "label": "Aide : problème audience",
+            "body": "Ce que vit votre lecteur cible (situation, tension, enjeu métier). Plus c’est ancré dans un contexte précis, plus le post sonne expert."
+          },
+          "problemNews": {
+            "label": "Aide : sujet ou enjeu",
+            "body": "De quoi parle l’actu et pourquoi ça intéresse votre audience. Pas besoin d’inventer une « douleur » : l’info ou la tendance peut déjà être l’angle du post."
+          },
+          "problemInspiration": {
+            "label": "Aide : angle du contenu",
+            "body": "Ce que vous retenez du contenu collé et l’enjeu pour votre lecteur. Une actu, une analyse ou une opinion suffisent — ce n’est pas toujours un problème client classique."
           },
           "proof": {
             "label": "Aide : preuve",

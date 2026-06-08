@@ -1229,8 +1229,12 @@
           "awareness": "Visibility",
           "leads": "Inbound"
         },
-        "problem": "Audience problem",
+        "problemLabel": "Audience problem",
         "problemPlaceholder": "E.g. SMB exporters struggling to secure supply chains…",
+        "problemNewsLabel": "Topic or stakes",
+        "problemNewsPlaceholder": "E.g. Record fines on Asian markets — what it means for investors…",
+        "problemInspirationLabel": "Source content angle",
+        "problemInspirationPlaceholder": "E.g. The piece describes sector consolidation — what your reader should take away…",
         "pointOfView": "Point of view",
         "pointOfViewPlaceholder": "E.g. The real lever isn't price but end-to-end visibility…",
         "proof": "Proof or experience",
@@ -1242,8 +1246,16 @@
             "body": "Pick 1–3 objectives (credibility, conversation, awareness, leads) and rank them 1–3. Priority 1 drives tone and CTA."
           },
           "problem": {
-            "label": "Help: problem",
-            "body": "Your reader’s concrete pain. The more specific (sector, situation), the more expert the post sounds."
+            "label": "Help: audience problem",
+            "body": "What your target reader is dealing with (situation, tension, business stake). The more specific the context, the more expert the post sounds."
+          },
+          "problemNews": {
+            "label": "Help: topic or stakes",
+            "body": "What the story is about and why it matters to your audience. You do not need to invent a “pain point” — the news or trend can already be the angle."
+          },
+          "problemInspiration": {
+            "label": "Help: content angle",
+            "body": "What you take from the pasted content and why it matters to your reader. News, analysis, or opinion is enough — not always a classic customer problem."
           },
           "proof": {
             "label": "Help: proof",
