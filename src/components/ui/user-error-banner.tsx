@@ -1,6 +1,8 @@
 "use client";
 
+import { LlmProviderConsoleLink } from "@/components/setup/llm-provider-console-link";
 import { useAuth } from "@/components/auth/auth-provider";
+import { shouldShowLlmProviderConsole } from "@/lib/llm/provider-guides";
 import { getClientAuth } from "@/lib/firebase/client";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useState, type ReactNode } from "react";
@@ -17,6 +19,8 @@ type Props = ErrorReportContext & {
   technical?: string;
   onRetry?: () => void;
   retryLabel?: string;
+  /** Show link to the user's LLM provider console + Réglages clé API. */
+  showProviderConsole?: boolean;
   children?: ReactNode;
   className?: string;
 };
@@ -30,9 +34,12 @@ export function UserErrorBanner({
   technical,
   onRetry,
   retryLabel,
+  showProviderConsole,
   children,
   className = "",
 }: Props) {
+  const showConsole =
+    showProviderConsole ?? shouldShowLlmProviderConsole(errorCode);
   const t = useTranslations("errors");
   const locale = useLocale();
   const { user } = useAuth();
@@ -89,6 +96,12 @@ export function UserErrorBanner({
     >
       <p className="font-medium">{userMessage}</p>
       {hint ? <p className="mt-1.5 text-red-700/90">{hint}</p> : null}
+
+      {showConsole ? (
+        <div className="mt-2 rounded-lg border border-red-200/80 bg-white/70 px-3 py-2">
+          <LlmProviderConsoleLink />
+        </div>
+      ) : null}
 
       {technical ? (
         <div className="mt-2">

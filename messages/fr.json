@@ -53,6 +53,7 @@
       "notifyFailed": "Notification impossible.",
       "reportFailed": "Signalement impossible pour l'instant."
     },
+    "openLlmSettings": "Réglages → Clé API",
     "hints": {
       "linkedin_requires_perplexity": "Perplexity Sonar peut parcourir le web pour lire votre fil d'activité public.",
       "linkedin_fetch_unavailable": "Si vous n'avez que Claude, l'analyse peut quand même s'appuyer sur votre profil sans scan LinkedIn en direct."

@@ -53,6 +53,7 @@
       "notifyFailed": "Notification could not be sent.",
       "reportFailed": "Report could not be sent right now."
     },
+    "openLlmSettings": "Settings → API key",
     "hints": {
       "linkedin_requires_perplexity": "Perplexity Sonar can browse the web to read your public activity feed.",
       "linkedin_fetch_unavailable": "If you only use Claude, analysis can still use your profile without a live LinkedIn scan."

@@ -10,6 +10,10 @@ import { useFormatUserError } from "@/hooks/use-format-user-error";
 import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import {
+  getLlmProviderGuide,
+  LLM_PROVIDERS,
+} from "@/lib/llm/provider-guides";
+import {
   defaultModelForProvider,
   getUserLlmProfile,
   saveUserLlmProfile,
@@ -28,52 +32,13 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
 
-const PROVIDERS: LlmProvider[] = ["openai", "perplexity", "anthropic", "google"];
-
-function useProviderGuides(t: ReturnType<typeof useTranslations<"setup.llm">>) {
-  return {
-    openai: {
-      name: t("providers.openai.name"),
-      steps: t.raw("providers.openai.steps") as string[],
-      link: t("providers.openai.link"),
-      linkLabel: t("providers.openai.linkLabel"),
-      keyPlaceholder: t("providers.openai.keyPlaceholder"),
-    },
-    perplexity: {
-      name: t("providers.perplexity.name"),
-      steps: t.raw("providers.perplexity.steps") as string[],
-      link: t("providers.perplexity.link"),
-      linkLabel: t("providers.perplexity.linkLabel"),
-      keyPlaceholder: t("providers.perplexity.keyPlaceholder"),
-    },
-    anthropic: {
-      name: t("providers.anthropic.name"),
-      steps: t.raw("providers.anthropic.steps") as string[],
-      link: t("providers.anthropic.link"),
-      linkLabel: t("providers.anthropic.linkLabel"),
-      keyPlaceholder: t("providers.anthropic.keyPlaceholder"),
-    },
-    google: {
-      name: t("providers.google.name"),
-      steps: t.raw("providers.google.steps") as string[],
-      link: t("providers.google.link"),
-      linkLabel: t("providers.google.linkLabel"),
-      keyPlaceholder: t("providers.google.keyPlaceholder"),
-    },
-  } satisfies Record<LlmProvider, {
-    name: string;
-    steps: string[];
-    link: string;
-    linkLabel: string;
-    keyPlaceholder: string;
-  }>;
-}
-
 export function LlmSetupForm() {
   const t = useTranslations("setup.llm");
   const tSteps = useTranslations("setup.steps");
   const formatError = useFormatUserError();
-  const guides = useProviderGuides(t);
+  const guides = Object.fromEntries(
+    LLM_PROVIDERS.map((p) => [p, getLlmProviderGuide(p, t)]),
+  ) as Record<LlmProvider, ReturnType<typeof getLlmProviderGuide>>;
   const { user } = useAuth();
   const router = useRouter();
   const [provider, setProvider] = useState<LlmProvider>("openai");
@@ -168,7 +133,7 @@ export function LlmSetupForm() {
             onChange={(e) => setProvider(e.target.value as LlmProvider)}
             className={INPUT_CLASS}
           >
-            {PROVIDERS.map((p) => (
+            {LLM_PROVIDERS.map((p) => (
               <option key={p} value={p}>
                 {guides[p].name}
               </option>
