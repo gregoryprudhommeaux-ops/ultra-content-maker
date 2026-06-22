@@ -15,10 +15,13 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 export function LoginForm() {
   const locale = useLocale() as AppLocale;
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
   const t = useTranslations("auth.login");
   const tErr = useTranslations("auth.errors");
   const { user, redirectError, googleRedirectFinishing } = useAuth();
@@ -39,8 +42,10 @@ export function LoginForm() {
       user.uid,
       user.email ?? "",
       user.displayName ?? undefined,
+      undefined,
+      inviteToken,
     );
-  }, [user, locale]);
+  }, [user, locale, inviteToken]);
 
   if (googleRedirectFinishing) {
     return (
@@ -95,6 +100,7 @@ export function LoginForm() {
         cred.user.email ?? email,
         cred.user.displayName ?? undefined,
         { method: "email", event: "login" },
+        inviteToken,
       );
     } catch (err) {
       setFormError(resolveAuthErrorMessage(tErr, err));
@@ -121,6 +127,7 @@ export function LoginForm() {
         cred.user.email ?? "",
         cred.user.displayName ?? undefined,
         { method: "google", event: "login" },
+        inviteToken,
       );
     } catch (err) {
       setFormError(resolveAuthErrorMessage(tErr, err));

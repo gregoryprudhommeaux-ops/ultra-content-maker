@@ -39,6 +39,12 @@ export interface UserLlmProfile {
   updatedAt: Date;
 }
 
+export type LinkedWorkspace = {
+  ownerId: string;
+  accountId: string;
+  accountName?: string;
+};
+
 export interface UserDoc {
   email: string;
   displayName?: string;
@@ -46,6 +52,8 @@ export interface UserDoc {
   setupStep: SetupStep;
   /** Active workspace account (client) for multi-account admins. */
   activeAccountId?: string;
+  /** Client invited to complete onboarding on an admin-owned workspace account. */
+  linkedWorkspace?: LinkedWorkspace;
   isPlatformAdmin?: boolean;
   createdAt: Date;
   updatedAt: Date;

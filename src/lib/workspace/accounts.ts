@@ -12,6 +12,7 @@ import {
 import type { ContentLanguage, SetupStep } from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
 import { isPlatformAdminIdentity } from "./platform-admin";
+import { getUserDoc } from "./user";
 import { toDate } from "./firestore-utils";
 import {
   DEFAULT_ACCOUNT_ID,
@@ -255,6 +256,26 @@ export async function bootstrapWorkspaceAccounts(
   displayName?: string,
 ): Promise<WorkspaceBootstrapResult> {
   const isPlatformAdmin = isPlatformAdminIdentity({ uid: ownerId, email });
+
+  try {
+    const userDoc = await getUserDoc(ownerId);
+    if (userDoc?.linkedWorkspace) {
+      const { ownerId: workspaceOwnerId, accountId } = userDoc.linkedWorkspace;
+      const account = await getWorkspaceAccount(workspaceOwnerId, accountId);
+      const scope: WorkspaceScope = { ownerId: workspaceOwnerId, accountId };
+      setActiveWorkspaceScope(scope);
+      storeActiveAccountId(workspaceOwnerId, accountId);
+      return {
+        scope,
+        accounts: account ? [account] : [],
+        isPlatformAdmin: false,
+        canManageAccounts: false,
+      };
+    }
+  } catch {
+    /* fall through to owner bootstrap */
+  }
+
   const defaultName =
     displayName?.trim() ||
     email.split("@")[0]?.replace(/\./g, " ") ||

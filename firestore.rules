@@ -1,11 +1,42 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
+
+    function isLinkedToAccount(ownerId, accountId) {
+      return request.auth != null
+        && userDoc().linkedWorkspace != null
+        && userDoc().linkedWorkspace.ownerId == ownerId
+        && userDoc().linkedWorkspace.accountId == accountId;
+    }
+
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /accounts/{accountId} {
+        allow read: if request.auth != null && (
+          request.auth.uid == userId || isLinkedToAccount(userId, accountId)
+        );
+        allow write: if request.auth != null && (
+          request.auth.uid == userId || isLinkedToAccount(userId, accountId)
+        );
+
+        match /{document=**} {
+          allow read, write: if request.auth != null && (
+            request.auth.uid == userId || isLinkedToAccount(userId, accountId)
+          );
+        }
+      }
+
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    match /accountInvites/{token} {
+      allow read, write: if false;
     }
   }
 }

@@ -286,6 +286,24 @@
       "loadFailed": "Could not load analytics."
     }
   },
+  "invite": {
+    "subtitle": "Complete your profile to get started with your LinkedIn ghostwriter.",
+    "title": "Welcome",
+    "forAccount": "Workspace: {name}",
+    "body": "Create an account or sign in to complete onboarding. Your answers fill your profile — your coach can also access it from their dashboard.",
+    "loading": "Loading invitation…",
+    "signup": "Create my account",
+    "login": "I already have an account",
+    "claiming": "Linking your account…",
+    "redirecting": "Redirecting to the form…",
+    "errors": {
+      "notFound": "This invitation link is invalid.",
+      "loadFailed": "Could not load the invitation.",
+      "expired": "This link has expired. Ask your coach for a new one.",
+      "used": "This link was already used by another account.",
+      "claimFailed": "Could not activate the invitation. Try again or contact your coach."
+    }
+  },
   "workspaceAccounts": {
     "label": "Active account",
     "loading": "Loading…",
@@ -296,6 +314,10 @@
     "newAccountLanguage": "Primary content language",
     "createSubmit": "Create",
     "cancel": "Cancel",
+    "copyInviteLink": "Copy client onboarding link",
+    "inviteCopying": "Generating link…",
+    "inviteCopied": "Link copied — send it to your client",
+    "inviteCopyFailed": "Could not copy link",
     "language": {
       "fr": "French",
       "en": "English",

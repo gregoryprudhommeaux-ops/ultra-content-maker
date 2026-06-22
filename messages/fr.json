@@ -286,6 +286,24 @@
       "loadFailed": "Impossible de charger les statistiques."
     }
   },
+  "invite": {
+    "subtitle": "Complétez votre profil pour démarrer avec votre ghostwriter LinkedIn.",
+    "title": "Bienvenue",
+    "forAccount": "Espace : {name}",
+    "body": "Créez un compte ou connectez-vous pour remplir le formulaire d'onboarding. Vos réponses alimenteront votre profil — votre accompagnant y aura aussi accès.",
+    "loading": "Chargement de l'invitation…",
+    "signup": "Créer mon compte",
+    "login": "J'ai déjà un compte",
+    "claiming": "Association de votre compte…",
+    "redirecting": "Redirection vers le formulaire…",
+    "errors": {
+      "notFound": "Ce lien d'invitation est invalide.",
+      "loadFailed": "Impossible de charger l'invitation.",
+      "expired": "Ce lien a expiré. Demandez un nouveau lien à votre accompagnant.",
+      "used": "Ce lien a déjà été utilisé par un autre compte.",
+      "claimFailed": "Impossible d'activer l'invitation. Réessayez ou contactez votre accompagnant."
+    }
+  },
   "workspaceAccounts": {
     "label": "Compte actif",
     "loading": "Chargement…",
@@ -296,6 +314,10 @@
     "newAccountLanguage": "Langue principale du contenu",
     "createSubmit": "Créer",
     "cancel": "Annuler",
+    "copyInviteLink": "Copier le lien d'onboarding client",
+    "inviteCopying": "Génération du lien…",
+    "inviteCopied": "Lien copié — envoyez-le à votre cliente",
+    "inviteCopyFailed": "Impossible de copier le lien",
     "language": {
       "fr": "Français",
       "en": "English",

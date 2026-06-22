@@ -20,10 +20,15 @@ export async function redirectAfterSignInForUser(
   email: string,
   displayName?: string,
   notify?: AdminLoginNotifyMeta,
+  inviteToken?: string | null,
 ) {
   await ensureUserDoc(userId, email, displayName);
   if (notify) {
     notifyAdminLogin(userId, { ...notify, locale });
+  }
+  if (inviteToken?.trim()) {
+    redirectAfterSignIn(locale, `/invite/${inviteToken.trim()}`);
+    return;
   }
   redirectAfterSignIn(locale, await resolveLandingPath(userId));
 }

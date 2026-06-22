@@ -25,6 +25,7 @@ export async function getUserDoc(userId: string): Promise<UserDoc | null> {
     preferredLocale: d.preferredLocale as UserDoc["preferredLocale"],
     setupStep: (d.setupStep as SetupStep) ?? "llm",
     activeAccountId: d.activeAccountId as string | undefined,
+    linkedWorkspace: d.linkedWorkspace as UserDoc["linkedWorkspace"],
     isPlatformAdmin: Boolean(d.isPlatformAdmin),
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),

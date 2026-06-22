@@ -15,10 +15,13 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 export function SignupForm() {
   const locale = useLocale() as AppLocale;
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
   const t = useTranslations("auth.signup");
   const tLogin = useTranslations("auth.login");
   const tErr = useTranslations("auth.errors");
@@ -40,8 +43,10 @@ export function SignupForm() {
       user.uid,
       user.email ?? "",
       user.displayName ?? undefined,
+      undefined,
+      inviteToken,
     );
-  }, [user, locale]);
+  }, [user, locale, inviteToken]);
 
   if (googleRedirectFinishing) {
     return (
@@ -96,6 +101,7 @@ export function SignupForm() {
         cred.user.email ?? email,
         cred.user.displayName ?? undefined,
         { method: "email", event: "signup" },
+        inviteToken,
       );
     } catch (err) {
       setFormError(resolveAuthErrorMessage(tErr, err));
@@ -122,6 +128,7 @@ export function SignupForm() {
         cred.user.email ?? "",
         cred.user.displayName ?? undefined,
         { method: "google", event: "signup" },
+        inviteToken,
       );
     } catch (err) {
       setFormError(resolveAuthErrorMessage(tErr, err));

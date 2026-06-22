@@ -25,7 +25,7 @@ export function getActiveWorkspaceScope(): WorkspaceScope | null {
 }
 
 export function requireWorkspaceScope(ownerId: string): WorkspaceScope {
-  if (activeScope?.ownerId === ownerId) return activeScope;
+  if (activeScope) return activeScope;
   return { ownerId, accountId: DEFAULT_ACCOUNT_ID };
 }
 

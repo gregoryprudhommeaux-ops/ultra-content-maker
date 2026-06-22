@@ -1,5 +1,6 @@
 "use client";
 
+import { CopyAccountInviteLink } from "@/components/workspace/copy-account-invite-link";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { META_LABEL, INPUT_CLASS } from "@/lib/ui/nextstep";
@@ -111,6 +112,8 @@ export function AccountSwitcher() {
           />
         </svg>
       </button>
+
+      <CopyAccountInviteLink />
 
       {open && (
         <div
