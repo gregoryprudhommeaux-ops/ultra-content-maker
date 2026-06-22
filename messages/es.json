@@ -331,6 +331,8 @@
     "deleteAccountConfirmYes": "Sí, eliminar",
     "deleteAccountBusy": "Eliminando…",
     "deleteAccountFailed": "No se pudo eliminar esta cuenta.",
+    "returnToAccount": "Volver a esta cuenta cliente",
+    "openAccountList": "Cambiar de cuenta cliente",
     "language": {
       "fr": "Francés",
       "en": "Inglés",

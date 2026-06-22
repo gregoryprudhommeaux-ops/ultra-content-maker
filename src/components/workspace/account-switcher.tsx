@@ -4,8 +4,10 @@ import { CopyAccountInviteLink } from "@/components/workspace/copy-account-invit
 import { DeleteClientAccountButton } from "@/components/workspace/delete-client-account-button";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
+import { setupStepToPath } from "@/lib/workspace/user";
 import { META_LABEL, INPUT_CLASS } from "@/lib/ui/nextstep";
 import type { ContentLanguage } from "@/types/workspace";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -22,6 +24,9 @@ export function AccountSwitcher() {
     switchAccount,
     createAccount,
   } = useWorkspace();
+  const pathname = usePathname();
+  const router = useRouter();
+  const isAdminRoute = Boolean(pathname?.includes("/admin"));
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
@@ -55,7 +60,11 @@ export function AccountSwitcher() {
 
   async function handleSwitch(accountId: string) {
     if (accountId === activeAccount?.id) {
-      setOpen(false);
+      if (isAdminRoute) {
+        openActiveAccount();
+      } else {
+        setOpen(false);
+      }
       return;
     }
     setBusy(true);
@@ -82,37 +91,87 @@ export function AccountSwitcher() {
     }
   }
 
+  function activeAccountHref() {
+    if (!activeAccount) return "/setup/author";
+    return setupStepToPath(activeAccount.setupStep);
+  }
+
+  function openActiveAccount() {
+    router.push(activeAccountHref());
+    setOpen(false);
+  }
+
   return (
     <div ref={rootRef} className="relative border-b border-white/10 px-3 py-3">
       <p className={`${META_LABEL} mb-2 text-white/45`}>{t("label")}</p>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-left text-sm font-medium text-white transition-colors hover:border-ns-primary/40 hover:bg-white/10 disabled:opacity-60"
-        aria-expanded={open}
-        aria-haspopup="listbox"
-      >
-        <span className="min-w-0 truncate">
-          {activeAccount?.name ?? t("unnamed")}
-        </span>
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          className={`shrink-0 text-white/60 transition-transform ${open ? "rotate-180" : ""}`}
-          aria-hidden
+      {isAdminRoute ? (
+        <div className="flex w-full items-stretch overflow-hidden rounded-lg border border-white/15 bg-white/5">
+          <button
+            type="button"
+            disabled={busy || !activeAccount}
+            onClick={() => openActiveAccount()}
+            title={t("returnToAccount")}
+            className="min-w-0 flex-1 truncate px-3 py-2.5 text-left text-sm font-medium text-white transition-colors hover:bg-white/10 hover:text-ns-primary disabled:opacity-60"
+          >
+            {activeAccount?.name ?? t("unnamed")}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            aria-label={t("openAccountList")}
+            className="flex shrink-0 items-center border-l border-white/15 px-2.5 text-white/60 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-60"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              className={`transition-transform ${open ? "rotate-180" : ""}`}
+              aria-hidden
+            >
+              <path
+                d="M6 9l6 6 6-6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => setOpen((o) => !o)}
+          className="flex w-full items-center justify-between gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-left text-sm font-medium text-white transition-colors hover:border-ns-primary/40 hover:bg-white/10 disabled:opacity-60"
+          aria-expanded={open}
+          aria-haspopup="listbox"
         >
-          <path
-            d="M6 9l6 6 6-6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
+          <span className="min-w-0 truncate">
+            {activeAccount?.name ?? t("unnamed")}
+          </span>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            className={`shrink-0 text-white/60 transition-transform ${open ? "rotate-180" : ""}`}
+            aria-hidden
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
 
       <CopyAccountInviteLink />
       <DeleteClientAccountButton />
