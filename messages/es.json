@@ -279,7 +279,15 @@
       "lastLogin": "Última conexión",
       "sortBy": "Pulse un encabezado para ordenar",
       "noLinkedin": "—",
-      "noDate": "—"
+      "noDate": "—",
+      "actions": "Acciones",
+      "delete": "Eliminar",
+      "confirmDelete": "¿Eliminar esta cuenta y todos sus datos? No se puede deshacer.",
+      "confirm": "Sí, eliminar",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando…",
+      "deleteSelf": "—",
+      "deleteFailed": "No se pudo eliminar la cuenta."
     },
     "errors": {
       "notAuthenticated": "Sesión caducada.",
@@ -318,6 +326,11 @@
     "inviteCopying": "Generando enlace…",
     "inviteCopied": "Enlace copiado — envíaselo a tu clienta",
     "inviteCopyFailed": "No se pudo copiar el enlace",
+    "deleteAccount": "Eliminar esta cuenta cliente",
+    "deleteAccountConfirm": "¿Eliminar « {name} » y todo su contenido (perfil, Persona, posts)?",
+    "deleteAccountConfirmYes": "Sí, eliminar",
+    "deleteAccountBusy": "Eliminando…",
+    "deleteAccountFailed": "No se pudo eliminar esta cuenta.",
     "language": {
       "fr": "Francés",
       "en": "Inglés",

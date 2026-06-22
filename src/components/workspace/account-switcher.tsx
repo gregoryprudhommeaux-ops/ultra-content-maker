@@ -1,6 +1,7 @@
 "use client";
 
 import { CopyAccountInviteLink } from "@/components/workspace/copy-account-invite-link";
+import { DeleteClientAccountButton } from "@/components/workspace/delete-client-account-button";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { META_LABEL, INPUT_CLASS } from "@/lib/ui/nextstep";
@@ -114,6 +115,7 @@ export function AccountSwitcher() {
       </button>
 
       <CopyAccountInviteLink />
+      <DeleteClientAccountButton />
 
       {open && (
         <div

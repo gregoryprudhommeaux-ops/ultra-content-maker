@@ -279,7 +279,15 @@
       "lastLogin": "Last login",
       "sortBy": "Click a column header to sort",
       "noLinkedin": "—",
-      "noDate": "—"
+      "noDate": "—",
+      "actions": "Actions",
+      "delete": "Delete",
+      "confirmDelete": "Delete this account and all its data? This cannot be undone.",
+      "confirm": "Yes, delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting…",
+      "deleteSelf": "—",
+      "deleteFailed": "Could not delete account."
     },
     "errors": {
       "notAuthenticated": "Session expired.",
@@ -318,6 +326,11 @@
     "inviteCopying": "Generating link…",
     "inviteCopied": "Link copied — send it to your client",
     "inviteCopyFailed": "Could not copy link",
+    "deleteAccount": "Delete this client account",
+    "deleteAccountConfirm": "Delete “{name}” and all its content (profile, Persona, posts)?",
+    "deleteAccountConfirmYes": "Yes, delete",
+    "deleteAccountBusy": "Deleting…",
+    "deleteAccountFailed": "Could not delete this account.",
     "language": {
       "fr": "French",
       "en": "English",

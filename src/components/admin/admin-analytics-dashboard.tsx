@@ -193,6 +193,8 @@ export function AdminAnalyticsDashboard() {
 
       <UsersMetricsTable
         users={data.users}
+        currentAdminUserId={user?.uid ?? ""}
+        onUserDeleted={() => void load()}
         labels={{
           title: t("usersTable.title"),
           rank: t("usersTable.rank"),
@@ -210,6 +212,14 @@ export function AdminAnalyticsDashboard() {
           sortBy: t("usersTable.sortBy"),
           noLinkedin: t("usersTable.noLinkedin"),
           noDate: t("usersTable.noDate"),
+          actions: t("usersTable.actions"),
+          delete: t("usersTable.delete"),
+          confirmDelete: t("usersTable.confirmDelete"),
+          confirm: t("usersTable.confirm"),
+          cancel: t("usersTable.cancel"),
+          deleting: t("usersTable.deleting"),
+          deleteSelf: t("usersTable.deleteSelf"),
+          deleteFailed: t("usersTable.deleteFailed"),
         }}
       />
 

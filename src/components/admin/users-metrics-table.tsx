@@ -1,6 +1,7 @@
 "use client";
 
 import type { AdminUserMetrics } from "@/lib/admin/analytics.server";
+import { getClientAuth } from "@/lib/firebase/client";
 import { useMemo, useState } from "react";
 
 export type UserSortKey =
@@ -14,6 +15,8 @@ export type UserSortKey =
 
 type Props = {
   users: AdminUserMetrics[];
+  currentAdminUserId: string;
+  onUserDeleted: (userId: string) => void;
   labels: {
     title: string;
     rank: string;
@@ -31,6 +34,14 @@ type Props = {
     sortBy: string;
     noLinkedin: string;
     noDate: string;
+    actions: string;
+    delete: string;
+    confirmDelete: string;
+    confirm: string;
+    cancel: string;
+    deleting: string;
+    deleteSelf: string;
+    deleteFailed: string;
   };
 };
 
@@ -48,9 +59,17 @@ function completionTone(percent: number): string {
   return "bg-rose-100 text-rose-900";
 }
 
-export function UsersMetricsTable({ users, labels }: Props) {
+export function UsersMetricsTable({
+  users,
+  currentAdminUserId,
+  onUserDeleted,
+  labels,
+}: Props) {
   const [sortKey, setSortKey] = useState<UserSortKey>("usageScore");
   const [sortAsc, setSortAsc] = useState(false);
+  const [confirmUserId, setConfirmUserId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const sorted = useMemo(() => {
     const copy = [...users];
@@ -79,6 +98,32 @@ export function UsersMetricsTable({ users, labels }: Props) {
   function sortIndicator(key: UserSortKey) {
     if (sortKey !== key) return "";
     return sortAsc ? " ↑" : " ↓";
+  }
+
+  async function onDeleteUser(userId: string) {
+    setDeleteError(null);
+    setDeletingUserId(userId);
+    try {
+      const auth = getClientAuth();
+      const token = await auth?.currentUser?.getIdToken();
+      if (!token) throw new Error("auth");
+
+      const res = await fetch("/api/admin/users/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) throw new Error("api");
+      setConfirmUserId(null);
+      onUserDeleted(userId);
+    } catch {
+      setDeleteError(labels.deleteFailed);
+    } finally {
+      setDeletingUserId(null);
+    }
   }
 
   return (
@@ -153,10 +198,16 @@ export function UsersMetricsTable({ users, labels }: Props) {
                 </button>
               </th>
               <th className="px-4 py-3 font-semibold">{labels.lastLogin}</th>
+              <th className="px-4 py-3 font-semibold">{labels.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ns-alternate/50">
-            {sorted.map((user, index) => (
+            {sorted.map((user, index) => {
+              const isSelf = user.userId === currentAdminUserId;
+              const confirming = confirmUserId === user.userId;
+              const deleting = deletingUserId === user.userId;
+
+              return (
               <tr key={user.userId} className="hover:bg-ns-brand-light/70">
                 <td className="px-4 py-3 font-bold tabular-nums text-ns-tertiary">#{index + 1}</td>
                 <td className="px-4 py-3 font-medium text-ns-hero">
@@ -201,11 +252,57 @@ export function UsersMetricsTable({ users, labels }: Props) {
                 <td className="px-4 py-3 tabular-nums text-ns-secondary">
                   {formatDate(user.lastLoginAt)}
                 </td>
+                <td className="px-4 py-3">
+                  {isSelf ? (
+                    <span className="text-xs text-ns-alternate">{labels.deleteSelf}</span>
+                  ) : confirming ? (
+                    <div className="flex flex-col gap-1.5">
+                      <p className="max-w-[12rem] text-xs text-ns-secondary">
+                        {labels.confirmDelete}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          disabled={deleting}
+                          onClick={() => void onDeleteUser(user.userId)}
+                          className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                        >
+                          {deleting ? labels.deleting : labels.confirm}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={deleting}
+                          onClick={() => setConfirmUserId(null)}
+                          className="rounded-md border border-ns-alternate px-2.5 py-1 text-xs font-semibold text-ns-secondary hover:bg-white"
+                        >
+                          {labels.cancel}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeleteError(null);
+                        setConfirmUserId(user.userId);
+                      }}
+                      className="text-xs font-semibold text-red-700 hover:text-red-900 hover:underline"
+                    >
+                      {labels.delete}
+                    </button>
+                  )}
+                </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>
+      {deleteError ? (
+        <p className="border-t border-ns-alternate/50 px-5 py-3 text-sm text-red-600">
+          {deleteError}
+        </p>
+      ) : null}
     </section>
   );
 }

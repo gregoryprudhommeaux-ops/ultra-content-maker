@@ -279,7 +279,15 @@
       "lastLogin": "Dernière connexion",
       "sortBy": "Cliquez sur un en-tête pour trier",
       "noLinkedin": "—",
-      "noDate": "—"
+      "noDate": "—",
+      "actions": "Actions",
+      "delete": "Supprimer",
+      "confirmDelete": "Supprimer ce compte et toutes ses données ? Irréversible.",
+      "confirm": "Oui, supprimer",
+      "cancel": "Annuler",
+      "deleting": "Suppression…",
+      "deleteSelf": "—",
+      "deleteFailed": "Suppression impossible."
     },
     "errors": {
       "notAuthenticated": "Session expirée.",
@@ -318,6 +326,11 @@
     "inviteCopying": "Génération du lien…",
     "inviteCopied": "Lien copié — envoyez-le à votre cliente",
     "inviteCopyFailed": "Impossible de copier le lien",
+    "deleteAccount": "Supprimer ce compte client",
+    "deleteAccountConfirm": "Supprimer « {name} » et tout son contenu (profil, Persona, posts) ?",
+    "deleteAccountConfirmYes": "Oui, supprimer",
+    "deleteAccountBusy": "Suppression…",
+    "deleteAccountFailed": "Impossible de supprimer ce compte.",
     "language": {
       "fr": "Français",
       "en": "English",
