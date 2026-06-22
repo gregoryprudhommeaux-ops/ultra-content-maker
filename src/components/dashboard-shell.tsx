@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 
 function navLinkClass(active: boolean) {
-  return `${META_LABEL} rounded-md px-2 py-1 transition-colors ${
+  return `shrink-0 whitespace-nowrap rounded-md px-1.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] transition-colors xl:px-2 ${
     active
       ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
       : "text-white/70 hover:bg-white/5 hover:text-ns-primary"
@@ -61,8 +61,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     };
   }, [menuOpen]);
 
-  function renderNavLabel(labelKey: (typeof DASHBOARD_NAV)[number]["labelKey"]) {
-    const needsAttention = dashboardNavNeedsAttention(labelKey, progress);
+  function renderNavLabel(
+    labelKey: (typeof DASHBOARD_NAV)[number]["labelKey"],
+    active: boolean,
+  ) {
+    const needsAttention = dashboardNavNeedsAttention(labelKey, progress) && !active;
     return (
       <>
         {t(`nav.${labelKey}`)}
@@ -132,36 +135,39 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-      <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-4 py-3 text-white shadow-sm md:px-8">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
+      <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-4 py-3 text-white shadow-sm md:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-2 lg:gap-3">
           <Link
             href={logoHref}
-            className="flex min-w-0 items-center gap-3 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary"
+            className="flex min-w-0 shrink-0 items-center gap-2 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary xl:gap-3"
             aria-label={t("nav.home")}
           >
             <NsMark size="sm" />
-            <span className="truncate text-base font-bold tracking-tight text-white md:text-lg">
+            <span className="hidden text-sm font-bold tracking-tight text-white xl:inline xl:text-base">
               {t("app.name")}
             </span>
           </Link>
-          <div className="flex items-center gap-2 md:gap-6">
-            <nav className="hidden gap-5 lg:flex" aria-label="Main">
-              {navItems.map((item) => (
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2 lg:gap-3">
+            <nav className="hidden min-w-0 flex-1 justify-end gap-1.5 lg:flex xl:gap-2.5" aria-label="Main">
+              {navItems.map((item) => {
+                const active = isNavItemActive(item);
+                return (
                 <Link
                   key={item.key}
                   href={navItemHref(item)}
-                  className={navLinkClass(isNavItemActive(item))}
-                  aria-current={isNavItemActive(item) ? "page" : undefined}
+                  className={navLinkClass(active)}
+                  aria-current={active ? "page" : undefined}
                 >
-                  {renderNavLabel(item.labelKey)}
+                  {renderNavLabel(item.labelKey, active)}
                 </Link>
-              ))}
+              );
+              })}
             </nav>
             <LanguageSwitcher variant="dark" />
             <button
               type="button"
               onClick={() => signOut()}
-              className={`${META_LABEL} hidden text-white/60 transition-colors hover:text-ns-primary sm:inline`}
+              className="hidden shrink-0 whitespace-nowrap text-[10px] font-black uppercase tracking-[0.14em] text-white/60 transition-colors hover:text-ns-primary sm:inline"
             >
               {t("nav.signOut")}
             </button>
@@ -227,21 +233,24 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               </Link>
             )}
             <nav className="flex flex-col gap-1 px-4">
-            {navItems.map((item) => (
+            {navItems.map((item) => {
+              const active = isNavItemActive(item);
+              return (
               <Link
                 key={item.key}
                 href={navItemHref(item)}
                 className={`rounded-lg px-3 py-3 text-sm font-semibold transition-colors ${
-                  isNavItemActive(item)
+                  active
                     ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
                     : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
                 }`}
-                aria-current={isNavItemActive(item) ? "page" : undefined}
+                aria-current={active ? "page" : undefined}
                 onClick={() => setMenuOpen(false)}
               >
-                {renderNavLabel(item.labelKey)}
+                {renderNavLabel(item.labelKey, active)}
               </Link>
-            ))}
+            );
+            })}
             </nav>
             <button
               type="button"

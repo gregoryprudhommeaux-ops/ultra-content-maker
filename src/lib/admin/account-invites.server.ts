@@ -20,7 +20,7 @@ export type AccountInvitePreview = {
   token: string;
   accountName: string;
   expiresAt: string;
-  status: "active" | "expired" | "used";
+  status: "active" | "expired";
 };
 
 function inviteRef(db: Firestore, token: string) {
@@ -61,11 +61,8 @@ export async function getAccountInvitePreview(
   if (!snap.exists) return null;
   const data = snap.data() as AccountInviteRecord;
   const expiresAt = data.expiresAt.toDate();
-  const status: AccountInvitePreview["status"] = data.usedBy
-    ? "used"
-    : expiresAt.getTime() < Date.now()
-      ? "expired"
-      : "active";
+  const status: AccountInvitePreview["status"] =
+    expiresAt.getTime() < Date.now() ? "expired" : "active";
   return {
     token,
     accountName: data.accountName,
@@ -85,7 +82,6 @@ export async function claimAccountInvite(
 
   const data = snap.data() as AccountInviteRecord;
   if (data.expiresAt.toDate().getTime() < Date.now()) throw new Error("invite_expired");
-  if (data.usedBy && data.usedBy !== memberUid) throw new Error("invite_already_used");
 
   const linkedWorkspace: LinkedWorkspace = {
     ownerId: data.ownerId,
@@ -101,12 +97,13 @@ export async function claimAccountInvite(
     { merge: true },
   );
 
-  if (!data.usedBy) {
-    await ref.update({
-      usedBy: memberUid,
-      usedAt: FieldValue.serverTimestamp(),
-    });
-  }
+  await ref.update({
+    usedBy: data.usedBy ?? memberUid,
+    usedAt: data.usedAt ?? FieldValue.serverTimestamp(),
+    lastClaimedBy: memberUid,
+    lastClaimedAt: FieldValue.serverTimestamp(),
+    claimCount: FieldValue.increment(1),
+  });
 
   return linkedWorkspace;
 }

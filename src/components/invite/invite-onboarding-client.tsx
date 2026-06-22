@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 type InvitePreview = {
   accountName: string;
   expiresAt: string;
-  status: "active" | "expired" | "used";
+  status: "active" | "expired";
 };
 
 type Props = { token: string };
@@ -72,7 +72,6 @@ export function InviteOnboardingClient({ token }: Props) {
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         if (data.error === "invite_expired") setClaimError(t("errors.expired"));
-        else if (data.error === "invite_already_used") setClaimError(t("errors.used"));
         else setClaimError(t("errors.claimFailed"));
         return;
       }
@@ -115,8 +114,6 @@ export function InviteOnboardingClient({ token }: Props) {
           <p className="text-sm text-ns-secondary">{t("loading")}</p>
         ) : preview.status === "expired" ? (
           <p className="text-sm text-red-600">{t("errors.expired")}</p>
-        ) : preview.status === "used" && !user ? (
-          <p className="text-sm text-ns-secondary">{t("errors.used")}</p>
         ) : (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-ns-tertiary">{t("title")}</h2>

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const status =
       code === "invite_not_found"
         ? 404
-        : code === "invite_expired" || code === "invite_already_used"
+        : code === "invite_expired"
           ? 409
           : 400;
     return NextResponse.json({ error: code }, { status });
