@@ -4,6 +4,7 @@ import { addSource, listSourcesByCategory, removeSource } from "@/lib/workspace/
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import type { SourceLink, SourceType } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
@@ -14,6 +15,7 @@ type Props = { userId: string };
 
 export function MyPostsLinksEditor({ userId }: Props) {
   const t = useTranslations("setup.author.sources");
+  const { scope } = useWorkspace();
   const [sources, setSources] = useState<SourceLink[]>([]);
   const [type, setType] = useState<SourceType>("linkedin_post");
   const [url, setUrl] = useState("");
@@ -36,7 +38,7 @@ export function MyPostsLinksEditor({ userId }: Props) {
 
   useEffect(() => {
     void load();
-  }, [load]);
+  }, [load, scope?.accountId]);
 
   async function onAdd() {
     setError(null);

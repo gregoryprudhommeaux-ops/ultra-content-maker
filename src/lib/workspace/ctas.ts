@@ -12,6 +12,7 @@ import {
 import type { CtaDoc } from "@/types/workspace";
 import { toDate } from "./firestore-utils";
 import {
+  allowsLegacyWorkspaceFallback,
   legacyCollectionRef,
   legacyDocRef,
   workspaceCollectionRef,
@@ -26,6 +27,7 @@ async function listCtasSnap(userId: string) {
   const q = query(ctasCollection(userId), orderBy("updatedAt", "desc"));
   const scoped = await getDocs(q);
   if (!scoped.empty) return scoped;
+  if (!allowsLegacyWorkspaceFallback(userId)) return scoped;
   return getDocs(query(legacyCollectionRef(userId, "ctas"), orderBy("updatedAt", "desc")));
 }
 
@@ -47,7 +49,7 @@ export async function listCtas(userId: string): Promise<CtaDoc[]> {
 
 export async function getCta(userId: string, ctaId: string): Promise<CtaDoc | null> {
   let snap = await getDoc(workspaceDocRef(userId, "ctas", ctaId));
-  if (!snap.exists()) {
+  if (!snap.exists() && allowsLegacyWorkspaceFallback(userId)) {
     snap = await getDoc(legacyDocRef(userId, "ctas", ctaId));
   }
   if (!snap.exists()) return null;

@@ -13,6 +13,7 @@ import { stableNewsId } from "@/lib/news/stable-id";
 import type { NewsSuggestion } from "@/types/workspace";
 import { toDate } from "./firestore-utils";
 import {
+  allowsLegacyWorkspaceFallback,
   legacyCollectionRef,
   legacyDocRef,
   workspaceCollectionRef,
@@ -35,6 +36,7 @@ async function listArchivedNewsSnap(userId: string) {
   const q = query(newsArchiveCollection(userId), orderBy("lastFetchedAt", "desc"));
   const scoped = await getDocs(q);
   if (!scoped.empty) return scoped;
+  if (!allowsLegacyWorkspaceFallback(userId)) return scoped;
   return getDocs(
     query(legacyCollectionRef(userId, "newsArchive"), orderBy("lastFetchedAt", "desc")),
   );
@@ -96,7 +98,7 @@ export async function getArchivedNews(
   newsId: string,
 ): Promise<ArchivedNewsDoc | null> {
   let snap = await getDoc(workspaceDocRef(userId, "newsArchive", newsId));
-  if (!snap.exists()) {
+  if (!snap.exists() && allowsLegacyWorkspaceFallback(userId)) {
     snap = await getDoc(legacyDocRef(userId, "newsArchive", newsId));
   }
   if (!snap.exists()) return null;

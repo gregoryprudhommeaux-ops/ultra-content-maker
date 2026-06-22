@@ -29,6 +29,12 @@ export function requireWorkspaceScope(ownerId: string): WorkspaceScope {
   return { ownerId, accountId: DEFAULT_ACCOUNT_ID };
 }
 
+/** Legacy root paths only apply to the owner's default workspace — not client sub-accounts. */
+export function allowsLegacyWorkspaceFallback(userId: string): boolean {
+  const { accountId } = requireWorkspaceScope(userId);
+  return accountId === DEFAULT_ACCOUNT_ID;
+}
+
 export function workspaceDocPathForAccount(
   ownerId: string,
   accountId: string,
@@ -83,6 +89,7 @@ export async function readScopedOrLegacyDoc(
 ): Promise<Record<string, unknown> | null> {
   const scopedSnap = await getDoc(workspaceDocRef(ownerId, ...segments));
   if (scopedSnap.exists()) return map(scopedSnap.data() as Record<string, unknown>);
+  if (!allowsLegacyWorkspaceFallback(ownerId)) return null;
   const legacySnap = await getDoc(legacyDocRef(ownerId, ...segments));
   if (legacySnap.exists()) return map(legacySnap.data() as Record<string, unknown>);
   return null;

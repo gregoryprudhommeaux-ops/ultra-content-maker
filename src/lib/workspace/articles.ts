@@ -66,6 +66,7 @@ import {
 } from "@/lib/linkedin/sanitize-post-link";
 import { toDate } from "./firestore-utils";
 import {
+  allowsLegacyWorkspaceFallback,
   legacyCollectionRef,
   legacyDocRef,
   workspaceCollectionRef,
@@ -84,6 +85,7 @@ async function articlesCollectionWithLegacyFallback(userId: string) {
   const scoped = articlesCollection(userId);
   const scopedSnap = await getDocs(query(scoped, orderBy("createdAt", "desc")));
   if (!scopedSnap.empty) return scopedSnap;
+  if (!allowsLegacyWorkspaceFallback(userId)) return scopedSnap;
   const legacy = legacyCollectionRef(userId, "articles");
   return getDocs(query(legacy, orderBy("createdAt", "desc")));
 }
@@ -197,7 +199,7 @@ export async function getArticle(
   articleId: string,
 ): Promise<ArticleDoc | null> {
   let snap = await getDoc(articleDocRef(userId, articleId));
-  if (!snap.exists()) {
+  if (!snap.exists() && allowsLegacyWorkspaceFallback(userId)) {
     snap = await getDoc(legacyDocRef(userId, "articles", articleId));
   }
   if (!snap.exists()) return null;

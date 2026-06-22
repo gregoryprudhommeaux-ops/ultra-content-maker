@@ -15,6 +15,7 @@ import type {
 import { isInspirationAspect } from "@/lib/inspiration/aspects";
 import { toDate } from "./firestore-utils";
 import {
+  allowsLegacyWorkspaceFallback,
   legacyCollectionRef,
   legacyDocRef,
   workspaceCollectionRef,
@@ -29,6 +30,7 @@ async function listSourcesSnap(userId: string, fromServer = false) {
   const read = fromServer ? getDocsFromServer : getDocs;
   const scoped = await read(sourcesCollection(userId));
   if (!scoped.empty) return scoped;
+  if (!allowsLegacyWorkspaceFallback(userId)) return scoped;
   return read(legacyCollectionRef(userId, "sources"));
 }
 

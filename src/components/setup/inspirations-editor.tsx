@@ -9,6 +9,7 @@ import {
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { OptionalLabel } from "@/components/setup/optional-label";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { INPUT_CLASS } from "@/types/workspace";
 import type { SourceCategory } from "@/types/workspace";
 import { Link } from "@/i18n/navigation";
@@ -98,6 +99,7 @@ function InspirationSection({
   urlPlaceholderKey: "postUrlPlaceholder" | "profileUrlPlaceholder";
 }) {
   const t = useTranslations("setup.inspirations");
+  const { scope } = useWorkspace();
   const [sources, setSources] = useState<Awaited<ReturnType<typeof listSourcesByCategory>>>([]);
   const [url, setUrl] = useState("");
   const [whyLike, setWhyLike] = useState("");
@@ -118,8 +120,8 @@ function InspirationSection({
   }, [userId, category]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    void load();
+  }, [load, scope?.accountId]);
 
   function toggleAspect(a: InspirationAspect) {
     setAspects((prev) =>

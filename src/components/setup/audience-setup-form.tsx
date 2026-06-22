@@ -8,6 +8,7 @@ import {
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { getAudienceProfile, saveAudienceProfile, skipAudienceStep } from "@/lib/workspace/audience";
 import {
   getLearningProfile,
@@ -31,6 +32,7 @@ export function AudienceSetupForm() {
   const t = useTranslations("setup.audience");
   const tSteps = useTranslations("setup.steps");
   const { user } = useAuth();
+  const { activeAccount } = useWorkspace();
   const router = useRouter();
   const [targetLabel, setTargetLabel] = useState("");
   const [contentFocus, setContentFocus] = useState("");
@@ -43,7 +45,7 @@ export function AudienceSetupForm() {
   );
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeAccount) return;
     void Promise.all([
       getAudienceProfile(user.uid),
       getLearningProfile(user.uid),
@@ -52,10 +54,15 @@ export function AudienceSetupForm() {
         setTargetLabel(audience.targetLabel ?? "");
         setContentFocus(audience.contentFocus ?? "");
         setOptionalNotes(audience.optionalNotes ?? "");
+      } else {
+        setTargetLabel("");
+        setContentFocus("");
+        setOptionalNotes("");
       }
       if (learning?.emojiLevel) setEmojiLevel(learning.emojiLevel);
+      else setEmojiLevel("light");
     });
-  }, [user]);
+  }, [user, activeAccount?.id]);
 
   async function goToPersona(skipped: boolean) {
     if (!user || pending) return;

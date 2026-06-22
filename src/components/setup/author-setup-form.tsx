@@ -10,6 +10,7 @@ import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-
 import { InspirationsEditor } from "@/components/setup/inspirations-editor";
 import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
 import { resolveInspirationsReturn } from "@/lib/navigation/inspirations-return";
 import { completeAuthorStep, getAuthorProfile, isAuthorProfileMinimumComplete, saveAuthorProfile } from "@/lib/workspace/author";
@@ -37,6 +38,7 @@ export function AuthorSetupForm() {
   const tInspirations = useTranslations("setup.inspirations");
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
+  const { activeAccount } = useWorkspace();
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = parseAuthorTab(searchParams.get("tab"));
@@ -60,10 +62,14 @@ export function AuthorSetupForm() {
   const [savedFlash, setSavedFlash] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeAccount) return;
+    let cancelled = false;
+    setLoaded(false);
+    setError(null);
     (async () => {
       await ensureUserDoc(user.uid, user.email ?? "", user.displayName ?? undefined);
       const profile = await getAuthorProfile(user.uid);
+      if (cancelled) return;
       if (profile) {
         setLinkedinProfileUrl(profile.linkedinProfileUrl ?? "");
         setLinkedinActivityUrl(profile.linkedinActivityUrl ?? "");
@@ -72,10 +78,21 @@ export function AuthorSetupForm() {
         setRoleTitle(profile.roleTitle ?? "");
         setPositioningLine(profile.positioningLine ?? "");
         setContentLanguage(profile.contentLanguage);
+      } else {
+        setLinkedinProfileUrl("");
+        setLinkedinActivityUrl("");
+        setWebsiteUrl("");
+        setBlogUrl("");
+        setRoleTitle("");
+        setPositioningLine("");
+        setContentLanguage(activeAccount.contentLanguage ?? locale);
       }
       setLoaded(true);
     })();
-  }, [user]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, activeAccount?.id, activeAccount?.contentLanguage, locale]);
 
   async function persist(markComplete: boolean) {
     if (!user) return false;
