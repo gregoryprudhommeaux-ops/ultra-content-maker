@@ -308,6 +308,7 @@
       "notFound": "Ce lien d'invitation est invalide.",
       "loadFailed": "Impossible de charger l'invitation.",
       "expired": "Ce lien a expiré. Demandez un nouveau lien à votre accompagnant.",
+      "ownerCannotClaim": "Vous êtes connecté en tant qu'accompagnant. Envoyez ce lien à votre cliente, ou déconnectez-vous pour qu'elle crée son compte.",
       "used": "Ce lien a déjà été utilisé par un autre compte.",
       "claimFailed": "Impossible d'activer l'invitation. Réessayez ou contactez votre accompagnant."
     }
@@ -323,6 +324,8 @@
     "createSubmit": "Créer",
     "cancel": "Annuler",
     "copyInviteLink": "Copier le lien d'onboarding client",
+    "invitePanelTitle": "Lien d'onboarding client",
+    "invitePanelBody": "Envoyez ce lien à {name} pour qu'elle remplisse son profil depuis son propre compte. Le lien reste valable 90 jours.",
     "inviteCopying": "Génération du lien…",
     "inviteCopied": "Lien copié — envoyez-le à votre cliente",
     "inviteCopyFailed": "Impossible de copier le lien",

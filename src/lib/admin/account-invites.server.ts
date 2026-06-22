@@ -82,6 +82,7 @@ export async function claimAccountInvite(
 
   const data = snap.data() as AccountInviteRecord;
   if (data.expiresAt.toDate().getTime() < Date.now()) throw new Error("invite_expired");
+  if (memberUid === data.ownerId) throw new Error("invite_owner_cannot_claim");
 
   const linkedWorkspace: LinkedWorkspace = {
     ownerId: data.ownerId,

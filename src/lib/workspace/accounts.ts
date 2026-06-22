@@ -259,7 +259,7 @@ export async function bootstrapWorkspaceAccounts(
 
   try {
     const userDoc = await getUserDoc(ownerId);
-    if (userDoc?.linkedWorkspace) {
+    if (userDoc?.linkedWorkspace && !isPlatformAdmin) {
       const { ownerId: workspaceOwnerId, accountId } = userDoc.linkedWorkspace;
       const account = await getWorkspaceAccount(workspaceOwnerId, accountId);
       const scope: WorkspaceScope = { ownerId: workspaceOwnerId, accountId };

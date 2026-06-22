@@ -308,6 +308,7 @@
       "notFound": "This invitation link is invalid.",
       "loadFailed": "Could not load the invitation.",
       "expired": "This link has expired. Ask your coach for a new one.",
+      "ownerCannotClaim": "You are signed in as the coach. Share this link with your client, or sign out and let them create their account.",
       "used": "This link was already used by another account.",
       "claimFailed": "Could not activate the invitation. Try again or contact your coach."
     }
@@ -323,6 +324,8 @@
     "createSubmit": "Create",
     "cancel": "Cancel",
     "copyInviteLink": "Copy client onboarding link",
+    "invitePanelTitle": "Client onboarding link",
+    "invitePanelBody": "Send this link to {name} so they can complete their profile from their own account. The link stays valid for 90 days.",
     "inviteCopying": "Generating link…",
     "inviteCopied": "Link copied — send it to your client",
     "inviteCopyFailed": "Could not copy link",

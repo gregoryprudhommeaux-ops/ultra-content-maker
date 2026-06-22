@@ -8,13 +8,14 @@ import { DEFAULT_ACCOUNT_ID } from "@/lib/workspace/workspace-scope";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
-export function CopyAccountInviteLink() {
+export function ClientInvitePanel() {
   const t = useTranslations("workspaceAccounts");
   const locale = useLocale();
   const { user } = useAuth();
   const { activeAccount } = useWorkspace();
   const isPlatformAdmin = usePlatformAdmin();
   const [status, setStatus] = useState<"idle" | "copying" | "copied" | "error">("idle");
+  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
 
   if (
     !isPlatformAdmin ||
@@ -44,29 +45,43 @@ export function CopyAccountInviteLink() {
       });
       if (!res.ok) throw new Error("api");
       const data = (await res.json()) as { url: string };
+      setInviteUrl(data.url);
       await navigator.clipboard.writeText(data.url);
       setStatus("copied");
-      window.setTimeout(() => setStatus("idle"), 3000);
+      window.setTimeout(() => setStatus("idle"), 4000);
     } catch {
       setStatus("error");
-      window.setTimeout(() => setStatus("idle"), 3000);
+      window.setTimeout(() => setStatus("idle"), 4000);
     }
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => void onCopy()}
-      disabled={status === "copying"}
-      className="mt-2 w-full rounded-lg border border-ns-primary/30 bg-ns-primary/10 px-3 py-2 text-left text-xs font-semibold text-ns-primary hover:bg-ns-primary/20 disabled:opacity-60"
-    >
-      {status === "copied"
-        ? t("inviteCopied")
-        : status === "error"
-          ? t("inviteCopyFailed")
-          : status === "copying"
-            ? t("inviteCopying")
-            : t("copyInviteLink")}
-    </button>
+    <section className="rounded-xl border border-ns-primary/35 bg-ns-primary/8 p-4 md:p-5">
+      <h2 className="text-sm font-bold uppercase tracking-wide text-ns-tertiary">
+        {t("invitePanelTitle")}
+      </h2>
+      <p className="mt-2 text-sm leading-relaxed text-ns-secondary">
+        {t("invitePanelBody", { name: activeAccount.name })}
+      </p>
+      {inviteUrl ? (
+        <p className="mt-3 break-all rounded-lg border border-ns-alternate/60 bg-white px-3 py-2 font-mono text-xs text-ns-tertiary">
+          {inviteUrl}
+        </p>
+      ) : null}
+      <button
+        type="button"
+        onClick={() => void onCopy()}
+        disabled={status === "copying"}
+        className="mt-3 rounded-lg bg-ns-primary px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-ns-hero hover:opacity-90 disabled:opacity-60"
+      >
+        {status === "copied"
+          ? t("inviteCopied")
+          : status === "error"
+            ? t("inviteCopyFailed")
+            : status === "copying"
+              ? t("inviteCopying")
+              : t("copyInviteLink")}
+      </button>
+    </section>
   );
 }

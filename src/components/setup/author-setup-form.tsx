@@ -5,6 +5,7 @@ import {
   parseAuthorTab,
   type AuthorProfileTab,
 } from "@/components/setup/author-profile-tabs";
+import { ClientInvitePanel } from "@/components/workspace/client-invite-panel";
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { InspirationsEditor } from "@/components/setup/inspirations-editor";
@@ -202,6 +203,8 @@ export function AuthorSetupForm() {
         title={t("title")}
         subtitle={t("subtitle")}
       />
+
+      <ClientInvitePanel />
 
       <DashboardPageSection className="space-y-6">
         <AuthorProfileTabs active={activeTab} querySuffix={tabQuerySuffix} />

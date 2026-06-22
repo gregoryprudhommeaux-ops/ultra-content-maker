@@ -72,6 +72,7 @@ export function InviteOnboardingClient({ token }: Props) {
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         if (data.error === "invite_expired") setClaimError(t("errors.expired"));
+        else if (data.error === "invite_owner_cannot_claim") setClaimError(t("errors.ownerCannotClaim"));
         else setClaimError(t("errors.claimFailed"));
         return;
       }

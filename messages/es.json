@@ -308,6 +308,7 @@
       "notFound": "Este enlace de invitación no es válido.",
       "loadFailed": "No se pudo cargar la invitación.",
       "expired": "Este enlace ha caducado. Pide uno nuevo a tu acompañante.",
+      "ownerCannotClaim": "Has iniciado sesión como acompañante. Envía este enlace a tu clienta o cierra sesión para que ella cree su cuenta.",
       "used": "Este enlace ya fue usado por otra cuenta.",
       "claimFailed": "No se pudo activar la invitación. Reintenta o contacta a tu acompañante."
     }
@@ -323,6 +324,8 @@
     "createSubmit": "Crear",
     "cancel": "Cancelar",
     "copyInviteLink": "Copiar enlace de onboarding cliente",
+    "invitePanelTitle": "Enlace de onboarding cliente",
+    "invitePanelBody": "Envíe este enlace a {name} para que complete su perfil desde su propia cuenta. El enlace es válido 90 días.",
     "inviteCopying": "Generando enlace…",
     "inviteCopied": "Enlace copiado — envíaselo a tu clienta",
     "inviteCopyFailed": "No se pudo copiar el enlace",
