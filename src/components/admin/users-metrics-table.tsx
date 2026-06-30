@@ -16,9 +16,12 @@ export type UserSortKey =
 type Props = {
   users: AdminUserMetrics[];
   currentAdminUserId: string;
+  includedUserIds: ReadonlySet<string>;
+  onToggleIncluded: (userId: string, included: boolean) => void;
   onUserDeleted: (userId: string) => void;
   labels: {
     title: string;
+    includeInStats: string;
     rank: string;
     name: string;
     email: string;
@@ -62,6 +65,8 @@ function completionTone(percent: number): string {
 export function UsersMetricsTable({
   users,
   currentAdminUserId,
+  includedUserIds,
+  onToggleIncluded,
   onUserDeleted,
   labels,
 }: Props) {
@@ -139,6 +144,12 @@ export function UsersMetricsTable({
         <table className="min-w-full text-left text-sm">
           <thead className="bg-ns-brand-light text-xs uppercase tracking-wider text-ns-secondary">
             <tr>
+              <th className="px-4 py-3 font-semibold">
+                <span className="sr-only">{labels.includeInStats}</span>
+                <span aria-hidden title={labels.includeInStats}>
+                  ✓
+                </span>
+              </th>
               <th className="px-4 py-3 font-semibold">{labels.rank}</th>
               <th className="px-4 py-3 font-semibold">{labels.name}</th>
               <th className="px-4 py-3 font-semibold">
@@ -208,7 +219,19 @@ export function UsersMetricsTable({
               const deleting = deletingUserId === user.userId;
 
               return (
-              <tr key={user.userId} className="hover:bg-ns-brand-light/70">
+              <tr
+                key={user.userId}
+                className={`hover:bg-ns-brand-light/70 ${includedUserIds.has(user.userId) ? "" : "opacity-55"}`}
+              >
+                <td className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={includedUserIds.has(user.userId)}
+                    onChange={(event) => onToggleIncluded(user.userId, event.target.checked)}
+                    aria-label={`${labels.includeInStats}: ${user.displayName ?? user.email}`}
+                    className="h-4 w-4 rounded border-ns-alternate text-ns-primary focus:ring-ns-primary"
+                  />
+                </td>
                 <td className="px-4 py-3 font-bold tabular-nums text-ns-tertiary">#{index + 1}</td>
                 <td className="px-4 py-3 font-medium text-ns-hero">
                   {user.displayName ?? "—"}

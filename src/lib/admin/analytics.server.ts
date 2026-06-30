@@ -1,4 +1,7 @@
 import type { Firestore, DocumentData } from "firebase-admin/firestore";
+import { emptyCreationModeCounts, tallyCreationModes } from "@/lib/articles/infer-creation-mode";
+import { isValidUrl } from "@/lib/workspace/firestore-utils";
+import type { ArticleCreationMode, LinkedWorkspace } from "@/types/workspace";
 import { dateKeyFromDate, monthKeyFromDate, userLoginStatsRef, yearKeyFromDate } from "./record-login-event.server";
 
 export type ConnectionGranularity = "day" | "week" | "month" | "year";
@@ -21,6 +24,7 @@ export type AdminUserMetrics = {
   reworkedArticles: number;
   validatedArticles: number;
   totalArticles: number;
+  articleModeCounts: Record<ArticleCreationMode, number>;
   loginHits: number;
   lastLoginAt: string | null;
   usageScore: number;
@@ -79,10 +83,32 @@ function isAuthorComplete(data: DocumentData | undefined): boolean {
   const linkedin = String(data.linkedinProfileUrl ?? "").trim();
   return (
     linkedin.length > 0 &&
+    isValidUrl(linkedin) &&
     Boolean(String(data.roleTitle ?? "").trim()) &&
     Boolean(String(data.positioningLine ?? "").trim()) &&
     Boolean(data.contentLanguage)
   );
+}
+
+type WorkspaceTarget = {
+  ownerId: string;
+  accountId?: string;
+};
+
+/** Where profile/articles live for this auth user (owner account vs invited client). */
+function resolveWorkspaceTargets(
+  userId: string,
+  userData: DocumentData,
+  ownedAccountIds: string[],
+): WorkspaceTarget[] {
+  const linked = userData.linkedWorkspace as LinkedWorkspace | undefined;
+  if (linked?.ownerId && linked.accountId) {
+    return [{ ownerId: linked.ownerId, accountId: linked.accountId }];
+  }
+  if (ownedAccountIds.length > 0) {
+    return ownedAccountIds.map((accountId) => ({ ownerId: userId, accountId }));
+  }
+  return [{ ownerId: userId }];
 }
 
 function computeCompletionPercent(
@@ -211,6 +237,7 @@ type WorkspaceArticleStats = {
   drafts: number;
   reworked: number;
   validated: number;
+  modeCounts: Record<ArticleCreationMode, number>;
 };
 
 function tallyArticles(docs: DocumentData[]): WorkspaceArticleStats {
@@ -232,6 +259,7 @@ function tallyArticles(docs: DocumentData[]): WorkspaceArticleStats {
     drafts,
     reworked,
     validated,
+    modeCounts: tallyCreationModes(docs),
   };
 }
 
@@ -258,7 +286,8 @@ async function listArticles(
 
 async function getWorkspaceStats(
   db: Firestore,
-  userId: string,
+  llmUserId: string,
+  workspaceOwnerId: string,
   accountId?: string,
 ): Promise<{
   completionPercent: number;
@@ -266,11 +295,11 @@ async function getWorkspaceStats(
   articles: WorkspaceArticleStats;
 }> {
   const base = accountId
-    ? `users/${userId}/accounts/${accountId}`
-    : `users/${userId}`;
+    ? `users/${workspaceOwnerId}/accounts/${accountId}`
+    : `users/${workspaceOwnerId}`;
 
   const [llm, authorScoped, audienceScoped, personaScoped, articles] = await Promise.all([
-    readDoc(db, `users/${userId}/llm/profile`),
+    readDoc(db, `users/${llmUserId}/llm/profile`),
     readDoc(db, `${base}/author/profile`),
     readDoc(db, `${base}/audience/profile`),
     readDoc(db, `${base}/persona/current`),
@@ -279,13 +308,19 @@ async function getWorkspaceStats(
 
   const author =
     authorScoped ??
-    (accountId ? undefined : await readDoc(db, `users/${userId}/author/profile`));
+    (accountId
+      ? undefined
+      : await readDoc(db, `users/${workspaceOwnerId}/author/profile`));
   const audience =
     audienceScoped ??
-    (accountId ? undefined : await readDoc(db, `users/${userId}/audience/profile`));
+    (accountId
+      ? undefined
+      : await readDoc(db, `users/${workspaceOwnerId}/audience/profile`));
   const persona =
     personaScoped ??
-    (accountId ? undefined : await readDoc(db, `users/${userId}/persona/current`));
+    (accountId
+      ? undefined
+      : await readDoc(db, `users/${workspaceOwnerId}/persona/current`));
 
   const articleStats = tallyArticles(articles);
 
@@ -340,14 +375,16 @@ export async function buildAdminAnalytics(db: Firestore): Promise<AdminAnalytics
     const userId = userDoc.id;
     const userData = userDoc.data();
     const email = String(userData.email ?? "").trim() || "—";
+    const linked = userData.linkedWorkspace as LinkedWorkspace | undefined;
     const displayName = userData.displayName
       ? String(userData.displayName)
-      : null;
+      : linked?.accountName
+        ? String(linked.accountName)
+        : null;
 
     const accountsSnap = await db.collection(`users/${userId}/accounts`).get();
     const accountIds = accountsSnap.docs.map((d) => d.id);
-    const workspaces =
-      accountIds.length > 0 ? accountIds : [undefined as string | undefined];
+    const workspaces = resolveWorkspaceTargets(userId, userData, accountIds);
 
     workspaceAccounts += workspaces.length;
 
@@ -357,14 +394,18 @@ export async function buildAdminAnalytics(db: Firestore): Promise<AdminAnalytics
     let userTotal = 0;
     let userCompletionSum = 0;
     let linkedinUrl: string | null = null;
+    const userModeCounts = emptyCreationModeCounts();
 
-    for (const accountId of workspaces) {
-      const stats = await getWorkspaceStats(db, userId, accountId);
+    for (const { ownerId, accountId } of workspaces) {
+      const stats = await getWorkspaceStats(db, userId, ownerId, accountId);
       userDrafts += stats.articles.drafts;
       userReworked += stats.articles.reworked;
       userValidated += stats.articles.validated;
       userTotal += stats.articles.total;
       userCompletionSum += stats.completionPercent;
+      for (const mode of Object.keys(userModeCounts) as ArticleCreationMode[]) {
+        userModeCounts[mode] += stats.articles.modeCounts[mode];
+      }
       if (!linkedinUrl && stats.linkedinUrl) linkedinUrl = stats.linkedinUrl;
     }
 
@@ -384,6 +425,7 @@ export async function buildAdminAnalytics(db: Firestore): Promise<AdminAnalytics
       reworkedArticles: userReworked,
       validatedArticles: userValidated,
       totalArticles: userTotal,
+      articleModeCounts: userModeCounts,
       loginHits: loginStats.hits,
       lastLoginAt: loginStats.lastLoginAt,
       usageScore,

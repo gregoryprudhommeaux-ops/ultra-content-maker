@@ -248,12 +248,22 @@
     },
     "connections": {
       "title": "Connexions uniques",
+      "empty": "Aucune connexion enregistrée pour l'instant. Les données apparaissent après la connexion des utilisateurs.",
       "subtitle": {
         "day": "30 derniers jours",
         "week": "12 dernières semaines (union des utilisateurs)",
         "month": "12 derniers mois",
         "year": "5 dernières années"
       }
+    },
+    "articleModes": {
+      "title": "Répartition des styles de création",
+      "subtitle": "Part des posts par parcours wizard (utilisateurs cochés uniquement)",
+      "empty": "Aucun post pour les utilisateurs inclus.",
+      "totalLabel": "posts"
+    },
+    "statsScope": {
+      "filtered": "Les KPI et le camembert reflètent {included} utilisateur(s) sur {total} (lignes cochées)."
     },
     "kpis": {
       "registeredUsers": "Comptes créés",
@@ -265,6 +275,7 @@
     },
     "usersTable": {
       "title": "Utilisateurs (classement modifiable)",
+      "includeInStats": "Inclure dans les stats",
       "rank": "#",
       "name": "Nom",
       "email": "E-mail",
@@ -356,7 +367,19 @@
     "signOut": "Déconnexion",
     "admin": "Admin",
     "openMenu": "Ouvrir le menu",
-    "closeMenu": "Fermer le menu"
+    "closeMenu": "Fermer le menu",
+    "sidebar": {
+      "ariaLabel": "Raccourcis",
+      "title": "Raccourcis",
+      "createNewPost": "Créer un nouveau post",
+      "createHint": "Profil · Actu · Inspiration · Votre sujet",
+      "libraryDrafts": "Bibliothèque",
+      "libraryHint": "Brouillons & en cours",
+      "updateVoice": "Affiner ma voix",
+      "lastPost": "Dernier post créé",
+      "lastPostEmpty": "Aucun post pour l’instant",
+      "lastPostUntitled": "Sans titre"
+    }
   },
   "settings": {
     "llmKeyDialog": {

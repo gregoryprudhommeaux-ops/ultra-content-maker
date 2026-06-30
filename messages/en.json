@@ -248,12 +248,22 @@
     },
     "connections": {
       "title": "Unique connections",
+      "empty": "No connections recorded yet. Data appears after users sign in.",
       "subtitle": {
         "day": "Last 30 days",
         "week": "Last 12 weeks (user union)",
         "month": "Last 12 months",
         "year": "Last 5 years"
       }
+    },
+    "articleModes": {
+      "title": "Creation style mix",
+      "subtitle": "Share of posts by wizard path (included users only)",
+      "empty": "No posts from included users yet.",
+      "totalLabel": "posts"
+    },
+    "statsScope": {
+      "filtered": "KPIs and creation mix reflect {included} of {total} users (checked rows)."
     },
     "kpis": {
       "registeredUsers": "Registered users",
@@ -265,6 +275,7 @@
     },
     "usersTable": {
       "title": "Users (sortable ranking)",
+      "includeInStats": "Include in stats",
       "rank": "#",
       "name": "Name",
       "email": "Email",
@@ -356,7 +367,19 @@
     "signOut": "Sign out",
     "admin": "Admin",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "sidebar": {
+      "ariaLabel": "Workspace shortcuts",
+      "title": "Shortcuts",
+      "createNewPost": "Create a new post",
+      "createHint": "Profile · News · Inspiration · Your topic",
+      "libraryDrafts": "Library",
+      "libraryHint": "Drafts & in progress",
+      "updateVoice": "Update my voice",
+      "lastPost": "Last post created",
+      "lastPostEmpty": "No post yet",
+      "lastPostUntitled": "Untitled"
+    }
   },
   "settings": {
     "llmKeyDialog": {

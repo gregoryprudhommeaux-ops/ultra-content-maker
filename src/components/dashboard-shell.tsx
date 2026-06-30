@@ -13,6 +13,7 @@ import {
   type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
 import { AccountSwitcher } from "@/components/workspace/account-switcher";
+import { DashboardSidebarNav } from "@/components/navigation/dashboard-sidebar-nav";
 import { resolveHomeHrefFromProgress } from "@/lib/workspace/onboarding-routes";
 import { META_LABEL } from "@/lib/ui/nextstep";
 import { Link, usePathname } from "@/i18n/navigation";
@@ -164,10 +165,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       </header>
 
       <div className="flex min-h-0 flex-1">
-      <aside className="sticky top-[var(--dashboard-header-h)] hidden h-[calc(100vh-var(--dashboard-header-h))] w-56 shrink-0 flex-col border-r border-white/10 bg-ns-hero lg:flex">
+      <aside className="sticky top-[var(--dashboard-header-h)] hidden h-[calc(100vh-var(--dashboard-header-h))] w-60 shrink-0 flex-col border-r border-white/10 bg-ns-hero lg:flex">
         <AccountSwitcher />
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <DashboardSidebarNav />
+        </div>
         {isPlatformAdmin && (
-          <nav className="flex flex-col gap-1 border-b border-white/10 px-3 py-3" aria-label="Admin">
+          <nav className="mt-auto flex flex-col gap-1 border-t border-white/10 px-3 py-3" aria-label="Admin">
             <p className={`${META_LABEL} mb-1 px-2 text-white/45`}>{t("nav.admin")}</p>
             <Link
               href="/admin/analytics"
@@ -201,6 +205,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <div className="px-1">
               <AccountSwitcher />
             </div>
+            <DashboardSidebarNav
+              className="border-b border-white/10 pb-4"
+              onNavigate={() => setMenuOpen(false)}
+            />
             {isPlatformAdmin && (
               <Link
                 href="/admin/analytics"

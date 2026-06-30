@@ -1,9 +1,11 @@
 "use client";
 
-import { KpiCard, UsageBarChart } from "@/components/admin/analytics-charts";
+import { CreationModePieChart, KpiCard, UsageBarChart } from "@/components/admin/analytics-charts";
 import { UsersMetricsTable } from "@/components/admin/users-metrics-table";
 import { useAuth } from "@/components/auth/auth-provider";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
+import { aggregateAdminStats } from "@/lib/admin/filter-admin-stats";
+import { ARTICLE_CREATION_MODES } from "@/lib/articles/infer-creation-mode";
 import type {
   AdminAnalyticsPayload,
   ConnectionGranularity,
@@ -17,17 +19,19 @@ import {
 import { getClientAuth } from "@/lib/firebase/client";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const PERIODS: ConnectionGranularity[] = ["day", "week", "month", "year"];
 
 export function AdminAnalyticsDashboard() {
   const t = useTranslations("adminAnalytics");
+  const tModes = useTranslations("setup.articles.create.intentSummary.modes");
   const { user } = useAuth();
   const isPlatformAdmin = usePlatformAdmin();
   const router = useRouter();
   const [period, setPeriod] = useState<ConnectionGranularity>("day");
   const [data, setData] = useState<AdminAnalyticsPayload | null>(null);
+  const [includedUserIds, setIncludedUserIds] = useState<Set<string>>(() => new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,6 +66,7 @@ export function AdminAnalyticsDashboard() {
       }
       const json = (await res.json()) as AdminAnalyticsPayload;
       setData(json);
+      setIncludedUserIds(new Set(json.users.map((row) => row.userId)));
     } catch {
       setError(t("errors.loadFailed"));
     } finally {
@@ -76,6 +81,30 @@ export function AdminAnalyticsDashboard() {
     }
     void load();
   }, [isPlatformAdmin, load, router]);
+
+  const users = data?.users ?? [];
+  const filteredTotals = useMemo(
+    () => aggregateAdminStats(users, includedUserIds),
+    [users, includedUserIds],
+  );
+  const modeSlices = useMemo(
+    () =>
+      ARTICLE_CREATION_MODES.map((mode) => ({
+        mode,
+        label: tModes(mode),
+        count: filteredTotals.articleModeCounts[mode],
+      })),
+    [filteredTotals.articleModeCounts, tModes],
+  );
+
+  function onToggleIncluded(userId: string, included: boolean) {
+    setIncludedUserIds((prev) => {
+      const next = new Set(prev);
+      if (included) next.add(userId);
+      else next.delete(userId);
+      return next;
+    });
+  }
 
   if (!isPlatformAdmin) {
     return null;
@@ -104,6 +133,13 @@ export function AdminAnalyticsDashboard() {
   if (!data) return null;
 
   const buckets = data.connections[period];
+  const statsScopeHint =
+    includedUserIds.size < data.users.length
+      ? t("statsScope.filtered", {
+          included: includedUserIds.size,
+          total: data.users.length,
+        })
+      : null;
 
   return (
     <DashboardPageShell>
@@ -132,71 +168,52 @@ export function AdminAnalyticsDashboard() {
         }
       />
 
+      {statsScopeHint ? (
+        <p className="text-sm font-medium text-ns-secondary">{statsScopeHint}</p>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <KpiCard
           tone="primary"
           label={t("kpis.registeredUsers")}
-          value={data.totals.registeredUsers}
+          value={filteredTotals.registeredUsers}
         />
         <KpiCard
           tone="secondary"
           label={t("kpis.workspaceAccounts")}
-          value={data.totals.workspaceAccounts}
+          value={filteredTotals.workspaceAccounts}
         />
         <KpiCard
           tone="success"
           label={t("kpis.avgCompletion")}
-          value={`${data.totals.averageCompletionPercent}%`}
+          value={`${filteredTotals.averageCompletionPercent}%`}
         />
         <KpiCard
           tone="warning"
           label={t("kpis.draftArticles")}
-          value={data.totals.draftArticles}
+          value={filteredTotals.draftArticles}
         />
         <KpiCard
           tone="neutral"
           label={t("kpis.reworkedArticles")}
-          value={data.totals.reworkedArticles}
+          value={filteredTotals.reworkedArticles}
         />
         <KpiCard
           tone="primary"
           label={t("kpis.totalArticles")}
-          value={data.totals.totalArticles}
+          value={filteredTotals.totalArticles}
         />
       </div>
-
-      <section className="space-y-4">
-        <div className="flex flex-wrap gap-2">
-          {PERIODS.map((key) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setPeriod(key)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                period === key
-                  ? "bg-ns-hero text-white shadow-sm"
-                  : "border border-ns-alternate bg-white text-ns-secondary hover:border-ns-primary hover:text-ns-hero"
-              }`}
-            >
-              {t(`periods.${key}`)}
-            </button>
-          ))}
-        </div>
-
-        <UsageBarChart
-          title={t("connections.title")}
-          subtitle={t(`connections.subtitle.${period}`)}
-          buckets={buckets}
-          accentClass="bg-ns-primary"
-        />
-      </section>
 
       <UsersMetricsTable
         users={data.users}
         currentAdminUserId={user?.uid ?? ""}
+        includedUserIds={includedUserIds}
+        onToggleIncluded={onToggleIncluded}
         onUserDeleted={() => void load()}
         labels={{
           title: t("usersTable.title"),
+          includeInStats: t("usersTable.includeInStats"),
           rank: t("usersTable.rank"),
           name: t("usersTable.name"),
           email: t("usersTable.email"),
@@ -222,6 +239,43 @@ export function AdminAnalyticsDashboard() {
           deleteFailed: t("usersTable.deleteFailed"),
         }}
       />
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <section className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {PERIODS.map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setPeriod(key)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  period === key
+                    ? "bg-ns-hero text-white shadow-sm"
+                    : "border border-ns-alternate bg-white text-ns-secondary hover:border-ns-primary hover:text-ns-hero"
+                }`}
+              >
+                {t(`periods.${key}`)}
+              </button>
+            ))}
+          </div>
+
+          <UsageBarChart
+            title={t("connections.title")}
+            subtitle={t(`connections.subtitle.${period}`)}
+            emptyLabel={t("connections.empty")}
+            buckets={buckets}
+            accentClass="bg-ns-primary"
+          />
+        </section>
+
+        <CreationModePieChart
+          title={t("articleModes.title")}
+          subtitle={t("articleModes.subtitle")}
+          emptyLabel={t("articleModes.empty")}
+          totalLabel={t("articleModes.totalLabel")}
+          slices={modeSlices}
+        />
+      </div>
 
       <p className="text-xs text-ns-secondary">
         {t("footnote")}{" "}
