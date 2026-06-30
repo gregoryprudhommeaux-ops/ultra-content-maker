@@ -10,6 +10,11 @@ import type {
   ProfileGapQuestion,
 } from "@/types/workspace";
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
+import {
+  formatGapAnswerText,
+  formatRankedGapAnswer,
+  getGapOtherText,
+} from "@/lib/persona/gap-answer-utils";
 import { emojiInstruction } from "@/lib/prompts/emoji-instruction";
 import { toDate } from "./firestore-utils";
 import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
@@ -214,8 +219,11 @@ export function entriesFromGapAnswers(
   const out: Omit<LearningEntry, "createdAt">[] = [];
   for (const q of questions) {
     const v = answers[q.id];
-    if (v === undefined) continue;
-    const text = Array.isArray(v) ? v.join(", ") : String(v).trim();
+    const otherText = getGapOtherText(answers, q.id);
+    const text =
+      q.type === "rank" && Array.isArray(v)
+        ? formatRankedGapAnswer(v.map((item) => String(item)))
+        : formatGapAnswerText(v, otherText);
     if (!text) continue;
     out.push({ source: "gaps", text: `${q.label}: ${text}` });
   }

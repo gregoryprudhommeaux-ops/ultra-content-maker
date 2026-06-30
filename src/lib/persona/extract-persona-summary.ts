@@ -1,5 +1,6 @@
 import { stripVersionHeader } from "@/lib/persona/persona-version";
 import type { AudienceProfile, AuthorProfile } from "@/types/workspace";
+import { PERSONA_PILLAR_HEADINGS } from "./persona-section-headings";
 
 export type PersonaRevealCardKey = "positioning" | "audience" | "angle" | "tone";
 
@@ -20,7 +21,7 @@ function truncate(text: string, max = 260): string {
   return `${flat.slice(0, max - 1).trim()}…`;
 }
 
-function extractSection(promptText: string, headings: string[]): string | null {
+function extractSection(promptText: string, headings: readonly string[]): string | null {
   const text = stripVersionHeader(promptText);
   for (const heading of headings) {
     const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -72,39 +73,19 @@ export function buildPersonaRevealSummary(
   const hasPrompt = promptText.trim().length > 0;
 
   const authorSection = hasPrompt
-    ? extractSection(promptText, [
-        "Contexte auteur",
-        "Author context",
-        "Contexto del autor",
-        "Profil auteur",
-        "Author profile",
-      ])
+    ? extractSection(promptText, PERSONA_PILLAR_HEADINGS.positioning)
     : null;
 
   const audienceSection = hasPrompt
-    ? extractSection(promptText, [
-        "Audience",
-        "Audiencia",
-        "Public cible",
-        "Target audience",
-        "Lecteurs cibles",
-      ])
+    ? extractSection(promptText, PERSONA_PILLAR_HEADINGS.audience)
     : null;
 
   const topicSection = hasPrompt
-    ? extractSection(promptText, ["Topic DNA", "ADN thématique", "ADN temático"])
+    ? extractSection(promptText, PERSONA_PILLAR_HEADINGS.angle)
     : null;
 
   const voiceSection = hasPrompt
-    ? extractSection(promptText, [
-        "Voix et ton",
-        "Voice and tone",
-        "Voz y tono",
-        "Voix",
-        "Voice",
-        "Ton éditorial",
-        "Editorial tone",
-      ])
+    ? extractSection(promptText, PERSONA_PILLAR_HEADINGS.tone)
     : null;
 
   const positioningProfile = positioningFromProfile(author);

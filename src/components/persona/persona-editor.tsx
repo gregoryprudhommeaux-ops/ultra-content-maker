@@ -3,20 +3,22 @@
 import { useAuth } from "@/components/auth/auth-provider";
 import { GapsQuestionnaire } from "@/components/persona/gaps-questionnaire";
 import { notifyOnboardingProgressChangedDeferred } from "@/contexts/onboarding-progress-context";
-import { getAudienceProfile } from "@/lib/workspace/audience";
-import { getAuthorProfile } from "@/lib/workspace/author";
+import { getAudienceProfile, saveAudienceProfile } from "@/lib/workspace/audience";
+import { getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { PersonaContextGuide } from "@/components/persona/persona-context-guide";
 import { PersonaReveal } from "@/components/persona/persona-reveal";
 import { buildPersonaRevealSummary } from "@/lib/persona/extract-persona-summary";
+import type { PersonaRevealCardKey } from "@/lib/persona/extract-persona-summary";
+import { patchPersonaPromptSection } from "@/lib/persona/patch-persona-pillar";
 import { PersonaHistoryPanel } from "@/components/persona/persona-history-panel";
 import { PersonaPerformanceInsightsPanel } from "@/components/persona/persona-performance-insights-panel";
 import { PersonaRecentUpdatesPanel } from "@/components/persona/persona-recent-updates-panel";
 import { PersonaRefinementPanel } from "@/components/persona/persona-refinement-panel";
 import { formatVersionLine } from "@/lib/persona/persona-version";
 import type { PersonaRecentChange } from "@/types/workspace";
-import { getPersona, savePersonaDraft, validatePersona } from "@/lib/workspace/persona";
+import { getPersona, savePersonaDraft, updatePersonaPromptText, validatePersona } from "@/lib/workspace/persona";
 import { listSources } from "@/lib/workspace/sources";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { recordGapFeedback } from "@/lib/persona/sync-persona-from-feedback";
@@ -63,6 +65,7 @@ export function PersonaEditor() {
   const [audienceProfile, setAudienceProfile] = useState<
     Awaited<ReturnType<typeof getAudienceProfile>>
   >(null);
+  const [pillarSaving, setPillarSaving] = useState<PersonaRevealCardKey | null>(null);
 
   const load = useCallback(async () => {
     if (!user) {
@@ -232,6 +235,69 @@ export function PersonaEditor() {
     setPersonaUpdatedAt(p.updatedAt);
   }
 
+  async function onPillarSave(key: PersonaRevealCardKey, newText: string) {
+    if (!user || !promptText.trim()) return;
+    setPillarSaving(key);
+    setError(null);
+    try {
+      const card = revealSummary.cards.find((c) => c.key === key);
+      const nextPrompt = patchPersonaPromptSection(
+        promptText,
+        key,
+        newText,
+        contentLang,
+      );
+      setPromptText(nextPrompt);
+
+      const pillarLabel = t(`reveal.cards.${key}.label`);
+      const changeSummary =
+        contentLang === "fr"
+          ? `Pilier « ${pillarLabel} » mis à jour manuellement.`
+          : contentLang === "es"
+            ? `Pilar « ${pillarLabel} » actualizado manualmente.`
+            : `Pillar "${pillarLabel}" updated manually.`;
+
+      await updatePersonaPromptText(user.uid, nextPrompt, {
+        changeSummary,
+        contentLanguage: contentLang,
+        reason: "user_refinement",
+        bumpVersion: true,
+      });
+      const saved = await getPersona(user.uid);
+      if (saved) applyPersonaFromStore(saved);
+
+      if (card?.source === "profile") {
+        if (key === "positioning") {
+          const dash = newText.indexOf(" — ");
+          if (dash > 0) {
+            await saveAuthorProfile(user.uid, {
+              roleTitle: newText.slice(0, dash).trim(),
+              positioningLine: newText.slice(dash + 3).trim(),
+            });
+          } else {
+            await saveAuthorProfile(user.uid, { positioningLine: newText.trim() });
+          }
+          setAuthorProfile(await getAuthorProfile(user.uid));
+        } else if (key === "audience" && audienceProfile && !audienceProfile.skipped) {
+          const dot = newText.indexOf(". ");
+          if (dot > 0) {
+            await saveAudienceProfile(user.uid, {
+              targetLabel: newText.slice(0, dot).trim(),
+              contentFocus: newText.slice(dot + 2).trim(),
+            });
+          } else {
+            await saveAudienceProfile(user.uid, { targetLabel: newText.trim() });
+          }
+          setAudienceProfile(await getAudienceProfile(user.uid));
+        }
+      }
+    } catch {
+      setError(t("pillarSaveFailed"));
+    } finally {
+      setPillarSaving(null);
+    }
+  }
+
   async function onValidate() {
     if (!user || promptText.length < 200) return;
     setPending(true);
@@ -275,6 +341,8 @@ export function PersonaEditor() {
       <DashboardPageSection className="space-y-6">
       {promptText ? (
         <PersonaReveal
+          onPillarSave={onPillarSave}
+          pillarSaving={pillarSaving}
           {...(status === "validated"
             ? {
                 mode: "validated" as const,

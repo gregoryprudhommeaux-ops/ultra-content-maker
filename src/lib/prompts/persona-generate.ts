@@ -54,12 +54,12 @@ gapQuestions rules:
 - id: stable snake_case identifier (e.g. sectors, company_size, cta_preference)
 - field: "author" | "audience" | "enrichment" (use enrichment when no direct profile field)
 - profileKey: Firestore field name (author: roleTitle, positioningLine; audience: targetLabel, contentFocus, optionalNotes; enrichment: any snake_case key)
-- type: "single" (one choice), "multi" (checkboxes), or "text" (free input)
-- options: required for single/multi, 3-8 concise choices in ${name}
+- type: "single" (one choice), "multi" (checkboxes), "rank" (order all options by priority), or "text" (free input)
+- options: required for single/multi/rank, 3-8 concise choices in ${name}
 - label: short question in ${name}
 - hint: optional helper in ${name}
 
-Prioritize gaps that would materially improve LinkedIn content: sectors, ICP size, markets, quarterly LinkedIn goal (enrichment key linkedin_quarterly_goal), proof/case study policy (proof_policy), preferred CTA style (cta_preference: comment_prompt | dm | save), posting frequency, topics to avoid.
+Prioritize gaps that would materially improve LinkedIn content: sectors, ICP size, markets, quarterly LinkedIn goal (enrichment key linkedin_quarterly_goal — MUST use type "rank" with 4-6 goal options to order by priority), proof/case study policy (proof_policy), preferred CTA style (cta_preference: comment_prompt | dm | save), posting frequency, topics to avoid.
 
 When the user provides inspirationPosts or inspirationProfiles, weave them into the expert prompt as explicit creative references (not plagiarism): mirror the ASPECTS they marked (tone, angle, subject, approach, content, format) and optional whyLike notes. Never copy text from URLs. myPosts define the author's own voice baseline; inspirations are external models to borrow structure and energy from.
 

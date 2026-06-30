@@ -141,7 +141,6 @@ export async function recordGapFeedback(
     await appendLearningEntries(userId, entries);
   }
   await syncPersonaFromFeedback(userId);
-  await tryRefreshPersonaBaseFromProfile(userId);
 }
 
 export async function recordArticleRefinementFeedback(

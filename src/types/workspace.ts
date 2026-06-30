@@ -133,7 +133,7 @@ export interface SourceLink {
 
 export type GapQuestionField = "author" | "audience" | "enrichment";
 
-export type GapQuestionType = "single" | "multi" | "text";
+export type GapQuestionType = "single" | "multi" | "text" | "rank";
 
 export interface ProfileGapQuestion {
   id: string;
