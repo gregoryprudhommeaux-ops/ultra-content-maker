@@ -59,6 +59,7 @@ import {
   saveDefaultEmojiLevel,
 } from "@/lib/workspace/learning-profile";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
+import { llmPayloadFromProfile } from "@/lib/llm/client-payload";
 import { getPersona } from "@/lib/workspace/persona";
 import {
   createArticleBatch,
@@ -272,7 +273,7 @@ export function ArticleCreationWizard() {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       const llmProfile = await getUserLlmProfile(user.uid);
-      if (!token || !llmProfile?.apiKey) return;
+      if (!token) return;
 
       const [author, authorSteering] = await Promise.all([
         getAuthorProfile(user.uid),
@@ -292,11 +293,7 @@ export function ArticleCreationWizard() {
           personaPromptText: personaText,
           authorSteering,
           useLlm: true,
-          llm: {
-            provider: llmProfile.provider,
-            apiKey: llmProfile.apiKey,
-            model: llmProfile.model,
-          },
+          llm: llmPayloadFromProfile(llmProfile),
         }),
       });
       const data = await res.json();
@@ -345,9 +342,9 @@ export function ArticleCreationWizard() {
         const auth = getClientAuth();
         const token = auth ? await auth.currentUser?.getIdToken() : null;
         const llmProfile = await getUserLlmProfile(user.uid);
-        if (!token || !llmProfile?.apiKey) {
+        if (!token) {
           setErrorInfo(
-            formatError({ errorCode: "no_llm_key", fallbackMessage: tArticles("noLlmKey") }),
+            formatError({ errorCode: "Unauthorized", fallbackMessage: tArticles("generateFailed") }),
           );
           return;
         }
@@ -373,20 +370,18 @@ export function ArticleCreationWizard() {
             personaExcerpt: personaText,
             contentLanguage: author?.contentLanguage ?? locale,
             authorSteering,
-            llm: {
-              provider: llmProfile.provider,
-              apiKey: llmProfile.apiKey,
-              model: llmProfile.model,
-            },
+            llm: llmPayloadFromProfile(llmProfile),
           }),
         });
         const data = await res.json();
         if (!res.ok) {
           const code = typeof data.error === "string" ? data.error : "no_recent_news";
+          const detail = typeof data.detail === "string" ? data.detail : "";
           setNewsErrorCode(code);
           setErrorInfo(
             formatError({
               errorCode: code,
+              detail,
               fallbackMessage: mapNewsLoadError(code),
             }),
           );
@@ -433,9 +428,9 @@ export function ArticleCreationWizard() {
           newsInterestQuery: newsInterestQuery.trim() || undefined,
         }),
       ]);
-      if (!token || !llmProfile?.apiKey) {
+      if (!token) {
         setErrorInfo(
-          formatError({ errorCode: "no_llm_key", fallbackMessage: tArticles("noLlmKey") }),
+          formatError({ errorCode: "Unauthorized", fallbackMessage: t("briefSuggestFailed") }),
         );
         return;
       }
@@ -460,18 +455,17 @@ export function ArticleCreationWizard() {
               ? (toArticleInspirationSource(inspirationCtx, selectedLibrarySource) ??
                 undefined)
               : undefined,
-          llm: {
-            provider: llmProfile.provider,
-            apiKey: llmProfile.apiKey,
-            model: llmProfile.model,
-          },
+          llm: llmPayloadFromProfile(llmProfile),
         }),
       });
       const data = await res.json();
       if (!res.ok || !data.brief) {
+        const detail = typeof data.detail === "string" ? data.detail : "";
+        const code = typeof data.error === "string" ? data.error : "llm_request_failed";
         setErrorInfo(
           formatError({
-            errorCode: "llm_request_failed",
+            errorCode: code,
+            detail,
             fallbackMessage: t("briefSuggestFailed"),
           }),
         );
@@ -547,14 +541,6 @@ export function ArticleCreationWizard() {
         }),
       ]);
 
-      if (!llmProfile?.apiKey) {
-        setErrorInfo(
-          formatError({ errorCode: "no_llm_key", fallbackMessage: tArticles("noLlmKey") }),
-        );
-        setStep(draftArticleId ? "draft-done" : "brief");
-        return;
-      }
-
       const contentLang = author?.contentLanguage ?? locale;
       const newsSource =
         mode === "news" && selectedNews ? newsToSource(selectedNews) : undefined;
@@ -586,11 +572,7 @@ export function ArticleCreationWizard() {
                 ? toArticleInspirationSource(inspirationCtx, selectedLibrarySource)
                 : undefined,
             targetScope: mode === "inspiration" ? targetScope : undefined,
-            llm: {
-              provider: llmProfile.provider,
-              apiKey: llmProfile.apiKey,
-              model: llmProfile.model,
-            },
+            llm: llmPayloadFromProfile(llmProfile),
           }),
         });
       } finally {

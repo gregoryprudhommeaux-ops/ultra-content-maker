@@ -28,7 +28,7 @@ export function LlmKeyDialog() {
     getUserLlmProfile(user.uid)
       .then((profile) => {
         if (cancelled) return;
-        const needsKey = !profile?.apiKey;
+        const needsKey = !profile?.apiKey?.trim();
         setMissingKey(needsKey);
         if (!needsKey) setDismissed(false);
         setChecked(true);

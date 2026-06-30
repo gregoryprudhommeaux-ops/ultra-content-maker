@@ -1,5 +1,7 @@
-import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
 import { chatCompletionJson } from "@/lib/llm/chat";
+import { llmErrorResponse } from "@/lib/llm/llm-route-error";
+import { resolveRequestLlm } from "@/lib/llm/resolve-request-llm";
+import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
   buildArticlesFromNewsUserPayload,
@@ -130,8 +132,8 @@ function resolveArticleCount(raw?: number): ArticleGenerateCount {
 }
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) {
+  const userId = await verifyBearerUserId(request.headers.get("authorization"));
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -174,14 +176,7 @@ export async function POST(request: Request) {
     ? normalizePostBrief(body.postBrief)
     : undefined;
 
-  const llm =
-    body.llm?.apiKey?.trim()
-      ? configFromUserLlm({
-          provider: body.llm.provider,
-          apiKey: body.llm.apiKey.trim(),
-          model: body.llm.model,
-        })
-      : getLlmConfig();
+  const llm = await resolveRequestLlm(userId, body.llm);
 
   if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
@@ -317,12 +312,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ articles, model: llm.model });
   } catch (e) {
-    return NextResponse.json(
-      {
-        error: "llm_request_failed",
-        detail: e instanceof Error ? e.message : "Unknown",
-      },
-      { status: 502 },
-    );
+    return llmErrorResponse(e);
   }
 }

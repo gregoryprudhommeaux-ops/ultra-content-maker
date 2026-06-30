@@ -31,9 +31,16 @@ const CODE_KEYS: Record<string, string> = {
 /** next-intl key under the `errors` namespace (e.g. errors.codes.noLlmKey). */
 export function getErrorMessageKey(errorCode?: string, detail?: string): string {
   const code = (errorCode ?? "").trim();
-  if (code && CODE_KEYS[code]) return CODE_KEYS[code];
+  const rawDetail = (detail ?? "").trim();
 
-  const llm = classifyLlmApiError(code, detail);
+  if (rawDetail) {
+    const providerKind = classifyProviderErrorMessage(rawDetail);
+    if (providerKind === "insufficient_credits") return "codes.insufficientCredits";
+    if (providerKind === "invalid_key") return "codes.invalidApiKey";
+    if (providerKind === "rate_limit") return "codes.rateLimit";
+  }
+
+  const llm = classifyLlmApiError(code, rawDetail);
   switch (llm.kind) {
     case "no_key":
       return "codes.noLlmKey";
@@ -53,12 +60,7 @@ export function getErrorMessageKey(errorCode?: string, detail?: string): string 
       break;
   }
 
-  if (detail?.trim()) {
-    const providerKind = classifyProviderErrorMessage(detail);
-    if (providerKind === "insufficient_credits") return "codes.insufficientCredits";
-    if (providerKind === "invalid_key") return "codes.invalidApiKey";
-    if (providerKind === "rate_limit") return "codes.rateLimit";
-  }
+  if (code && CODE_KEYS[code]) return CODE_KEYS[code];
 
   return "codes.generic";
 }

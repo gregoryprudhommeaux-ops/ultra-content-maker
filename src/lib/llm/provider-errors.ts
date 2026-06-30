@@ -33,14 +33,30 @@ export function classifyProviderErrorMessage(message: string): ProviderErrorKind
 
   const creditHints = [
     "credit",
+    "crédit",
+    "credito",
     "solde",
     "balance",
     "billing",
+    "facturation",
+    "facturación",
     "payment",
+    "paiement",
+    "pago",
     "insufficient",
+    "insuficiente",
     "purchase",
     "quota",
     "exceeded your current",
+    "plans & billing",
+    "plans and billing",
+    "too low to access",
+    "insufficient_quota",
+    "add funds",
+    "top up",
+    "recharger",
+    "out of credits",
+    "sans crédit",
   ];
   if (
     creditHints.some((h) => m.includes(h) || readable.includes(h)) &&
