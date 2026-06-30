@@ -573,6 +573,12 @@ export function ArticleCreationWizard() {
                 ? toArticleInspirationSource(inspirationCtx, selectedLibrarySource)
                 : undefined,
             targetScope: mode === "inspiration" ? targetScope : undefined,
+            ...(mode === "article"
+              ? {
+                  creationMode: "article" as const,
+                  articleWritingStyle: briefForGeneration().articleWritingStyle,
+                }
+              : {}),
             llm: llmPayloadFromProfile(llmProfile),
           }),
         });

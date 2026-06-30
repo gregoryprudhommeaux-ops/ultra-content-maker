@@ -227,6 +227,9 @@ export type PostObjective = "awareness" | "credibility" | "conversation" | "lead
 
 export type PostObjectivePriority = 1 | 2 | 3;
 
+/** Article wizard: linkedin = expert post; personal = first-person authentic share. */
+export type ArticleWritingStyle = "linkedin" | "personal";
+
 export type RankedPostObjective = {
   objective: PostObjective;
   priority: PostObjectivePriority;
@@ -238,6 +241,8 @@ export interface PostBrief {
   problem: string;
   pointOfView: string;
   proof: string;
+  /** Set in article-topic wizard only. */
+  articleWritingStyle?: ArticleWritingStyle;
 }
 
 export interface ArticleQualityScores {

@@ -1176,22 +1176,35 @@
         },
         "articleTopic": {
           "title": "Your post idea",
-          "subtitle": "A few lines are enough — the AI will align with your Persona, then you keep full control in the editor.",
+          "subtitle": "Share what you want to communicate — choose a tone, then the AI helps you rephrase and structure it using your profile.",
+          "writingStyleLabel": "Writing tone",
+          "writingStyleHint": "Pick how the first draft should sound. You can always edit afterward.",
+          "writingStyle": {
+            "linkedin": {
+              "title": "LinkedIn / expert",
+              "desc": "Structured professional post aligned with your Persona and audience."
+            },
+            "personal": {
+              "title": "Personal / authentic",
+              "desc": "First person, human tone — e.g. diploma, career step, meaningful news. The AI rephrases and structures your words without turning them into a generic LinkedIn post."
+            }
+          },
           "topicLabel": "Post topic",
           "topicHelpLabel": "Topic",
           "topicHelp": "A clear subject in one line: what the post is about.",
-          "topicPlaceholder": "E.g. Why most nearshoring projects stall after the pilot phase",
+          "topicPlaceholder": "E.g. I just completed my Executive Master at HEC Paris",
           "messageLabel": "What you want to say",
           "messageHelpLabel": "Message",
-          "messageHelp": "Your core idea, opinion, or takeaway — the message readers should remember.",
-          "messagePlaceholder": "E.g. The blocker isn't logistics cost — it's the lack of a single owner between HQ and the local plant…",
-          "exampleLabel": "Example or proof (optional)",
-          "examplePlaceholder": "E.g. A client cut lead times 30% only after assigning one ops lead on both sides…",
-          "ctaLabel": "Closing or CTA intention (optional)",
-          "ctaPlaceholder": "E.g. Invite plant managers to share their #1 handoff failure in comments",
-          "ctaHint": "You can still refine tone and CTA later in the Quality Panel and editor.",
+          "messageHelp": "Your story in your own words — feelings, context, what matters to you. The AI will rephrase, not replace your meaning.",
+          "messagePlaceholder": "E.g. This journey took three years alongside my role as plant director. The hardest part wasn't the exams — it was learning to lead change while still being in the field…",
+          "exampleLabel": "Detail or proof (optional)",
+          "examplePlaceholder": "E.g. Final project on operational excellence in automotive supply chain, grade 18/20…",
+          "ctaLabel": "Closing intention (optional)",
+          "ctaPlaceholder": "E.g. Thank the teams who supported me; invite peers to share their own learning path",
+          "ctaHint": "Optional — the Quality Panel can suggest improvements based on your profile after generation.",
           "incomplete": "Add a topic (8+ characters) and your main message (8+ characters).",
-          "afterGenerate": "After generation: edit freely, run the Quality Panel, adjust tone, add translations, then validate when ready."
+          "afterGenerate": "After generation: edit freely, run the Quality Panel, adjust tone, add translations, then validate when ready.",
+          "afterGeneratePersonal": "After generation: the draft stays in your voice (first person). Use the Quality Panel for suggestions grounded in your profile — then edit and validate when ready."
         },
         "recentPosts": {
           "title": "Rework an existing post",

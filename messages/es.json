@@ -1176,22 +1176,35 @@
         },
         "articleTopic": {
           "title": "Tu idea de post",
-          "subtitle": "Unas pocas líneas bastan — la IA se alinea con tu Persona y luego tú mantienes el control en el editor.",
+          "subtitle": "Comparte lo que quieres comunicar — elige un tono y la IA te ayuda a reformular y estructurar usando tu perfil.",
+          "writingStyleLabel": "Tono de escritura",
+          "writingStyleHint": "Elige cómo debe sonar el primer borrador. Siempre podrás editar después.",
+          "writingStyle": {
+            "linkedin": {
+              "title": "LinkedIn / experto",
+              "desc": "Post profesional estructurado, alineado con tu Persona y audiencia."
+            },
+            "personal": {
+              "title": "Personal / auténtico",
+              "desc": "Primera persona, tono humano — ej. diploma, paso profesional, noticia importante. La IA reformula y estructura tus palabras sin convertirlas en un post LinkedIn genérico."
+            }
+          },
           "topicLabel": "Tema del post",
           "topicHelpLabel": "Tema",
           "topicHelp": "Un tema claro en una línea: de qué trata el post.",
-          "topicPlaceholder": "Ej. Por qué la mayoría de proyectos de nearshoring se atascan tras la fase piloto",
+          "topicPlaceholder": "Ej. Acabo de terminar mi Executive Master en HEC Paris",
           "messageLabel": "Lo que quieres decir",
           "messageHelpLabel": "Mensaje",
-          "messageHelp": "Tu idea, opinión o aprendizaje clave — lo que el lector debe recordar.",
-          "messagePlaceholder": "Ej. El freno real no es el coste logístico — es la falta de un responsable único entre sede y planta local…",
-          "exampleLabel": "Ejemplo o prueba (opcional)",
-          "examplePlaceholder": "Ej. Un cliente redujo plazos un 30 % solo al nombrar un referente ops en ambos lados…",
-          "ctaLabel": "Cierre o intención de CTA (opcional)",
-          "ctaPlaceholder": "Ej. Invitar a directores de planta a compartir su mayor fallo de traspaso en comentarios",
-          "ctaHint": "Podrás afinar tono y CTA después en el Quality Panel y el editor.",
+          "messageHelp": "Tu relato con tus palabras — emociones, contexto, lo que importa para ti. La IA reformula sin borrar tu sentido.",
+          "messagePlaceholder": "Ej. Este recorrido llevó tres años en paralelo a mi puesto de director de planta. Lo más duro no fueron los exámenes — fue aprender a liderar el cambio sin dejar el terreno…",
+          "exampleLabel": "Detalle o prueba (opcional)",
+          "examplePlaceholder": "Ej. Proyecto final sobre excelencia operativa en supply chain automotriz, nota 18/20…",
+          "ctaLabel": "Intención de cierre (opcional)",
+          "ctaPlaceholder": "Ej. Agradecer a los equipos que me apoyaron; invitar a colegas a compartir su propio camino",
+          "ctaHint": "Opcional — el Quality Panel podrá sugerir mejoras basadas en tu perfil tras generar.",
           "incomplete": "Indica un tema (mín. 8 caracteres) y tu mensaje principal (mín. 8 caracteres).",
-          "afterGenerate": "Tras generar: edita libremente, usa el Quality Panel, ajusta el tono, añade traducciones y valida cuando estés listo."
+          "afterGenerate": "Tras generar: edita libremente, usa el Quality Panel, ajusta el tono, añade traducciones y valida cuando estés listo.",
+          "afterGeneratePersonal": "Tras generar: el borrador mantiene tu voz (primera persona). Usa el Quality Panel para sugerencias basadas en tu perfil — luego edita y valida."
         },
         "recentPosts": {
           "title": "Retrabajar un post existente",

@@ -1184,22 +1184,35 @@
         },
         "articleTopic": {
           "title": "Votre idée de post",
-          "subtitle": "Quelques lignes suffisent — l’IA s’aligne sur votre Persona, puis vous gardez la main dans l’éditeur.",
+          "subtitle": "Partagez ce que vous voulez communiquer — choisissez un ton, l’IA vous aide à reformuler et structurer en s’appuyant sur votre profil.",
+          "writingStyleLabel": "Ton d’écriture",
+          "writingStyleHint": "Choisissez comment doit sonner le premier brouillon. Vous pourrez toujours éditer ensuite.",
+          "writingStyle": {
+            "linkedin": {
+              "title": "LinkedIn / expert",
+              "desc": "Post professionnel structuré, aligné sur votre Persona et votre audience."
+            },
+            "personal": {
+              "title": "Personnel / authentique",
+              "desc": "Première personne, ton humain — ex. diplôme, étape de carrière, nouvelle importante. L’IA reformule et structure vos mots sans les transformer en post LinkedIn générique."
+            }
+          },
           "topicLabel": "Sujet du post",
           "topicHelpLabel": "Sujet",
           "topicHelp": "Un sujet clair en une ligne : de quoi parle le post.",
-          "topicPlaceholder": "Ex. Pourquoi la plupart des projets de nearshoring bloquent après la phase pilote",
+          "topicPlaceholder": "Ex. Je viens de terminer mon Executive Master au HEC Paris",
           "messageLabel": "Ce que vous voulez dire",
           "messageHelpLabel": "Message",
-          "messageHelp": "Votre idée, opinion ou enseignement clé — ce que le lecteur doit retenir.",
-          "messagePlaceholder": "Ex. Le vrai frein n’est pas le coût logistique — c’est l’absence d’un responsable unique entre le siège et l’usine locale…",
-          "exampleLabel": "Exemple ou preuve (optionnel)",
-          "examplePlaceholder": "Ex. Un client a réduit les délais de 30 % seulement après avoir nommé un référent ops des deux côtés…",
-          "ctaLabel": "Clôture ou intention de CTA (optionnel)",
-          "ctaPlaceholder": "Ex. Inviter les directeurs d’usine à partager leur principal échec de passation en commentaire",
-          "ctaHint": "Vous pourrez encore affiner le ton et le CTA dans le Quality Panel et l’éditeur.",
+          "messageHelp": "Votre récit avec vos mots — émotions, contexte, ce qui compte pour vous. L’IA reformule sans effacer votre sens.",
+          "messagePlaceholder": "Ex. Ce parcours a pris trois ans en parallèle de mon poste de directeur d’usine. Le plus dur n’était pas les examens — c’était d’apprendre à conduire le changement tout en restant sur le terrain…",
+          "exampleLabel": "Détail ou preuve (optionnel)",
+          "examplePlaceholder": "Ex. Mémoire final sur l’excellence opérationnelle en supply chain auto, mention 18/20…",
+          "ctaLabel": "Intention de clôture (optionnel)",
+          "ctaPlaceholder": "Ex. Remercier les équipes qui m’ont soutenu ; inviter des pairs à partager leur propre parcours",
+          "ctaHint": "Optionnel — le Quality Panel pourra suggérer des améliorations basées sur votre profil après génération.",
           "incomplete": "Indiquez un sujet (8 caractères min.) et votre message principal (8 caractères min.).",
-          "afterGenerate": "Après génération : éditez librement, lancez le Quality Panel, ajustez le ton, ajoutez des traductions, puis validez quand vous êtes prêt."
+          "afterGenerate": "Après génération : éditez librement, lancez le Quality Panel, ajustez le ton, ajoutez des traductions, puis validez quand vous êtes prêt.",
+          "afterGeneratePersonal": "Après génération : le brouillon reste dans votre voix (première personne). Utilisez le Quality Panel pour des suggestions ancrées dans votre profil — puis éditez et validez."
         },
         "recentPosts": {
           "title": "Retravailler un post existant",

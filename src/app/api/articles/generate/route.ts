@@ -15,7 +15,10 @@ import {
   buildArticlesUserPromptWithCount,
   type ArticleGenerateCount,
 } from "@/lib/prompts/articles-generate";
-import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
+import {
+  buildTopicArticleSystemPrompt,
+  buildTopicArticleUserPayload,
+} from "@/lib/prompts/articles-from-topic";
 import {
   BATCH_ARTICLE_COUNT,
   enforceBatchScopeMix,
@@ -35,6 +38,7 @@ import {
 import { stripNewsSourceUrlFromText } from "@/lib/linkedin/strip-news-source-url";
 import { postContainsEmoji } from "@/lib/prompts/emoji-instruction";
 import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
+import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import type {
   ArticleInspirationSource,
   ArticleNewsSource,
@@ -64,6 +68,7 @@ type GenerateBody = {
   targetScope?: ArticleScope;
   articleCount?: ArticleGenerateCount;
   postBrief?: PostBrief;
+  creationMode?: "article";
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -195,7 +200,22 @@ export async function POST(request: Request) {
     let systemContent: string;
     let userContent: string;
 
-    if (isInspiration) {
+    const isTopicArticle = body.creationMode === "article" && postBrief;
+
+    if (isTopicArticle) {
+      systemContent = buildTopicArticleSystemPrompt(
+        contentLanguage,
+        postBrief,
+        emojiLevel,
+      );
+      userContent = `${body.personaPromptText}\n\n---\n\n${buildTopicArticleUserPayload(
+        body.personaPromptText,
+        contentLanguage,
+        postBrief,
+        emojiLevel,
+        authorSteering,
+      )}`;
+    } else if (isInspiration) {
       systemContent = buildInspirationArticleSystemPrompt(
         contentLanguage,
         targetScope,

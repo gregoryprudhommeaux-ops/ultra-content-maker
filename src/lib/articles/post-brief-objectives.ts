@@ -78,7 +78,20 @@ export function normalizePostBrief(raw: unknown): PostBrief {
     objectives = [{ objective: partial.objective, priority: 1 }];
   }
 
-  return { objectives, problem, pointOfView, proof };
+  const articleWritingStyle =
+    partial?.articleWritingStyle === "personal"
+      ? "personal"
+      : partial?.articleWritingStyle === "linkedin"
+        ? "linkedin"
+        : undefined;
+
+  return {
+    objectives,
+    problem,
+    pointOfView,
+    proof,
+    ...(articleWritingStyle ? { articleWritingStyle } : {}),
+  };
 }
 
 export function primaryPostObjective(brief: PostBrief): PostObjective {

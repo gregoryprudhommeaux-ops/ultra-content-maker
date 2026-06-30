@@ -10,6 +10,7 @@ import {
 } from "@/lib/linkedin/fit-linkedin-post";
 import { stripNewsSourceUrlFromText } from "@/lib/linkedin/strip-news-source-url";
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
+import { isPersonalArticleWritingStyle } from "@/lib/articles/article-writing-style";
 import {
   buildReviseSystemPrompt,
   buildReviseUserPrompt,
@@ -20,6 +21,7 @@ import type {
   ArticleRefinement,
   ContentLanguage,
   LlmProvider,
+  PostBrief,
 } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
@@ -37,6 +39,7 @@ type ReviseBody = {
     hashtags?: string[];
   };
   refinement: ArticleRefinement;
+  postBrief?: PostBrief;
   newsSource?: ArticleNewsSource;
   authorSteering?: AuthorSteeringPayload;
   profileEnrichment?: Record<string, unknown>;
@@ -89,12 +92,18 @@ export async function POST(request: Request) {
   try {
     const emojiLevel = body.refinement.emojiLevel ?? "light";
     const corrosiveTone = isCorrosiveToneEdge(body.refinement);
+    const personalVoice = isPersonalArticleWritingStyle(body.postBrief);
     const raw = await chatCompletionJson(
       llm,
       [
         {
           role: "system",
-          content: buildReviseSystemPrompt(contentLanguage, emojiLevel, corrosiveTone),
+          content: buildReviseSystemPrompt(
+            contentLanguage,
+            emojiLevel,
+            corrosiveTone,
+            personalVoice,
+          ),
         },
         {
           role: "user",

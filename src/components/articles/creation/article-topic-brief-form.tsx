@@ -3,51 +3,40 @@
 import {
   isArticleTopicBriefComplete,
 } from "@/lib/prompts/post-brief";
+import { parseArticleTopicFields, ARTICLE_TOPIC_CTA_PREFIX } from "@/lib/articles/article-topic-fields";
+import {
+  ARTICLE_WRITING_STYLES,
+  resolveArticleWritingStyle,
+} from "@/lib/articles/article-writing-style";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
-import type { PostBrief } from "@/types/workspace";
+import type { ArticleWritingStyle, PostBrief } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { ContextHelp } from "@/components/ui/context-help";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
-const CTA_PREFIX = "CTA / closing intention: ";
-
-type ParsedTopicBrief = {
-  topic: string;
-  message: string;
-  example: string;
-  ctaHint: string;
-};
+type ParsedTopicBrief = ReturnType<typeof parseArticleTopicFields>;
 
 function parseTopicBrief(brief: PostBrief): ParsedTopicBrief {
-  const normalized = normalizePostBrief(brief);
-  let example = normalized.proof.trim();
-  let ctaHint = "";
-
-  const ctaIndex = example.indexOf(CTA_PREFIX);
-  if (ctaIndex >= 0) {
-    ctaHint = example.slice(ctaIndex + CTA_PREFIX.length).trim();
-    example = example.slice(0, ctaIndex).trim();
-  }
-
-  return {
-    topic: normalized.problem,
-    message: normalized.pointOfView,
-    example,
-    ctaHint,
-  };
+  return parseArticleTopicFields(brief);
 }
 
-function buildTopicBrief(fields: ParsedTopicBrief): PostBrief {
+function buildTopicBrief(
+  fields: ParsedTopicBrief,
+  articleWritingStyle?: ArticleWritingStyle,
+): PostBrief {
   const proofParts: string[] = [];
   if (fields.example.trim()) proofParts.push(fields.example.trim());
-  if (fields.ctaHint.trim()) proofParts.push(`${CTA_PREFIX}${fields.ctaHint.trim()}`);
+  if (fields.ctaHint.trim()) {
+    proofParts.push(`${ARTICLE_TOPIC_CTA_PREFIX}${fields.ctaHint.trim()}`);
+  }
 
   return normalizePostBrief({
     objectives: [{ objective: "conversation", priority: 1 }],
     problem: fields.topic,
     pointOfView: fields.message,
     proof: proofParts.join("\n\n"),
+    ...(articleWritingStyle ? { articleWritingStyle } : {}),
   });
 }
 
@@ -59,10 +48,15 @@ type Props = {
 export function ArticleTopicBriefForm({ brief, onChange }: Props) {
   const t = useTranslations("setup.articles.create.articleTopic");
   const fields = useMemo(() => parseTopicBrief(brief), [brief]);
+  const writingStyle = resolveArticleWritingStyle(brief);
   const complete = isArticleTopicBriefComplete(brief);
 
   function update(patch: Partial<ParsedTopicBrief>) {
-    onChange(buildTopicBrief({ ...fields, ...patch }));
+    onChange(buildTopicBrief({ ...fields, ...patch }, writingStyle));
+  }
+
+  function setWritingStyle(style: ArticleWritingStyle) {
+    onChange(buildTopicBrief(fields, style));
   }
 
   return (
@@ -70,6 +64,34 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
       <div>
         <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
+      </div>
+
+      <div>
+        <p className={LABEL_CLASS}>{t("writingStyleLabel")}</p>
+        <p className="mt-1 text-xs text-ns-secondary">{t("writingStyleHint")}</p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          {ARTICLE_WRITING_STYLES.map((style) => {
+            const selected = writingStyle === style;
+            return (
+              <button
+                key={style}
+                type="button"
+                onClick={() => setWritingStyle(style)}
+                className={`rounded-lg border px-3 py-3 text-left transition-colors ${
+                  selected
+                    ? "border-ns-primary bg-ns-brand-light text-ns-tertiary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
+                    : "border-gray-100 text-ns-secondary hover:border-ns-primary/40"
+                }`}
+                aria-pressed={selected}
+              >
+                <span className="block text-sm font-semibold">{t(`writingStyle.${style}.title`)}</span>
+                <span className="mt-1 block text-xs leading-snug text-ns-secondary">
+                  {t(`writingStyle.${style}.desc`)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div>
@@ -140,7 +162,7 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
       )}
 
       <p className="rounded-lg border border-ns-primary/20 bg-ns-brand-light/40 px-3 py-2.5 text-xs leading-relaxed text-ns-secondary">
-        {t("afterGenerate")}
+        {writingStyle === "personal" ? t("afterGeneratePersonal") : t("afterGenerate")}
       </p>
     </section>
   );

@@ -586,6 +586,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
           },
           newsSource: article.newsSource,
           refinement,
+          postBrief: article.postBrief,
           authorSteering,
           llm: {
             provider: llmProfile.provider,

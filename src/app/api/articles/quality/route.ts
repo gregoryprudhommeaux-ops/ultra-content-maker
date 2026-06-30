@@ -1,6 +1,7 @@
 import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
 import { chatCompletionJson } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
+import { isPersonalArticleWritingStyle } from "@/lib/articles/article-writing-style";
 import {
   buildArticleQualitySystemPrompt,
   buildArticleQualityUserPrompt,
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
   }
 
   const contentLanguage = (body.contentLanguage || "en") as ContentLanguage;
+  const personalVoice = isPersonalArticleWritingStyle(body.postBrief);
   const llm =
     body.llm?.apiKey?.trim()
       ? configFromUserLlm({
@@ -82,7 +84,7 @@ export async function POST(request: Request) {
     const raw = await chatCompletionJson(llm, [
       {
         role: "system",
-        content: buildArticleQualitySystemPrompt(contentLanguage),
+        content: buildArticleQualitySystemPrompt(contentLanguage, personalVoice),
       },
       {
         role: "user",

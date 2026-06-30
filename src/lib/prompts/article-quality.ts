@@ -2,6 +2,7 @@ import {
   injectAuthorSteering,
   type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
+import { isPersonalArticleWritingStyle } from "@/lib/articles/article-writing-style";
 import { primaryPostObjective } from "@/lib/articles/post-brief-objectives";
 import type { ContentLanguage, PostBrief, PostObjective } from "@/types/workspace";
 
@@ -11,8 +12,30 @@ const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
   es: "Spanish",
 };
 
-export function buildArticleQualitySystemPrompt(contentLanguage: ContentLanguage): string {
+export function buildArticleQualitySystemPrompt(
+  contentLanguage: ContentLanguage,
+  personalVoice = false,
+): string {
   const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
+
+  if (personalVoice) {
+    return `You are an empathetic writing coach reviewing a personal LinkedIn post in ${lang} (first-person life update or milestone).
+
+Score the post 1-10 on each dimension (integers only):
+- nicheClarity: how clearly the personal moment lands for the author's network (not generic inspiration)
+- humanPov: authentic first-person voice vs press release / LinkedIn template / third-person distance
+- proofDensity: concrete personal details (dates, school, role, feelings, facts) vs vague abstractions
+- conversationPotential: invites genuine connection without engagement bait
+
+Provide exactly 3 alternative opening lines (first person, same language) and a 2-sentence critique with suggestions grounded in the author's Persona — help rephrase and structure, do not rewrite into thought leadership.
+
+Return JSON only:
+{
+  "scores": { "nicheClarity": number, "humanPov": number, "proofDensity": number, "conversationPotential": number },
+  "alternativeHooks": [string, string, string],
+  "critique": string
+}`;
+  }
 
   return `You are a senior LinkedIn B2B editor scoring posts for platform-native authority content in ${lang}.
 

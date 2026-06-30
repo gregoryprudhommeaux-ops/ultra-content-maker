@@ -26,15 +26,19 @@ export function buildReviseSystemPrompt(
   contentLanguage: ContentLanguage,
   emojiLevel: EmojiLevel = "light",
   corrosiveTone = false,
+  personalVoice = false,
 ): string {
   const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
   const emoji = emojiInstruction(emojiLevel, contentLanguage);
   const toneNote = corrosiveTone
     ? " User requested a contrarian shift (challenge received idea or news angle only). Apply toneEdgeInstruction as top priority. Strictly forbid insults, politics, racism, hate, and offensive humor — professional B2B only."
     : "";
+  const personalNote = personalVoice
+    ? " Keep FIRST PERSON throughout. This is a personal milestone post — do not shift to journalist or thought-leadership tone. Preserve the author's story and facts."
+    : "";
 
   return `You revise a LinkedIn post using the expert Persona and user refinement feedback.
-Keep the post in ${lang}. Preserve author expertise. Apply all feedback.${toneNote}
+Keep the post in ${lang}. Preserve author expertise. Apply all feedback.${toneNote}${personalNote}
 Emoji rule (non-negotiable): ${emoji}
 If emojiLevel is light or heavy, the revised post MUST contain visible Unicode emojis.
 
