@@ -1,6 +1,7 @@
 "use client";
 
 import { DashboardPageHero } from "@/components/layout/dashboard-page";
+import { CREATE_FRESH_HREF } from "@/lib/navigation/dashboard-nav";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import type { LibraryStatusFilter } from "@/lib/articles/library-filters";
 import { ContextHelp } from "@/components/ui/context-help";
@@ -32,7 +33,7 @@ export function ArticlesHubHeader({ statusFilter }: Props) {
           >
             {t("updateInspirations")}
           </Link>
-          <Link href="/articles/new" className={`w-full shrink-0 sm:w-auto ${BTN_PRIMARY}`}>
+          <Link href={CREATE_FRESH_HREF} className={`w-full shrink-0 sm:w-auto ${BTN_PRIMARY}`}>
             {t("createCta")}
           </Link>
         </div>

@@ -12,6 +12,7 @@ import {
 } from "@/lib/articles/library-filters";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
 import { DashboardPageShell } from "@/components/layout/dashboard-page";
+import { CREATE_FRESH_HREF } from "@/lib/navigation/dashboard-nav";
 import { ArticlesLibraryToolbar } from "@/components/articles/articles-library-toolbar";
 import { ContextHelp } from "@/components/ui/context-help";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
@@ -143,7 +144,7 @@ export function ArticlesHub() {
         <div className="rounded-xl border border-dashed border-gray-200 bg-ns-brand-light/30 p-8 text-center">
           <p className="text-sm text-ns-secondary">{t("empty")}</p>
           <Link
-            href="/articles/new"
+            href={CREATE_FRESH_HREF}
             className="mt-4 inline-block text-sm font-semibold text-ns-primary underline"
           >
             {t("createCta")} →

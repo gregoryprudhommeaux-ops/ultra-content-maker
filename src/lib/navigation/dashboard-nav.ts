@@ -1,5 +1,9 @@
+import { CREATION_FRESH_PARAM } from "@/lib/articles/creation-wizard-session";
 import type { OnboardingProgress } from "@/lib/workspace/onboarding-progress";
 import { APP_HOME_PATH } from "@/lib/workspace/onboarding-routes";
+
+export const CREATE_HUB_PATH = "/articles/new";
+export const CREATE_FRESH_HREF = `${CREATE_HUB_PATH}?${CREATION_FRESH_PARAM}=1`;
 
 export type DashboardNavKey =
   | "home"
@@ -22,9 +26,9 @@ export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
   { key: "home", href: APP_HOME_PATH, labelKey: "home", match: [APP_HOME_PATH, "/start"] },
   {
     key: "create",
-    href: "/articles/new",
+    href: CREATE_FRESH_HREF,
     labelKey: "create",
-    match: ["/articles/new"],
+    match: [CREATE_HUB_PATH],
   },
   {
     key: "library",

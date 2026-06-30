@@ -34,6 +34,7 @@ import {
 import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
 import {
   clearCreationWizardSession,
+  isFreshCreationRequest,
   loadCreationWizardSession,
   saveCreationWizardSession,
   type WizardSessionStep,
@@ -713,15 +714,23 @@ export function ArticleCreationWizard() {
     });
   }
 
-  function resetToIntent() {
+  function resetWizardForFreshStart() {
     clearCreationWizardSession();
     setStep("mode");
     setMode(null);
+    setPostBrief({ ...DEFAULT_POST_BRIEF });
     setInspirationCtx(null);
     setSelectedNews(null);
     setDraftArticleId(null);
     setDraftRevision(0);
+    setTargetScope("generalist");
+    setErrorInfo(null);
+    setNicheCheck(null);
     briefSuggestedRef.current = false;
+  }
+
+  function resetToIntent() {
+    resetWizardForFreshStart();
   }
 
   function reworkFromArticle(article: ArticleDoc) {
@@ -777,7 +786,16 @@ export function ArticleCreationWizard() {
   }
 
   useEffect(() => {
-    if (!loaded || !user || initialModeFromUrl.current) return;
+    if (!loaded || !user) return;
+
+    if (isFreshCreationRequest(searchParams)) {
+      resetWizardForFreshStart();
+      initialModeFromUrl.current = true;
+      router.replace("/articles/new", { scroll: false });
+      return;
+    }
+
+    if (initialModeFromUrl.current) return;
 
     const session = loadCreationWizardSession();
     if (session && session.step !== "mode" && session.step !== "generating") {

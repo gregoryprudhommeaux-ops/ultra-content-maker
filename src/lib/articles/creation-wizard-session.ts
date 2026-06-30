@@ -6,6 +6,15 @@ import type { ArticleScope, EmojiLevel, PostBrief } from "@/types/workspace";
 const STORAGE_KEY = "ucm:creation-wizard-session";
 const MAX_AGE_MS = 30 * 60 * 1000;
 
+/** Query flag on `/articles/new` — skip session restore and show the mode picker. */
+export const CREATION_FRESH_PARAM = "fresh";
+
+export function isFreshCreationRequest(
+  params: Pick<URLSearchParams, "get">,
+): boolean {
+  return params.get(CREATION_FRESH_PARAM) === "1";
+}
+
 export type WizardSessionStep =
   | "mode"
   | "news"
