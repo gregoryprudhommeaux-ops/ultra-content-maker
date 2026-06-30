@@ -173,6 +173,40 @@ export async function listRecentArticles(
     .slice(0, limit);
 }
 
+export const SIDEBAR_DRAFTS_PREVIEW = 3;
+
+function sortByValidatedOrUpdatedDesc(a: ArticleDoc, b: ArticleDoc): number {
+  const aTime = a.validatedAt?.getTime() ?? a.updatedAt.getTime();
+  const bTime = b.validatedAt?.getTime() ?? b.updatedAt.getTime();
+  return bTime - aTime;
+}
+
+/** Most recently validated posts (sidebar “last post created”). */
+export async function listRecentValidatedArticles(
+  userId: string,
+  limit = 1,
+): Promise<ArticleDoc[]> {
+  const batches = await listArticleBatches(userId);
+  return batches
+    .flatMap((b) => b.articles)
+    .filter((a) => a.status === "validated")
+    .sort(sortByValidatedOrUpdatedDesc)
+    .slice(0, limit);
+}
+
+/** Draft or in-progress posts (sidebar “last drafts”). */
+export async function listRecentDraftArticles(
+  userId: string,
+  limit = SIDEBAR_DRAFTS_PREVIEW,
+): Promise<ArticleDoc[]> {
+  const batches = await listArticleBatches(userId);
+  return batches
+    .flatMap((b) => b.articles)
+    .filter((a) => a.status === "draft" || a.status === "refining")
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+    .slice(0, limit);
+}
+
 export async function listArticleBatches(userId: string): Promise<ArticleBatchGroup[]> {
   const snap = await articlesCollectionWithLegacyFallback(userId);
   const byBatch = new Map<string, ArticleDoc[]>();

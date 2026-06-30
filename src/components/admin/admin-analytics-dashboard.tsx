@@ -9,7 +9,8 @@ import { ARTICLE_CREATION_MODES } from "@/lib/articles/infer-creation-mode";
 import type {
   AdminAnalyticsPayload,
   ConnectionGranularity,
-} from "@/lib/admin/analytics.server";
+} from "@/lib/admin/analytics-types";
+import { CONNECTION_PERIOD_KEYS } from "@/lib/admin/analytics-types";
 import {
   DashboardPageError,
   DashboardPageHero,
@@ -21,7 +22,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-const PERIODS: ConnectionGranularity[] = ["day", "week", "month", "year"];
+const PERIODS = CONNECTION_PERIOD_KEYS;
 
 export function AdminAnalyticsDashboard() {
   const t = useTranslations("adminAnalytics");

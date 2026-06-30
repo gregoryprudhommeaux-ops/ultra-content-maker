@@ -1,7 +1,7 @@
 "use client";
 
 import { ARTICLE_CREATION_MODES } from "@/lib/articles/infer-creation-mode";
-import type { ConnectionBucket } from "@/lib/admin/analytics.server";
+import type { ConnectionBucket } from "@/lib/admin/analytics-types";
 import type { ArticleCreationMode } from "@/types/workspace";
 
 const BAR_COLORS = [
@@ -32,6 +32,7 @@ export function UsageBarChart({
   const totalConnections = buckets.reduce((sum, b) => sum + b.uniqueUsers, 0);
   /** h-52 minus label row (~28px) */
   const trackHeightPx = 180;
+  const labelStep = buckets.length > 24 ? 4 : buckets.length > 14 ? 2 : 1;
 
   return (
     <section className="rounded-2xl border border-ns-alternate/80 bg-ns-surface p-5 shadow-sm">
@@ -65,7 +66,9 @@ export function UsageBarChart({
                 />
               </div>
               <span className="mt-2 truncate text-center text-[9px] font-medium text-ns-secondary sm:text-[10px]">
-                {bucket.shortLabel}
+                {index % labelStep === 0 || index === buckets.length - 1
+                  ? bucket.shortLabel
+                  : ""}
               </span>
             </div>
           );

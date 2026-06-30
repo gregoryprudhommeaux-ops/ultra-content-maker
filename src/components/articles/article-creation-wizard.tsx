@@ -32,6 +32,7 @@ import {
   notifyOnboardingProgressChangedDeferred,
   useOnboardingProgress,
 } from "@/contexts/onboarding-progress-context";
+import { notifyArticlesChangedDeferred } from "@/lib/workspace/articles-events";
 import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
 import {
   clearCreationWizardSession,
@@ -647,6 +648,7 @@ export function ArticleCreationWizard() {
       }
       setStep("draft-done");
       notifyOnboardingProgressChangedDeferred();
+      notifyArticlesChangedDeferred();
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
         setErrorInfo(

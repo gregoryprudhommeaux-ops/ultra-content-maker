@@ -1,6 +1,6 @@
 "use client";
 
-import type { AdminUserMetrics } from "@/lib/admin/analytics.server";
+import type { AdminUserMetrics } from "@/lib/admin/analytics-types";
 import { getClientAuth } from "@/lib/firebase/client";
 import { useMemo, useState } from "react";
 

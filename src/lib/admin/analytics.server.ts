@@ -1,49 +1,23 @@
 import type { Firestore, DocumentData } from "firebase-admin/firestore";
 import { emptyCreationModeCounts, tallyCreationModes } from "@/lib/articles/infer-creation-mode";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
-import type { ArticleCreationMode, LinkedWorkspace } from "@/types/workspace";
-import { dateKeyFromDate, monthKeyFromDate, userLoginStatsRef, yearKeyFromDate } from "./record-login-event.server";
+import type { LinkedWorkspace, ArticleCreationMode } from "@/types/workspace";
+import { dateKeyFromDate, monthKeyFromDate, userLoginStatsRef } from "./record-login-event.server";
+import {
+  CONNECTION_PERIOD_KEYS,
+  type AdminAnalyticsPayload,
+  type AdminUserMetrics,
+  type ConnectionBucket,
+  type ConnectionGranularity,
+} from "./analytics-types";
 
-export type ConnectionGranularity = "day" | "week" | "month" | "year";
-
-export type ConnectionBucket = {
-  label: string;
-  shortLabel: string;
-  uniqueUsers: number;
-};
-
-export type AdminUserMetrics = {
-  userId: string;
-  email: string;
-  displayName: string | null;
-  linkedinUrl: string | null;
-  createdAt: string | null;
-  accountCount: number;
-  completionPercent: number;
-  draftArticles: number;
-  reworkedArticles: number;
-  validatedArticles: number;
-  totalArticles: number;
-  articleModeCounts: Record<ArticleCreationMode, number>;
-  loginHits: number;
-  lastLoginAt: string | null;
-  usageScore: number;
-};
-
-export type AdminAnalyticsPayload = {
-  generatedAt: string;
-  totals: {
-    registeredUsers: number;
-    workspaceAccounts: number;
-    totalArticles: number;
-    draftArticles: number;
-    reworkedArticles: number;
-    validatedArticles: number;
-    averageCompletionPercent: number;
-  };
-  connections: Record<ConnectionGranularity, ConnectionBucket[]>;
-  users: AdminUserMetrics[];
-};
+export type {
+  AdminAnalyticsPayload,
+  AdminUserMetrics,
+  ConnectionBucket,
+  ConnectionGranularity,
+} from "./analytics-types";
+export { CONNECTION_PERIOD_KEYS } from "./analytics-types";
 
 function pad2(n: number): string {
   return String(n).padStart(2, "0");
@@ -136,10 +110,6 @@ function monthlyUsersCollection(db: Firestore, monthKey: string) {
   return db.collection("analytics").doc("monthly").collection(monthKey);
 }
 
-function yearlyUsersCollection(db: Firestore, yearKey: string) {
-  return db.collection("analytics").doc("yearly").collection(yearKey);
-}
-
 async function countUniqueUsersForDay(db: Firestore, dateKey: string): Promise<number> {
   const snap = await dailyUsersCollection(db, dateKey).get();
   return snap.size;
@@ -155,81 +125,93 @@ async function countUniqueUsersForMonth(db: Firestore, monthKey: string): Promis
   return snap.size;
 }
 
-async function countUniqueUsersForYear(db: Firestore, yearKey: string): Promise<number> {
-  const snap = await yearlyUsersCollection(db, yearKey).get();
-  return snap.size;
+async function loadDailyBuckets(
+  db: Firestore,
+  dayCount: number,
+): Promise<ConnectionBucket[]> {
+  const today = new Date();
+  const buckets: ConnectionBucket[] = [];
+  for (let i = dayCount - 1; i >= 0; i -= 1) {
+    const date = addDays(today, -i);
+    const key = dateKeyFromDate(date);
+    const uniqueUsers = await countUniqueUsersForDay(db, key);
+    buckets.push({
+      label: key,
+      shortLabel: `${pad2(date.getUTCDate())}/${pad2(date.getUTCMonth() + 1)}`,
+      uniqueUsers,
+    });
+  }
+  return buckets;
+}
+
+async function loadWeeklyUnionBuckets(
+  db: Firestore,
+  weekCount: number,
+): Promise<ConnectionBucket[]> {
+  const weekStart = startOfUtcWeek(new Date());
+  const buckets: ConnectionBucket[] = [];
+  for (let w = weekCount - 1; w >= 0; w -= 1) {
+    const start = addDays(weekStart, w * -7);
+    const end = addDays(start, 6);
+    const union = new Set<string>();
+    const daySets = await Promise.all(
+      Array.from({ length: 7 }, (_, d) =>
+        uniqueUsersForDay(db, dateKeyFromDate(addDays(start, d))),
+      ),
+    );
+    for (const ids of daySets) {
+      ids.forEach((id) => union.add(id));
+    }
+    buckets.push({
+      label: `${dateKeyFromDate(start)} → ${dateKeyFromDate(end)}`,
+      shortLabel: `S${pad2(start.getUTCDate())}/${pad2(start.getUTCMonth() + 1)}`,
+      uniqueUsers: union.size,
+    });
+  }
+  return buckets;
+}
+
+async function loadMonthlyBuckets(
+  db: Firestore,
+  monthCount: number,
+): Promise<ConnectionBucket[]> {
+  const today = new Date();
+  const buckets: ConnectionBucket[] = [];
+  for (let i = monthCount - 1; i >= 0; i -= 1) {
+    const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - i, 1));
+    const key = monthKeyFromDate(date);
+    const uniqueUsers = await countUniqueUsersForMonth(db, key);
+    buckets.push({
+      label: key,
+      shortLabel: `${pad2(date.getUTCMonth() + 1)}/${String(date.getUTCFullYear()).slice(-2)}`,
+      uniqueUsers,
+    });
+  }
+  return buckets;
 }
 
 export async function loadConnectionBuckets(
   db: Firestore,
   granularity: ConnectionGranularity,
 ): Promise<ConnectionBucket[]> {
-  const today = new Date();
-
-  if (granularity === "day") {
-    const buckets: ConnectionBucket[] = [];
-    for (let i = 29; i >= 0; i -= 1) {
-      const date = addDays(today, -i);
-      const key = dateKeyFromDate(date);
-      const uniqueUsers = await countUniqueUsersForDay(db, key);
-      buckets.push({
-        label: key,
-        shortLabel: `${pad2(date.getUTCDate())}/${pad2(date.getUTCMonth() + 1)}`,
-        uniqueUsers,
-      });
-    }
-    return buckets;
+  switch (granularity) {
+    case "day":
+      return loadDailyBuckets(db, 14);
+    case "week":
+      return loadWeeklyUnionBuckets(db, 12);
+    case "month1":
+      return loadDailyBuckets(db, 30);
+    case "month3":
+      return loadWeeklyUnionBuckets(db, 13);
+    case "month6":
+      return loadMonthlyBuckets(db, 6);
+    case "year1":
+      return loadMonthlyBuckets(db, 12);
+    case "all":
+      return loadMonthlyBuckets(db, 48);
+    default:
+      return loadDailyBuckets(db, 14);
   }
-
-  if (granularity === "week") {
-    const buckets: ConnectionBucket[] = [];
-    let weekStart = startOfUtcWeek(today);
-    for (let w = 11; w >= 0; w -= 1) {
-      const start = addDays(weekStart, w * -7);
-      const end = addDays(start, 6);
-      const union = new Set<string>();
-      const daySets = await Promise.all(
-        Array.from({ length: 7 }, (_, d) => uniqueUsersForDay(db, dateKeyFromDate(addDays(start, d)))),
-      );
-      for (const ids of daySets) {
-        ids.forEach((id) => union.add(id));
-      }
-      buckets.push({
-        label: `${dateKeyFromDate(start)} → ${dateKeyFromDate(end)}`,
-        shortLabel: `S${pad2(start.getUTCDate())}/${pad2(start.getUTCMonth() + 1)}`,
-        uniqueUsers: union.size,
-      });
-    }
-    return buckets;
-  }
-
-  if (granularity === "month") {
-    const buckets: ConnectionBucket[] = [];
-    for (let i = 11; i >= 0; i -= 1) {
-      const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - i, 1));
-      const key = monthKeyFromDate(date);
-      const uniqueUsers = await countUniqueUsersForMonth(db, key);
-      buckets.push({
-        label: key,
-        shortLabel: `${pad2(date.getUTCMonth() + 1)}/${String(date.getUTCFullYear()).slice(-2)}`,
-        uniqueUsers,
-      });
-    }
-    return buckets;
-  }
-
-  const buckets: ConnectionBucket[] = [];
-  for (let i = 4; i >= 0; i -= 1) {
-    const year = today.getUTCFullYear() - i;
-    const key = yearKeyFromDate(new Date(Date.UTC(year, 0, 1)));
-    const uniqueUsers = await countUniqueUsersForYear(db, key);
-    buckets.push({
-      label: key,
-      shortLabel: key,
-      uniqueUsers,
-    });
-  }
-  return buckets;
 }
 
 type WorkspaceArticleStats = {
@@ -355,13 +337,14 @@ async function getUserLoginStats(
 }
 
 export async function buildAdminAnalytics(db: Firestore): Promise<AdminAnalyticsPayload> {
-  const [usersSnap, day, week, month, year] = await Promise.all([
+  const [usersSnap, ...connectionSets] = await Promise.all([
     db.collection("users").get(),
-    loadConnectionBuckets(db, "day"),
-    loadConnectionBuckets(db, "week"),
-    loadConnectionBuckets(db, "month"),
-    loadConnectionBuckets(db, "year"),
+    ...CONNECTION_PERIOD_KEYS.map((key) => loadConnectionBuckets(db, key)),
   ]);
+
+  const connections = Object.fromEntries(
+    CONNECTION_PERIOD_KEYS.map((key, index) => [key, connectionSets[index]]),
+  ) as Record<ConnectionGranularity, ConnectionBucket[]>;
 
   const userRows: AdminUserMetrics[] = [];
   let workspaceAccounts = 0;
@@ -452,7 +435,7 @@ export async function buildAdminAnalytics(db: Firestore): Promise<AdminAnalytics
       averageCompletionPercent:
         usersSnap.size > 0 ? Math.round(completionSum / usersSnap.size) : 0,
     },
-    connections: { day, week, month, year },
+    connections,
     users: userRows,
   };
 }

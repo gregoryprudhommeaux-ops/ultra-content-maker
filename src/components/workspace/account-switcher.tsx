@@ -2,19 +2,21 @@
 
 import { CopyAccountInviteLink } from "@/components/workspace/copy-account-invite-link";
 import { DeleteClientAccountButton } from "@/components/workspace/delete-client-account-button";
+import { useAuth } from "@/components/auth/auth-provider";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
-import { setupStepToPath } from "@/lib/workspace/user";
+import { resolveLandingPath } from "@/lib/workspace/landing-path";
 import { META_LABEL, INPUT_CLASS } from "@/lib/ui/nextstep";
 import type { ContentLanguage } from "@/types/workspace";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const LANGUAGES: ContentLanguage[] = ["fr", "en", "es"];
 
 export function AccountSwitcher() {
   const t = useTranslations("workspaceAccounts");
+  const { user } = useAuth();
   const isPlatformAdmin = usePlatformAdmin();
   const {
     accounts,
@@ -33,6 +35,12 @@ export function AccountSwitcher() {
   const [newLang, setNewLang] = useState<ContentLanguage>("fr");
   const [busy, setBusy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+
+  const navigateToAccountHome = useCallback(async () => {
+    if (!user) return;
+    const path = await resolveLandingPath(user.uid);
+    router.push(path);
+  }, [router, user]);
 
   useEffect(() => {
     if (!open) return;
@@ -60,8 +68,14 @@ export function AccountSwitcher() {
 
   async function handleSwitch(accountId: string) {
     if (accountId === activeAccount?.id) {
-      if (isAdminRoute) {
-        openActiveAccount();
+      if (isPlatformAdmin) {
+        setBusy(true);
+        try {
+          await navigateToAccountHome();
+          setOpen(false);
+        } finally {
+          setBusy(false);
+        }
       } else {
         setOpen(false);
       }
@@ -71,6 +85,9 @@ export function AccountSwitcher() {
     try {
       await switchAccount(accountId);
       setOpen(false);
+      if (isPlatformAdmin) {
+        await navigateToAccountHome();
+      }
     } finally {
       setBusy(false);
     }
@@ -86,18 +103,16 @@ export function AccountSwitcher() {
       setNewName("");
       setCreating(false);
       setOpen(false);
+      if (isPlatformAdmin) {
+        await navigateToAccountHome();
+      }
     } finally {
       setBusy(false);
     }
   }
 
-  function activeAccountHref() {
-    if (!activeAccount) return "/setup/author";
-    return setupStepToPath(activeAccount.setupStep);
-  }
-
   function openActiveAccount() {
-    router.push(activeAccountHref());
+    void navigateToAccountHome();
     setOpen(false);
   }
 

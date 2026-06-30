@@ -2,7 +2,7 @@ import {
   ARTICLE_CREATION_MODES,
   emptyCreationModeCounts,
 } from "@/lib/articles/infer-creation-mode";
-import type { AdminUserMetrics } from "@/lib/admin/analytics.server";
+import type { AdminUserMetrics } from "@/lib/admin/analytics-types";
 import type { ArticleCreationMode } from "@/types/workspace";
 
 export type FilteredAdminTotals = {

@@ -46,6 +46,7 @@ import {
   updateArticleContent,
   validateArticleWithCta,
 } from "@/lib/workspace/articles";
+import { notifyArticlesChanged, notifyArticlesChangedDeferred } from "@/lib/workspace/articles-events";
 import {
   persistArticleRefinementAndSyncPersona,
   recordArticleRefinementFeedback,
@@ -367,6 +368,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
           if (gen !== refinementSyncGenRef.current) return;
           const p = await getPersona(user.uid);
           if (p?.promptText) setPersonaText(p.promptText);
+          notifyArticlesChanged();
         } catch {
           /* debounced sync — ignore transient errors */
         }
@@ -626,6 +628,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
       };
 
       await updateArticleContent(user.uid, article.id, revised);
+      notifyArticlesChangedDeferred();
       setArticle((prev) =>
         prev
           ? {
@@ -690,6 +693,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
       scope: article.scope,
       hashtags: article.hashtags,
     });
+    notifyArticlesChanged();
     setArticle({ ...article, hook });
   }
 
@@ -876,6 +880,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
       }
       clearActionError();
       await load();
+      notifyArticlesChanged();
     } catch {
       setValidateError(t("validateFailed"));
     } finally {

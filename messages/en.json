@@ -243,17 +243,23 @@
     "periods": {
       "day": "Day",
       "week": "Week",
-      "month": "Month",
-      "year": "Year"
+      "month1": "1 month",
+      "month3": "3 months",
+      "month6": "6 months",
+      "year1": "1 year",
+      "all": "All"
     },
     "connections": {
       "title": "Unique connections",
       "empty": "No connections recorded yet. Data appears after users sign in.",
       "subtitle": {
-        "day": "Last 30 days",
-        "week": "Last 12 weeks (user union)",
-        "month": "Last 12 months",
-        "year": "Last 5 years"
+        "day": "Last 14 days (daily)",
+        "week": "Last 12 weeks (unique users per week)",
+        "month1": "Last 30 days (daily)",
+        "month3": "Last 13 weeks (unique users per week)",
+        "month6": "Last 6 months",
+        "year1": "Last 12 months",
+        "all": "Last 48 months"
       }
     },
     "articleModes": {
@@ -378,7 +384,9 @@
       "updateVoice": "Update my voice",
       "lastPost": "Last post created",
       "lastPostEmpty": "No post yet",
-      "lastPostUntitled": "Untitled"
+      "lastPostUntitled": "Untitled",
+      "lastDrafts": "Last drafts",
+      "lastDraftsEmpty": "No drafts yet"
     }
   },
   "settings": {
