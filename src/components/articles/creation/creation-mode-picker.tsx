@@ -222,8 +222,8 @@ export function CreationModePicker({
             featured
           />
         ))}
-        <div className="grid gap-4 md:grid-cols-3">
-          {MODES.filter((m) => !m.featured).map((config) => (
+        <div className="grid gap-4 md:grid-cols-2">
+          {MODES.filter((m) => !m.featured && m.id !== "article").map((config) => (
             <ModeCard
               key={config.id}
               config={config}
@@ -237,6 +237,20 @@ export function CreationModePicker({
             />
           ))}
         </div>
+        {MODES.filter((m) => m.id === "article").map((config) => (
+          <ModeCard
+            key={config.id}
+            config={config}
+            highlighted={guideHighlight === config.id}
+            pulsing={pulseMode === config.id}
+            cardRef={(el) => {
+              modeCardRefs.current[config.id] = el;
+            }}
+            onSelect={onSelect}
+            t={t}
+            band
+          />
+        ))}
       </div>
 
       <details className="group rounded-2xl border border-dashed border-ns-alternate/80 bg-ns-brand-light/40">
@@ -315,6 +329,7 @@ function ModeCard({
   onSelect,
   t,
   featured = false,
+  band = false,
 }: {
   config: ModeConfig;
   highlighted: boolean;
@@ -323,10 +338,12 @@ function ModeCard({
   onSelect: (mode: ModeId) => void;
   t: ReturnType<typeof useTranslations<"setup.articles.create.modePicker">>;
   featured?: boolean;
+  band?: boolean;
 }) {
   const mode = config.id;
   const accent = ACCENT[config.accent];
   const outputs = t.raw(`modes.${mode}.outputs`) as string[];
+  const isWide = featured || band;
 
   return (
     <button
@@ -338,7 +355,7 @@ function ModeCard({
         accent.border,
         accent.borderHover,
         "hover:-translate-y-0.5 hover:shadow-lg",
-        featured ? "p-6 md:p-7" : "p-5",
+        isWide ? "p-6 md:p-7" : "p-5",
         highlighted ? `ring-2 ${accent.ring} shadow-md` : "",
         pulsing ? `ring-4 ${accent.ring} scale-[1.01] shadow-lg` : "",
       ].join(" ")}
@@ -369,7 +386,7 @@ function ModeCard({
               </span>
             </div>
             <h3
-              className={`mt-1 font-black uppercase tracking-tight text-ns-tertiary ${featured ? "text-xl" : "text-base"}`}
+              className={`mt-1 font-black uppercase tracking-tight text-ns-tertiary ${isWide ? "text-xl" : "text-base"}`}
             >
               {t(`modes.${mode}.title`)}
             </h3>
@@ -382,7 +399,7 @@ function ModeCard({
           className={[
             "inline-flex shrink-0 items-center justify-center rounded-lg bg-ns-hero px-4 py-2.5 text-sm font-semibold text-ns-primary transition-colors",
             "group-hover:bg-ns-primary group-hover:text-black",
-            featured ? "sm:self-center" : "w-full sm:w-auto",
+            isWide ? "sm:self-center" : "w-full sm:w-auto",
           ].join(" ")}
         >
           {t("start")}
