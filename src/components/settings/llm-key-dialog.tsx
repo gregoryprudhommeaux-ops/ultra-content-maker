@@ -3,6 +3,7 @@
 import { useAuth } from "@/components/auth/auth-provider";
 import { Link, usePathname } from "@/i18n/navigation";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
+import { getUserDoc } from "@/lib/workspace/user";
 import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui/nextstep";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -25,13 +26,21 @@ export function LlmKeyDialog() {
       return;
     }
     let cancelled = false;
-    getUserLlmProfile(user.uid)
-      .then((profile) => {
+    getUserDoc(user.uid)
+      .then((userDoc) => {
         if (cancelled) return;
-        const needsKey = !profile?.apiKey?.trim();
-        setMissingKey(needsKey);
-        if (!needsKey) setDismissed(false);
-        setChecked(true);
+        if (userDoc?.linkedWorkspace?.ownerId) {
+          setMissingKey(false);
+          setChecked(true);
+          return;
+        }
+        return getUserLlmProfile(user.uid).then((profile) => {
+          if (cancelled) return;
+          const needsKey = !profile?.apiKey?.trim();
+          setMissingKey(needsKey);
+          if (!needsKey) setDismissed(false);
+          setChecked(true);
+        });
       })
       .catch(() => {
         if (!cancelled) setChecked(true);

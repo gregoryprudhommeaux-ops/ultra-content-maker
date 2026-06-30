@@ -3,6 +3,7 @@ import { getAuthorProfile, isAuthorProfileMinimumComplete } from "./author";
 import { listArticleBatches } from "./articles";
 import { getUserLlmProfile } from "./llm-settings";
 import { getPersona } from "./persona";
+import { getUserDoc } from "./user";
 import type { SetupCompletion } from "./setup-completion";
 import {
   getOnboardingStatusFromProgress,
@@ -68,7 +69,8 @@ export async function loadOnboardingProgress(
   userId: string,
   pathname: string | null,
 ): Promise<OnboardingProgress> {
-  const [llm, author, audience, persona, batches] = await Promise.all([
+  const [userDoc, llm, author, audience, persona, batches] = await Promise.all([
+    getUserDoc(userId),
     getUserLlmProfile(userId),
     getAuthorProfile(userId),
     getAudienceProfile(userId),
@@ -76,8 +78,11 @@ export async function loadOnboardingProgress(
     listArticleBatches(userId),
   ]);
 
+  const hasOwnApiKey = Boolean(llm?.apiKey?.trim());
+  const usesOwnerLlm = Boolean(userDoc?.linkedWorkspace?.ownerId);
+
   const completion: Record<OnboardingStepKey, boolean> = {
-    llm: Boolean(llm?.apiKey?.trim()),
+    llm: hasOwnApiKey || usesOwnerLlm,
     author:
       author?.status === "complete" && isAuthorProfileMinimumComplete(author),
     audience: isAudienceComplete(audience),
