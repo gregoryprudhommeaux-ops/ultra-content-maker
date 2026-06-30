@@ -517,6 +517,22 @@
       "hideKey": "Ocultar",
       "modelHint": "Modelo por defecto: {model}",
       "continue": "Continuar a Mi perfil →",
+      "account": {
+        "title": "Tu cuenta",
+        "subtitle": "Datos de acceso para este espacio.",
+        "name": "Nombre",
+        "nameFallback": "Sin definir",
+        "email": "Correo",
+        "emailVerified": "Correo verificado",
+        "emailNotVerified": "Correo no verificado",
+        "signIn": "Método de acceso",
+        "signInGoogle": "Google",
+        "signInEmail": "Correo y contraseña",
+        "signInUnknown": "—",
+        "activeWorkspace": "Espacio activo",
+        "memberSince": "Miembro desde",
+        "userId": "ID de usuario"
+      },
       "dataManagement": {
         "title": "Gestión de datos",
         "subtitle": "Reiniciar o borrar tu espacio de trabajo.",
@@ -1020,7 +1036,7 @@
         "modePicker": {
           "heroEyebrow": "Asistente de creación",
           "heroTitle": "Tu próximo post de LinkedIn, en minutos",
-          "heroSubtitle": "Tres recorridos según tu situación: publicar desde tu Persona, reaccionar a la actualidad o adaptar un contenido existente — siempre con tu voz y controles de calidad.",
+          "heroSubtitle": "Cuatro recorridos según tu situación: publicar desde tu Persona, reaccionar a la actualidad, adaptar un contenido existente o redactar sobre un tema que ya tienes en mente — siempre con tu voz y controles de calidad.",
           "heroPill1": "Persona y brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Listo para LinkedIn",
@@ -1114,8 +1130,37 @@
                 "Ángulo anti-plagio",
                 "Regenerar ángulo"
               ]
+            },
+            "article": {
+              "title": "Crear un artículo",
+              "desc": "Ya tienes el tema — anota tu idea principal en pocas líneas y obtén un borrador para refinar con las herramientas habituales.",
+              "badge": "Tu tema",
+              "outputs": [
+                "Brief de tema ligero",
+                "Quality Panel y tono",
+                "Traducciones y edición"
+              ]
             }
           }
+        },
+        "articleTopic": {
+          "title": "Tu idea de post",
+          "subtitle": "Unas pocas líneas bastan — la IA se alinea con tu Persona y luego tú mantienes el control en el editor.",
+          "topicLabel": "Tema del post",
+          "topicHelpLabel": "Tema",
+          "topicHelp": "Un tema claro en una línea: de qué trata el post.",
+          "topicPlaceholder": "Ej. Por qué la mayoría de proyectos de nearshoring se atascan tras la fase piloto",
+          "messageLabel": "Lo que quieres decir",
+          "messageHelpLabel": "Mensaje",
+          "messageHelp": "Tu idea, opinión o aprendizaje clave — lo que el lector debe recordar.",
+          "messagePlaceholder": "Ej. El freno real no es el coste logístico — es la falta de un responsable único entre sede y planta local…",
+          "exampleLabel": "Ejemplo o prueba (opcional)",
+          "examplePlaceholder": "Ej. Un cliente redujo plazos un 30 % solo al nombrar un referente ops en ambos lados…",
+          "ctaLabel": "Cierre o intención de CTA (opcional)",
+          "ctaPlaceholder": "Ej. Invitar a directores de planta a compartir su mayor fallo de traspaso en comentarios",
+          "ctaHint": "Podrás afinar tono y CTA después en el Quality Panel y el editor.",
+          "incomplete": "Indica un tema (mín. 8 caracteres) y tu mensaje principal (mín. 8 caracteres).",
+          "afterGenerate": "Tras generar: edita libremente, usa el Quality Panel, ajusta el tono, añade traducciones y valida cuando estés listo."
         },
         "recentPosts": {
           "title": "Retrabajar un post existente",
@@ -1218,6 +1263,7 @@
           "contextProfile": "Perfil",
           "contextNews": "Noticia",
           "contextInspiration": "Referencia",
+          "contextArticle": "Tu idea",
           "briefing": "Brief",
           "result": "Resultado",
           "generation": "Generando…"
@@ -1228,7 +1274,8 @@
           "modes": {
             "profile": "Desde mi perfil",
             "news": "Desde la actualidad",
-            "inspiration": "Desde contenido existente"
+            "inspiration": "Desde contenido existente",
+            "article": "Crear un artículo"
           }
         }
       },

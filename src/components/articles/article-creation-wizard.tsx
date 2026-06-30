@@ -9,6 +9,7 @@ import {
 import { InspirationLibraryStep } from "@/components/articles/creation/inspiration-library-step";
 import { InspirationSourceChoice } from "@/components/articles/creation/inspiration-source-choice";
 import { ArticleEditor } from "@/components/articles/article-editor";
+import { ArticleTopicBriefForm, enrichArticleTopicBriefForGeneration } from "@/components/articles/creation/article-topic-brief-form";
 import { CreationIntentSummary } from "@/components/articles/creation/creation-intent-summary";
 import { CreationModePicker } from "@/components/articles/creation/creation-mode-picker";
 import { InspirationUrlStep } from "@/components/articles/creation/inspiration-url-step";
@@ -161,6 +162,13 @@ export function ArticleCreationWizard() {
     () => heuristicBriefNicheCheck(postBrief),
     [postBrief],
   );
+
+  const briefForGeneration = useCallback(() => {
+    const normalized = normalizePostBrief(postBrief);
+    return mode === "article"
+      ? enrichArticleTopicBriefForGeneration(normalized)
+      : normalized;
+  }, [postBrief, mode]);
 
   const progressStep = resolveWizardProgressStep(step, mode);
 
@@ -495,7 +503,7 @@ export function ArticleCreationWizard() {
   ]);
 
   useEffect(() => {
-    if (step !== "brief" || !mode || mode === "profile") return;
+    if (step !== "brief" || !mode || mode === "profile" || mode === "article") return;
     if (briefSuggestedRef.current) return;
     briefSuggestedRef.current = true;
     void suggestBrief();
@@ -568,7 +576,7 @@ export function ArticleCreationWizard() {
             contentLanguage: contentLang,
             emojiLevel,
             authorSteering,
-            postBrief: normalizePostBrief(postBrief),
+            postBrief: briefForGeneration(),
             newsSource,
             articleCount,
             inspirationText:
@@ -632,7 +640,7 @@ export function ArticleCreationWizard() {
           user.uid,
           replaceArticleId,
           draftPayload,
-          normalizePostBrief(postBrief),
+          normalizePostBrief(briefForGeneration()),
         );
         setDraftArticleId(replaceArticleId);
         setDraftRevision((n) => n + 1);
@@ -649,7 +657,7 @@ export function ArticleCreationWizard() {
           contentLang,
           emojiLevel,
           newsSource,
-          normalizePostBrief(postBrief),
+          normalizePostBrief(briefForGeneration()),
           inspirationMeta ?? undefined,
         );
         setDraftArticleId(ids[0]);
@@ -693,9 +701,18 @@ export function ArticleCreationWizard() {
     setMode(next);
     setErrorInfo(null);
     briefSuggestedRef.current = !!briefSeed;
-    setPostBrief(normalizePostBrief({ ...DEFAULT_POST_BRIEF, ...briefSeed }));
+    const briefDefaults =
+      next === "article"
+        ? {
+            objectives: [{ objective: "conversation" as const, priority: 1 as const }],
+            problem: "",
+            pointOfView: "",
+            proof: "",
+          }
+        : DEFAULT_POST_BRIEF;
+    setPostBrief(normalizePostBrief({ ...briefDefaults, ...briefSeed }));
     setInspirationCtx(null);
-    if (next === "profile") {
+    if (next === "profile" || next === "article") {
       setStep("brief");
     } else if (next === "news") {
       setStep("news");
@@ -847,7 +864,7 @@ export function ArticleCreationWizard() {
       return;
     }
 
-    if (modeParam === "profile" || modeParam === "news" || modeParam === "inspiration") {
+    if (modeParam === "profile" || modeParam === "news" || modeParam === "inspiration" || modeParam === "article") {
       initialModeFromUrl.current = true;
       pickMode(modeParam);
       return;
@@ -866,7 +883,7 @@ export function ArticleCreationWizard() {
   function goBack() {
     setErrorInfo(null);
     if (step === "brief") {
-      if (mode === "profile") setStep("mode");
+      if (mode === "profile" || mode === "article") setStep("mode");
       else if (mode === "news") setStep("news");
       else if (inspirationCtx?.kind === "paste") setStep("paste");
       else if (inspirationCtx?.kind === "url") setStep("inspiration-url");
@@ -1103,18 +1120,22 @@ export function ArticleCreationWizard() {
               </p>
             </div>
           )}
-          <PostBriefForm
-            brief={postBrief}
-            onChange={setPostBrief}
-            wizardMode={mode}
-            showScope={mode === "inspiration"}
-            targetScope={targetScope}
-            onScopeChange={setTargetScope}
-            briefSuggesting={briefSuggesting}
-            nicheCheck={nicheCheck}
-            onAnalyzeNiche={onAnalyzeNiche}
-            nicheLoading={nicheLoading}
-          />
+          {mode === "article" ? (
+            <ArticleTopicBriefForm brief={postBrief} onChange={setPostBrief} />
+          ) : (
+            <PostBriefForm
+              brief={postBrief}
+              onChange={setPostBrief}
+              wizardMode={mode}
+              showScope={mode === "inspiration"}
+              targetScope={targetScope}
+              onScopeChange={setTargetScope}
+              briefSuggesting={briefSuggesting}
+              nicheCheck={nicheCheck}
+              onAnalyzeNiche={onAnalyzeNiche}
+              nicheLoading={nicheLoading}
+            />
+          )}
           <section className="rounded-xl border border-gray-100 bg-white p-4">
             <EmojiLevelPicker
               value={emojiLevel}

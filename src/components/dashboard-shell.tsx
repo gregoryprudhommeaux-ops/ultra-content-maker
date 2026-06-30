@@ -94,56 +94,16 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const isAdminRoute = pathname?.includes("/admin");
 
   return (
-    <div className="flex min-h-screen bg-ns-background">
-      <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-white/10 bg-ns-hero lg:flex">
-        <div className="border-b border-white/10 px-4 py-4">
-          <Link
-            href={logoHref}
-            className="flex items-center gap-2 rounded-lg transition-opacity hover:opacity-90"
-            aria-label={t("nav.home")}
-          >
-            <NsMark size="sm" />
-            <span className="truncate text-sm font-bold text-white">{t("app.name")}</span>
-          </Link>
-        </div>
-        <AccountSwitcher />
-        {isPlatformAdmin && (
-          <nav className="flex flex-col gap-1 border-b border-white/10 px-3 py-3" aria-label="Admin">
-            <p className={`${META_LABEL} mb-1 px-2 text-white/45`}>{t("nav.admin")}</p>
-            <Link
-              href="/admin/analytics"
-              className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-                isAdminRoute
-                  ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
-                  : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
-              }`}
-            >
-              {t("adminAnalytics.shortNav")}
-            </Link>
-          </nav>
-        )}
-        <div className="mt-auto border-t border-white/10 px-3 py-3">
-          <LanguageSwitcher variant="dark" />
-          <button
-            type="button"
-            onClick={() => signOut()}
-            className={`${META_LABEL} mt-3 w-full rounded-md px-2 py-2 text-left text-white/60 transition-colors hover:bg-white/5 hover:text-ns-primary`}
-          >
-            {t("nav.signOut")}
-          </button>
-        </div>
-      </aside>
-
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+    <div className="flex min-h-screen flex-col bg-ns-background [--dashboard-header-h:57px]">
       <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-4 py-3 text-white shadow-sm md:px-6 lg:px-8">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-2 lg:gap-3">
+        <div className="flex w-full items-center justify-between gap-2 lg:gap-3">
           <Link
             href={logoHref}
             className="flex min-w-0 shrink-0 items-center gap-2 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary xl:gap-3"
             aria-label={t("nav.home")}
           >
             <NsMark size="sm" />
-            <span className="hidden text-sm font-bold tracking-tight text-white xl:inline xl:text-base">
+            <span className="truncate text-sm font-bold tracking-tight text-white xl:text-base">
               {t("app.name")}
             </span>
           </Link>
@@ -202,6 +162,28 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
+
+      <div className="flex min-h-0 flex-1">
+      <aside className="sticky top-[var(--dashboard-header-h)] hidden h-[calc(100vh-var(--dashboard-header-h))] w-56 shrink-0 flex-col border-r border-white/10 bg-ns-hero lg:flex">
+        <AccountSwitcher />
+        {isPlatformAdmin && (
+          <nav className="flex flex-col gap-1 border-b border-white/10 px-3 py-3" aria-label="Admin">
+            <p className={`${META_LABEL} mb-1 px-2 text-white/45`}>{t("nav.admin")}</p>
+            <Link
+              href="/admin/analytics"
+              className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                isAdminRoute
+                  ? "bg-ns-primary/15 text-ns-primary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
+                  : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
+              }`}
+            >
+              {t("adminAnalytics.shortNav")}
+            </Link>
+          </nav>
+        )}
+      </aside>
+
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
 
       {menuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -274,6 +256,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         {children}
       </main>
       <AppFooter variant="light" showAppLinks />
+      </div>
       </div>
     </div>
   );

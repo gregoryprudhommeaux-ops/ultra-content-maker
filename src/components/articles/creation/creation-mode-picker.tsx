@@ -19,7 +19,7 @@ const GUIDE_TO_MODE: Record<GuideKey, ModeId> = {
 
 type ModeConfig = {
   id: ModeId;
-  accent: "lime" | "sky" | "violet";
+  accent: "lime" | "sky" | "violet" | "amber";
   featured?: boolean;
 };
 
@@ -27,6 +27,7 @@ const MODES: ModeConfig[] = [
   { id: "profile", accent: "lime", featured: true },
   { id: "news", accent: "sky" },
   { id: "inspiration", accent: "violet" },
+  { id: "article", accent: "amber" },
 ];
 
 const ACCENT = {
@@ -59,6 +60,16 @@ const ACCENT = {
     badge: "bg-violet-700 text-white",
     gradient: "from-violet-100/80 via-violet-50/50 to-transparent",
     dot: "bg-violet-500",
+  },
+  amber: {
+    ring: "ring-amber-400/40",
+    border: "border-amber-200/80",
+    borderHover: "hover:border-amber-400",
+    bg: "bg-amber-50",
+    icon: "text-amber-800",
+    badge: "bg-amber-700 text-white",
+    gradient: "from-amber-100/80 via-amber-50/50 to-transparent",
+    dot: "bg-amber-500",
   },
 } as const;
 
@@ -97,6 +108,23 @@ function ModeIcon({ mode, className }: { mode: ModeId; className?: string }) {
           strokeLinecap="round"
         />
         <circle cx="18" cy="17" r="3" stroke="currentColor" strokeWidth="1.75" />
+      </svg>
+    );
+  }
+  if (mode === "article") {
+    return (
+      <svg className={cn} viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path
+          d="M6 4h12a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"
+          stroke="currentColor"
+          strokeWidth="1.75"
+        />
+        <path
+          d="M8 8h8M8 12h8M8 16h5"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+        />
       </svg>
     );
   }
@@ -194,7 +222,7 @@ export function CreationModePicker({
             featured
           />
         ))}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           {MODES.filter((m) => !m.featured).map((config) => (
             <ModeCard
               key={config.id}

@@ -59,7 +59,7 @@ export interface UserDoc {
   updatedAt: Date;
 }
 
-export type ArticleCreationMode = "profile" | "news" | "inspiration";
+export type ArticleCreationMode = "profile" | "news" | "inspiration" | "article";
 
 export type CreationStrategyThemeRelation =
   | "continuity"

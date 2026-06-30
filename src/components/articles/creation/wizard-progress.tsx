@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 export type WizardPhaseId = "intent" | "context" | "briefing" | "generation" | "result";
 
 function flowForMode(mode: WizardCreationMode | null): WizardPhaseId[] {
-  if (mode === "profile") return ["intent", "briefing", "result"];
+  if (mode === "profile" || mode === "article") return ["intent", "briefing", "result"];
   return ["intent", "context", "briefing", "result"];
 }
 
@@ -56,7 +56,9 @@ export function WizardProgress({ mode, activeStep }: Props) {
         ? t("contextNews")
         : mode === "inspiration"
           ? t("contextInspiration")
-          : t("contextProfile"),
+          : mode === "article"
+            ? t("contextArticle")
+            : t("contextProfile"),
     briefing: t("briefing"),
     result: t("result"),
     generation: t("generation"),

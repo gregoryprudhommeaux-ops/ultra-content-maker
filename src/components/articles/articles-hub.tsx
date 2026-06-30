@@ -41,6 +41,7 @@ const SESSION_BADGE: Record<ArticleCreationMode, string> = {
   profile: "bg-ns-brand-light text-ns-tertiary",
   news: "bg-sky-100 text-sky-900",
   inspiration: "bg-violet-100 text-violet-900",
+  article: "bg-amber-100 text-amber-900",
 };
 
 function formatBatchDateTime(date: Date, locale: ContentLanguage): string {

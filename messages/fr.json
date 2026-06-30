@@ -517,6 +517,22 @@
       "hideKey": "Masquer",
       "modelHint": "Modèle utilisé par défaut : {model}",
       "continue": "Continuer vers Mon profil →",
+      "account": {
+        "title": "Votre compte",
+        "subtitle": "Informations de connexion pour cet espace.",
+        "name": "Nom",
+        "nameFallback": "Non renseigné",
+        "email": "E-mail",
+        "emailVerified": "E-mail vérifié",
+        "emailNotVerified": "E-mail non vérifié",
+        "signIn": "Mode de connexion",
+        "signInGoogle": "Google",
+        "signInEmail": "E-mail et mot de passe",
+        "signInUnknown": "—",
+        "activeWorkspace": "Espace actif",
+        "memberSince": "Membre depuis",
+        "userId": "Identifiant utilisateur"
+      },
       "dataManagement": {
         "title": "Gestion des données",
         "subtitle": "Recommencer ou effacer votre espace de travail.",
@@ -1028,7 +1044,7 @@
         "modePicker": {
           "heroEyebrow": "Assistant de création",
           "heroTitle": "Votre prochain post LinkedIn, en quelques minutes",
-          "heroSubtitle": "Trois parcours selon votre situation : publier depuis votre Persona, réagir à l’actualité, ou décliner un contenu existant — toujours avec votre voix et des garde-fous qualité.",
+          "heroSubtitle": "Quatre parcours selon votre situation : publier depuis votre Persona, réagir à l’actualité, décliner un contenu existant, ou rédiger sur un sujet que vous avez déjà en tête — toujours avec votre voix et des garde-fous qualité.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Prêt à copier sur LinkedIn",
@@ -1122,8 +1138,37 @@
                 "Angle anti-plagiat",
                 "Regénérer l’angle"
               ]
+            },
+            "article": {
+              "title": "Créer un article",
+              "desc": "Vous avez déjà le sujet — notez votre idée principale en quelques lignes, puis obtenez un brouillon à affiner avec les outils habituels.",
+              "badge": "Votre sujet",
+              "outputs": [
+                "Brief sujet léger",
+                "Quality Panel & ton",
+                "Traductions & édition"
+              ]
             }
           }
+        },
+        "articleTopic": {
+          "title": "Votre idée de post",
+          "subtitle": "Quelques lignes suffisent — l’IA s’aligne sur votre Persona, puis vous gardez la main dans l’éditeur.",
+          "topicLabel": "Sujet du post",
+          "topicHelpLabel": "Sujet",
+          "topicHelp": "Un sujet clair en une ligne : de quoi parle le post.",
+          "topicPlaceholder": "Ex. Pourquoi la plupart des projets de nearshoring bloquent après la phase pilote",
+          "messageLabel": "Ce que vous voulez dire",
+          "messageHelpLabel": "Message",
+          "messageHelp": "Votre idée, opinion ou enseignement clé — ce que le lecteur doit retenir.",
+          "messagePlaceholder": "Ex. Le vrai frein n’est pas le coût logistique — c’est l’absence d’un responsable unique entre le siège et l’usine locale…",
+          "exampleLabel": "Exemple ou preuve (optionnel)",
+          "examplePlaceholder": "Ex. Un client a réduit les délais de 30 % seulement après avoir nommé un référent ops des deux côtés…",
+          "ctaLabel": "Clôture ou intention de CTA (optionnel)",
+          "ctaPlaceholder": "Ex. Inviter les directeurs d’usine à partager leur principal échec de passation en commentaire",
+          "ctaHint": "Vous pourrez encore affiner le ton et le CTA dans le Quality Panel et l’éditeur.",
+          "incomplete": "Indiquez un sujet (8 caractères min.) et votre message principal (8 caractères min.).",
+          "afterGenerate": "Après génération : éditez librement, lancez le Quality Panel, ajustez le ton, ajoutez des traductions, puis validez quand vous êtes prêt."
         },
         "recentPosts": {
           "title": "Retravailler un post existant",
@@ -1226,6 +1271,7 @@
           "contextProfile": "Profil",
           "contextNews": "Actu",
           "contextInspiration": "Référence",
+          "contextArticle": "Votre idée",
           "briefing": "Brief",
           "result": "Résultat",
           "generation": "Génération en cours…"
@@ -1236,7 +1282,8 @@
           "modes": {
             "profile": "Depuis mon profil",
             "news": "Depuis l’actualité",
-            "inspiration": "Depuis un contenu existant"
+            "inspiration": "Depuis un contenu existant",
+            "article": "Créer un article"
           }
         }
       },

@@ -42,7 +42,12 @@ export type CreationWizardSession = {
 };
 
 function isWizardMode(v: unknown): v is WizardCreationMode {
-  return v === "profile" || v === "news" || v === "inspiration";
+  return (
+    v === "profile" ||
+    v === "news" ||
+    v === "inspiration" ||
+    v === "article"
+  );
 }
 
 function isWizardStep(v: unknown): v is WizardSessionStep {

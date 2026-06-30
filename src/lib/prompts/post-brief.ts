@@ -63,13 +63,22 @@ export function isPostBriefComplete(brief: PostBrief): boolean {
   );
 }
 
-export type WizardCreationMode = "profile" | "news" | "inspiration";
+export type WizardCreationMode = "profile" | "news" | "inspiration" | "article";
 
-/** Profile = full brief; news/inspiration = objective required (other fields optional, often AI-prefilled). */
+export function isArticleTopicBriefComplete(brief: PostBrief): boolean {
+  const normalized = normalizePostBrief(brief);
+  return (
+    normalized.problem.trim().length >= 8 &&
+    normalized.pointOfView.trim().length >= 8
+  );
+}
+
+/** Profile = full brief; article = light topic form; news/inspiration = objective required. */
 export function isWizardBriefComplete(
   brief: PostBrief,
   mode: WizardCreationMode,
 ): boolean {
   if (mode === "profile") return isPostBriefComplete(brief);
+  if (mode === "article") return isArticleTopicBriefComplete(brief);
   return hasPostObjectivesFromUnknown(brief);
 }

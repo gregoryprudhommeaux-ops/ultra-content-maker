@@ -517,6 +517,22 @@
       "hideKey": "Hide",
       "modelHint": "Default model: {model}",
       "continue": "Continue to My profile →",
+      "account": {
+        "title": "Your account",
+        "subtitle": "Sign-in details for this workspace.",
+        "name": "Name",
+        "nameFallback": "Not set",
+        "email": "Email",
+        "emailVerified": "Verified email",
+        "emailNotVerified": "Email not verified",
+        "signIn": "Sign-in method",
+        "signInGoogle": "Google",
+        "signInEmail": "Email & password",
+        "signInUnknown": "—",
+        "activeWorkspace": "Active workspace",
+        "memberSince": "Member since",
+        "userId": "User ID"
+      },
       "dataManagement": {
         "title": "Data management",
         "subtitle": "Reset or erase your workspace.",
@@ -1020,7 +1036,7 @@
         "modePicker": {
           "heroEyebrow": "Creation assistant",
           "heroTitle": "Your next LinkedIn post, in minutes",
-          "heroSubtitle": "Three paths for your situation: publish from your Persona, react to the news, or repurpose existing content — always in your voice with quality guardrails.",
+          "heroSubtitle": "Four paths for your situation: publish from your Persona, react to the news, repurpose existing content, or draft a post on a topic you already have in mind — always in your voice with quality guardrails.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Ready to paste on LinkedIn",
@@ -1114,8 +1130,37 @@
                 "Anti-plagiarism angle",
                 "Regenerate angle"
               ]
+            },
+            "article": {
+              "title": "Create an article",
+              "desc": "You already know the topic — capture your main idea in a light form, then get a draft you can refine with the usual tools.",
+              "badge": "Your topic",
+              "outputs": [
+                "Light topic brief",
+                "Quality Panel & tone",
+                "Translations & edit"
+              ]
             }
           }
+        },
+        "articleTopic": {
+          "title": "Your post idea",
+          "subtitle": "A few lines are enough — the AI will align with your Persona, then you keep full control in the editor.",
+          "topicLabel": "Post topic",
+          "topicHelpLabel": "Topic",
+          "topicHelp": "A clear subject in one line: what the post is about.",
+          "topicPlaceholder": "E.g. Why most nearshoring projects stall after the pilot phase",
+          "messageLabel": "What you want to say",
+          "messageHelpLabel": "Message",
+          "messageHelp": "Your core idea, opinion, or takeaway — the message readers should remember.",
+          "messagePlaceholder": "E.g. The blocker isn't logistics cost — it's the lack of a single owner between HQ and the local plant…",
+          "exampleLabel": "Example or proof (optional)",
+          "examplePlaceholder": "E.g. A client cut lead times 30% only after assigning one ops lead on both sides…",
+          "ctaLabel": "Closing or CTA intention (optional)",
+          "ctaPlaceholder": "E.g. Invite plant managers to share their #1 handoff failure in comments",
+          "ctaHint": "You can still refine tone and CTA later in the Quality Panel and editor.",
+          "incomplete": "Add a topic (8+ characters) and your main message (8+ characters).",
+          "afterGenerate": "After generation: edit freely, run the Quality Panel, adjust tone, add translations, then validate when ready."
         },
         "recentPosts": {
           "title": "Rework an existing post",
@@ -1218,6 +1263,7 @@
           "contextProfile": "Profile",
           "contextNews": "News",
           "contextInspiration": "Reference",
+          "contextArticle": "Your idea",
           "briefing": "Brief",
           "result": "Result",
           "generation": "Generating…"
@@ -1228,7 +1274,8 @@
           "modes": {
             "profile": "From my profile",
             "news": "From the news",
-            "inspiration": "From existing content"
+            "inspiration": "From existing content",
+            "article": "Create an article"
           }
         }
       },
