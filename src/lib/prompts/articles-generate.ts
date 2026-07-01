@@ -5,7 +5,8 @@ import {
 } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, EmojiLevel, PostBrief } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
-import { LINKEDIN_2026_SYSTEM_RULES } from "./linkedin-2026-rules";
+import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
+import { languageLabel, languageOnlyRule } from "./language-consistency";
 import { buildPostBriefInstruction } from "./post-brief";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -70,7 +71,9 @@ export function buildArticlesSystemPromptWithCount(
 
   return `You are a senior LinkedIn B2B content strategist and ghostwriter. Follow the expert Persona system prompt provided by the user.
 
-${LINKEDIN_2026_SYSTEM_RULES}
+${buildLinkedIn2026SystemRules(contentLanguage)}
+
+${languageOnlyRule(contentLanguage)}
 
 Write exactly ${count} distinct LinkedIn posts in ${lang} — mandatory mix: ${mix} (no other ratio).
 ${systemLines}

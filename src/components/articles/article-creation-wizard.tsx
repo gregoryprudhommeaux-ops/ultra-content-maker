@@ -87,6 +87,7 @@ import type {
   SourceLink,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -1013,18 +1014,19 @@ export function ArticleCreationWizard() {
             <label className={LABEL_CLASS} htmlFor="inspiration-paste">
               {t("pasteLabel")}
             </label>
-            <textarea
+            <ImeSafeTextarea
               id="inspiration-paste"
               rows={12}
               value={inspirationCtx?.excerpt ?? ""}
-              onChange={(e) =>
-                setInspirationCtx((prev) => ({
+              onValueChange={(excerpt) =>
+                setInspirationCtx({
                   kind: "paste",
-                  excerpt: e.target.value,
-                }))
+                  excerpt,
+                })
               }
               placeholder={t("pastePlaceholder")}
               className={`${INPUT_CLASS} mt-1 font-mono text-sm`}
+              lang={locale}
             />
           </div>
           <button

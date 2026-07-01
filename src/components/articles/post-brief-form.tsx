@@ -21,7 +21,8 @@ import type {
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { ContextHelp } from "@/components/ui/context-help";
-import { useTranslations } from "next-intl";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
+import { useLocale, useTranslations } from "next-intl";
 
 const PRIORITIES: PostObjectivePriority[] = [1, 2, 3];
 
@@ -55,6 +56,7 @@ export function PostBriefForm({
   const tBriefHelp = useTranslations("setup.articles.brief.help");
   const tCreate = useTranslations("setup.articles.create");
   const tHelp = useTranslations("setup.articles.help");
+  const locale = useLocale();
 
   function set<K extends keyof PostBrief>(key: K, value: PostBrief[K]) {
     onChange(normalizePostBrief({ ...safeBrief, [key]: value }));
@@ -74,7 +76,10 @@ export function PostBriefForm({
         : "problem";
 
   return (
-    <section className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4">
+    <section
+      className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4"
+      lang={locale}
+    >
       <div>
         <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
         <p className="mt-1 text-sm text-ns-secondary">
@@ -191,13 +196,14 @@ export function PostBriefForm({
             {tBriefHelp(`${problemFieldKey}.body`)}
           </ContextHelp>
         </div>
-        <textarea
+        <ImeSafeTextarea
           id="brief-problem"
           rows={2}
           value={safeBrief.problem}
-          onChange={(e) => set("problem", e.target.value)}
+          onValueChange={(value) => set("problem", value)}
           placeholder={t(`${problemFieldKey}Placeholder`)}
           className={`${INPUT_CLASS} mt-1`}
+          lang={locale}
         />
       </div>
 
@@ -205,13 +211,14 @@ export function PostBriefForm({
         <label className={LABEL_CLASS} htmlFor="brief-pov">
           {t("pointOfView")}
         </label>
-        <textarea
+        <ImeSafeTextarea
           id="brief-pov"
           rows={2}
           value={safeBrief.pointOfView}
-          onChange={(e) => set("pointOfView", e.target.value)}
+          onValueChange={(value) => set("pointOfView", value)}
           placeholder={t("pointOfViewPlaceholder")}
           className={`${INPUT_CLASS} mt-1`}
+          lang={locale}
         />
       </div>
 
@@ -222,13 +229,14 @@ export function PostBriefForm({
           </label>
           <ContextHelp label={tBriefHelp("proof.label")}>{tBriefHelp("proof.body")}</ContextHelp>
         </div>
-        <textarea
+        <ImeSafeTextarea
           id="brief-proof"
           rows={2}
           value={safeBrief.proof}
-          onChange={(e) => set("proof", e.target.value)}
+          onValueChange={(value) => set("proof", value)}
           placeholder={t("proofPlaceholder")}
           className={`${INPUT_CLASS} mt-1`}
+          lang={locale}
         />
       </div>
 

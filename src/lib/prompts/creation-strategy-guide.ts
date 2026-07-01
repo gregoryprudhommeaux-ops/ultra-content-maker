@@ -1,4 +1,4 @@
-import { LINKEDIN_2026_SYSTEM_RULES } from "@/lib/prompts/linkedin-2026-rules";
+import { buildLinkedIn2026SystemRules } from "@/lib/prompts/linkedin-2026-rules";
 import {
   injectAuthorSteering,
   type AuthorSteeringPayload,
@@ -23,7 +23,7 @@ export function buildCreationStrategyGuideSystemPrompt(
   const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
 
   return `You are a LinkedIn B2B content strategist for Ultra Content Maker.
-${LINKEDIN_2026_SYSTEM_RULES}
+${buildLinkedIn2026SystemRules(contentLanguage)}
 
 The product offers three creation paths:
 - profile: publish from Persona + structured brief (expertise, proof, POV)

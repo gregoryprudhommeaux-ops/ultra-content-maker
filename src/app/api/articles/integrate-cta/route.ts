@@ -69,6 +69,7 @@ export async function POST(request: Request) {
           ps: body.ps,
           ctaDraft: body.ctaDraft,
           ctaStyle: body.ctaStyle ?? "medium",
+          contentLanguage,
         }),
       },
     ]);

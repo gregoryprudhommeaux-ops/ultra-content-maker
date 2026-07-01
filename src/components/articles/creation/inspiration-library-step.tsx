@@ -3,6 +3,7 @@
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import type { SourceLink } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useTranslations } from "next-intl";
 
 type Props = {
@@ -84,11 +85,11 @@ export function InspirationLibraryStep({
         <label className={LABEL_CLASS} htmlFor="library-excerpt">
           {t("optionalExcerptLabel")}
         </label>
-        <textarea
+        <ImeSafeTextarea
           id="library-excerpt"
           rows={6}
           value={excerpt}
-          onChange={(e) => onExcerptChange(e.target.value)}
+          onValueChange={onExcerptChange}
           placeholder={t("optionalExcerptPlaceholder")}
           className={`${INPUT_CLASS} mt-1 font-mono text-sm`}
         />

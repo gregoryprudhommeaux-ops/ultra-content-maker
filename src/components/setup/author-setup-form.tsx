@@ -27,6 +27,7 @@ import {
 import { SaveFeedbackOverlay } from "@/components/ui/save-feedback-overlay";
 import { BTN_PRIMARY, DASHBOARD_FORM } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
+import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import { useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -382,10 +383,10 @@ function VoiceFields({
         <OptionalLabel htmlFor="role" optional={false}>
           {t("role")}
         </OptionalLabel>
-        <input
+        <ImeSafeInput
           id="role"
           value={roleTitle}
-          onChange={(e) => setRoleTitle(e.target.value)}
+          onValueChange={setRoleTitle}
           className={INPUT_CLASS}
         />
       </div>
@@ -393,10 +394,10 @@ function VoiceFields({
         <OptionalLabel htmlFor="positioning" optional={false}>
           {t("positioning")}
         </OptionalLabel>
-        <input
+        <ImeSafeInput
           id="positioning"
           value={positioningLine}
-          onChange={(e) => setPositioningLine(e.target.value)}
+          onValueChange={setPositioningLine}
           className={INPUT_CLASS}
         />
       </div>

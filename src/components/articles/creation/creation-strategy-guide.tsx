@@ -16,6 +16,7 @@ import type {
   CreationStrategyTheme,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -367,10 +368,10 @@ export function CreationStrategyGuidePanel({
               {t("steeringLabel")}
             </label>
             <p className="mt-1 text-xs text-ns-secondary">{t("steeringHint")}</p>
-            <textarea
+            <ImeSafeTextarea
               id="strategy-steering"
               value={steering}
-              onChange={(e) => setSteering(e.target.value)}
+              onValueChange={setSteering}
               placeholder={t("steeringPlaceholder")}
               rows={3}
               className={`${INPUT_CLASS} mt-2 resize-y`}

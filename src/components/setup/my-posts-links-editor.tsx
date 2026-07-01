@@ -6,6 +6,7 @@ import type { SourceLink, SourceType } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { INPUT_CLASS } from "@/types/workspace";
+import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
@@ -154,10 +155,10 @@ export function MyPostsLinksEditor({ userId }: Props) {
         </div>
         <div className="sm:col-span-2">
           <OptionalLabel htmlFor="my-source-label">{t("labelOptional")}</OptionalLabel>
-          <input
+          <ImeSafeInput
             id="my-source-label"
             value={label}
-            onChange={(e) => setLabel(e.target.value)}
+            onValueChange={setLabel}
             className={INPUT_CLASS}
           />
         </div>

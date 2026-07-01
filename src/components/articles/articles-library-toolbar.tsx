@@ -8,8 +8,9 @@ import {
 } from "@/lib/articles/library-filters";
 import { INPUT_CLASS } from "@/types/workspace";
 import { ContextHelp } from "@/components/ui/context-help";
+import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 const STATUS_OPTIONS: LibraryStatusFilter[] = [
   "all",
@@ -62,6 +63,7 @@ export function ArticlesLibraryToolbar({
 }: Props) {
   const t = useTranslations("setup.articles.library");
   const tHelp = useTranslations("setup.articles.help");
+  const locale = useLocale();
 
   const hasActiveFilters =
     filters.query.trim().length > 0 ||
@@ -76,12 +78,13 @@ export function ArticlesLibraryToolbar({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <label className="block min-w-0 flex-1">
           <span className="sr-only">{t("searchLabel")}</span>
-          <input
+          <ImeSafeInput
             type="search"
             value={filters.query}
-            onChange={(e) => onQueryChange(e.target.value)}
+            onValueChange={onQueryChange}
             placeholder={t("searchPlaceholder")}
             className={`${INPUT_CLASS} w-full`}
+            lang={locale}
           />
         </label>
         {hasActiveFilters && (

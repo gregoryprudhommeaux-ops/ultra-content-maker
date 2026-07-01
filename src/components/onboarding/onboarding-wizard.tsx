@@ -20,6 +20,7 @@ import {
 } from "@/types/onboarding";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 
 const inputClass =
   "w-full rounded-lg border border-ns-alternate bg-white px-3 py-2 text-sm text-ns-tertiary placeholder:text-ns-secondary/60 outline-none focus:border-ns-primary";
@@ -215,28 +216,28 @@ export function OnboardingWizard({ clientId }: Props) {
             </p>
             <div>
               <label className={labelClass}>{t("steps.1.role")}</label>
-              <input
+              <ImeSafeInput
                 className={inputClass}
                 value={s1.role}
-                onChange={(e) => setS1({ ...s1, role: e.target.value })}
+                onValueChange={(role) => setS1({ ...s1, role })}
               />
             </div>
             <div>
               <label className={labelClass}>{t("steps.1.offer")}</label>
-              <textarea
+              <ImeSafeTextarea
                 className={inputClass}
                 rows={2}
                 value={s1.offer}
-                onChange={(e) => setS1({ ...s1, offer: e.target.value })}
+                onValueChange={(offer) => setS1({ ...s1, offer })}
               />
             </div>
             <div>
               <label className={labelClass}>{t("steps.1.positioning")}</label>
-              <input
+              <ImeSafeInput
                 className={inputClass}
                 value={s1.positioningOneLiner}
-                onChange={(e) =>
-                  setS1({ ...s1, positioningOneLiner: e.target.value })
+                onValueChange={(positioningOneLiner) =>
+                  setS1({ ...s1, positioningOneLiner })
                 }
               />
             </div>
@@ -247,19 +248,19 @@ export function OnboardingWizard({ clientId }: Props) {
           <div className="space-y-4">
             <div>
               <label className={labelClass}>{t("steps.2.icp")}</label>
-              <textarea className={inputClass} rows={2} value={s2.icp} onChange={(e) => setS2({ ...s2, icp: e.target.value })} />
+              <ImeSafeTextarea className={inputClass} rows={2} value={s2.icp} onValueChange={(icp) => setS2({ ...s2, icp })} />
             </div>
             <div>
               <label className={labelClass}>{t("steps.2.pains")}</label>
-              <textarea className={inputClass} rows={2} value={s2.pains} onChange={(e) => setS2({ ...s2, pains: e.target.value })} />
+              <ImeSafeTextarea className={inputClass} rows={2} value={s2.pains} onValueChange={(pains) => setS2({ ...s2, pains })} />
             </div>
             <div>
               <label className={labelClass}>{t("steps.2.objections")}</label>
-              <textarea className={inputClass} rows={2} value={s2.objections} onChange={(e) => setS2({ ...s2, objections: e.target.value })} />
+              <ImeSafeTextarea className={inputClass} rows={2} value={s2.objections} onValueChange={(objections) => setS2({ ...s2, objections })} />
             </div>
             <div>
               <label className={labelClass}>{t("steps.2.proof")}</label>
-              <textarea className={inputClass} rows={2} value={s2.proof} onChange={(e) => setS2({ ...s2, proof: e.target.value })} />
+              <ImeSafeTextarea className={inputClass} rows={2} value={s2.proof} onValueChange={(proof) => setS2({ ...s2, proof })} />
             </div>
           </div>
         )}
@@ -268,23 +269,23 @@ export function OnboardingWizard({ clientId }: Props) {
           <div className="space-y-4">
             <div>
               <label className={labelClass}>{t("steps.3.tone")}</label>
-              <textarea className={inputClass} rows={2} value={s3.tone} onChange={(e) => setS3({ ...s3, tone: e.target.value })} />
+              <ImeSafeTextarea className={inputClass} rows={2} value={s3.tone} onValueChange={(tone) => setS3({ ...s3, tone })} />
             </div>
             <div>
               <label className={labelClass}>{t("steps.3.wordsToAvoid")}</label>
-              <input className={inputClass} value={s3.wordsToAvoid} onChange={(e) => setS3({ ...s3, wordsToAvoid: e.target.value })} />
+              <ImeSafeInput className={inputClass} value={s3.wordsToAvoid} onValueChange={(wordsToAvoid) => setS3({ ...s3, wordsToAvoid })} />
             </div>
             <div>
               <label className={labelClass}>{t("steps.3.largeNiche")}</label>
-              <input className={inputClass} value={s3.largeNicheRatio} onChange={(e) => setS3({ ...s3, largeNicheRatio: e.target.value })} placeholder="e.g. 60% Large / 40% Niche" />
+              <ImeSafeInput className={inputClass} value={s3.largeNicheRatio} onValueChange={(largeNicheRatio) => setS3({ ...s3, largeNicheRatio })} placeholder="e.g. 60% Large / 40% Niche" />
             </div>
             <div>
               <label className={labelClass}>{t("steps.3.cta")}</label>
-              <input className={inputClass} value={s3.ctaStyle} onChange={(e) => setS3({ ...s3, ctaStyle: e.target.value })} />
+              <ImeSafeInput className={inputClass} value={s3.ctaStyle} onValueChange={(ctaStyle) => setS3({ ...s3, ctaStyle })} />
             </div>
             <div>
               <label className={labelClass}>{t("steps.3.ps")}</label>
-              <input className={inputClass} value={s3.psRule} onChange={(e) => setS3({ ...s3, psRule: e.target.value })} />
+              <ImeSafeInput className={inputClass} value={s3.psRule} onValueChange={(psRule) => setS3({ ...s3, psRule })} />
             </div>
           </div>
         )}
@@ -325,11 +326,11 @@ export function OnboardingWizard({ clientId }: Props) {
             </div>
             <div>
               <label className={labelClass}>{t("steps.5.bio")}</label>
-              <textarea className={inputClass} rows={3} value={s5.bio} onChange={(e) => setS5({ ...s5, bio: e.target.value })} />
+              <ImeSafeTextarea className={inputClass} rows={3} value={s5.bio} onValueChange={(bio) => setS5({ ...s5, bio })} />
             </div>
             <div>
               <label className={labelClass}>{t("steps.5.posts")}</label>
-              <textarea className={inputClass} rows={4} value={s5.postExamples} onChange={(e) => setS5({ ...s5, postExamples: e.target.value })} placeholder={t("steps.5.postsPlaceholder")} />
+              <ImeSafeTextarea className={inputClass} rows={4} value={s5.postExamples} onValueChange={(postExamples) => setS5({ ...s5, postExamples })} placeholder={t("steps.5.postsPlaceholder")} />
             </div>
             <div>
               <label className={labelClass}>{t("steps.5.googleDoc")}</label>

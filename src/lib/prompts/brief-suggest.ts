@@ -3,6 +3,8 @@ import {
   type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
+import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
+import { languageLabel, languageOnlyRule } from "@/lib/prompts/language-consistency";
 import type {
   ArticleNewsSource,
   ContentLanguage,
@@ -19,9 +21,12 @@ const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
 };
 
 export function buildBriefSuggestSystemPrompt(contentLanguage: ContentLanguage): string {
-  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
+  const lang = languageLabel(contentLanguage);
 
   return `You draft a LinkedIn post brief (${lang}) for a B2B author based on context (news story or pasted reference post).
+
+${languageOnlyRule(contentLanguage)}
+${buildAntiLinkedInSlopRules(contentLanguage)}
 
 Return JSON only:
 {
@@ -38,7 +43,7 @@ Rules:
 - objectives: 1 to 3 items, unique objectives, priorities 1 (primary) then 2–3 if relevant
 - priority 1 is required and must match the best fit for the angle
 - problem: the topic, stakes, or tension the post comments on (for news/inspiration this is often the story itself — do NOT force a classic "customer pain point" if the source is factual news or analysis)
-- pointOfView, proof: concise, specific, usable in prompts (1-3 sentences each)
+- pointOfView, proof: concise, specific, usable in prompts (1-3 sentences each) — no fake client anecdotes or dramatic scene-setting unless grounded in reference material
 - Align with the author's Persona excerpt and authorSteering (profile, news keywords, LinkedIn history) — do not invent fake metrics
 - For news: react to the story, not a neutral recap
 - For pasted post: propose a NEW angle for the author (not a paraphrase)`;

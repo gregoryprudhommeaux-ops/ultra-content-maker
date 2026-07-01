@@ -3,13 +3,13 @@ import {
   injectAuthorSteering,
   type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
+import { buildAntiSlopClosingRules } from "@/lib/prompts/anti-linkedin-slop";
+import {
+  ctaBridgeExamples,
+  languageLabel,
+  languageOnlyRule,
+} from "@/lib/prompts/language-consistency";
 import type { ContentLanguage, CtaIntensity, PostObjective } from "@/types/workspace";
-
-const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
-  fr: "French",
-  en: "English",
-  es: "Spanish",
-};
 
 const STYLE_LABELS: Record<CtaIntensity, string> = {
   soft: "soft / gentle (doux) — invite without pressure",
@@ -32,10 +32,13 @@ export function buildCtaSuggestionsSystemPrompt(
   contentLanguage: ContentLanguage,
   postObjective: PostObjective = "credibility",
 ): string {
-  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
+  const lang = languageLabel(contentLanguage);
   const intentGuide = OBJECTIVE_CTA_GUIDE[postObjective];
+  const bridges = ctaBridgeExamples(contentLanguage);
 
   return `You write LinkedIn post signature CTAs in ${lang} for a B2B author.
+
+${languageOnlyRule(contentLanguage)}
 
 Post objective: ${postObjective}.
 ${intentGuide}
@@ -49,10 +52,11 @@ Each CTA: 1-3 short lines max, appended after the post with a blank line — mus
 
 CONTINUITY (critical):
 - Study postEnding in the user message. Never repeat its opening clause, conditional setup, or rhetorical question.
-- If the body already ends with a question, offer the next step (DM, resource, tag) — do not ask another question with the same "If you…" opener.
-- Use bridges ("Pour aller plus loin", "Dans ce cas", "If that's you") instead of restarting the body's hook phrase.
+- If the body already ends with a question, offer the next step (DM, resource, tag) — do not ask another question with the same conditional opener.
+- Use bridges (${bridges}) instead of restarting the body's hook phrase.
 
 No hashtag spam. No external URLs in CTA text.
+${buildAntiSlopClosingRules(contentLanguage)}
 linkUrl: omit unless you have a specific resource URL (news article, landing page, calendar, lead magnet). NEVER use linkedin.com homepage, /feed, or /login — for "follow my profile" put the ask in text only with no linkUrl.
 
 Return JSON only:

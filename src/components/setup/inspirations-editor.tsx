@@ -11,6 +11,7 @@ import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { INPUT_CLASS } from "@/types/workspace";
+import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import type { SourceCategory } from "@/types/workspace";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -269,11 +270,11 @@ function InspirationSection({
 
         <div>
           <OptionalLabel htmlFor={`${category}-why`}>{t("whyOptional")}</OptionalLabel>
-          <textarea
+          <ImeSafeTextarea
             id={`${category}-why`}
             rows={2}
             value={whyLike}
-            onChange={(e) => setWhyLike(e.target.value)}
+            onValueChange={setWhyLike}
             placeholder={t("whyPlaceholder")}
             className={INPUT_CLASS}
           />

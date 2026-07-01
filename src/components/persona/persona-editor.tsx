@@ -27,6 +27,7 @@ import { serializeForApi } from "@/lib/workspace/serialize-profile";
 import { updateSetupStep } from "@/lib/workspace/user";
 import { getClientAuth } from "@/lib/firebase/client";
 import { ContextHelp } from "@/components/ui/context-help";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import {
   DashboardPageHero,
   DashboardPageSection,
@@ -435,9 +436,9 @@ export function PersonaEditor() {
                   {t("help.promptBody")}
                 </ContextHelp>
               </div>
-              <textarea
+              <ImeSafeTextarea
                 value={promptText}
-                onChange={(e) => setPromptText(e.target.value)}
+                onValueChange={setPromptText}
                 rows={16}
                 className="w-full rounded-xl border border-ns-alternate bg-white p-4 font-mono text-sm text-ns-tertiary leading-relaxed"
                 readOnly={status === "validated"}

@@ -26,6 +26,7 @@ Rules:
 - Integrate ALL new profile facts into the relevant sections (role, positioning, audience, Topic DNA, proof policy, etc.) — do not only append a changelog.
 - Remove contradictions between old text and new profile.
 - Write entirely in ${lang}.
+- Strengthen anti-patterns: no LinkedIn influencer templates, no fake client anecdotes, no numbered life-lesson arcs unless grounded in the author's real experience.
 - Do NOT include a version line (the app adds it).
 - Do NOT include a "learned preferences" section (the app merges it separately).
 - Return JSON only: { "promptText": string, "changeSummary": string }

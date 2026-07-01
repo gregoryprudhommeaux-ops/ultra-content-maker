@@ -45,7 +45,7 @@ REQUIRED markdown sections inside promptText (exact headings in ${name}):
 - People-first expert voice (how we think > what we sell)
 - Native formats preference (text, document/carousel outline, short video — no external links in post body)
 - Proof policy: what counts as credible proof for this author (cases, metrics, field notes)
-- Anti-patterns: generic AI tone, engagement bait, vague inspiration, politics/insults even as humor
+- Anti-patterns: generic AI tone, engagement bait, vague inspiration, politics/insults even as humor, LinkedIn influencer templates, fake client anecdotes ("Sunday night a client called me in panic"), numbered life-lesson lists, dramatic scene-setting without real proof
 - Engagement goal: qualified comments and saves over vanity likes
 
 Also return gapQuestions: 6 to 10 interactive questions to fill missing profile info. EVERY label, hint, and option must be in ${name}.

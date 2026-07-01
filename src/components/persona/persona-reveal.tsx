@@ -10,6 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { CheckCircle2, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 
 const CARD_KEYS = ["positioning", "audience", "angle", "tone"] as const;
 
@@ -77,10 +78,10 @@ function EditablePillarText({
   if (editing) {
     return (
       <div className="mt-2 space-y-2">
-        <textarea
+        <ImeSafeTextarea
           id={`persona-pillar-${cardKey}`}
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onValueChange={setDraft}
           rows={4}
           autoFocus
           disabled={saving}

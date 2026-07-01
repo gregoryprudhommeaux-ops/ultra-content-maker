@@ -6,6 +6,7 @@ import { refreshPersonaFromProfile } from "@/lib/persona/refresh-persona-from-pr
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import type { ContentLanguage } from "@/types/workspace";
 import { Link } from "@/i18n/navigation";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -69,9 +70,9 @@ export function PersonaRefinementPanel({
         </h2>
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
-      <textarea
+      <ImeSafeTextarea
         value={comment}
-        onChange={(e) => setComment(e.target.value)}
+        onValueChange={setComment}
         rows={4}
         disabled={disabled || pending}
         placeholder={t("placeholder")}

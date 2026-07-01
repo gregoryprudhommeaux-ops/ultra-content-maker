@@ -1548,7 +1548,9 @@
           "more_proof": "More proof",
           "more_niche": "More niche",
           "conversation_end": "Discussion ending",
-          "less_generic": "Less generic"
+          "less_generic": "Less generic",
+          "break_template": "Break template",
+          "trim_filler": "Trim filler"
         },
         "revising": "Revising post…",
         "revisingHint": "AI is applying the selected lever (usually 10–25 s)."

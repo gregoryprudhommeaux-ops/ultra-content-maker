@@ -2,6 +2,7 @@
 
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -45,11 +46,11 @@ export function NewsEmptyRefinePanel({
         <label className={LABEL_CLASS} htmlFor="news-interest-query">
           {t("refineLabel")}
         </label>
-        <textarea
+        <ImeSafeTextarea
           id="news-interest-query"
           rows={3}
           value={newsInterestQuery}
-          onChange={(e) => onNewsInterestChange(e.target.value)}
+          onValueChange={onNewsInterestChange}
           placeholder={t("refinePlaceholder")}
           className={`${INPUT_CLASS} mt-1 text-sm`}
         />

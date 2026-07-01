@@ -12,6 +12,7 @@ import {
 import { normalizeGapQuestionItem } from "@/lib/persona/gap-questions";
 import type { GapAnswerValue, ProfileGapQuestion } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -245,6 +246,7 @@ export function GapsQuestionnaire({ questions, initialAnswers, onSave }: Props) 
       {normalizedQuestions.map((q) => {
         const otherText = getGapOtherText(answers, q.id);
         const otherSelected = isGapOtherSelected(answers[q.id]);
+        const textAnswer = answers[q.id];
 
         return (
           <fieldset key={q.id} className="space-y-2">
@@ -260,10 +262,10 @@ export function GapsQuestionnaire({ questions, initialAnswers, onSave }: Props) 
             ) : null}
 
             {q.type === "text" && (
-              <input
+              <ImeSafeInput
                 type="text"
-                value={typeof answers[q.id] === "string" ? answers[q.id] : ""}
-                onChange={(e) => setText(q.id, e.target.value)}
+                value={typeof textAnswer === "string" ? textAnswer : ""}
+                onValueChange={(value) => setText(q.id, value)}
                 className={INPUT_CLASS}
                 placeholder={t("textPlaceholder")}
               />
@@ -297,10 +299,10 @@ export function GapsQuestionnaire({ questions, initialAnswers, onSave }: Props) 
                     <span>{t("otherLabel")}</span>
                   </label>
                   {answers[q.id] === GAP_OTHER_VALUE ? (
-                    <input
+                    <ImeSafeInput
                       type="text"
                       value={otherText}
-                      onChange={(e) => setOtherText(q.id, e.target.value)}
+                      onValueChange={(value) => setOtherText(q.id, value)}
                       className={`${INPUT_CLASS} mt-2`}
                       placeholder={t("otherPlaceholder")}
                     />
@@ -358,10 +360,10 @@ export function GapsQuestionnaire({ questions, initialAnswers, onSave }: Props) 
                     <span>{t("otherLabel")}</span>
                   </label>
                   {otherSelected ? (
-                    <input
+                    <ImeSafeInput
                       type="text"
                       value={otherText}
-                      onChange={(e) => setOtherText(q.id, e.target.value)}
+                      onValueChange={(value) => setOtherText(q.id, value)}
                       className={`${INPUT_CLASS} mt-2`}
                       placeholder={t("otherPlaceholder")}
                     />

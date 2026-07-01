@@ -5,7 +5,8 @@ import {
 } from "@/lib/profile/author-steering-context";
 import type { ArticleScope, ContentLanguage, EmojiLevel, PostBrief } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
-import { LINKEDIN_2026_SYSTEM_RULES } from "./linkedin-2026-rules";
+import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
+import { languageLabel, languageOnlyRule } from "./language-consistency";
 import { buildPostBriefInstruction } from "./post-brief";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -28,7 +29,9 @@ export function buildInspirationArticleSystemPrompt(
 
   return `You are a senior LinkedIn B2B content strategist and ghostwriter. Follow the expert Persona system prompt provided by the user.
 
-${LINKEDIN_2026_SYSTEM_RULES}
+${buildLinkedIn2026SystemRules(contentLanguage)}
+
+${languageOnlyRule(contentLanguage)}
 
 Write exactly 1 LinkedIn post in ${lang} inspired by the reference material in the user message.
 - ${scopeLine}
@@ -79,7 +82,7 @@ export function buildInspirationArticleUserPayload(
         postBrief: postBrief ?? null,
         postBriefInstruction: briefBlock,
         instruction:
-          "Generate exactly one post now. Honor targetScope and post brief. New angle only — zero plagiarism from referencePost. If inspirationMeta includes likedAspects/whyLike, mirror those qualities without copying phrases.",
+          "Generate exactly one post now. Honor targetScope and post brief. New angle only — zero plagiarism from referencePost. Do NOT copy the reference post's influencer tone or fake anecdote structure. If inspirationMeta includes likedAspects/whyLike, mirror those qualities without copying phrases.",
       },
       authorSteering,
     ),

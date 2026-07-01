@@ -24,6 +24,7 @@ import {
 } from "@/components/layout/dashboard-page";
 import { BTN_PRIMARY, DASHBOARD_FORM_COMPACT, DASHBOARD_PAGE_WIDTH } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
+import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useState } from "react";
@@ -123,10 +124,10 @@ export function AudienceSetupForm() {
         <form onSubmit={onSubmit} className={DASHBOARD_FORM_COMPACT} aria-busy={pending}>
         <div>
           <OptionalLabel htmlFor="target">{t("targetLabel")}</OptionalLabel>
-          <input
+          <ImeSafeInput
             id="target"
             value={targetLabel}
-            onChange={(e) => setTargetLabel(e.target.value)}
+            onValueChange={setTargetLabel}
             placeholder={t("targetPlaceholder")}
             className={INPUT_CLASS}
             disabled={pending}
@@ -134,11 +135,11 @@ export function AudienceSetupForm() {
         </div>
         <div>
           <OptionalLabel htmlFor="focus">{t("contentFocus")}</OptionalLabel>
-          <textarea
+          <ImeSafeTextarea
             id="focus"
             rows={3}
             value={contentFocus}
-            onChange={(e) => setContentFocus(e.target.value)}
+            onValueChange={setContentFocus}
             placeholder={t("focusPlaceholder")}
             className={INPUT_CLASS}
             disabled={pending}
@@ -146,11 +147,11 @@ export function AudienceSetupForm() {
         </div>
         <div>
           <OptionalLabel htmlFor="notes">{t("notes")}</OptionalLabel>
-          <textarea
+          <ImeSafeTextarea
             id="notes"
             rows={2}
             value={optionalNotes}
-            onChange={(e) => setOptionalNotes(e.target.value)}
+            onValueChange={setOptionalNotes}
             className={INPUT_CLASS}
             disabled={pending}
           />

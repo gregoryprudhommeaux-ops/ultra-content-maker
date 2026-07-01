@@ -1,4 +1,4 @@
-import { LINKEDIN_2026_SYSTEM_RULES } from "@/lib/prompts/linkedin-2026-rules";
+import { buildLinkedIn2026SystemRules } from "@/lib/prompts/linkedin-2026-rules";
 import { LINKEDIN_LENGTH_PROMPT_RULE } from "@/lib/linkedin/fit-linkedin-post";
 import {
   injectAuthorSteering,
@@ -19,6 +19,12 @@ const SOURCE_LANGUAGE_LABELS: Record<ContentLanguage, string> = {
   en: "English",
   es: "Spanish",
 };
+
+function slopRulesLanguageForLocale(locale: ArticleTranslationLocale): ContentLanguage {
+  if (locale === "fr") return "fr";
+  if (locale.startsWith("es")) return "es";
+  return "en";
+}
 
 export function buildArticleTranslateSystemPrompt(
   targetLocale: ArticleTranslationLocale,
@@ -41,7 +47,7 @@ export function buildArticleTranslateSystemPrompt(
 - Still one author's voice (Persona excerpt provided).`;
 
   return `You translate or localize a validated LinkedIn post.
-${LINKEDIN_2026_SYSTEM_RULES}
+${buildLinkedIn2026SystemRules(slopRulesLanguageForLocale(targetLocale))}
 
 ${modeRules}
 

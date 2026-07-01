@@ -1,4 +1,5 @@
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
+import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
 import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
 import {
@@ -15,6 +16,7 @@ import type {
   EmojiLevel,
 } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
+import { languageOnlyRule } from "./language-consistency";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
   fr: "French",
@@ -38,6 +40,10 @@ export function buildReviseSystemPrompt(
     : "";
 
   return `You revise a LinkedIn post using the expert Persona and user refinement feedback.
+
+${languageOnlyRule(contentLanguage)}
+${buildAntiLinkedInSlopRules(contentLanguage)}
+
 Keep the post in ${lang}. Preserve author expertise. Apply all feedback.${toneNote}${personalNote}
 Emoji rule (non-negotiable): ${emoji}
 If emojiLevel is light or heavy, the revised post MUST contain visible Unicode emojis.

@@ -1556,7 +1556,9 @@
           "more_proof": "Plus de preuve",
           "more_niche": "Plus niche",
           "conversation_end": "Fin discussion",
-          "less_generic": "Moins générique"
+          "less_generic": "Moins générique",
+          "break_template": "Casser le template",
+          "trim_filler": "Couper le remplissage"
         },
         "revising": "Révision du post en cours…",
         "revisingHint": "L’IA applique le levier choisi (en général 10–25 s)."

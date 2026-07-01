@@ -1,3 +1,4 @@
+import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import {
   injectAuthorSteering,
   type AuthorSteeringPayload,
@@ -23,11 +24,11 @@ export function buildArticleQualitySystemPrompt(
 
 Score the post 1-10 on each dimension (integers only):
 - nicheClarity: how clearly the personal moment lands for the author's network (not generic inspiration)
-- humanPov: authentic first-person voice vs press release / LinkedIn template / third-person distance
+- humanPov: authentic first-person voice vs press release / LinkedIn template / invented dramatic anecdotes the author did not provide
 - proofDensity: concrete personal details (dates, school, role, feelings, facts) vs vague abstractions
 - conversationPotential: invites genuine connection without engagement bait
 
-Provide exactly 3 alternative opening lines (first person, same language) and a 2-sentence critique with suggestions grounded in the author's Persona — help rephrase and structure, do not rewrite into thought leadership.
+Provide exactly 3 alternative opening lines (first person, same language) — no influencer clichés — and a 2-sentence critique with suggestions grounded in the author's Persona — help rephrase and structure, do not rewrite into thought leadership.
 
 Return JSON only:
 {
@@ -39,13 +40,17 @@ Return JSON only:
 
   return `You are a senior LinkedIn B2B editor scoring posts for platform-native authority content in ${lang}.
 
+${buildAntiLinkedInSlopRules(contentLanguage)}
+
 Score the post 1-10 on each dimension (integers only):
 - nicheClarity: specific to a defined ICP vs generic "everyone"
-- humanPov: distinct author voice vs AI slop / clichés
-- proofDensity: concrete proof visible (case, metric, observation) vs abstract advice
+- humanPov: distinct practitioner voice vs AI slop / influencer templates / fake client anecdotes (e.g. "Sunday night a client called me in panic")
+- proofDensity: concrete proof visible (case, metric, observation) vs abstract advice — penalize invented drama
 - conversationPotential: invites thoughtful expert replies vs engagement bait
 
-Also provide exactly 3 alternative hooks (first lines only, same language as post) and a 2-sentence critique.
+Apply the pre-delivery self-check from anti-template rules when scoring humanPov and proofDensity.
+
+Also provide exactly 3 alternative hooks (first lines only, same language as post) — no banned cliché openers, no fake situational setups — and a 2-sentence critique naming any template risk or fake anecdote if present.
 
 Return JSON only:
 {

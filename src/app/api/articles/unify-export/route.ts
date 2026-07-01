@@ -76,6 +76,7 @@ export async function POST(request: Request) {
           ps: body.ps,
           closingBlock: body.closingBlock,
           ctaStyle,
+          contentLanguage,
         }),
       },
     ]);

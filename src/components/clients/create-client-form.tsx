@@ -3,12 +3,14 @@
 import { createClient } from "@/lib/clients/firestore";
 import { useRouter } from "@/i18n/navigation";
 import type { ContentLanguage } from "@/types/client";
-import { useTranslations } from "next-intl";
+import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
+import { useLocale, useTranslations } from "next-intl";
 import { FormEvent, useState } from "react";
 
 export function CreateClientForm({ userId }: { userId: string }) {
   const t = useTranslations("dashboard.clients.create");
   const tErr = useTranslations("dashboard.clients.create.errors");
+  const locale = useLocale();
   const router = useRouter();
   const [name, setName] = useState("");
   const [clientTypeLabel, setClientTypeLabel] = useState("");
@@ -49,31 +51,37 @@ export function CreateClientForm({ userId }: { userId: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="max-w-lg space-y-4 rounded-2xl border border-gray-100 bg-ns-surface p-6">
+    <form
+      onSubmit={onSubmit}
+      className="max-w-lg space-y-4 rounded-2xl border border-gray-100 bg-ns-surface p-6"
+      lang={locale}
+    >
       <h2 className="text-lg font-semibold text-ns-tertiary">{t("title")}</h2>
       <div>
         <label className="mb-1 block text-sm font-medium text-ns-tertiary" htmlFor="name">
           {t("name")}
         </label>
-        <input
+        <ImeSafeInput
           id="name"
           required
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onValueChange={setName}
           className="w-full rounded-lg border border-ns-alternate bg-white px-3 py-2 text-sm text-ns-tertiary placeholder:text-ns-secondary/60"
+          lang={locale}
         />
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium text-ns-tertiary" htmlFor="type">
           {t("typeLabel")}
         </label>
-        <input
+        <ImeSafeInput
           id="type"
           required
           value={clientTypeLabel}
-          onChange={(e) => setClientTypeLabel(e.target.value)}
+          onValueChange={setClientTypeLabel}
           placeholder={t("typeLabelHint")}
           className="w-full rounded-lg border border-ns-alternate bg-white px-3 py-2 text-sm text-ns-tertiary placeholder:text-ns-secondary/60"
+          lang={locale}
         />
       </div>
       <div>
@@ -95,23 +103,25 @@ export function CreateClientForm({ userId }: { userId: string }) {
         <label className="mb-1 block text-sm font-medium text-ns-tertiary" htmlFor="sector">
           {t("sector")}
         </label>
-        <input
+        <ImeSafeInput
           id="sector"
           value={sector}
-          onChange={(e) => setSector(e.target.value)}
+          onValueChange={setSector}
           className="w-full rounded-lg border border-ns-alternate bg-white px-3 py-2 text-sm text-ns-tertiary placeholder:text-ns-secondary/60"
+          lang={locale}
         />
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium text-ns-tertiary" htmlFor="notes">
           {t("notes")}
         </label>
-        <textarea
+        <ImeSafeTextarea
           id="notes"
           rows={3}
           value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          onValueChange={setNotes}
           className="w-full rounded-lg border border-ns-alternate bg-white px-3 py-2 text-sm text-ns-tertiary placeholder:text-ns-secondary/60"
+          lang={locale}
         />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}

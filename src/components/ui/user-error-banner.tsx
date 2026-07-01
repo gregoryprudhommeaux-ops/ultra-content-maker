@@ -4,6 +4,7 @@ import { LlmProviderConsoleLink } from "@/components/setup/llm-provider-console-
 import { useAuth } from "@/components/auth/auth-provider";
 import { shouldShowLlmProviderConsole } from "@/lib/llm/provider-guides";
 import { getClientAuth } from "@/lib/firebase/client";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useState, type ReactNode } from "react";
 
@@ -152,13 +153,14 @@ export function UserErrorBanner({
       {showReportForm && user ? (
         <div className="mt-3 space-y-2 border-t border-red-200/80 pt-3">
           <p className="text-xs text-red-700">{t("report.hint")}</p>
-          <textarea
+          <ImeSafeTextarea
             value={userNote}
-            onChange={(e) => setUserNote(e.target.value)}
+            onValueChange={setUserNote}
             placeholder={t("report.notePlaceholder")}
             rows={3}
             className="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-ns-tertiary placeholder:text-ns-secondary"
             maxLength={2000}
+            lang={locale}
           />
           <button
             type="button"

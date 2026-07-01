@@ -1,3 +1,4 @@
+import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import {
   injectAuthorSteering,
   type AuthorSteeringPayload,
@@ -15,12 +16,14 @@ export function buildBriefCheckSystemPrompt(contentLanguage: ContentLanguage): s
 
   return `You evaluate whether a LinkedIn post brief is niche-specific enough for B2B authority content (${lang}).
 
-Score 1-10:
-- 9-10: clear ICP, sector, problem, POV, concrete proof
-- 5-6: understandable but could apply to many audiences
-- 1-4: generic inspiration, no proof, vague POV
+${buildAntiLinkedInSlopRules(contentLanguage)}
 
-isTooGeneric = true if score <= 4 OR brief could target "any professional on LinkedIn" without edits.
+Score 1-10:
+- 9-10: clear ICP, sector, problem, POV, concrete proof grounded in Persona — no fake anecdote setup
+- 5-6: understandable but could apply to many audiences
+- 1-4: generic inspiration, no proof, vague POV, or reads like a LinkedIn influencer template / invented client scene
+
+isTooGeneric = true if score <= 4 OR brief could target "any professional on LinkedIn" without edits OR proof/POV rely on a fabricated dramatic anecdote.
 
 feedback: 2-3 sentences in ${lang} explaining the score.
 suggestions: 1-3 short actionable edits (strings).

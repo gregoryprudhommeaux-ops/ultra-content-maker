@@ -7,15 +7,17 @@ import { useWorkspace } from "@/contexts/workspace-context";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { resolveLandingPath } from "@/lib/workspace/landing-path";
 import { META_LABEL, INPUT_CLASS } from "@/lib/ui/nextstep";
+import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import type { ContentLanguage } from "@/types/workspace";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const LANGUAGES: ContentLanguage[] = ["fr", "en", "es"];
 
 export function AccountSwitcher() {
   const t = useTranslations("workspaceAccounts");
+  const locale = useLocale();
   const { user } = useAuth();
   const isPlatformAdmin = usePlatformAdmin();
   const {
@@ -236,13 +238,14 @@ export function AccountSwitcher() {
               <label className={`${META_LABEL} block text-white/50`} htmlFor="new-account-name">
                 {t("newAccountName")}
               </label>
-              <input
+              <ImeSafeInput
                 id="new-account-name"
                 className={`${INPUT_CLASS} !border-white/20 !bg-white/5 !text-white placeholder:!text-white/40`}
                 value={newName}
-                onChange={(e) => setNewName(e.target.value)}
+                onValueChange={setNewName}
                 placeholder={t("newAccountNamePlaceholder")}
                 autoFocus
+                lang={locale}
               />
               <label className={`${META_LABEL} block text-white/50`} htmlFor="new-account-lang">
                 {t("newAccountLanguage")}

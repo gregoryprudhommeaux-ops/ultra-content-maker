@@ -8,6 +8,7 @@ import { getAuthorProfile } from "@/lib/workspace/author";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { INPUT_CLASS, LABEL_CLASS, type ContentLanguage } from "@/types/workspace";
+import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -163,11 +164,11 @@ export function InspirationUrlStep({
         <label className={LABEL_CLASS} htmlFor="inspiration-url-excerpt">
           {t("excerptLabel")}
         </label>
-        <textarea
+        <ImeSafeTextarea
           id="inspiration-url-excerpt"
           rows={10}
           value={excerpt}
-          onChange={(e) => onExcerptChange(e.target.value)}
+          onValueChange={onExcerptChange}
           placeholder={t("excerptPlaceholder")}
           className={`${INPUT_CLASS} mt-1 font-mono text-sm`}
         />

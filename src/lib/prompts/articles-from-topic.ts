@@ -8,7 +8,8 @@ import {
 } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, EmojiLevel, PostBrief } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
-import { LINKEDIN_2026_SYSTEM_RULES } from "./linkedin-2026-rules";
+import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
+import { languageOnlyRule } from "./language-consistency";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
   fr: "French",
@@ -24,6 +25,7 @@ Personal voice rules (non-negotiable when this mode is active):
 - Your role: rephrase for clarity, structure paragraphs for readability, tighten wording, suggest subtle improvements aligned with their Persona and profile — not rewrite into an expert manifesto.
 - Tone: warm, honest, human — suitable for a meaningful life step (diploma, promotion, career change, personal milestone).
 - Avoid AI slop and LinkedIn clichés: no "excited to announce", "humbled and grateful", "3 lessons", "game changer", "in today's fast-paced world", numbered lesson lists unless the author explicitly used them.
+- No fake dramatic anecdotes the author did not write (no invented "Sunday night a client called me in panic" scenes).
 - No engagement bait. Optional soft closing question only if it fits naturally.
 - ${LINKEDIN_LENGTH_PROMPT_RULE}`;
 
@@ -38,6 +40,8 @@ export function buildTopicArticleSystemPrompt(
 
   if (personal) {
     return `You are a careful writing coach helping a professional share a personal moment on LinkedIn in ${lang}.
+
+${languageOnlyRule(contentLanguage)}
 ${PERSONAL_VOICE_RULES}
 - Emoji rule: ${emoji}
 - Return exactly ONE post. scope: "generalist".
@@ -53,7 +57,9 @@ Return JSON only:
 
   return `You are a senior LinkedIn content strategist. The author provided an explicit topic brief — write ONE post from THEIR message, not a generic expert take.
 
-${LINKEDIN_2026_SYSTEM_RULES}
+${buildLinkedIn2026SystemRules(contentLanguage)}
+
+${languageOnlyRule(contentLanguage)}
 
 Write exactly 1 LinkedIn post in ${lang} from the user's topic brief.
 - Anchor on their topic and core message; use Persona for voice and ICP alignment only.

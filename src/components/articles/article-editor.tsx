@@ -70,6 +70,7 @@ import type {
   ToneEdge,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const ArticleQualityPanelLazy = dynamic(
@@ -1146,11 +1147,11 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
                     </button>
                   ))}
                 </div>
-                <input
+                <ImeSafeInput
                   type="text"
                   value={q.comment ?? ""}
-                  onChange={(e) =>
-                    setQuestionAnswer(q.id, { comment: e.target.value })
+                  onValueChange={(comment) =>
+                    setQuestionAnswer(q.id, { comment })
                   }
                   placeholder={tRef("commentPlaceholder")}
                   className={INPUT_CLASS}
@@ -1179,10 +1180,10 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
           )}
           <div>
             <label className={LABEL_CLASS}>{tRef("globalComment")}</label>
-            <textarea
+            <ImeSafeTextarea
               rows={3}
               value={article.refinement.globalComment ?? ""}
-              onChange={(e) => updateRefinement({ globalComment: e.target.value })}
+              onValueChange={(globalComment) => updateRefinement({ globalComment })}
               className={INPUT_CLASS}
             />
           </div>
@@ -1280,11 +1281,11 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
                     </button>
                   ))}
                 </div>
-                <input
+                <ImeSafeInput
                   type="text"
                   value={q.comment ?? ""}
-                  onChange={(e) =>
-                    setQuestionAnswer(q.id, { comment: e.target.value })
+                  onValueChange={(comment) =>
+                    setQuestionAnswer(q.id, { comment })
                   }
                   placeholder={tRef("commentPlaceholder")}
                   className={INPUT_CLASS}
@@ -1313,10 +1314,10 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
           )}
           <div>
             <label className={LABEL_CLASS}>{tRef("globalComment")}</label>
-            <textarea
+            <ImeSafeTextarea
               rows={3}
               value={article.refinement.globalComment ?? ""}
-              onChange={(e) => updateRefinement({ globalComment: e.target.value })}
+              onValueChange={(globalComment) => updateRefinement({ globalComment })}
               className={INPUT_CLASS}
             />
           </div>

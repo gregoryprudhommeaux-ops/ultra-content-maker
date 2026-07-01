@@ -12,23 +12,19 @@ import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import type { ArticleWritingStyle, PostBrief } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { ContextHelp } from "@/components/ui/context-help";
-import { useTranslations } from "next-intl";
-import { useMemo } from "react";
+import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
+import { useLocale, useTranslations } from "next-intl";
 
 type ParsedTopicBrief = ReturnType<typeof parseArticleTopicFields>;
-
-function parseTopicBrief(brief: PostBrief): ParsedTopicBrief {
-  return parseArticleTopicFields(brief);
-}
 
 function buildTopicBrief(
   fields: ParsedTopicBrief,
   articleWritingStyle?: ArticleWritingStyle,
 ): PostBrief {
   const proofParts: string[] = [];
-  if (fields.example.trim()) proofParts.push(fields.example.trim());
-  if (fields.ctaHint.trim()) {
-    proofParts.push(`${ARTICLE_TOPIC_CTA_PREFIX}${fields.ctaHint.trim()}`);
+  if (fields.example) proofParts.push(fields.example);
+  if (fields.ctaHint) {
+    proofParts.push(`${ARTICLE_TOPIC_CTA_PREFIX}${fields.ctaHint}`);
   }
 
   return normalizePostBrief({
@@ -47,9 +43,11 @@ type Props = {
 
 export function ArticleTopicBriefForm({ brief, onChange }: Props) {
   const t = useTranslations("setup.articles.create.articleTopic");
-  const fields = useMemo(() => parseTopicBrief(brief), [brief]);
-  const writingStyle = resolveArticleWritingStyle(brief);
-  const complete = isArticleTopicBriefComplete(brief);
+  const locale = useLocale();
+  const normalized = normalizePostBrief(brief);
+  const fields = parseArticleTopicFields(normalized);
+  const writingStyle = resolveArticleWritingStyle(normalized);
+  const complete = isArticleTopicBriefComplete(normalized);
 
   function update(patch: Partial<ParsedTopicBrief>) {
     onChange(buildTopicBrief({ ...fields, ...patch }, writingStyle));
@@ -60,7 +58,10 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
   }
 
   return (
-    <section className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4">
+    <section
+      className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4"
+      lang={locale}
+    >
       <div>
         <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
@@ -101,13 +102,14 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
           </label>
           <ContextHelp label={t("topicHelpLabel")}>{t("topicHelp")}</ContextHelp>
         </div>
-        <input
+        <ImeSafeInput
           id="article-topic"
           type="text"
           value={fields.topic}
-          onChange={(e) => update({ topic: e.target.value })}
+          onValueChange={(topic) => update({ topic })}
           placeholder={t("topicPlaceholder")}
           className={`${INPUT_CLASS} mt-1`}
+          lang={locale}
         />
       </div>
 
@@ -118,13 +120,14 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
           </label>
           <ContextHelp label={t("messageHelpLabel")}>{t("messageHelp")}</ContextHelp>
         </div>
-        <textarea
+        <ImeSafeTextarea
           id="article-message"
           rows={4}
           value={fields.message}
-          onChange={(e) => update({ message: e.target.value })}
+          onValueChange={(message) => update({ message })}
           placeholder={t("messagePlaceholder")}
           className={`${INPUT_CLASS} mt-1`}
+          lang={locale}
         />
       </div>
 
@@ -132,13 +135,14 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
         <label className={LABEL_CLASS} htmlFor="article-example">
           {t("exampleLabel")}
         </label>
-        <textarea
+        <ImeSafeTextarea
           id="article-example"
           rows={2}
           value={fields.example}
-          onChange={(e) => update({ example: e.target.value })}
+          onValueChange={(example) => update({ example })}
           placeholder={t("examplePlaceholder")}
           className={`${INPUT_CLASS} mt-1`}
+          lang={locale}
         />
       </div>
 
@@ -146,13 +150,14 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
         <label className={LABEL_CLASS} htmlFor="article-cta">
           {t("ctaLabel")}
         </label>
-        <input
+        <ImeSafeInput
           id="article-cta"
           type="text"
           value={fields.ctaHint}
-          onChange={(e) => update({ ctaHint: e.target.value })}
+          onValueChange={(ctaHint) => update({ ctaHint })}
           placeholder={t("ctaPlaceholder")}
           className={`${INPUT_CLASS} mt-1`}
+          lang={locale}
         />
         <p className="mt-1 text-xs text-ns-secondary">{t("ctaHint")}</p>
       </div>
