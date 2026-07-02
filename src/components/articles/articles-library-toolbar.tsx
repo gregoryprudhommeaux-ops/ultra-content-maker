@@ -43,10 +43,10 @@ function FilterChip({
     <Link
       href={href}
       className={[
-        "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+        "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ns-primary/60 focus-visible:ring-offset-1",
         active
           ? "bg-ns-primary text-black shadow-sm"
-          : "border border-gray-200 bg-white text-ns-secondary hover:border-ns-primary/40 hover:text-ns-tertiary",
+          : "border border-gray-200 bg-white text-ns-secondary hover:border-ns-primary/40 hover:bg-ns-brand-light/60 hover:text-ns-tertiary",
       ].join(" ")}
     >
       {label}
@@ -72,18 +72,27 @@ export function ArticlesLibraryToolbar({
 
   return (
     <section
-      className="space-y-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6"
+      className="space-y-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6"
       aria-label={t("toolbarLabel")}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <label className="block min-w-0 flex-1">
+        <label className="relative block min-w-0 flex-1">
           <span className="sr-only">{t("searchLabel")}</span>
+          <span
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ns-secondary"
+            aria-hidden
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+              <path d="M20 20l-3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </span>
           <ImeSafeInput
             type="search"
             value={filters.query}
             onValueChange={onQueryChange}
             placeholder={t("searchPlaceholder")}
-            className={`${INPUT_CLASS} w-full`}
+            className={`${INPUT_CLASS} w-full pl-10`}
             lang={locale}
           />
         </label>
@@ -98,12 +107,12 @@ export function ArticlesLibraryToolbar({
         )}
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="space-y-2">
+      <div className="grid gap-6 md:grid-cols-2 md:gap-8">
+        <div className="space-y-2.5">
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-ns-primary">
             {t("statusLabel")}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" role="group" aria-label={t("statusLabel")}>
             {STATUS_OPTIONS.map((status) => (
               <FilterChip
                 key={status}
@@ -115,7 +124,7 @@ export function ArticlesLibraryToolbar({
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <div className="flex items-center gap-2">
             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-ns-primary">
               {t("scopeLabel")}
@@ -124,7 +133,7 @@ export function ArticlesLibraryToolbar({
               {tHelp("scopeFilter.body")}
             </ContextHelp>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" role="group" aria-label={t("scopeLabel")}>
             {SCOPE_OPTIONS.map((scope) => (
               <FilterChip
                 key={scope}
@@ -137,7 +146,7 @@ export function ArticlesLibraryToolbar({
         </div>
       </div>
 
-      <p className="border-t border-gray-100 pt-4 text-sm font-medium text-ns-secondary">
+      <p className="border-t border-gray-100 pt-4 text-sm font-medium tabular-nums text-ns-secondary">
         {t("resultsCount", { visible: visibleCount, total: totalCount })}
       </p>
     </section>

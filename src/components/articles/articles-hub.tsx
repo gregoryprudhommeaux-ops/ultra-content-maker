@@ -164,7 +164,15 @@ export function ArticlesHub() {
 
       {hasFilterResults && (
         <>
-          <p className="text-xs text-ns-secondary">{t("library.batchCollapseHint")}</p>
+          <p className="flex items-start gap-2 rounded-xl border border-gray-100 bg-ns-brand-light/40 px-4 py-3 text-xs leading-relaxed text-ns-secondary">
+            <span className="mt-0.5 shrink-0 text-ns-primary" aria-hidden>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                <path d="M12 10v5M12 7h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </span>
+            {t("library.batchCollapseHint")}
+          </p>
           <ArticlesLibraryBatches
           batches={visibleBatches}
           locale={locale}
