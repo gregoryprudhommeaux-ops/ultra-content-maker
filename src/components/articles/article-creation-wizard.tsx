@@ -448,7 +448,8 @@ export function ArticleCreationWizard() {
         setErrorInfo(null);
         setNewsErrorCode(null);
         if (data.news?.length) {
-          await upsertNewsArchiveBatch(user.uid, data.news);
+          const scanBatchKey = new Date().toISOString();
+          await upsertNewsArchiveBatch(user.uid, data.news, scanBatchKey);
         }
       } catch {
         setNewsErrorCode("llm_request_failed");

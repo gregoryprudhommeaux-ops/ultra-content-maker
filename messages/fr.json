@@ -2304,8 +2304,10 @@
     "news": {
       "title": "News précédentes",
       "subtitle": "Actualités archivées depuis la page Posts, consultez le détail ou régénérez 2 posts (brief défini sur la page Posts).",
-      "subtitleArchive": "Les 10 actus les plus récentes déjà scannées. Sélectionnez-en une pour créer un post, ou lancez un nouveau scan.",
-      "archiveLimitNote": "Affichage limité aux 10 dernières actus archivées (par date de scan).",
+      "subtitleArchive": "Vos 10 dernières recherches d’actualités. La plus récente est ouverte : sélectionnez une actu pour créer un post.",
+      "archiveLimitNote": "Les recherches plus anciennes sont repliées. Cliquez sur le chevron pour les rouvrir.",
+      "scanGroupTitle": "Recherche du {dateTime}",
+      "scanGroupCount": "{count, plural, one {# actu} other {# actus}}",
       "backToWizard": "Retour à la création depuis l’actualité",
       "scanFreshNews": "Scanner 4 actus récentes",
       "selectedBadge": "Actu sélectionnée",

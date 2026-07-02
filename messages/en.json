@@ -2303,8 +2303,10 @@
     "news": {
       "title": "Previous news",
       "subtitle": "Stories archived from your posts page : browse details or regenerate 2 posts (brief is set on the posts page).",
-      "subtitleArchive": "The 10 most recently scanned stories. Select one to create a post, or run a fresh scan.",
-      "archiveLimitNote": "Showing the 10 latest archived stories (by scan date).",
+      "subtitleArchive": "Your 10 latest news searches. The most recent one stays open: pick a story to create a post.",
+      "archiveLimitNote": "Older searches are collapsed. Use the chevron to expand them.",
+      "scanGroupTitle": "Search on {dateTime}",
+      "scanGroupCount": "{count, plural, one {# story} other {# stories}}",
       "backToWizard": "Back to news creation",
       "scanFreshNews": "Scan 4 recent stories",
       "selectedBadge": "Story selected",

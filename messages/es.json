@@ -2303,8 +2303,10 @@
     "news": {
       "title": "Noticias anteriores",
       "subtitle": "Noticias archivadas desde la página de posts, consulta el detalle o regenera 2 posts (brief en la página de posts).",
-      "subtitleArchive": "Las 10 noticias escaneadas más recientes. Elige una para crear un post o lanza un nuevo escaneo.",
-      "archiveLimitNote": "Solo se muestran las 10 últimas noticias archivadas (por fecha de escaneo).",
+      "subtitleArchive": "Tus 10 últimas búsquedas de noticias. La más reciente queda abierta: elige una noticia para crear un post.",
+      "archiveLimitNote": "Las búsquedas anteriores están plegadas. Usa el chevron para desplegarlas.",
+      "scanGroupTitle": "Búsqueda del {dateTime}",
+      "scanGroupCount": "{count, plural, one {# noticia} other {# noticias}}",
       "backToWizard": "Volver a creación desde noticias",
       "scanFreshNews": "Escanear 4 noticias recientes",
       "selectedBadge": "Noticia seleccionada",

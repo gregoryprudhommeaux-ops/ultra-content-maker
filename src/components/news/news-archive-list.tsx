@@ -1,6 +1,6 @@
 "use client";
 
-import { NewsCard, formatNewsDate } from "@/components/news/news-card";
+import { formatNewsDate } from "@/components/news/news-card";
 import { NewsDetailModal } from "@/components/news/news-detail-modal";
 import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
@@ -9,14 +9,15 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import {
-  ARCHIVED_NEWS_DISPLAY_LIMIT,
-  listArchivedNews,
+  groupArchivedNewsByScan,
+  listArchivedNewsForScans,
   type ArchivedNewsDoc,
 } from "@/lib/workspace/news-archive";
+import { NewsArchiveScans } from "@/components/news/news-archive-scans";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { ContentLanguage } from "@/types/workspace";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function NewsArchiveList() {
   const t = useTranslations("setup.news");
@@ -32,9 +33,11 @@ export function NewsArchiveList() {
   const [detailItem, setDetailItem] = useState<ArchivedNewsDoc | null>(null);
   const [loaded, setLoaded] = useState(false);
 
+  const scans = useMemo(() => groupArchivedNewsByScan(archived), [archived]);
+
   const reload = useCallback(async () => {
     if (!user) return;
-    const items = await listArchivedNews(user.uid, ARCHIVED_NEWS_DISPLAY_LIMIT);
+    const items = await listArchivedNewsForScans(user.uid);
     setArchived(items);
     setLoaded(true);
   }, [user]);
@@ -91,20 +94,14 @@ export function NewsArchiveList() {
         </div>
       )}
 
-      {archived.length > 0 && (
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {archived.map((item) => (
-            <li key={item.id}>
-              <NewsCard
-                item={item}
-                selected={selected?.id === item.id}
-                showSelectLabel
-                onClick={() => setSelected(item)}
-                onRead={() => setDetailItem(item)}
-              />
-            </li>
-          ))}
-        </ul>
+      {scans.length > 0 && (
+        <NewsArchiveScans
+          scans={scans}
+          locale={locale}
+          selectedId={selected?.id ?? null}
+          onSelect={setSelected}
+          onRead={setDetailItem}
+        />
       )}
 
       {selected && (
