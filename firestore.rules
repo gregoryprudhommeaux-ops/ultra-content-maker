@@ -12,20 +12,30 @@ service cloud.firestore {
         && userDoc().linkedWorkspace.accountId == accountId;
     }
 
+    function isAgencyManagerOf(clientUserId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(clientUserId))
+        && get(/databases/$(database)/documents/users/$(clientUserId)).data.managedBy != null
+        && get(/databases/$(database)/documents/users/$(clientUserId)).data.managedBy.adminUid == request.auth.uid;
+    }
+
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && (
+        request.auth.uid == userId || isAgencyManagerOf(userId)
+      );
+      allow write: if request.auth != null && request.auth.uid == userId;
 
       match /accounts/{accountId} {
         allow read: if request.auth != null && (
-          request.auth.uid == userId || isLinkedToAccount(userId, accountId)
+          request.auth.uid == userId || isLinkedToAccount(userId, accountId) || isAgencyManagerOf(userId)
         );
         allow write: if request.auth != null && (
-          request.auth.uid == userId || isLinkedToAccount(userId, accountId)
+          request.auth.uid == userId || isLinkedToAccount(userId, accountId) || isAgencyManagerOf(userId)
         );
 
         match /{document=**} {
           allow read, write: if request.auth != null && (
-            request.auth.uid == userId || isLinkedToAccount(userId, accountId)
+            request.auth.uid == userId || isLinkedToAccount(userId, accountId) || isAgencyManagerOf(userId)
           );
         }
       }

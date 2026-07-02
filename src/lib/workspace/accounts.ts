@@ -23,6 +23,12 @@ import {
   workspaceDocRef,
   type WorkspaceScope,
 } from "./workspace-scope";
+import {
+  managedAccountId,
+  parseManagedAccountId,
+} from "./managed-clients";
+import type { ManagedClientEntry } from "@/types/workspace";
+import { formatDisplayNameFromEmail } from "./display-name";
 
 export type WorkspaceAccount = {
   id: string;
@@ -30,6 +36,10 @@ export type WorkspaceAccount = {
   contentLanguage: ContentLanguage;
   setupStep: SetupStep;
   isDefault?: boolean;
+  /** Client-owned workspace surfaced in admin switcher. */
+  isManaged?: boolean;
+  managedClientUid?: string;
+  managedClientEmail?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -90,9 +100,43 @@ export async function getWorkspaceAccount(
   ownerId: string,
   accountId: string,
 ): Promise<WorkspaceAccount | null> {
+  const parsed = parseManagedAccountId(accountId);
+  if (parsed) {
+    return getWorkspaceAccount(parsed.clientUid, parsed.accountId);
+  }
   const snap = await getDoc(accountRef(ownerId, accountId));
   if (!snap.exists()) return null;
   return mapAccount(snap.id, snap.data());
+}
+
+async function loadManagedClientAccounts(
+  adminUid: string,
+  entries: ManagedClientEntry[],
+): Promise<WorkspaceAccount[]> {
+  const results = await Promise.all(
+    entries.map(async (entry) => {
+      const clientAccountId = entry.accountId || DEFAULT_ACCOUNT_ID;
+      const snap = await getDoc(accountRef(entry.clientUid, clientAccountId));
+      const accountData = snap.exists() ? snap.data() : null;
+      const name =
+        entry.displayName?.trim() ||
+        (accountData?.name ? String(accountData.name) : null) ||
+        entry.email.split("@")[0] ||
+        "Client";
+      return {
+        id: managedAccountId(entry.clientUid, clientAccountId),
+        name,
+        contentLanguage: (accountData?.contentLanguage as ContentLanguage) ?? "fr",
+        setupStep: (accountData?.setupStep as SetupStep) ?? "llm",
+        isManaged: true,
+        managedClientUid: entry.clientUid,
+        managedClientEmail: entry.email,
+        createdAt: accountData ? toDate(accountData.createdAt) : new Date(),
+        updatedAt: accountData ? toDate(accountData.updatedAt) : new Date(),
+      } satisfies WorkspaceAccount;
+    }),
+  );
+  return results.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 }
 
 export async function createWorkspaceAccount(
@@ -159,6 +203,7 @@ const MIGRATION_MULTI_COLLECTIONS = [
   "personaHistory",
   "ctas",
   "newsArchive",
+  "bioDocuments",
 ] as const;
 
 const MIGRATION_SINGLETON_DOCS: ReadonlyArray<[string, string]> = [
@@ -276,10 +321,14 @@ export async function bootstrapWorkspaceAccounts(
     /* fall through to owner bootstrap */
   }
 
-  const defaultName =
-    displayName?.trim() ||
-    email.split("@")[0]?.replace(/\./g, " ") ||
-    "Mon compte";
+  const defaultName = isPlatformAdmin
+    ? formatDisplayNameFromEmail(email) ||
+      displayName?.trim() ||
+      email.split("@")[0]?.replace(/\./g, " ") ||
+      "Mon compte"
+    : displayName?.trim() ||
+      email.split("@")[0]?.replace(/\./g, " ") ||
+      "Mon compte";
 
   try {
     await ensureDefaultAccount(ownerId, defaultName);
@@ -302,6 +351,20 @@ export async function bootstrapWorkspaceAccounts(
     accounts = await listWorkspaceAccounts(ownerId);
   } catch {
     accounts = [];
+  }
+
+  if (isPlatformAdmin) {
+    accounts = accounts.filter((account) => account.isDefault || account.id === DEFAULT_ACCOUNT_ID);
+    try {
+      const userDoc = await getUserDoc(ownerId);
+      const managedEntries = userDoc?.managedClients ?? [];
+      if (managedEntries.length > 0) {
+        const managedAccounts = await loadManagedClientAccounts(ownerId, managedEntries);
+        accounts = [...managedAccounts, ...accounts];
+      }
+    } catch {
+      /* managed clients optional */
+    }
   }
 
   if (accounts.length === 0) {
@@ -351,6 +414,20 @@ export async function switchWorkspaceAccount(
   ownerId: string,
   accountId: string,
 ): Promise<WorkspaceScope> {
+  const parsed = parseManagedAccountId(accountId);
+  if (parsed) {
+    const account = await getWorkspaceAccount(parsed.clientUid, parsed.accountId);
+    if (!account) throw new Error("Workspace account not found");
+    const scope: WorkspaceScope = {
+      ownerId: parsed.clientUid,
+      accountId: parsed.accountId,
+    };
+    setActiveWorkspaceScope(scope);
+    storeActiveAccountId(ownerId, accountId);
+    await setUserActiveAccountId(ownerId, accountId);
+    return scope;
+  }
+
   const account = await getWorkspaceAccount(ownerId, accountId);
   if (!account) throw new Error("Workspace account not found");
   const scope: WorkspaceScope = { ownerId, accountId };

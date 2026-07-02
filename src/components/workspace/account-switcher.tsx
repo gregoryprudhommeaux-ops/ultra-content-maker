@@ -2,6 +2,8 @@
 
 import { CopyAccountInviteLink } from "@/components/workspace/copy-account-invite-link";
 import { DeleteClientAccountButton } from "@/components/workspace/delete-client-account-button";
+import { AddManagedClientForm } from "@/components/workspace/add-managed-client-form";
+import { UnlinkManagedClientButton } from "@/components/workspace/unlink-managed-client-button";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
@@ -190,8 +192,10 @@ export function AccountSwitcher() {
         </button>
       )}
 
-      <CopyAccountInviteLink />
-      <DeleteClientAccountButton />
+      {!activeAccount?.isManaged ? <CopyAccountInviteLink /> : null}
+      {!activeAccount?.isManaged ? <DeleteClientAccountButton /> : null}
+      <UnlinkManagedClientButton />
+      {canManageAccounts ? <AddManagedClientForm onLinked={() => setOpen(false)} /> : null}
 
       {open && (
         <div
@@ -215,7 +219,9 @@ export function AccountSwitcher() {
             >
               <span className="font-medium">{account.name}</span>
               <span className={`${META_LABEL} text-white/45`}>
-                {t(`language.${account.contentLanguage}`)}
+                {account.isManaged
+                  ? t("managedClientBadge", { email: account.managedClientEmail ?? "" })
+                  : t(`language.${account.contentLanguage}`)}
               </span>
             </button>
           ))}

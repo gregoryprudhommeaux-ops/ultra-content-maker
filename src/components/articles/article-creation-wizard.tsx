@@ -1,6 +1,9 @@
 "use client";
 
+import { CreatorRadarBlock } from "@/components/articles/creation/creator-radar-block";
+import { ContentNichePanel } from "@/components/articles/creation/content-niche-panel";
 import { BriefReminderBanner } from "@/components/articles/creation/brief-reminder-banner";
+import { deriveContentNiche } from "@/lib/articles/content-niche";
 import { SetupReadyBanner } from "@/components/articles/creation/setup-ready-banner";
 import {
   WizardProgress,
@@ -28,6 +31,7 @@ import { PostBriefForm } from "@/components/articles/post-brief-form";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSubscription } from "@/contexts/subscription-context";
 import {
   notifyOnboardingProgressChangedDeferred,
   useOnboardingProgress,
@@ -60,7 +64,7 @@ import {
   saveDefaultEmojiLevel,
 } from "@/lib/workspace/learning-profile";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
-import { llmPayloadFromProfile } from "@/lib/llm/client-payload";
+import { llmPayloadForTier } from "@/lib/llm/client-payload";
 import { getPersona } from "@/lib/workspace/persona";
 import {
   createArticleBatch,
@@ -71,12 +75,16 @@ import {
   getArchivedNews,
   upsertNewsArchiveBatch,
 } from "@/lib/workspace/news-archive";
+import { consumeRadarInspire } from "@/lib/creator-radar/radar-inspire-session";
 import { getClientAuth } from "@/lib/firebase/client";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import type { CreatorRadarSuggestion } from "@/types/creator-radar";
 import type {
   ArticleDoc,
   ArticleScope,
+  AudienceProfile,
+  AuthorProfile,
   BriefNicheCheck,
   ContentLanguage,
   CreationStrategyTheme,
@@ -103,6 +111,17 @@ type Step =
   | "generating"
   | "draft-done";
 
+function isInspirationFlowStep(mode: CreationMode | null, step: Step): boolean {
+  if (mode !== "inspiration") return false;
+  return (
+    step === "inspiration-input" ||
+    step === "paste" ||
+    step === "inspiration-url" ||
+    step === "inspiration-library" ||
+    step === "brief"
+  );
+}
+
 export function ArticleCreationWizard() {
   const t = useTranslations("setup.articles.create");
   const tArticles = useTranslations("setup.articles");
@@ -111,6 +130,7 @@ export function ArticleCreationWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
+  const { access } = useSubscription();
   const { status: onboardingStatus } = useOnboardingProgress();
   const [showSetupReadyBanner, setShowSetupReadyBanner] = useState(false);
   const [showBriefReminder, setShowBriefReminder] = useState(false);
@@ -148,7 +168,11 @@ export function ArticleCreationWizard() {
     null,
   );
   const [inspirationLibrary, setInspirationLibrary] = useState<SourceLink[]>([]);
-  const [targetScope, setTargetScope] = useState<ArticleScope>("generalist");
+  const [targetScope, setTargetScope] = useState<ArticleScope>("niche");
+  const [authorProfile, setAuthorProfile] = useState<AuthorProfile | null>(null);
+  const [audienceProfile, setAudienceProfile] = useState<AudienceProfile | null>(null);
+  const [contentNiche, setContentNiche] = useState("");
+  const [nicheSaving, setNicheSaving] = useState(false);
   const [postBrief, setPostBrief] = useState<PostBrief>({ ...DEFAULT_POST_BRIEF });
   const [briefSuggesting, setBriefSuggesting] = useState(false);
   const briefSuggestedRef = useRef(false);
@@ -160,6 +184,29 @@ export function ArticleCreationWizard() {
   const [draftRevision, setDraftRevision] = useState(0);
   const [nicheCheck, setNicheCheck] = useState<BriefNicheCheck | null>(null);
   const [nicheLoading, setNicheLoading] = useState(false);
+
+  const suggestedNiche = useMemo(
+    () => deriveContentNiche(audienceProfile, authorProfile, personaText),
+    [audienceProfile, authorProfile, personaText],
+  );
+
+  const saveContentNiche = useCallback(async () => {
+    if (!user) return;
+    const trimmed = contentNiche.trim();
+    const saved = audienceProfile?.contentNiche?.trim() ?? "";
+    if (trimmed === saved) return;
+    setNicheSaving(true);
+    try {
+      await saveAudienceProfile(user.uid, { contentNiche: trimmed || undefined });
+      setAudienceProfile((prev) =>
+        prev
+          ? { ...prev, contentNiche: trimmed || undefined, updatedAt: new Date() }
+          : { contentNiche: trimmed || undefined, updatedAt: new Date() },
+      );
+    } finally {
+      setNicheSaving(false);
+    }
+  }, [user, contentNiche, audienceProfile?.contentNiche]);
 
   const heuristicNiche = useMemo(
     () => heuristicBriefNicheCheck(postBrief),
@@ -194,13 +241,20 @@ export function ArticleCreationWizard() {
   useEffect(() => {
     if (!user) return;
     void (async () => {
-      const [persona, learning, audience] = await Promise.all([
+      const [persona, learning, audience, author] = await Promise.all([
         getPersona(user.uid),
         getLearningProfile(user.uid),
         getAudienceProfile(user.uid),
+        getAuthorProfile(user.uid),
       ]);
       setPersonaText(persona?.promptText ?? "");
       setEmojiLevel(learning?.emojiLevel ?? "light");
+      setAuthorProfile(author);
+      setAudienceProfile(audience);
+      setContentNiche(
+        audience?.contentNiche?.trim() ||
+          deriveContentNiche(audience, author, persona?.promptText ?? ""),
+      );
       setNewsInterestQuery(
         audience?.newsInterestQuery?.trim() ||
           audience?.contentFocus?.trim() ||
@@ -295,7 +349,7 @@ export function ArticleCreationWizard() {
           personaPromptText: personaText,
           authorSteering,
           useLlm: true,
-          llm: llmPayloadFromProfile(llmProfile),
+          llm: llmPayloadForTier(llmProfile, access?.effectiveTier),
         }),
       });
       const data = await res.json();
@@ -372,7 +426,7 @@ export function ArticleCreationWizard() {
             personaExcerpt: personaText,
             contentLanguage: author?.contentLanguage ?? locale,
             authorSteering,
-            llm: llmPayloadFromProfile(llmProfile),
+            llm: llmPayloadForTier(llmProfile, access?.effectiveTier),
           }),
         });
         const data = await res.json();
@@ -408,7 +462,7 @@ export function ArticleCreationWizard() {
         setNewsLoading(false);
       }
     },
-    [user, personaText, locale, newsInterestQuery, tArticles, tNews, mapNewsLoadError],
+    [user, personaText, locale, newsInterestQuery, tArticles, tNews, mapNewsLoadError, formatError],
   );
 
   const suggestBrief = useCallback(async () => {
@@ -457,7 +511,7 @@ export function ArticleCreationWizard() {
               ? (toArticleInspirationSource(inspirationCtx, selectedLibrarySource) ??
                 undefined)
               : undefined,
-          llm: llmPayloadFromProfile(llmProfile),
+          llm: llmPayloadForTier(llmProfile, access?.effectiveTier),
         }),
       });
       const data = await res.json();
@@ -535,13 +589,21 @@ export function ArticleCreationWizard() {
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       if (!token) throw new Error("no token");
 
-      const [author, llmProfile, authorSteering] = await Promise.all([
+      const [author, llmProfile, authorSteeringBase] = await Promise.all([
         getAuthorProfile(user.uid),
         getUserLlmProfile(user.uid),
         gatherAuthorSteeringPayload(user.uid, {
           newsInterestQuery: newsInterestQuery.trim() || undefined,
         }),
       ]);
+
+      const authorSteering = {
+        ...authorSteeringBase,
+        audience: {
+          ...authorSteeringBase?.audience,
+          contentNiche: contentNiche.trim() || authorSteeringBase?.audience?.contentNiche,
+        },
+      };
 
       const contentLang = author?.contentLanguage ?? locale;
       const newsSource =
@@ -573,14 +635,14 @@ export function ArticleCreationWizard() {
               mode === "inspiration" && inspirationCtx
                 ? toArticleInspirationSource(inspirationCtx, selectedLibrarySource)
                 : undefined,
-            targetScope: mode === "inspiration" ? targetScope : undefined,
+            targetScope,
             ...(mode === "article"
               ? {
                   creationMode: "article" as const,
                   articleWritingStyle: briefForGeneration().articleWritingStyle,
                 }
               : {}),
-            llm: llmPayloadFromProfile(llmProfile),
+            llm: llmPayloadForTier(llmProfile, access?.effectiveTier),
           }),
         });
       } finally {
@@ -623,7 +685,7 @@ export function ArticleCreationWizard() {
       }
 
       const draftPayload =
-        mode === "inspiration" ? { ...item, scope: targetScope } : item;
+        { ...item, scope: targetScope };
 
       if (replaceArticleId) {
         await replaceArticleDraft(
@@ -687,6 +749,33 @@ export function ArticleCreationWizard() {
     ]);
     setInspirationLibrary([...posts, ...profiles]);
   }, [user]);
+
+  const applyRadarInspire = useCallback((creator: CreatorRadarSuggestion) => {
+    const excerpt = [
+      `Creator: ${creator.name}`,
+      `Headline: ${creator.headline}`,
+      `Recent angle (paraphrase, do not copy): ${creator.lastPostAngle}`,
+      `Why relevant to my niche: ${creator.whyRelevant}`,
+    ].join("\n");
+
+    setMode("inspiration");
+    setErrorInfo(null);
+    briefSuggestedRef.current = false;
+    setPostBrief(
+      normalizePostBrief({
+        ...DEFAULT_POST_BRIEF,
+        problem: creator.lastPostAngle.slice(0, 280),
+        pointOfView: creator.whyRelevant.slice(0, 400),
+      }),
+    );
+    setInspirationCtx({
+      kind: "url",
+      url: creator.linkedinUrl,
+      label: creator.name,
+      excerpt,
+    });
+    setStep(excerpt.trim().length >= 40 ? "brief" : "inspiration-url");
+  }, []);
 
   function pickMode(next: CreationMode, briefSeed?: Partial<PostBrief>) {
     setMode(next);
@@ -833,6 +922,13 @@ export function ArticleCreationWizard() {
       return;
     }
 
+    const radarCreator = consumeRadarInspire();
+    if (radarCreator) {
+      initialModeFromUrl.current = true;
+      applyRadarInspire(radarCreator);
+      return;
+    }
+
     const modeParam = searchParams.get("mode");
     const newsId = searchParams.get("newsId")?.trim();
 
@@ -952,11 +1048,13 @@ export function ArticleCreationWizard() {
       )}
 
       {step === "mode" && (
-        <CreationModePicker
-          personaText={personaText}
-          onSelect={pickMode}
-          onApplyTheme={applyStrategyTheme}
-        />
+        <div className="space-y-4">
+          <CreationModePicker
+            personaText={personaText}
+            onSelect={pickMode}
+            onApplyTheme={applyStrategyTheme}
+          />
+        </div>
       )}
 
       {step === "news" && (
@@ -993,6 +1091,16 @@ export function ArticleCreationWizard() {
             {t("continueWithNews")}
           </button>
         </div>
+      )}
+
+      {isInspirationFlowStep(mode, step) && (
+        <CreatorRadarBlock
+          enabled={!!personaText.trim()}
+          personaText={personaText}
+          newsInterestQuery={newsInterestQuery}
+          onInspire={applyRadarInspire}
+          onKeepSuccess={() => void loadInspirationLibrary()}
+        />
       )}
 
       {step === "inspiration-input" && (
@@ -1081,6 +1189,15 @@ export function ArticleCreationWizard() {
 
       {step === "brief" && mode && (
         <div className="space-y-4">
+          <ContentNichePanel
+            contentNiche={contentNiche}
+            suggestedNiche={suggestedNiche}
+            onContentNicheChange={setContentNiche}
+            onBlurSave={() => void saveContentNiche()}
+            saving={nicheSaving}
+            targetScope={targetScope}
+            onScopeChange={setTargetScope}
+          />
           {mode === "news" && selectedNews && (
             <div className="rounded-lg border border-sky-200/80 bg-sky-50/80 px-4 py-3 text-sm">
               <p className="text-xs font-medium text-ns-secondary">{t("selectedNewsLabel")}</p>
@@ -1119,9 +1236,6 @@ export function ArticleCreationWizard() {
               brief={postBrief}
               onChange={setPostBrief}
               wizardMode={mode}
-              showScope={mode === "inspiration"}
-              targetScope={targetScope}
-              onScopeChange={setTargetScope}
               briefSuggesting={briefSuggesting}
               nicheCheck={nicheCheck}
               onAnalyzeNiche={onAnalyzeNiche}

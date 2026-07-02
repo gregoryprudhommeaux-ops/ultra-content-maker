@@ -1,0 +1,740 @@
+{
+  "fr": {
+    "landing": {
+      "product": {
+        "caption": "Brief → 4 brouillons → affûtage. Trois étapes, un seul flux."
+      },
+      "howItWorks": {
+        "steps": {
+          "voice": {
+            "title": "Votre voix",
+            "description": "Quelques liens pour démarrer. L'agent résume qui vous êtes : modifiable à tout moment."
+          }
+        }
+      }
+    },
+    "pricing": {
+      "brand": "ULTRA CONTENT MAKER",
+      "eyebrow": "Tarifs",
+      "title": "Choisissez votre rythme de publication",
+      "subtitle": "Essai gratuit, puis Pro ou Pro+ selon votre autonomie. IA plateforme incluse sur l'essai et Pro+.",
+      "wireHint": "Paiement par carte ou virement, activation sous 24 h après confirmation.",
+      "perMonth": "/ mois",
+      "popular": "Le plus choisi",
+      "compareHint": "Pro = votre clé API (OpenAI, Perplexity…). Pro+ et Essai = IA plateforme incluse.",
+      "usdNote": "Montants en USD. Facturation mensuelle.",
+      "hideFeatures": "Réduire",
+      "showAllFeatures": "Voir tout",
+      "trial": {
+        "name": "Essai",
+        "description": "{days} jours · {posts} posts à publier",
+        "f1": "Persona et Topic DNA",
+        "f2": "Brief et génération guidés",
+        "f3": "4 brouillons exploratoires",
+        "f4": "Scores qualité LinkedIn",
+        "f5": "IA plateforme incluse",
+        "f6": "Sans carte bancaire",
+        "cta": "Démarrer gratuitement"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "{posts} posts / mois · votre clé API",
+        "f1": "Tout l'essai, sans limite de durée",
+        "f2": "Votre clé OpenAI ou Perplexity",
+        "f3": "Regénération et affûtage",
+        "f4": "Actu et inspirations",
+        "f5": "Export LinkedIn et qualité",
+        "f6": "Bibliothèque illimitée",
+        "cta": "Choisir Pro"
+      },
+      "proPlus": {
+        "name": "Pro+",
+        "description": "{posts} posts / mois · IA plateforme incluse",
+        "f1": "Tout Pro sans gérer de clé API",
+        "f2": "IA plateforme incluse",
+        "f3": "Persona avancé et stratégie",
+        "f4": "Actu premium et archives",
+        "f5": "Support prioritaire",
+        "f6": "Idéal pour démarrer vite",
+        "cta": "Choisir Pro+"
+      },
+      "support": {
+        "title": "Production gérée",
+        "titleMode": "Mode Support Total",
+        "subtitle": "Nous rédigeons et affinez avec vous, pour fondateurs et dirigeants qui veulent déléguer la ligne éditoriale.",
+        "cta": "Demander un devis",
+        "quoteHint": "Réponse sous 48 h · devis personnalisé selon votre rythme et votre secteur.",
+        "starter": {
+          "name": "Starter",
+          "description": "{posts} posts / mois · engagement {months} mois min.",
+          "f1": "Brief et validation avec vous",
+          "f2": "Posts LinkedIn prêts à publier",
+          "f3": "Reprises et ajustements inclus"
+        },
+        "regular": {
+          "name": "Regular",
+          "description": "1 post / semaine · engagement {months} mois min.",
+          "f1": "Ligne éditoriale continue",
+          "f2": "Veille et propositions de sujets",
+          "f3": "Point mensuel de calibration"
+        },
+        "quoteForm": {
+          "dialogTitle": "Demande de devis. Production gérée",
+          "dialogSubtitle": "Décrivez votre besoin : nous revenons vers vous sous 48 h.",
+          "plan": "Formule",
+          "planStarter": "Starter",
+          "planRegular": "Regular",
+          "planUnspecified": "À définir ensemble",
+          "fullName": "Nom complet",
+          "company": "Entreprise",
+          "position": "Fonction",
+          "activityNeed": "Votre besoin éditorial",
+          "activityNeedPlaceholder": "Fréquence souhaitée, secteur, objectifs LinkedIn…",
+          "email": "E-mail",
+          "whatsapp": "WhatsApp (optionnel)",
+          "whatsappPlaceholder": "+33…",
+          "submit": "Envoyer la demande",
+          "pending": "Envoi…",
+          "close": "Fermer",
+          "success": "Demande envoyée, nous vous recontactons rapidement.",
+          "errors": {
+            "notConfigured": "Service indisponible. Contactez le support.",
+            "generic": "Envoi impossible. Réessayez ou écrivez-nous directement."
+          }
+        }
+      },
+      "billing": {
+        "authRequired": "Connectez-vous pour continuer.",
+        "notConfigured": "Paiement en ligne indisponible pour l'instant.",
+        "failed": "Paiement échoué. Réessayez.",
+        "noCustomer": "Aucun abonnement actif trouvé.",
+        "portalFailed": "Impossible d'ouvrir le portail de facturation."
+      }
+    },
+    "subscription": {
+      "banner": {
+        "trialShort": "Essai · il vous reste {posts} post(s) à publier",
+        "upgradeCta": "Voir les offres",
+        "proLow": "Pro · {remaining} post(s) restant(s) ce mois-ci",
+        "proPlusLow": "Pro+ · {remaining} post(s) restant(s) ce mois-ci",
+        "addKey": "Ajouter votre clé API"
+      },
+      "expired": {
+        "title": "Votre essai est terminé",
+        "body": "Passez à Pro ou Pro+ pour continuer à créer et accéder à votre bibliothèque.",
+        "reassurance": "Choisissez une offre pour retrouver l'accès à vos contenus.",
+        "upgrade": "Mettre à niveau",
+        "pricing": "Voir les tarifs"
+      },
+      "upgrade": {
+        "title": "Mettre à niveau",
+        "subtitle": "Pro avec votre clé API, ou Pro+ avec l'IA plateforme incluse.",
+        "trialContext": "Essai : {days} jours · {posts} posts inclus",
+        "activateTitle": "Activer votre offre",
+        "activateBody": "Carte bancaire ou virement : votre espace se débloque dès confirmation.",
+        "couponSection": "Code promo",
+        "proBlurb": "Vous gérez votre clé API, contrôle total des coûts IA.",
+        "proPlusBlurb": "IA plateforme incluse · {posts} posts / mois sans configurer de clé.",
+        "viewPricing": "Comparer les offres"
+      },
+      "wire": {
+        "loginRequired": "Connectez-vous pour demander un virement.",
+        "loading": "Chargement…",
+        "perMonth": "/ mois",
+        "intro": "Virement de {amount} USD, activation après réception.",
+        "getBankDetails": "Obtenir les coordonnées bancaires",
+        "pending": "Demande en cours…",
+        "requestCreated": "Demande enregistrée.",
+        "approved": "Virement approuvé : votre offre est active.",
+        "rejected": "Demande refusée. Contactez le support.",
+        "bankTitle": "Coordonnées bancaires",
+        "holder": "Titulaire",
+        "bank": "Banque",
+        "amount": "Montant",
+        "payIn": "Devise : {currency}",
+        "reference": "Référence à indiquer",
+        "bankNotConfigured": "Coordonnées non configurées, contactez le support.",
+        "referenceHint": "Indiquez cette référence dans le libellé du virement.",
+        "awaitingActivation": "En attente de réception du virement.",
+        "notePlaceholder": "Note optionnelle (facturation, société…)",
+        "confirmWire": "J'ai effectué le virement",
+        "wireSent": "Merci. nous activons votre compte dès réception.",
+        "errors": {
+          "generic": "Action impossible. Réessayez."
+        }
+      },
+      "coupon": {
+        "placeholder": "Code promo",
+        "submit": "Activer",
+        "pending": "Vérification…",
+        "success": "Offre {tier} activée.",
+        "errors": {
+          "generic": "Code invalide ou expiré.",
+          "invalid": "Code invalide.",
+          "unauthorized": "Non autorisé.",
+          "invalid_body": "Requête invalide.",
+          "missing_code": "Saisissez un code."
+        }
+      },
+      "quiz": {
+        "title": "Quelle offre vous correspond ?",
+        "subtitle": "Deux questions pour orienter votre choix.",
+        "optSimpleTitle": "Je veux aller vite",
+        "optSimple": "IA incluse, sans configurer de clé API.",
+        "optOwnKeyTitle": "J'ai déjà une clé API",
+        "optOwnKey": "OpenAI ou Perplexity : je garde le contrôle des coûts.",
+        "optSupportLead": "Je préfère déléguer",
+        "optSupport": "Production gérée par l'équipe NS Suite.",
+        "resultLabel": "Recommandation",
+        "resultProTitle": "Pro vous convient",
+        "resultProPlusTitle": "Pro+ vous convient",
+        "resultProBody": "Votre clé API, regénération et actu, le meilleur rapport qualité/prix si vous êtes à l'aise avec OpenAI ou Perplexity.",
+        "resultProPlusBody": "IA plateforme incluse : démarrez sans friction technique.",
+        "continue": "Continuer vers l'activation",
+        "compare": "Comparer toutes les offres"
+      },
+      "support": {
+        "title": "Production gérée",
+        "titleMode": "Mode Support Total",
+        "subtitle": "Brief, rédaction et validation, nous tenons votre calendrier éditorial.",
+        "body": "Pour les dirigeants qui veulent une présence LinkedIn régulière sans y consacrer leurs soirées.",
+        "starterLabel": "Starter",
+        "perMonth": "/ mois",
+        "starterDetail": "{posts} posts / mois",
+        "regularLabel": "Regular",
+        "regularDetail": "1 post / semaine",
+        "responseHint": "Réponse sous 48 h ouvrées.",
+        "formTitle": "Parlons de votre besoin",
+        "formSubtitle": "Décrivez votre contexte, nous adaptons la formule."
+      }
+    },
+    "setup": {
+      "llm": {
+        "trialIncluded": {
+          "body": "Votre essai inclut l'IA plateforme, aucune clé à configurer pour démarrer.",
+          "cta": "Continuer vers le démarrage express →"
+        },
+        "platformIncluded": {
+          "body": "Votre offre inclut l'IA plateforme : vous pouvez ajouter votre propre clé plus tard dans les réglages.",
+          "cta": "Continuer vers le démarrage express →"
+        },
+        "account": {
+          "accountStatus": "Statut du compte"
+        },
+        "dataManagement": {
+          "delete": {
+            "confirmMismatch": "Le texte de confirmation ne correspond pas."
+          }
+        }
+      },
+      "persona": {
+        "trialTeaser": {
+          "title": "Prompt Persona complet (Pro)",
+          "body": "Passez à Pro pour exporter et affiner le prompt système complet.",
+          "cta": "Voir les offres",
+          "promptLocked": "Section réservée aux comptes Pro."
+        }
+      },
+      "news": {
+        "premiumRequired": "L'actu archivée est réservée aux offres Pro et Pro+.",
+        "upgradeCta": "Mettre à niveau"
+      },
+      "articles": {
+        "insufficientCredits": "Quota mensuel atteint.",
+        "premiumRequired": "Fonction réservée aux offres payantes."
+      }
+    }
+  },
+  "en": {
+    "landing": {
+      "product": {
+        "caption": "Brief → 4 drafts → refinement. Three steps, one flow."
+      },
+      "howItWorks": {
+        "steps": {
+          "voice": {
+            "title": "Your voice",
+            "description": "A few links to get started. The agent summarizes who you are : editable anytime."
+          }
+        }
+      }
+    },
+    "pricing": {
+      "brand": "ULTRA CONTENT MAKER",
+      "eyebrow": "Pricing",
+      "title": "Choose your publishing pace",
+      "subtitle": "Free trial, then Pro or Pro+ depending on how hands-on you want to be. Platform AI included on trial and Pro+.",
+      "wireHint": "Pay by card or wire transfer, activation within 24h after confirmation.",
+      "perMonth": "/ month",
+      "popular": "Most popular",
+      "compareHint": "Pro = your API key (OpenAI, Perplexity…). Pro+ and Trial = platform AI included.",
+      "usdNote": "Amounts in USD. Billed monthly.",
+      "hideFeatures": "Show less",
+      "showAllFeatures": "Show all",
+      "trial": {
+        "name": "Trial",
+        "description": "{days} days · {posts} posts to publish",
+        "f1": "Persona & Topic DNA",
+        "f2": "Guided brief & generation",
+        "f3": "4 exploratory drafts",
+        "f4": "LinkedIn quality scores",
+        "f5": "Platform AI included",
+        "f6": "No credit card",
+        "cta": "Start free"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "{posts} posts / month · your API key",
+        "f1": "Everything in trial, no time limit",
+        "f2": "Your OpenAI or Perplexity key",
+        "f3": "Regeneration & refinement",
+        "f4": "News & inspirations",
+        "f5": "LinkedIn export & quality",
+        "f6": "Unlimited library",
+        "cta": "Choose Pro"
+      },
+      "proPlus": {
+        "name": "Pro+",
+        "description": "{posts} posts / month · platform AI included",
+        "f1": "All Pro features without managing an API key",
+        "f2": "Platform AI included",
+        "f3": "Advanced Persona & strategy",
+        "f4": "Premium news & archives",
+        "f5": "Priority support",
+        "f6": "Best for a fast start",
+        "cta": "Choose Pro+"
+      },
+      "support": {
+        "title": "Managed production",
+        "titleMode": "Support Total mode",
+        "subtitle": "We draft and refine with you : for founders and executives who want to delegate editorial work.",
+        "cta": "Request a quote",
+        "quoteHint": "Reply within 48h · custom quote based on your pace and sector.",
+        "starter": {
+          "name": "Starter",
+          "description": "{posts} posts / month · {months}-month minimum",
+          "f1": "Brief & validation with you",
+          "f2": "LinkedIn-ready posts",
+          "f3": "Revisions included"
+        },
+        "regular": {
+          "name": "Regular",
+          "description": "1 post / week · {months}-month minimum",
+          "f1": "Ongoing editorial line",
+          "f2": "Monitoring & topic proposals",
+          "f3": "Monthly calibration check-in"
+        },
+        "quoteForm": {
+          "dialogTitle": "Quote request. Managed production",
+          "dialogSubtitle": "Describe your needs : we'll get back within 48h.",
+          "plan": "Plan",
+          "planStarter": "Starter",
+          "planRegular": "Regular",
+          "planUnspecified": "To be defined together",
+          "fullName": "Full name",
+          "company": "Company",
+          "position": "Role",
+          "activityNeed": "Your editorial need",
+          "activityNeedPlaceholder": "Desired frequency, sector, LinkedIn goals…",
+          "email": "Email",
+          "whatsapp": "WhatsApp (optional)",
+          "whatsappPlaceholder": "+1…",
+          "submit": "Send request",
+          "pending": "Sending…",
+          "close": "Close",
+          "success": "Request sent : we'll contact you shortly.",
+          "errors": {
+            "notConfigured": "Service unavailable. Contact support.",
+            "generic": "Could not send. Try again or email us directly."
+          }
+        }
+      },
+      "billing": {
+        "authRequired": "Sign in to continue.",
+        "notConfigured": "Online checkout is not available yet.",
+        "failed": "Payment failed. Try again.",
+        "noCustomer": "No active subscription found.",
+        "portalFailed": "Could not open billing portal."
+      }
+    },
+    "subscription": {
+      "banner": {
+        "trialShort": "Trial · {posts} post(s) left to publish",
+        "upgradeCta": "View plans",
+        "proLow": "Pro · {remaining} post(s) left this month",
+        "proPlusLow": "Pro+ · {remaining} post(s) left this month",
+        "addKey": "Add your API key"
+      },
+      "expired": {
+        "title": "Your trial has ended",
+        "body": "Upgrade to Pro or Pro+ to keep creating and access your library.",
+        "reassurance": "Pick a plan to restore access to your content.",
+        "upgrade": "Upgrade",
+        "pricing": "View pricing"
+      },
+      "upgrade": {
+        "title": "Upgrade",
+        "subtitle": "Pro with your API key, or Pro+ with platform AI included.",
+        "trialContext": "Trial: {days} days · {posts} posts included",
+        "activateTitle": "Activate your plan",
+        "activateBody": "Card or wire transfer, your workspace unlocks once confirmed.",
+        "couponSection": "Promo code",
+        "proBlurb": "You manage your API key : full control of AI costs.",
+        "proPlusBlurb": "Platform AI included · {posts} posts / month with no key setup.",
+        "viewPricing": "Compare plans"
+      },
+      "wire": {
+        "loginRequired": "Sign in to request a wire transfer.",
+        "loading": "Loading…",
+        "perMonth": "/ month",
+        "intro": "Wire {amount} USD, activation after receipt.",
+        "getBankDetails": "Get bank details",
+        "pending": "Processing…",
+        "requestCreated": "Request recorded.",
+        "approved": "Wire approved, your plan is active.",
+        "rejected": "Request declined. Contact support.",
+        "bankTitle": "Bank details",
+        "holder": "Account holder",
+        "bank": "Bank",
+        "amount": "Amount",
+        "payIn": "Currency: {currency}",
+        "reference": "Reference to include",
+        "bankNotConfigured": "Bank details not configured : contact support.",
+        "referenceHint": "Include this reference in the wire memo.",
+        "awaitingActivation": "Awaiting wire receipt.",
+        "notePlaceholder": "Optional note (billing, company…)",
+        "confirmWire": "I've sent the wire",
+        "wireSent": "Thank you : we'll activate your account upon receipt.",
+        "errors": {
+          "generic": "Action failed. Try again."
+        }
+      },
+      "coupon": {
+        "placeholder": "Promo code",
+        "submit": "Activate",
+        "pending": "Checking…",
+        "success": "Plan {tier} activated.",
+        "errors": {
+          "generic": "Invalid or expired code.",
+          "invalid": "Invalid code.",
+          "unauthorized": "Not authorized.",
+          "invalid_body": "Invalid request.",
+          "missing_code": "Enter a code."
+        }
+      },
+      "quiz": {
+        "title": "Which plan fits you?",
+        "subtitle": "Two quick questions to point you in the right direction.",
+        "optSimpleTitle": "I want to move fast",
+        "optSimple": "AI included : no API key to configure.",
+        "optOwnKeyTitle": "I already have an API key",
+        "optOwnKey": "OpenAI or Perplexity. I control AI costs.",
+        "optSupportLead": "I'd rather delegate",
+        "optSupport": "Managed production by the NS Suite team.",
+        "resultLabel": "Recommendation",
+        "resultProTitle": "Pro is a good fit",
+        "resultProPlusTitle": "Pro+ is a good fit",
+        "resultProBody": "Your API key, regen & news : the best value if you're comfortable with OpenAI or Perplexity.",
+        "resultProPlusBody": "Platform AI included : start without technical setup.",
+        "continue": "Continue to activation",
+        "compare": "Compare all plans"
+      },
+      "support": {
+        "title": "Managed production",
+        "titleMode": "Support Total mode",
+        "subtitle": "Brief, drafting & validation : we keep your editorial calendar on track.",
+        "body": "For leaders who want a steady LinkedIn presence without late-night writing.",
+        "starterLabel": "Starter",
+        "perMonth": "/ month",
+        "starterDetail": "{posts} posts / month",
+        "regularLabel": "Regular",
+        "regularDetail": "1 post / week",
+        "responseHint": "Reply within 48 business hours.",
+        "formTitle": "Tell us about your needs",
+        "formSubtitle": "Describe your context : we'll tailor the plan."
+      }
+    },
+    "setup": {
+      "llm": {
+        "trialIncluded": {
+          "body": "Your trial includes platform AI : no key required to get started.",
+          "cta": "Continue to express setup →"
+        },
+        "platformIncluded": {
+          "body": "Your plan includes platform AI, you can add your own key later in settings.",
+          "cta": "Continue to express setup →"
+        },
+        "account": {
+          "accountStatus": "Account status"
+        },
+        "dataManagement": {
+          "delete": {
+            "confirmMismatch": "Confirmation text does not match."
+          }
+        }
+      },
+      "persona": {
+        "trialTeaser": {
+          "title": "Full Persona prompt (Pro)",
+          "body": "Upgrade to Pro to export and refine the full system prompt.",
+          "cta": "View plans",
+          "promptLocked": "Section reserved for Pro accounts."
+        }
+      },
+      "news": {
+        "premiumRequired": "Archived news is available on Pro and Pro+.",
+        "upgradeCta": "Upgrade"
+      },
+      "articles": {
+        "insufficientCredits": "Monthly quota reached.",
+        "premiumRequired": "Feature reserved for paid plans."
+      }
+    }
+  },
+  "es": {
+    "landing": {
+      "product": {
+        "caption": "Brief → 4 borradores → refinado. Tres pasos, un solo flujo."
+      },
+      "howItWorks": {
+        "steps": {
+          "voice": {
+            "title": "Tu voz",
+            "description": "Unos enlaces para empezar. El agente resume quién eres, editable en cualquier momento."
+          }
+        }
+      }
+    },
+    "pricing": {
+      "brand": "ULTRA CONTENT MAKER",
+      "eyebrow": "Precios",
+      "title": "Elige tu ritmo de publicación",
+      "subtitle": "Prueba gratis, luego Pro o Pro+ según tu autonomía. IA de plataforma incluida en prueba y Pro+.",
+      "wireHint": "Pago con tarjeta o transferencia, activación en 24 h tras confirmación.",
+      "perMonth": "/ mes",
+      "popular": "Más elegido",
+      "compareHint": "Pro = tu clave API (OpenAI, Perplexity…). Pro+ y Prueba = IA de plataforma incluida.",
+      "usdNote": "Importes en USD. Facturación mensual.",
+      "hideFeatures": "Ver menos",
+      "showAllFeatures": "Ver todo",
+      "trial": {
+        "name": "Prueba",
+        "description": "{days} días · {posts} posts para publicar",
+        "f1": "Persona y Topic DNA",
+        "f2": "Brief y generación guiados",
+        "f3": "4 borradores exploratorios",
+        "f4": "Puntuaciones de calidad LinkedIn",
+        "f5": "IA de plataforma incluida",
+        "f6": "Sin tarjeta",
+        "cta": "Empezar gratis"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "{posts} posts / mes · tu clave API",
+        "f1": "Todo lo de la prueba, sin límite de tiempo",
+        "f2": "Tu clave OpenAI o Perplexity",
+        "f3": "Regeneración y refinado",
+        "f4": "Actualidad e inspiraciones",
+        "f5": "Exportación LinkedIn y calidad",
+        "f6": "Biblioteca ilimitada",
+        "cta": "Elegir Pro"
+      },
+      "proPlus": {
+        "name": "Pro+",
+        "description": "{posts} posts / mes · IA de plataforma incluida",
+        "f1": "Todo Pro sin gestionar clave API",
+        "f2": "IA de plataforma incluida",
+        "f3": "Persona avanzado y estrategia",
+        "f4": "Actualidad premium y archivos",
+        "f5": "Soporte prioritario",
+        "f6": "Ideal para empezar rápido",
+        "cta": "Elegir Pro+"
+      },
+      "support": {
+        "title": "Producción gestionada",
+        "titleMode": "Modo Support Total",
+        "subtitle": "Redactamos y afinamos contigo, para fundadores y directivos que quieren delegar la línea editorial.",
+        "cta": "Solicitar presupuesto",
+        "quoteHint": "Respuesta en 48 h · presupuesto según ritmo y sector.",
+        "starter": {
+          "name": "Starter",
+          "description": "{posts} posts / mes · mínimo {months} meses",
+          "f1": "Brief y validación contigo",
+          "f2": "Posts LinkedIn listos para publicar",
+          "f3": "Revisiones incluidas"
+        },
+        "regular": {
+          "name": "Regular",
+          "description": "1 post / semana · mínimo {months} meses",
+          "f1": "Línea editorial continua",
+          "f2": "Vigilancia y propuestas de temas",
+          "f3": "Revisión mensual de calibración"
+        },
+        "quoteForm": {
+          "dialogTitle": "Presupuesto. Producción gestionada",
+          "dialogSubtitle": "Describe tu necesidad : respondemos en 48 h.",
+          "plan": "Plan",
+          "planStarter": "Starter",
+          "planRegular": "Regular",
+          "planUnspecified": "A definir juntos",
+          "fullName": "Nombre completo",
+          "company": "Empresa",
+          "position": "Cargo",
+          "activityNeed": "Tu necesidad editorial",
+          "activityNeedPlaceholder": "Frecuencia deseada, sector, objetivos en LinkedIn…",
+          "email": "Correo",
+          "whatsapp": "WhatsApp (opcional)",
+          "whatsappPlaceholder": "+34…",
+          "submit": "Enviar solicitud",
+          "pending": "Enviando…",
+          "close": "Cerrar",
+          "success": "Solicitud enviada : te contactaremos pronto.",
+          "errors": {
+            "notConfigured": "Servicio no disponible. Contacta soporte.",
+            "generic": "No se pudo enviar. Reintenta o escríbenos."
+          }
+        }
+      },
+      "billing": {
+        "authRequired": "Inicia sesión para continuar.",
+        "notConfigured": "Pago en línea no disponible por ahora.",
+        "failed": "Pago fallido. Reintenta.",
+        "noCustomer": "No se encontró suscripción activa.",
+        "portalFailed": "No se pudo abrir el portal de facturación."
+      }
+    },
+    "subscription": {
+      "banner": {
+        "trialShort": "Prueba · te quedan {posts} post(s) por publicar",
+        "upgradeCta": "Ver planes",
+        "proLow": "Pro · {remaining} post(s) restante(s) este mes",
+        "proPlusLow": "Pro+ · {remaining} post(s) restante(s) este mes",
+        "addKey": "Añadir tu clave API"
+      },
+      "expired": {
+        "title": "Tu prueba terminó",
+        "body": "Pasa a Pro o Pro+ para seguir creando y acceder a tu biblioteca.",
+        "reassurance": "Elige un plan para recuperar el acceso a tus contenidos.",
+        "upgrade": "Mejorar plan",
+        "pricing": "Ver precios"
+      },
+      "upgrade": {
+        "title": "Mejorar plan",
+        "subtitle": "Pro con tu clave API, o Pro+ con IA de plataforma incluida.",
+        "trialContext": "Prueba: {days} días · {posts} posts incluidos",
+        "activateTitle": "Activar tu plan",
+        "activateBody": "Tarjeta o transferencia, tu espacio se desbloquea al confirmar.",
+        "couponSection": "Código promocional",
+        "proBlurb": "Gestionas tu clave API, control total de costes IA.",
+        "proPlusBlurb": "IA de plataforma incluida · {posts} posts / mes sin configurar clave.",
+        "viewPricing": "Comparar planes"
+      },
+      "wire": {
+        "loginRequired": "Inicia sesión para solicitar transferencia.",
+        "loading": "Cargando…",
+        "perMonth": "/ mes",
+        "intro": "Transferencia de {amount} USD, activación tras recepción.",
+        "getBankDetails": "Obtener datos bancarios",
+        "pending": "Procesando…",
+        "requestCreated": "Solicitud registrada.",
+        "approved": "Transferencia aprobada, tu plan está activo.",
+        "rejected": "Solicitud rechazada. Contacta soporte.",
+        "bankTitle": "Datos bancarios",
+        "holder": "Titular",
+        "bank": "Banco",
+        "amount": "Importe",
+        "payIn": "Moneda: {currency}",
+        "reference": "Referencia a indicar",
+        "bankNotConfigured": "Datos no configurados, contacta soporte.",
+        "referenceHint": "Indica esta referencia en el concepto de la transferencia.",
+        "awaitingActivation": "Esperando recepción de la transferencia.",
+        "notePlaceholder": "Nota opcional (facturación, empresa…)",
+        "confirmWire": "He realizado la transferencia",
+        "wireSent": "Gracias. activamos tu cuenta al recibirla.",
+        "errors": {
+          "generic": "Acción fallida. Reintenta."
+        }
+      },
+      "coupon": {
+        "placeholder": "Código promocional",
+        "submit": "Activar",
+        "pending": "Comprobando…",
+        "success": "Plan {tier} activado.",
+        "errors": {
+          "generic": "Código inválido o caducado.",
+          "invalid": "Código inválido.",
+          "unauthorized": "No autorizado.",
+          "invalid_body": "Solicitud inválida.",
+          "missing_code": "Introduce un código."
+        }
+      },
+      "quiz": {
+        "title": "¿Qué plan te encaja?",
+        "subtitle": "Dos preguntas para orientarte.",
+        "optSimpleTitle": "Quiero ir rápido",
+        "optSimple": "IA incluida, sin configurar clave API.",
+        "optOwnKeyTitle": "Ya tengo clave API",
+        "optOwnKey": "OpenAI o Perplexity, controlo los costes IA.",
+        "optSupportLead": "Prefiero delegar",
+        "optSupport": "Producción gestionada por el equipo NS Suite.",
+        "resultLabel": "Recomendación",
+        "resultProTitle": "Pro encaja contigo",
+        "resultProPlusTitle": "Pro+ encaja contigo",
+        "resultProBody": "Tu clave API, regeneración y actualidad : mejor relación calidad/precio si dominas OpenAI o Perplexity.",
+        "resultProPlusBody": "IA de plataforma incluida : empieza sin fricción técnica.",
+        "continue": "Continuar a activación",
+        "compare": "Comparar todos los planes"
+      },
+      "support": {
+        "title": "Producción gestionada",
+        "titleMode": "Modo Support Total",
+        "subtitle": "Brief, redacción y validación : mantenemos tu calendario editorial.",
+        "body": "Para directivos que quieren presencia en LinkedIn sin escribir de noche.",
+        "starterLabel": "Starter",
+        "perMonth": "/ mes",
+        "starterDetail": "{posts} posts / mes",
+        "regularLabel": "Regular",
+        "regularDetail": "1 post / semana",
+        "responseHint": "Respuesta en 48 h laborables.",
+        "formTitle": "Cuéntanos tu necesidad",
+        "formSubtitle": "Describe tu contexto, adaptamos la fórmula."
+      }
+    },
+    "setup": {
+      "llm": {
+        "trialIncluded": {
+          "body": "Tu prueba incluye IA de plataforma, no necesitas clave para empezar.",
+          "cta": "Continuar al inicio express →"
+        },
+        "platformIncluded": {
+          "body": "Tu plan incluye IA de plataforma : puedes añadir tu clave más tarde en ajustes.",
+          "cta": "Continuar al inicio express →"
+        },
+        "account": {
+          "accountStatus": "Estado de la cuenta"
+        },
+        "dataManagement": {
+          "delete": {
+            "confirmMismatch": "El texto de confirmación no coincide."
+          }
+        }
+      },
+      "persona": {
+        "trialTeaser": {
+          "title": "Prompt Persona completo (Pro)",
+          "body": "Pasa a Pro para exportar y afinar el prompt completo.",
+          "cta": "Ver planes",
+          "promptLocked": "Sección reservada a cuentas Pro."
+        }
+      },
+      "news": {
+        "premiumRequired": "La actualidad archivada está en Pro y Pro+.",
+        "upgradeCta": "Mejorar plan"
+      },
+      "articles": {
+        "insufficientCredits": "Cuota mensual alcanzada.",
+        "premiumRequired": "Función reservada a planes de pago."
+      }
+    }
+  }
+}

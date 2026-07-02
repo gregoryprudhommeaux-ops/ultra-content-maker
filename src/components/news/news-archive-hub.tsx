@@ -2,10 +2,10 @@
 
 import { NewsCard, formatNewsDate } from "@/components/news/news-card";
 import { loadStoredPostBrief } from "@/lib/articles/post-brief-storage";
-import { isPostBriefComplete } from "@/lib/prompts/post-brief";
 import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-blocked-banner";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSubscription } from "@/contexts/subscription-context";
 import { getClientAuth } from "@/lib/firebase/client";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { newsToSource } from "@/lib/news/to-source";
@@ -31,6 +31,7 @@ export function NewsArchiveHub() {
   const locale = useLocale() as ContentLanguage;
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { access } = useSubscription();
   const [personaOk, setPersonaOk] = useState<boolean | null>(null);
   const [personaText, setPersonaText] = useState("");
   const [archived, setArchived] = useState<ArchivedNewsDoc[]>([]);
@@ -47,7 +48,7 @@ export function NewsArchiveHub() {
       listArchivedNews(user.uid),
       getLearningProfile(user.uid),
     ]);
-    setPersonaOk(p?.status === "validated");
+    setPersonaOk(Boolean(p?.promptText?.trim()));
     setPersonaText(p?.promptText ?? "");
     setArchived(items);
     setEmojiLevel(learning?.emojiLevel ?? "light");
@@ -70,10 +71,6 @@ export function NewsArchiveHub() {
     }
 
     const postBrief = loadStoredPostBrief();
-    if (!isPostBriefComplete(postBrief)) {
-      setError(tArticles("briefIncomplete"));
-      return;
-    }
 
     setError(null);
     setPending(true);
@@ -162,6 +159,18 @@ export function NewsArchiveHub() {
 
   if (!loaded) {
     return <GeneratingIndicator label="…" className="max-w-xl" />;
+  }
+
+  if (!access?.canUseNews) {
+    return (
+      <div className="mx-auto max-w-lg space-y-4 px-4 py-12 text-center">
+        <h1 className="text-xl font-bold text-ns-tertiary">{t("title")}</h1>
+        <p className="text-sm text-ns-secondary">{t("premiumRequired")}</p>
+        <Link href="/upgrade" className="inline-block text-sm font-semibold text-ns-primary underline">
+          {t("upgradeCta")}
+        </Link>
+      </div>
+    );
   }
 
   if (!personaOk) {

@@ -11,17 +11,25 @@ function llmRef(userId: string) {
   return doc(db, "users", userId, "llm", DOC_ID);
 }
 
-export async function getUserLlmProfile(userId: string): Promise<UserLlmProfile | null> {
-  const snap = await getDoc(llmRef(userId));
-  if (!snap.exists()) return null;
-  const d = snap.data();
+function toClientProfile(
+  d: Record<string, unknown>,
+): UserLlmProfile {
+  const userProvided = d.userProvided === true;
+  const rawKey = typeof d.apiKey === "string" ? d.apiKey : "";
   return {
     provider: d.provider as LlmProvider,
-    apiKey: d.apiKey as string,
+    apiKey: userProvided ? rawKey : "",
+    userProvided,
     model: d.model as string | undefined,
     configuredAt: toDate(d.configuredAt),
     updatedAt: toDate(d.updatedAt),
   };
+}
+
+export async function getUserLlmProfile(userId: string): Promise<UserLlmProfile | null> {
+  const snap = await getDoc(llmRef(userId));
+  if (!snap.exists()) return null;
+  return toClientProfile(snap.data() as Record<string, unknown>);
 }
 
 export async function saveUserLlmProfile(
@@ -31,6 +39,7 @@ export async function saveUserLlmProfile(
   await setDoc(llmRef(userId), {
     provider: input.provider,
     apiKey: input.apiKey.trim(),
+    userProvided: true,
     model: input.model?.trim() || null,
     configuredAt: serverTimestamp(),
     updatedAt: serverTimestamp(),

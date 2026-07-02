@@ -1,7 +1,7 @@
+import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
 import { analyzeCreationStrategy } from "@/lib/linkedin/analyze-creation-strategy";
 import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
-import { resolveUserLlmConfig } from "@/lib/inspiration/fetch-url-excerpt";
-import { getLlmConfig } from "@/lib/llm/config";
+import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
 import {
   classifyProviderErrorMessage,
   isInvalidApiKeyError,
@@ -42,8 +42,8 @@ type Body = {
 };
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) {
+  const userId = await verifyBearerUserId(request.headers.get("authorization"));
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -87,13 +87,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const llm = body.llm?.apiKey?.trim()
-    ? resolveUserLlmConfig({
-        provider: body.llm.provider,
-        apiKey: body.llm.apiKey.trim(),
-        model: body.llm.model,
-      })
-    : getLlmConfig();
+  const llm = await resolveContentRouteLlm(userId, body.llm);
 
   if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
@@ -111,6 +105,7 @@ export async function POST(request: Request) {
       activityUrl,
       contentLanguage,
       personaPromptText: body.personaPromptText,
+      userId,
       authorContext: {
         roleTitle: body.roleTitle,
         positioningLine: body.positioningLine,

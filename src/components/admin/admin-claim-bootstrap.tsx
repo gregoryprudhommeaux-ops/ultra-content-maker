@@ -24,6 +24,10 @@ export function AdminClaimBootstrap() {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
+        await fetch("/api/admin/workspace-accounts/purge-legacy", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
       } catch {
         /* non-blocking */
       }

@@ -50,6 +50,21 @@ async function deleteInvitesForAccount(
   await batch.commit();
 }
 
+/** Deletes all non-default client workspaces under a platform admin (legacy agency model). */
+export async function purgeLegacyAdminClientAccounts(
+  db: Firestore,
+  ownerId: string,
+): Promise<string[]> {
+  const snap = await db.collection(`users/${ownerId}/accounts`).get();
+  const deleted: string[] = [];
+  for (const doc of snap.docs) {
+    if (doc.id === DEFAULT_ACCOUNT_ID || doc.data()?.isDefault) continue;
+    await deleteClientWorkspaceAccount(db, ownerId, doc.id);
+    deleted.push(doc.id);
+  }
+  return deleted;
+}
+
 /** Deletes one client workspace account under an admin owner (not the default account). */
 export async function deleteClientWorkspaceAccount(
   db: Firestore,

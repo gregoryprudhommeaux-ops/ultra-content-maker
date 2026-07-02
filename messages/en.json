@@ -1,11 +1,12 @@
 {
   "app": {
     "name": "ULTRA CONTENT MAKER",
-    "tagline": "From onboarding to a validated Content Brain — then LinkedIn content that stays on brand.",
+    "tagline": "From onboarding to a validated Content Brain, then LinkedIn content that stays on brand.",
     "footer": {
-      "tagline": "Ultra Content Maker: AI ghostwriter for LinkedIn — an NS Suite tool for entrepreneurs.",
+      "tagline": "Ultra Content Maker: AI ghostwriter for LinkedIn, an NS Suite tool for entrepreneurs.",
       "home": "Home",
       "library": "Library",
+      "pricing": "Pricing",
       "dashboard": "Articles",
       "login": "Sign in",
       "signup": "Create account",
@@ -22,7 +23,7 @@
       "notePlaceholder": "What were you doing? (optional)",
       "send": "Send report",
       "sending": "Sending…",
-      "sent": "Thanks — your report was sent.",
+      "sent": "Thanks. Your report was sent.",
       "failed": "Could not send the report. Try again later."
     },
     "codes": {
@@ -38,7 +39,7 @@
       "linkedinFetchUnavailable": "Could not read LinkedIn activity right now. Add Perplexity (Sonar) or try again later.",
       "analysisFailed": "Strategic analysis failed. Check your LinkedIn activity URL and try again.",
       "strategyParseFailed": "The AI returned an unreadable response. Run the analysis again.",
-      "notActivityUrl": "Invalid activity URL — use the …/recent-activity/all/ link from your LinkedIn profile.",
+      "notActivityUrl": "Invalid activity URL, use the …/recent-activity/all/ link from your LinkedIn profile.",
       "urlInvalid": "Invalid URL.",
       "fetchFailed": "Could not fetch content from this link.",
       "noContent": "No usable content found on this page.",
@@ -62,20 +63,78 @@
   "landing": {
     "hero": {
       "brand": "ULTRA CONTENT MAKER",
+      "eyebrow": "AI ghostwriter · FR · EN · ES",
       "languagesBadge": "FR · EN · ES",
-      "headline": "Your LinkedIn AI ghostwriter.",
-      "headlineSubtitle": "Credible posts in your voice—not generic filler.",
-      "subheadline": "Validate your Persona, generate 4 drafts, refine, and copy to LinkedIn. You publish on your schedule.",
-      "benefit": "Your API key · built-in brief and quality scores · no auto-publishing.",
-      "cta": "Structure my LinkedIn authority",
+      "headline": "Publish on LinkedIn in your voice.",
+      "headlineSubtitle": "Persona, brief, and 4 qualified drafts : one-click export. No lost evenings, no generic ChatGPT filler.",
+      "subheadline": "Express setup · 4 paths · creator radar · commented news",
+      "pill1": "Persona & Topic DNA",
+      "pill2": "Creator radar",
+      "pill3": "4 drafts / batch",
+      "pill4": "Quality Panel",
+      "benefit": "Platform AI on trial · built-in brief and quality scores · you keep full publish control.",
+      "cta": "Start free trial",
+      "ctaPricing": "View pricing",
       "ctaSecondary": "See the product journey",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "microTrust": "15 days · 4 posts to publish · no credit card",
+      "managedProduction": "Managed production →"
     },
     "product": {
-      "title": "From brief to LinkedIn export in one flow",
-      "subtitle": "Brief → 4 drafts → refinement. Three steps, one flow.",
-      "mockupAria": "Three-step product journey preview",
-      "mockupSummary": "Brief with objective and proof, four generalist and niche posts, quality panel with scores and anti-slop.",
+      "eyebrow": "Product",
+      "title": "What actually beats ChatGPT or a freelancer",
+      "subtitle": "Three WOW moments, then one flow from brief to LinkedIn export.",
+      "mockupAria": "Product showcase: 4-draft batch, Persona, quality, and journey",
+      "mockupSummary": "Four-draft batch, Persona Content Brain, anti-slop Quality Panel, creator radar, four-step journey.",
+      "wowHero": {
+        "eyebrow": "WOW · Exploration",
+        "title": "4 qualified drafts in one batch",
+        "body": "Two reach angles, two niche angles, you pick the draft worth polishing, not whatever the AI chose alone.",
+        "stat1": "2 generalist",
+        "stat2": "2 niche",
+        "stat3": "~3 min / batch"
+      },
+      "wow": {
+        "persona": {
+          "abbr": "DNA",
+          "title": "Persona & Topic DNA",
+          "body": "AI learns your voice, pillars, and off-limits. Once validated, every post starts from your Content Brain, not a blank page.",
+          "tag": "Express setup · 90 s"
+        },
+        "batch": {
+          "abbr": "INF",
+          "title": "Creator radar",
+          "body": "3 relevant creators per day in your niche: visit, save as inspiration, or launch a post from their angle : no endless LinkedIn scrolling.",
+          "tag": "Influences · daily"
+        },
+        "quality": {
+          "abbr": "Q+",
+          "title": "Anti-slop Quality Panel",
+          "body": "Niche clarity, proof, and conversation scores · LinkedIn cliché detection · alternative hooks · one-click export.",
+          "tag": "Credibility · measurable"
+        }
+      },
+      "flow": {
+        "label": "One engine, four entry paths",
+        "steps": {
+          "sources": {
+            "title": "4 paths",
+            "hint": "Profile · news · inspiration · topic"
+          },
+          "brief": {
+            "title": "Framed brief",
+            "hint": "Objective · POV · proof"
+          },
+          "drafts": {
+            "title": "4 drafts",
+            "hint": "Broad + niche"
+          },
+          "export": {
+            "title": "LinkedIn export",
+            "hint": "Copy · publish · you"
+          }
+        }
+      },
       "scope": {
         "generalist": "Generalist",
         "niche": "Niche"
@@ -87,6 +146,27 @@
         "post4": "How a LatAm deal is structured when you've seen the film in China."
       },
       "panels": {
+        "sources": {
+          "label": "4 paths",
+          "modes": {
+            "profile": {
+              "title": "My profile",
+              "hint": "Persona + optional brief"
+            },
+            "news": {
+              "title": "The news",
+              "hint": "4 stories commented"
+            },
+            "inspiration": {
+              "title": "Inspiration",
+              "hint": "Paste, URL, or library"
+            },
+            "topic": {
+              "title": "My topic",
+              "hint": "Free idea + tone"
+            }
+          }
+        },
         "brief": {
           "label": "Batch brief",
           "nicheOk": "Niche clarity OK",
@@ -95,7 +175,7 @@
             "problem": "Audience problem",
             "pov": "Point of view"
           },
-          "samplePov": "The lever isn't price—it's end-to-end visibility.",
+          "samplePov": "The lever isn't price : it's end-to-end visibility.",
           "objectives": {
             "credibility": "Credibility",
             "conversation": "Conversation"
@@ -119,62 +199,90 @@
           "signalsHint": "Optional signals after publishing",
           "sample": "Sharp hook…\n\nBody with case and metric…\n\nPS: Gregory, Guadalajara…"
         }
-      }
+      },
+      "caption": "4 paths → brief → 4 drafts → quality → export."
     },
     "howItWorks": {
+      "eyebrow": "Method",
       "title": "How it works",
-      "subtitle": "A guided path from profile to publication—no surprises at onboarding.",
+      "subtitle": "Four steps : from LinkedIn profile to the post you publish in your own name.",
       "steps": {
-        "profile": {
-          "title": "Profile & inspirations",
-          "description": "Links, voice, sample posts—the foundation of your Persona."
+        "setup": {
+          "title": "Express setup",
+          "description": "Paste your LinkedIn URL: AI seeds your Persona in minutes. Refine at your own pace."
         },
         "persona": {
           "title": "Validated Persona",
-          "description": "Content Brain + Topic DNA before any generation."
+          "description": "Content Brain + Topic DNA: pillars, beliefs, off-limits. Nothing starts from a blank page."
+        },
+        "create": {
+          "title": "Create from 4 sources",
+          "description": "Profile, daily news, inspiration (anti-plagiarism), or free topic : intent brief and 4 drafts per batch."
+        },
+        "publish": {
+          "title": "Polish & publish",
+          "description": "Quality Panel, alternative hooks, first comment, Copy to LinkedIn export. You stay in control."
+        },
+        "profile": {
+          "title": "Profile & inspirations",
+          "description": "Links, voice, sample posts : the foundation of your Persona."
         },
         "brief": {
           "title": "Intent brief",
-          "description": "Objective, problem, POV, proof—every batch is framed."
+          "description": "Objective, problem, POV, proof : every batch is framed."
         },
         "generate": {
           "title": "Generate & choose",
           "description": "4 posts (2 broad · 2 niche) or 2 from archived news."
+        },
+        "voice": {
+          "title": "Your voice",
+          "description": "A few links to get started. The agent summarizes who you are : editable anytime."
         }
       }
     },
     "capabilities": {
-      "title": "Everything you need for credible LinkedIn authority",
-      "subtitle": "Five building blocks, one flow—for B2B experts who publish in their own name.",
+      "eyebrow": "Features",
+      "title": "Everything you need to publish with credibility : without hiring a freelancer",
+      "subtitle": "Six building blocks for B2B experts and solo founders who want consistency without losing their voice.",
       "persona": {
         "title": "Persona & Topic DNA",
-        "description": "Validated Content Brain: pillars, beliefs, off-limits—AI never starts from a blank slate."
+        "description": "Validated Content Brain before any generation: positioning, audience, angle, pillars, AI writes like you, not like everyone."
       },
-      "brief": {
-        "title": "Intent brief",
-        "description": "Objective, problem, POV, required proof—no more vague interchangeable posts."
+      "sources": {
+        "title": "4 creation paths",
+        "description": "From your profile, niche news, an inspiration (paste, URL, library), or a free topic, a distinct angle every time."
+      },
+      "radar": {
+        "title": "Creator radar",
+        "description": "3 relevant creators per day in your niche: visit their profile, save as inspiration, or launch a post from their angle."
       },
       "exploration": {
         "title": "Exploration · 4 posts",
-        "description": "Two generalist and two niche angles per batch—reach and depth in alternation."
+        "description": "Two reach angles, two niche angles per batch, you pick the draft worth polishing."
       },
       "quality": {
-        "title": "LinkedIn quality",
-        "description": "Scores, alternative hooks, anti-slop, in-body link warning."
+        "title": "LinkedIn Quality Panel",
+        "description": "Niche clarity, human voice, proof, conversation scores · anti-slop · alternative hooks · in-body link warning."
       },
       "distribution": {
         "title": "Distribution & news",
-        "description": "Format, carousel, video script, first comment · fresh news and archives."
+        "description": "PDF carousel, video script, first comment, hashtags · fresh news and archives · FR/EN/ES translations."
+      },
+      "brief": {
+        "title": "Intent brief",
+        "description": "Objective, problem, POV, required proof : no more vague interchangeable posts."
       },
       "measurement": {
         "title": "Measurement loop",
-        "description": "After publishing: saves, DMs, qualified comments—synthesis to refine your Persona."
+        "description": "After publishing: saves, DMs, qualified comments : synthesis to refine your Persona."
       }
     },
     "trust": {
-      "headline": "Built for professionals who publish under their own name",
-      "points": "Persona & Topic DNA · Brief & niche check · 4 broad/niche posts · Quality & LinkedIn export",
-      "cta": "Structure my LinkedIn authority"
+      "headline": "For professionals who publish under their own name",
+      "points": "Less friction than a freelancer on the brief. More control than a ChatGPT prompt.",
+      "subpoints": "Free trial with platform AI included · Pro $19/mo (your API key) · Pro+ $33/mo (AI included, zero setup) · you publish : we never post for you.",
+      "cta": "Start free trial"
     },
     "marketing": {
       "signedIn": "You're signed in.",
@@ -182,7 +290,7 @@
     },
     "footer": {
       "productName": "Ultra Content Maker",
-      "tagline": "AI ghostwriter for LinkedIn — an NS Suite tool for entrepreneurs.",
+      "tagline": "AI ghostwriter for LinkedIn, an NS Suite tool for entrepreneurs.",
       "login": "Sign in",
       "signup": "Create account",
       "rights": "© {year} NextStep Services"
@@ -247,7 +355,8 @@
       "month3": "3 months",
       "month6": "6 months",
       "year1": "1 year",
-      "all": "All"
+      "all": "All",
+      "label": "Period"
     },
     "connections": {
       "title": "Unique connections",
@@ -277,7 +386,14 @@
       "avgCompletion": "Avg. profile completion",
       "draftArticles": "Draft posts",
       "reworkedArticles": "Reworked posts",
-      "totalArticles": "Total posts"
+      "totalArticles": "Total posts",
+      "validatedArticles": "Validated",
+      "mrr": "Est. MRR",
+      "estimatedMargin": "Gross margin",
+      "stripeMrr": "Stripe MRR",
+      "stripeSubscribers": "{count} Stripe subs",
+      "estimatedLlmCost": "Est. LLM cost",
+      "loggedLlmCost": "Logged LLM cost"
     },
     "usersTable": {
       "title": "Users (sortable ranking)",
@@ -295,27 +411,152 @@
       "usage": "Score",
       "lastLogin": "Last login",
       "sortBy": "Click a column header to sort",
-      "noLinkedin": "—",
-      "noDate": "—",
+      "noLinkedin": "N/A",
+      "noDate": "N/A",
       "actions": "Actions",
       "delete": "Delete",
       "confirmDelete": "Delete this account and all its data? This cannot be undone.",
       "confirm": "Yes, delete",
+      "confirmTierChange": "Change {name} to plan {tier}?",
+      "tierConfirm": "Confirm plan",
       "cancel": "Cancel",
       "deleting": "Deleting…",
-      "deleteSelf": "—",
-      "deleteFailed": "Could not delete account."
+      "deleteSelf": "N/A",
+      "deleteFailed": "Could not delete account.",
+      "tier": "Tier",
+      "blockReason": "Block reason",
+      "changeTier": "Change tier",
+      "tierChangeFailed": "Could not change tier.",
+      "tierFilterAll": "All tiers",
+      "tierFilterLabel": "Filter by tier",
+      "tierSaving": "Saving…",
+      "validated": "Validated",
+      "postsRemaining": "Posts left",
+      "onboardingComplete": "Complete",
+      "onboardingGuideHint": "Click to see step details",
+      "onboardingHoverHint": "Hover for details",
+      "onboardingMissing": "Missing steps",
+      "onboardingStepsHint": "Onboarding steps",
+      "noBlock": "N/A"
     },
     "errors": {
       "notAuthenticated": "Session expired.",
-      "loadFailed": "Could not load analytics."
+      "loadFailed": "Could not load analytics.",
+      "adminNotConfigured": "Platform admin not configured. Check environment variables."
+    },
+    "tabs": {
+      "overview": "Overview",
+      "actions": "Actions",
+      "support": "Support",
+      "users": "Users",
+      "billing": "Billing"
+    },
+    "tierMix": {
+      "title": "Tier mix",
+      "subtitleAll": "All users included in stats"
+    },
+    "tiers": {
+      "freeTest": "FREE TEST",
+      "pro": "PRO",
+      "proPlus": "PRO+",
+      "supportStarter": "SUPPORT STARTER",
+      "supportRegular": "SUPPORT REGULAR",
+      "supportTotal": "SUPPORT TOTAL",
+      "fullFree": "FULL FREE",
+      "freeWithoutApi": "FREE w/o API",
+      "expired": "EXPIRED"
+    },
+    "kpiGroups": {
+      "product": "Product",
+      "revenue": "Revenue",
+      "costs": "Costs"
+    },
+    "funnel": {
+      "title": "Onboarding funnel",
+      "subtitle": "Key step completion after signup",
+      "empty": "No registered users yet.",
+      "steps": {
+        "llm": "LLM set up",
+        "persona": "Persona",
+        "author": "Author voice",
+        "audience": "Audience",
+        "firstArticle": "1st article",
+        "firstValidated": "1st validated post"
+      }
+    },
+    "filterPresets": {
+      "label": "Quick filters",
+      "active": "Active filter: {label} ({count} users)",
+      "product": "Product",
+      "trial": "Trial",
+      "paying": "Paying",
+      "blocked": "Blocked",
+      "support": "Support"
+    },
+    "exportCsv": "Export CSV",
+    "production": {
+      "to_produce": "To produce",
+      "client_review": "Client review",
+      "published": "Published",
+      "empty": "No production activity this month."
+    },
+    "supportCockpit": {
+      "title": "Support cockpit",
+      "subtitle": "Coach accounts and monthly deliveries",
+      "account": "Account",
+      "clients": "Clients",
+      "collapse": "Collapse",
+      "expand": "Details",
+      "empty": "No support accounts yet.",
+      "filterAll": "All",
+      "filterProduction": "Filter by status",
+      "linkedClient": "Linked client",
+      "llmCost": "LLM cost",
+      "margin": "Margin",
+      "monthlyQuota": "Monthly quota",
+      "noWorkspaces": "No client workspaces.",
+      "quota": "Remaining",
+      "revenue": "Revenue",
+      "status": "Status",
+      "tier": "Tier",
+      "workspaceName": "Workspace",
+      "delivered": "Delivered",
+      "deliveryStatus": {
+        "on_track": "On track",
+        "at_risk": "At risk",
+        "over_quota": "Over quota"
+      }
+    },
+    "blocked": {
+      "title": "Blocked users",
+      "subtitle": "Accounts that can no longer generate content",
+      "postsLeft": "posts left",
+      "reasonBlocked": "Blocked",
+      "reasonLowCompletion": "Incomplete profile",
+      "codes": {
+        "trial_expired": "Trial expired",
+        "trial_posts_exhausted": "Trial posts used up",
+        "pro_cap": "Pro cap reached",
+        "pro_plus_cap": "Pro+ cap reached",
+        "subscription_required": "Subscription required",
+        "support_no_generate": "Support, no generation"
+      }
+    },
+    "errorInbox": {
+      "title": "Error inbox",
+      "subtitle": "User reports awaiting resolution",
+      "resolve": "Resolve"
+    },
+    "sections": {
+      "charts": "Charts",
+      "chartsSubtitle": "Unique logins and creation styles"
     }
   },
   "invite": {
     "subtitle": "Complete your profile to get started with your LinkedIn ghostwriter.",
     "title": "Welcome",
     "forAccount": "Workspace: {name}",
-    "body": "Create an account or sign in to complete onboarding. Your answers fill your profile — your coach can also access it from their dashboard.",
+    "body": "Create an account or sign in to complete onboarding. Your answers fill your profile, your coach can also access it from their dashboard.",
     "loading": "Loading invitation…",
     "signup": "Create my account",
     "login": "I already have an account",
@@ -344,7 +585,7 @@
     "invitePanelTitle": "Client onboarding link",
     "invitePanelBody": "Send this link to {name} so they can complete their profile from their own account. The link stays valid for 90 days.",
     "inviteCopying": "Generating link…",
-    "inviteCopied": "Link copied — send it to your client",
+    "inviteCopied": "Link copied. Send it to your client.",
     "inviteCopyFailed": "Could not copy link",
     "deleteAccount": "Delete this client account",
     "deleteAccountConfirm": "Delete “{name}” and all its content (profile, Persona, posts)?",
@@ -353,6 +594,33 @@
     "deleteAccountFailed": "Could not delete this account.",
     "returnToAccount": "Return to this client account",
     "openAccountList": "Switch client account",
+    "linkClientAccount": "+ Link an existing client account",
+    "linkClientHint": "The client must already have an account. Enter their email to access their workspace without duplicating their profile.",
+    "linkClientEmail": "Client email",
+    "linkClientEmailPlaceholder": "e.g. client@example.com",
+    "linkClientSubmit": "Link account",
+    "linkClientBusy": "Linking…",
+    "linkClientSuccess": {
+      "named": "Account linked: {name}",
+      "generic": "Client account linked ({name})"
+    },
+    "linkClientErrors": {
+      "link_failed": "Could not link this account.",
+      "user_not_found": "No user found with this email.",
+      "client_doc_missing": "Account not found, the client must sign up first.",
+      "client_account_missing": "Client workspace not found.",
+      "invalid_email": "Invalid email.",
+      "cannot_link_self": "You cannot link your own account.",
+      "cannot_link_admin": "Cannot link an admin account.",
+      "client_already_managed": "This client is already linked to another coach.",
+      "auth": "Session expired, sign in again."
+    },
+    "managedClientBadge": "Client · {email}",
+    "unlinkClientAccount": "Remove access to this client account",
+    "unlinkClientConfirm": "Remove access to “{name}”? The client keeps their account; you will no longer see their workspace here.",
+    "unlinkClientConfirmYes": "Yes, remove",
+    "unlinkClientBusy": "Removing…",
+    "unlinkClientFailed": "Could not remove access.",
     "language": {
       "fr": "French",
       "en": "English",
@@ -400,10 +668,11 @@
   "setup": {
     "steps": {
       "llm": "API key",
-      "author": "My profile",
+      "author": "Full profile",
       "audience": "Target",
       "persona": "Persona",
-      "articles": "Posts"
+      "articles": "Posts",
+      "express": "Express start"
     },
     "emoji": {
       "label": "Emojis in posts",
@@ -413,11 +682,11 @@
       "hint": {
         "none": "No emojis in generated text.",
         "light": "1–3 visible emojis per post.",
-        "heavy": "Frequent emojis — lively but professional."
+        "heavy": "Frequent emojis : lively but professional."
       }
     },
     "onboarding": {
-      "progressLabel": "Profile progress: {percent}%",
+      "progressLabel": "Journey: {percent}%",
       "completeSummary": "Profile complete",
       "settingsSectionTitle": "Profile progress",
       "expandSteps": "Show setup journey",
@@ -426,47 +695,47 @@
       "stepsCompleted": "{done} / {total} steps",
       "status": {
         "complete": "Done",
-        "locked": "Complete the previous step first"
+        "locked": "Next step coming up"
       },
       "welcome": {
         "eyebrow": "Welcome",
-        "title": "Prepare your content engine",
-        "subtitle": "API key → profile → audience → Persona: each step feeds the creation assistant. Once ready, your LinkedIn posts follow your voice.",
+        "title": "Your first post in minutes",
+        "subtitle": "We start simple. Nothing is set in stone, you can complete and refine every step anytime.",
         "pillars": [
-          "A personal API key — you control cost and models.",
-          "Profile and audience — the AI learns who you are and who you write for.",
-          "A validated Persona — your Content Brain for every generation."
+          "The minimum to get started · no need to be perfect on day one.",
+          "Every step stays editable after you validate it.",
+          "The more you use it, the more your posts sound like you."
         ],
-        "resumeHint": "You have already made progress ({percent}%). Pick up where you left off.",
-        "ctaStart": "Start setup",
-        "ctaResume": "Resume setup",
-        "ctaReady": "I'm ready to create"
+        "resumeHint": "You already started ({percent}%). Pick up whenever you like.",
+        "ctaStart": "Get started",
+        "ctaResume": "Resume",
+        "ctaReady": "Create a post"
       },
       "hub": {
         "nextActionTitle": "Next action",
         "completedTitle": "Already completed",
-        "completedEmpty": "No steps completed yet — start with your API key.",
+        "completedEmpty": "Nothing done yet · start with your profile.",
         "ctaContinue": "Continue",
         "steps": {
           "setupLlm": {
-            "title": "Set up your API key",
-            "description": "A personal key enables AI generation (Persona, posts, news). You stay in control of costs."
+            "title": "AI connection",
+            "description": "AI powers your Persona and posts. Trial: included. Pro: add your key whenever you want."
           },
           "authorEssential": {
-            "title": "Complete profile essentials",
-            "description": "LinkedIn, role, and positioning — the minimum so the AI understands who you are."
+            "title": "Your profile",
+            "description": "Refine role, bio, inspirations, and documents, anytime, without blocking creation."
           },
           "audience": {
-            "title": "Define your audience",
-            "description": "A light audience sketch improves relevance — or skip this step to move on."
+            "title": "Your audience (optional)",
+            "description": "Clarify who you write for, or skip to test right away."
           },
           "persona": {
-            "title": "Validate your Persona",
-            "description": "Review what the AI understood about you, then validate your Content Brain before creating."
+            "title": "Your Persona",
+            "description": "AI summarizes what it learned about you. Review, validate, then edit if needed."
           },
           "startReady": {
-            "title": "Launch your first post",
-            "description": "Everything is ready — open the creation assistant and generate your first batch."
+            "title": "First post",
+            "description": "Your profile is ready · launch your first draft."
           },
           "articlesNew": {
             "title": "Create a new post",
@@ -475,17 +744,21 @@
           "startHub": {
             "title": "Resume setup",
             "description": "Check your progress and continue where you left off."
+          },
+          "setupExpress": {
+            "title": "Express start",
+            "description": "Your LinkedIn + language. The AI prefills the rest so you can test right away."
           }
         }
       },
       "ready": {
         "loading": "Loading…",
-        "title": "You're ready to create",
-        "subtitle": "Your Persona is validated. Launch your first LinkedIn post or refine your Content Brain further.",
+        "title": "You're set",
+        "subtitle": "You can create your first post. Your profile and Persona will keep improving as you publish and give feedback.",
         "check": {
-          "apiKey": "API key configured",
-          "profile": "Author profile complete",
-          "audience": "Audience defined (or step skipped)",
+          "apiKey": "AI connected",
+          "profile": "Basic profile",
+          "audience": "Audience (or skipped)",
           "persona": "Persona validated"
         },
         "ctaCreate": "Create my first post",
@@ -493,36 +766,40 @@
       },
       "wizard": {
         "stepLabel": "Step {current} of {total}",
-        "backToWelcome": "Back to onboarding home"
+        "backToWelcome": "Overview"
       },
       "banner": {
         "persona": {
-          "title": "Validate your Persona before generating",
-          "description": "Your Persona is your Content Brain. Once validated, you can create LinkedIn post batches in your voice."
+          "title": "One last step before creating",
+          "description": "Review what AI understood about your profile and voice. Validate to unlock creation, everything stays editable."
         },
         "llm": {
-          "title": "Set up your API key",
-          "description": "A personal API key is required to generate your Persona and posts."
+          "title": "Connect AI",
+          "description": "Trial: AI is already active. Pro: add your API key to generate Persona and posts · change anytime in settings."
         },
         "author": {
-          "title": "Complete My profile",
-          "description": "Add your links and positioning so the AI can capture your voice."
+          "title": "Describe your profile",
+          "description": "Your LinkedIn URL, role, and positioning help AI calibrate your voice. Everything else is optional."
         },
         "audience": {
-          "title": "Define your audience",
-          "description": "A light audience sketch improves post relevance — or skip this step."
+          "title": "Your audience (optional)",
+          "description": "Clarify who you write for more targeted posts, or skip and come back later."
         },
         "generic": {
-          "title": "Finish your profile",
-          "description": "A few quick steps to activate your AI ghostwriter."
+          "title": "Almost there",
+          "description": "One more step, then you can create your first post."
         },
         "progressHint": "Profile {percent}% complete",
-        "cta": "Continue: {step}",
-        "ctaDefault": "Next step"
+        "cta": "Continue · {step}",
+        "ctaDefault": "Next step",
+        "express": {
+          "title": "Express start",
+          "description": "Paste your LinkedIn and pick a language. That's the minimum to generate a first post."
+        }
       },
       "guard": {
-        "checking": "Checking your setup…",
-        "redirecting": "Redirecting to the next setup step…"
+        "checking": "One moment…",
+        "redirecting": "Taking you to the next step…"
       }
     },
     "llm": {
@@ -536,7 +813,7 @@
         "bullets": [
           "Key stored in your personal workspace, isolated from other accounts.",
           "Sent over HTTPS only when you run a generation.",
-          "Validated once on save — never shown in plain text after that.",
+          "Validated once on save, never shown in plain text after that.",
           "Revocable anytime from your provider console (OpenAI, Anthropic, etc.)."
         ],
         "privacyReminder": "Never share your key by email or chat. If it leaks, revoke it at your provider immediately, then save a new key here."
@@ -559,10 +836,22 @@
         "signIn": "Sign-in method",
         "signInGoogle": "Google",
         "signInEmail": "Email & password",
-        "signInUnknown": "—",
+        "signInUnknown": "N/A",
         "activeWorkspace": "Active workspace",
         "memberSince": "Member since",
-        "userId": "User ID"
+        "userId": "User ID",
+        "accountStatus": "Account status",
+        "statusAdmin": "Administrator",
+        "statusFree": "Free trial",
+        "statusPro": "Pro",
+        "statusProPlus": "Pro+",
+        "statusSupportTotal": "Support total",
+        "statusExpired": "Expired",
+        "apiKey": "API key",
+        "apiKeyMasked": "••••••••••••••••",
+        "apiKeyPlatform": "Platform AI (included)",
+        "apiKeyNotConfigured": "Not configured",
+        "changeApiKey": "Change API key"
       },
       "dataManagement": {
         "title": "Data management",
@@ -570,7 +859,7 @@
         "warning": "These actions cannot be undone. Copy any validated posts you need before continuing.",
         "reset": {
           "title": "Restart my profile",
-          "description": "Clears your profile, Persona, inspirations, and post library. Your API key is kept — you restart at the My profile step.",
+          "description": "Clears your profile, Persona, inspirations, and post library. Your API key is kept, you restart at the My profile step.",
           "action": "Restart my profile",
           "pending": "Resetting…",
           "confirm": "Restart your profile? Your posts and Persona will be deleted. Your API key will be kept."
@@ -583,7 +872,8 @@
           "confirmWord": "DELETE",
           "action": "Erase permanently",
           "pending": "Deleting…",
-          "cancel": "Cancel"
+          "cancel": "Cancel",
+          "confirmMismatch": "Confirmation text does not match."
         },
         "errors": {
           "notAuthenticated": "Session expired. Sign in again.",
@@ -604,7 +894,7 @@
           "name": "OpenAI (ChatGPT)",
           "keyPlaceholder": "sk-…",
           "link": "https://platform.openai.com/api-keys",
-          "linkLabel": "OpenAI platform — API keys",
+          "linkLabel": "OpenAI platform · API keys",
           "steps": [
             "Sign in at platform.openai.com",
             "Go to API keys → Create new secret key",
@@ -615,7 +905,7 @@
           "name": "Perplexity",
           "keyPlaceholder": "pplx-…",
           "link": "https://www.perplexity.ai/settings/api",
-          "linkLabel": "Perplexity settings — API",
+          "linkLabel": "Perplexity settings · API",
           "steps": [
             "Perplexity account → Settings → API",
             "Generate an API key",
@@ -626,7 +916,7 @@
           "name": "Anthropic (Claude)",
           "keyPlaceholder": "sk-ant-…",
           "link": "https://console.anthropic.com/settings/keys",
-          "linkLabel": "Anthropic console — API keys",
+          "linkLabel": "Anthropic console · API keys",
           "steps": [
             "Create an account at console.anthropic.com",
             "Settings → API Keys → Create Key",
@@ -637,27 +927,44 @@
           "name": "Google Gemini",
           "keyPlaceholder": "AIza…",
           "link": "https://aistudio.google.com/apikey",
-          "linkLabel": "Google AI Studio — API key",
+          "linkLabel": "Google AI Studio · API key",
           "steps": [
             "Open aistudio.google.com",
             "Get API key → create a key for your Google Cloud project",
             "Copy the AIza… key"
           ]
         }
+      },
+      "trialIncluded": {
+        "body": "Your trial includes platform AI : no key required to get started.",
+        "cta": "Continue to express setup →"
+      },
+      "platformIncluded": {
+        "body": "Your plan includes platform AI, you can add your own key later in settings.",
+        "cta": "Continue to express setup →"
       }
     },
     "author": {
       "title": "My profile",
-      "subtitle": "Add links to your professional presence. No copy-paste — URLs only for examples.",
+      "subtitle": "Add your LinkedIn, role, and positioning, AI uses them to build your Persona. Everything else is optional and editable later.",
+      "enrichTitle": "Enrich my profile",
+      "enrichSubtitle": "Your express start info is already saved. Add what's missing here. LinkedIn activity, documents, inspirations, without re-entering everything.",
+      "enrichSave": "Save additions",
+      "enrichBackToCreate": "Back to creation →",
       "tabs": {
         "ariaLabel": "Author profile sections",
         "essential": "Essentials",
         "voice": "Voice",
         "inspirations": "Inspirations",
         "hint": {
-          "essential": "LinkedIn and web links — foundation for strategy analysis and Persona.",
-          "voice": "Role, positioning, language, and examples of your own posts.",
-          "inspirations": "Content you admire — tone, angle, and format to enrich your Persona."
+          "essential": "Your LinkedIn URL is the only field required to move on.",
+          "voice": "Role, bio, and language: AI uses them to calibrate your Persona and post tone.",
+          "inspirations": "Optional references to enrich your Persona, add them whenever you like."
+        },
+        "enrichHint": {
+          "essential": "Your LinkedIn is already saved. Add activity URL, website, or blog here, all optional.",
+          "voice": "Role, bio, and language come from express start. Enrich with documents or reference posts.",
+          "inspirations": "Add creators or posts that inspire you to refine your Persona."
         },
         "tier": {
           "required": "Required",
@@ -665,31 +972,74 @@
           "later": "Do later"
         },
         "requiredNote": {
-          "essential": "LinkedIn is required to continue. Website, blog, and activity URL improve quality but stay optional.",
-          "voice": "Role, positioning, and language are required. Reference posts enrich your Persona but stay optional.",
-          "inspirations": "Everything here is optional — add inspirations when you want to enrich your Persona (OK to skip for now)."
+          "essential": "LinkedIn required · website and blog optional.",
+          "voice": "Role, positioning, and language required to continue · reference documents and posts are optional.",
+          "inspirations": "Everything here is optional. Add inspirations when you want to deepen your Persona."
+        },
+        "enrichRequiredNote": {
+          "essential": "LinkedIn already provided · fields below are optional additions.",
+          "voice": "Role and bio already provided · documents and reference posts are optional.",
+          "inspirations": "Everything optional. Add inspirations to refine your Persona."
         }
       },
       "linkedin": "LinkedIn profile URL",
+      "linkedinHint": "Your public LinkedIn profile · AI reads it to understand your expertise (targeted read, not blind scraping).",
       "linkedinActivity": "LinkedIn activity URL (your posts)",
-      "linkedinActivityHint": "Your profile’s recent activity page — the AI analyzes ~2 months of posts for strategic recommendations.",
+      "linkedinActivityHint": "Your profile's recent activity page · AI analyzes ~2 months of posts to calibrate your voice and recommendations.",
       "linkedinActivityNotActivity": "Use your activity feed URL (e.g. …/in/your-name/recent-activity/all/).",
       "website": "Website URL",
       "blog": "Blog URL",
       "role": "Role / title",
-      "positioning": "One-line positioning",
-      "contentLanguage": "Language for generated LinkedIn posts",
+      "positioning": "A few lines about you and your positioning",
+      "positioningHint": "Describe what you do and what sets you apart. You can paste your LinkedIn intro, it often captures your expertise well.",
+      "contentLanguage": "Primary language for generated LinkedIn posts",
+      "contentLanguageHint": "Sets the default language for posts and shapes how your Persona is written. Translation with localization is still available when creating posts.",
       "errors": {
         "requiredFields": "Complete the required fields (LinkedIn, role, positioning, language) before continuing."
       },
       "save": "Save draft",
       "saveSuccess": "Draft saved",
-      "continue": "Continue to target",
+      "continue": "Continue",
       "invalidUrl": "Please enter a valid http(s) URL.",
       "saveFailed": "Could not save. Check Firestore rules.",
+      "bioDocuments": {
+        "title": "Reference documents",
+        "description": "CV, bio PDF, or Google Doc · AI extracts text to calibrate your Persona and posts.",
+        "trustNote": "We only read content you provide, never scrape without your consent.",
+        "uploadFile": "Upload a file",
+        "uploading": "Uploading…",
+        "fileHint": "Accepted formats: PDF, TXT, or Markdown · max {maxMb} MB. Text is extracted to enrich your profile.",
+        "addLink": "Add a link (Google Doc, web page…)",
+        "addLinkSubmit": "Add link",
+        "linkUrl": "Document URL",
+        "linkUrlPlaceholder": "https://docs.google.com/document/d/…",
+        "linkLabel": "Label (optional)",
+        "linkHint": "For Google Docs: Share → “Anyone with the link” with view access. Without this, import will fail.",
+        "cancel": "Cancel",
+        "remove": "Remove",
+        "empty": "No documents yet.",
+        "kindFile": "File",
+        "kindLink": "Link",
+        "extracted": "{chars, number} characters extracted",
+        "errors": {
+          "notAuthenticated": "Sign in to manage your documents.",
+          "loadFailed": "Could not load documents.",
+          "uploadFailed": "Upload failed.",
+          "removeFailed": "Could not remove document.",
+          "file_too_large": "File is too large.",
+          "empty_extracted_text": "No usable text could be extracted.",
+          "unsupported_file_type": "Unsupported file type.",
+          "unsupported_link_type": "Unsupported link type.",
+          "invalid_link": "Invalid URL.",
+          "google_doc_not_accessible": "Google Doc not accessible · check sharing settings.",
+          "link_not_accessible": "Link not accessible.",
+          "missing_file_or_link": "Choose a file or enter a URL.",
+          "admin_not_configured": "Service temporarily unavailable."
+        }
+      },
       "sources": {
         "title": "Your posts (for tone)",
-        "description": "Links to your own LinkedIn posts or articles — the AI uses them to match your voice.",
+        "description": "Links to your own LinkedIn posts or articles · the AI uses them to calibrate your voice.",
         "type": "Link type",
         "url": "URL",
         "labelOptional": "Label",
@@ -706,6 +1056,17 @@
           "website": "Website page",
           "other": "Other"
         }
+      },
+      "fullProfile": {
+        "anytimeTitle": "Full profile (optional)",
+        "anytimeBody": "This section enriches your Persona (voice, inspirations, documents). Complete or edit it anytime, no need to redo onboarding.",
+        "enrichTitle": "Continue from express start",
+        "enrichBody": "Nothing to re-enter: your LinkedIn, role, and language are already here. Only add what interests you.",
+        "capturedTitle": "Already saved from express start",
+        "capturedHint": "You can still edit these via Modify in each section.",
+        "alreadyProvided": "Done",
+        "editField": "Edit",
+        "voiceExtrasHint": "The sections below are new optional additions to refine your voice."
       }
     },
     "inspirations": {
@@ -714,21 +1075,21 @@
       "backToAuthor": "← Back to My profile",
       "backToPersona": "← Back to Persona",
       "pageTitle": "My inspirations",
-      "pageSubtitle": "Posts and profiles you admire — with what you like (tone, angle, format…). This enriches your Persona.",
+      "pageSubtitle": "Add LinkedIn posts or profiles you admire. Say what you like, the AI uses it to enrich your Persona without copying text.",
       "embeddedTitle": "Inspirations",
       "embeddedSubtitle": "LinkedIn posts or profiles you like, with the traits you want to borrow.",
       "embeddedManageLink": "Full page →",
       "postsTitle": "Inspiration posts",
-      "postsDescription": "Add as many LinkedIn posts as you like (yours or others)—capture the energy, not the wording.",
+      "postsDescription": "Add as many LinkedIn posts as you like (yours or others) : capture the energy, not the wording.",
       "profilesTitle": "Inspiration profiles",
       "profilesDescription": "Add multiple creators whose LinkedIn feeds inspire you.",
       "count": "{count, plural, one {# saved} other {# saved}}",
       "addFirstTitle": "Add an inspiration",
       "addAnotherTitle": "Add another inspiration",
       "addAnother": "Add another",
-      "addedSuccess": "Saved — you can add another below.",
+      "addedSuccess": "Saved, you can add another below.",
       "duplicateUrl": "This link is already in the list.",
-      "maxReached": "Maximum of 20 inspirations reached for this section.",
+      "maxReached": "Limit reached for this link type (20 max. per category).",
       "url": "URL",
       "postUrlPlaceholder": "https://www.linkedin.com/posts/…",
       "profileUrlPlaceholder": "https://www.linkedin.com/in/…",
@@ -742,11 +1103,11 @@
         "content": "Content",
         "format": "Format"
       },
-      "whyOptional": "Why I like it (optional)",
+      "whyOptional": "Why I like it",
       "whyPlaceholder": "e.g. personal storytelling, concrete numbers, soft CTA…",
       "add": "Add inspiration",
       "remove": "Remove",
-      "empty": "No inspirations yet.",
+      "empty": "Paste a LinkedIn link below to get started.",
       "liked": "Traits",
       "invalidUrl": "Invalid URL.",
       "needAspectOrWhy": "Select at least one trait or describe why you like this link.",
@@ -760,42 +1121,55 @@
         "postStep1": "Open the post on LinkedIn (app or browser).",
         "postStep2": "Click « … » (More) at the top right of the post.",
         "postStep3": "Choose « Copy link to post ».",
-        "postStep4": "Paste the URL here — it often starts with linkedin.com/posts/ or linkedin.com/feed/update/.",
+        "postStep4": "Paste the URL here, it often starts with linkedin.com/posts/ or linkedin.com/feed/update/.",
         "profileTitle": "Profile link",
         "profileStep1": "Open the person’s LinkedIn profile.",
         "profileStep2": "Copy the URL from the address bar (linkedin.com/in/name).",
-        "profileStep3": "Paste the URL in the profile field below.",
+        "profileStep3": "Paste the URL in the field below, the type is detected automatically.",
         "tip": "On mobile: share the post to « Copy link », or open the profile in the browser to copy the URL."
-      }
+      },
+      "unifiedTitle": "Your LinkedIn inspirations",
+      "unifiedDescription": "One place for all references: post or profile. Paste the link and note what speaks to you (tone, angle, format…).",
+      "typePost": "Post",
+      "typeProfile": "Profile",
+      "typeDetectedPost": "LinkedIn post detected",
+      "typeDetectedProfile": "LinkedIn profile detected",
+      "urlPlaceholder": "https://www.linkedin.com/posts/… or …/in/name",
+      "addFormHint": "Post vs. profile is detected automatically from the URL.",
+      "emptyTitle": "No inspirations yet",
+      "invalidLinkedInUrl": "Use a post link (…/posts/…) or profile link (…/in/…)."
     },
     "audience": {
       "title": "Who you write for",
-      "subtitle": "A light sketch of your ideal reader — keep it simple.",
-      "stepBadge": "Optional step",
+      "subtitle": "Helps AI target your readers. A rough sketch is enough, you can refine later.",
+      "stepBadge": "Optional",
       "targetLabel": "General target type",
-      "targetPlaceholder": "e.g. French SMB leaders expanding internationally",
-      "contentFocus": "What to highlight in your content",
-      "focusPlaceholder": "Themes, angles, topics — not a service catalog",
+      "targetPlaceholder": "e.g. French SME leaders expanding internationally",
+      "contentFocus": "What to emphasize in content",
+      "focusPlaceholder": "Themes, angles, not a service catalog",
       "notes": "Notes (optional)",
-      "optionalNote": "All fields are optional — you can skip this step with nothing filled.",
-      "emojiIntro": "Default preference for future posts (you can adjust per article when refining).",
+      "optionalNote": "All fields are optional · you can skip this step without filling anything.",
+      "emojiIntro": "Default preference for future posts (change per post when refining).",
       "skip": "Skip for now",
       "continue": "Continue to Persona",
       "back": "← Back to My profile",
       "saveFailed": "Could not save.",
       "savingProfile": "Saving your audience…",
-      "syncingPersona": "Updating your expert Persona…",
+      "syncingPersona": "Updating expert Persona…",
       "openingPersona": "Opening Persona…",
-      "syncingPersonaHint": "AI is merging your audience and preferences into the Persona. This may take 30–90 seconds — please keep this tab open.",
+      "syncingPersonaHint": "AI is integrating your audience and preferences into your Persona. Allow 30–90 seconds · do not close this page.",
       "continuePending": "Preparing…",
-      "skipPending": "Please wait…"
+      "skipPending": "Please wait…",
+      "targetHint": "Describe your ideal reader in one sentence · AI uses it to steer tone and topics.",
+      "contentFocusHint": "Themes, angles, key messages, not a service catalog.",
+      "skipHint": "Without this step, AI infers your reader from your profile. You can return here anytime."
     },
     "persona": {
       "title": "Your expert Persona",
-      "subtitle": "The AI synthesizes your profile into a Content Brain. Validate when the summary feels like you — it powers every post.",
+      "subtitle": "What AI understood about you. Review, adjust if needed, validate · everything stays editable.",
       "generate": "Generate Persona",
       "generating": "Generating your Persona…",
-      "generatingHint": "The AI is analyzing your links and target. This may take 30–90 seconds.",
+      "generatingHint": "AI is analyzing your links and audience. This may take 30–90 seconds · do not close the page.",
       "regenerate": "Regenerate",
       "regenerating": "Regenerating…",
       "validate": "Validate Persona",
@@ -803,23 +1177,31 @@
       "reveal": {
         "eyebrow": "AI synthesis",
         "title": "Here’s what the AI understood about you",
-        "subtitle": "Review these four pillars before validating. They feed every LinkedIn generation — the full prompt stays available below.",
+        "subtitle": "Review these four pillars before validating. They feed every LinkedIn generation, the full prompt stays available below.",
         "validatedEyebrow": "Content Brain active",
         "validatedTitle": "Persona validated",
         "validatedSubtitle": "This summary stays your editorial compass. Refine the prompt or start creating.",
         "cards": {
-          "positioning": { "label": "Positioning" },
-          "audience": { "label": "Audience" },
-          "angle": { "label": "Editorial angle" },
-          "tone": { "label": "Tone" }
+          "positioning": {
+            "label": "Positioning"
+          },
+          "audience": {
+            "label": "Audience"
+          },
+          "angle": {
+            "label": "Editorial angle"
+          },
+          "tone": {
+            "label": "Tone"
+          }
         },
         "fromPersona": "From Persona prompt",
         "fromProfile": "From your profile",
-        "audienceSkipped": "Audience step skipped — the AI infers your reader from your profile.",
-        "audienceEmpty": "Audience not specified — complete target or validate anyway.",
+        "audienceSkipped": "Audience step skipped, the AI infers your reader from your profile.",
+        "audienceEmpty": "Audience not specified : complete target or validate anyway.",
         "cardEmpty": "Add this in your profile or prompt.",
         "clickToEdit": "Click to edit",
-        "editHint": "Click any pillar to adjust the text before validating — changes update the Persona prompt.",
+        "editHint": "Click any pillar to adjust the text before validating : changes update the Persona prompt.",
         "editSave": "Save",
         "editCancel": "Cancel",
         "editSaving": "Saving…",
@@ -829,15 +1211,15 @@
         "validating": "Validating…",
         "completeProfile": "Complete my profile →",
         "promptToggle": "View full Persona prompt",
-        "promptHint": "Text the AI reads on every generation — editable before validation.",
+        "promptHint": "Text the AI reads on every generation, editable before validation.",
         "goCreate": "Create my first post →"
       },
       "back": "← Back to target",
       "help": {
         "guideTitle": "Understand your Content Brain",
-        "guideHint": "Topic DNA, LinkedIn rules, auto-learning — in brief.",
+        "guideHint": "Topic DNA, LinkedIn rules, auto-learning : in brief.",
         "promptLabel": "Persona prompt",
-        "promptBody": "Text the AI reads on every generation. Look for ## Topic DNA and ## LinkedIn operating rules — your editorial DNA.",
+        "promptBody": "Text the AI reads on every generation. Look for ## Topic DNA and ## LinkedIn operating rules, your editorial DNA.",
         "sections": {
           "contentBrain": {
             "title": "Content Brain",
@@ -857,7 +1239,7 @@
           },
           "validate": {
             "title": "Validation",
-            "body": "Validate when the prompt reflects your voice. Until validated, post creation stays blocked — your quality gate."
+            "body": "Validate when the prompt reflects your voice. Until validated, post creation stays blocked, your quality gate."
           },
           "measurement": {
             "title": "Measurement loop",
@@ -874,14 +1256,14 @@
         "otherLabel": "Other",
         "otherPlaceholder": "Specify…",
         "multiLimitHint": "Select up to 3 options (including Other).",
-        "multiLimitReached": "Maximum 3 selections — uncheck one to add another.",
+        "multiLimitReached": "Maximum 3 selections, uncheck one to add another.",
         "rankHint": "Use the arrows to rank from most important (top) to least important (bottom).",
         "rankPosition": "#{position}",
         "moveUp": "Move up",
         "moveDown": "Move down",
         "save": "Save answers",
         "saving": "Saving…",
-        "saved": "Answers saved — preferences applied to your Persona.",
+        "saved": "Answers saved : preferences applied to your Persona.",
         "saveFailed": "Could not save answers.",
         "saveSlowHint": "Use Regenerate if you want the AI to rewrite the full Persona from your profile."
       },
@@ -899,7 +1281,7 @@
       "history": {
         "title": "Version history",
         "subtitle": "The 10 most recent prompt updates (up to 3 months). Restore an earlier version if an automatic update does not fit.",
-        "empty": "No archived versions yet — history fills in when the Persona changes.",
+        "empty": "No archived versions yet : history fills in when the Persona changes.",
         "loadFailed": "Could not load history.",
         "restore": "Restore",
         "restoring": "Restoring…",
@@ -942,7 +1324,7 @@
       "recentUpdates": {
         "title": "Latest Persona updates",
         "subtitle": "The last 2 integrations (profile, article feedback, your notes).",
-        "help": "Journal of recent changes — not full history. Useful to see what the AI integrated since your last visit.",
+        "help": "Journal of recent changes, not full history. Useful to see what the AI integrated since your last visit.",
         "source": {
           "generate": "Generation",
           "profile_sync": "Profile",
@@ -954,7 +1336,7 @@
       "refinement": {
         "title": "Refine your Persona",
         "subtitle": "Add precise instructions: tone, topics, avoid list, examples. The AI updates the prompt and bumps the version.",
-        "help": "Your instructions in plain language. The AI rewrites the Persona keeping Topic DNA and rules — ideal to fix drift without full regeneration.",
+        "help": "Your instructions in plain language. The AI rewrites the Persona keeping Topic DNA and rules : ideal to fix drift without full regeneration.",
         "placeholder": "E.g. Emphasize international networking, less tech jargon, always end with an open question…",
         "apply": "Update Persona",
         "applying": "Updating…",
@@ -964,12 +1346,18 @@
         "invalidApiKey": "API key rejected. Update it in API key setup.",
         "goLlmSetup": "Configure my API key"
       },
-      "versionBadge": "Version {version} · updated {date}"
+      "versionBadge": "Version {version} · updated {date}",
+      "trialTeaser": {
+        "title": "Full Persona prompt (Pro)",
+        "body": "Upgrade to Pro to export and refine the full system prompt.",
+        "cta": "View plans",
+        "promptLocked": "Section reserved for Pro accounts."
+      }
     },
     "articles": {
       "title": "Sample posts",
       "titlePending": "Posts to publish",
-      "descriptionPending": "Drafts and posts being refined — not yet validated for LinkedIn.",
+      "descriptionPending": "Drafts and posts being refined, not yet validated for LinkedIn.",
       "filter": {
         "label": "Filter posts",
         "pending": "To publish",
@@ -978,7 +1366,9 @@
       "library": {
         "title": "Library",
         "description": "Search, filter by status or scope, and rework posts by batch.",
-        "descriptionPending": "Draft or refining posts — ready to finalize for LinkedIn.",
+        "descriptionPending": "Draft or refining posts : ready to finalize for LinkedIn.",
+        "emptyTitle": "Your library is empty",
+        "batchEyebrow": "Session",
         "toolbarLabel": "Library filters",
         "searchLabel": "Search posts",
         "searchPlaceholder": "Search by hook, content, or brief…",
@@ -1018,7 +1408,179 @@
         "scopeMix": {
           "label": "Help: generalist / niche mix",
           "body": "On a 4-post batch, the typical mix is 2 generalist + 2 niche posts: broad reach plus expert credibility. Counts reflect this session only."
+        },
+        "nichePanel": {
+          "label": "Help: target niche",
+          "body": "One line: one reader, one concrete problem. It builds on your Persona (Topic DNA) and audience : refine it anytime. The agent uses it as an anchor so your message stays focused.",
+          "scopeLabel": "Help: draft focus",
+          "scopeBody": "Niche focus = expert angle and precise ICP. Broader = still in your expertise, but more open angles to widen reach without writing for everyone."
         }
+      },
+      "creatorRadar": {
+        "eyebrow": "Influences",
+        "title": "Content creators in your niche",
+        "subtitle": "3 daily suggestions, keep who inspires you, dismiss the rest. Fresh batch tomorrow.",
+        "loading": "Finding creators in your niche…",
+        "error": "Radar unavailable right now.",
+        "needsPersonaTitle": "Persona required for radar",
+        "needsPersonaBody": "Generate your Persona first to get creators aligned with your niche.",
+        "whyLabel": "Why them",
+        "angleLabel": "Recent angle",
+        "keep": "Keep",
+        "keeping": "Adding…",
+        "inspire": "Inspire a post",
+        "dismiss": "Remove",
+        "viewProfile": "View on LinkedIn",
+        "funnel": {
+          "awareness": "Awareness",
+          "consideration": "Consideration",
+          "conversion": "Conversion"
+        },
+        "retry": "Retry",
+        "errorActions": {
+          "completeNiche": "Complete my niche",
+          "addInspiration": "Add an inspiring creator",
+          "openPersona": "Generate my Persona",
+          "openLlm": "Configure API key",
+          "viewPricing": "View plans"
+        },
+        "errors": {
+          "needs_persona": {
+            "title": "Persona too thin for radar",
+            "body": "We need a rich enough Persona to infer your niche and suggest relevant creators.",
+            "tips": [
+              "Generate or complete your Persona (Topic DNA, audience, angle).",
+              "Come back here: the radar will refresh automatically."
+            ]
+          },
+          "needs_niche": {
+            "title": "Niche not specific enough yet",
+            "body": "The radar doesn't know precisely who you write for. Without a clear niche, suggestions stay generic.",
+            "tips": [
+              "Fill in “Niche (reader + problem)” in your audience profile.",
+              "Add one LinkedIn creator you admire under Inspirations, it helps calibrate tone and level."
+            ]
+          },
+          "no_creators_found": {
+            "title": "No creators found for now",
+            "body": "The AI couldn't suggest 3 credible profiles with your current context. Enrich your profile and try again.",
+            "tips": [
+              "Sharpen your niche (one reader, one concrete problem).",
+              "Add at least one inspiring LinkedIn profile you already follow.",
+              "If you dismissed today's picks, come back tomorrow for a fresh batch."
+            ]
+          },
+          "load_failed": {
+            "title": "Radar temporarily unavailable",
+            "body": "Loading failed. Check your connection and that your profile is complete enough.",
+            "tips": [
+              "Complete niche + Persona if you haven't already.",
+              "Add a reference creator under Inspirations to guide the AI."
+            ]
+          },
+          "keep_failed": {
+            "title": "Could not save this profile",
+            "body": "Saving to your LinkedIn inspirations failed.",
+            "tips": [
+              "Try again in a moment.",
+              "Or add the profile manually under Setup → Inspirations."
+            ]
+          },
+          "no_llm_key": {
+            "title": "API key required",
+            "body": "The radar uses AI, no usable key was found on the server.",
+            "tips": [
+              "Save your key under Settings → API key."
+            ]
+          },
+          "own_llm_required": {
+            "title": "Your own API key required",
+            "body": "Your plan doesn't include the platform key, the radar uses your personal key.",
+            "tips": [
+              "Add an OpenAI, Anthropic, or Perplexity key in Settings."
+            ]
+          },
+          "platform_llm_unavailable": {
+            "title": "Platform AI unavailable",
+            "body": "Included platform AI could not connect (platform key missing or rejected).",
+            "tips": [
+              "Try again in a few minutes.",
+              "On the free trial, you can also add your own API key in Settings."
+            ],
+            "tipsPlatformOnly": [
+              "Try again in a few minutes.",
+              "If the issue persists, contact support, your plan uses included platform AI."
+            ]
+          },
+          "subscription_expired": {
+            "title": "Trial or subscription expired",
+            "body": "Creator radar requires active AI access.",
+            "tips": [
+              "Upgrade to a paid plan to continue."
+            ]
+          },
+          "llm_request_failed": {
+            "title": "AI request failed",
+            "body": "Creator lookup failed on the provider side : often temporary.",
+            "tips": [
+              "Retry in 1–2 minutes.",
+              "If it persists, check credits and API key validity."
+            ]
+          },
+          "invalid_api_key": {
+            "title": "API key rejected",
+            "body": "Your AI provider rejected the stored key.",
+            "tips": [
+              "Check Settings → API key (correct provider, active key)."
+            ]
+          },
+          "insufficient_credits": {
+            "title": "Insufficient AI credits",
+            "body": "Your provider account has no credits left for this request.",
+            "tips": [
+              "Top up your OpenAI / Anthropic / Perplexity account and retry."
+            ]
+          },
+          "rate_limit": {
+            "title": "Too many requests",
+            "body": "Provider rate limit reached.",
+            "tips": [
+              "Wait a minute and click Retry."
+            ]
+          },
+          "no_llm_results": {
+            "title": "No creators returned",
+            "body": "The AI returned no usable suggestions.",
+            "tips": [
+              "Sharpen your niche and add one reference inspiration profile."
+            ]
+          },
+          "no_valid_creators": {
+            "title": "Invalid profile URLs",
+            "body": "Suggestions didn't include usable LinkedIn URLs.",
+            "tips": [
+              "Retry tomorrow or enrich niche and inspirations."
+            ]
+          }
+        }
+      },
+      "nichePanel": {
+        "eyebrow": "Content strategy",
+        "title": "Your target niche",
+        "subtitle": "Writing for everyone reaches no one. One reader, one problem : that's what helps the algorithm show you to the right people.",
+        "fieldLabel": "Niche (reader + problem)",
+        "fieldPlaceholder": "E.g. B2B SaaS founders who struggle to turn LinkedIn expertise into pipeline",
+        "suggestedHint": "Suggested from your persona",
+        "saveHint": "Saved to your audience profile",
+        "saving": "Saving…",
+        "scopeLabel": "Focus for this draft",
+        "scope": {
+          "niche": "Niche focus",
+          "generalist": "Broader (within expertise)"
+        },
+        "scopeHintNiche": "Expert angle, precise ICP, domain vocabulary, your niche problem at the center.",
+        "scopeHintBroader": "Still credible in your field, but more open angles beyond the core ICP.",
+        "conversationTip": "Reach → conversations: end with a specific question for your target reader (no vanity metrics). When it fits, a comment-to-DM loop turns attention into pipeline."
       },
       "emptyPending": "No pending posts. Create a new batch or view validated posts.",
       "needPersona": "Validate your Persona before generating posts.",
@@ -1037,12 +1599,12 @@
         "setupReadyBanner": {
           "eyebrow": "Setup complete",
           "title": "Your Content Brain is ready",
-          "description": "Your Persona powers every generation. Pick an intention below — the brief (problem, point of view, proof) gives the post its purpose.",
+          "description": "Your Persona powers every generation. Pick an intention below, the brief (problem, point of view, proof) gives the post its purpose.",
           "dismiss": "Dismiss"
         },
         "briefReminder": {
           "title": "Your brief gives the post its purpose",
-          "description": "Pick a path below. At the brief step, the AI uses your Persona plus these three pillars — especially for “From my profile”.",
+          "description": "Pick a path below. At the brief step, the AI uses your Persona plus these three pillars : especially for “From my profile”.",
           "help": {
             "label": "Understand the brief",
             "body": "The brief steers generation: problem (what your reader faces), point of view (your distinct angle), proof (example, number, field note). LinkedIn objective (credibility, conversation…) adds on top for the profile path."
@@ -1054,7 +1616,7 @@
           },
           "dismiss": "Dismiss"
         },
-        "briefSubtitleShort": "Objective required; other fields are AI-suggested and editable.",
+        "briefSubtitleShort": "All fields are optional, the AI can suggest values from your Persona.",
         "briefSuggesting": "Suggesting brief…",
         "briefSuggestFailed": "Could not suggest the brief. Fill in the fields manually.",
         "incompleteObjective": "Pick at least one objective to continue.",
@@ -1067,17 +1629,18 @@
         "modePicker": {
           "heroEyebrow": "Creation assistant",
           "heroTitle": "Your next LinkedIn post, in minutes",
-          "heroSubtitle": "Four paths for your situation: publish from your Persona, react to the news, repurpose existing content, or draft a post on a topic you already have in mind — always in your voice with quality guardrails.",
+          "heroSubtitle": "Four paths, one promise: a draft in your voice, ready to refine and publish.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
-          "heroPill3": "Ready to paste on LinkedIn",
+          "heroPill3": "LinkedIn-ready",
+          "modesSectionLabel": "Choose a path",
           "recommended": "Recommended",
           "start": "Get started",
           "strategyDrawerTitle": "LinkedIn analysis & recommendations",
-          "strategyDrawerHint": "Optional — recommended path and 4 themes based on your recent posts.",
+          "strategyDrawerHint": "Optional : recommended path and 4 themes based on your recent posts.",
           "guide": {
             "title": "Not sure where to start?",
-            "subtitle": "Pick the intent that fits you — we’ll highlight the right path.",
+            "subtitle": "Pick the intent that fits you : we’ll highlight the right path.",
             "regular": "I want to publish from my expertise",
             "news": "I want to react to the news",
             "repurpose": "I want to repurpose existing content",
@@ -1096,7 +1659,7 @@
             "noLlm": "Add your API key in Settings to run analysis.",
             "perplexityRequired": "LinkedIn post analysis requires Perplexity (Sonar) in Settings.",
             "perplexityCta": "Configure Perplexity →",
-            "notActivityUrl": "Invalid activity URL — use …/recent-activity/all/",
+            "notActivityUrl": "Invalid activity URL, use …/recent-activity/all/",
             "invalidKey": "API key rejected by the provider. Check Settings → API key.",
             "insufficientCredits": "Insufficient credits on your Claude (Anthropic) account. Top up at console.anthropic.com, then try again.",
             "fetchUnavailable": "Live LinkedIn analysis is unavailable. Add a Perplexity (Sonar) key in Settings for a reliable scan, or try again later.",
@@ -1125,7 +1688,7 @@
               "pivot": "Pivot",
               "news": "News"
             },
-            "highlightModeHint": "Scroll down to the “{mode}” path below — it will be highlighted.",
+            "highlightModeHint": "Scroll down to the “{mode}” path below, it will be highlighted.",
             "themesSelectHint": "1. Click to select a theme · 2. Then start adjustment (brief pre-filled).",
             "themesSelected": "Selected",
             "themesStartAdjustment": "Start adjustment with this theme",
@@ -1134,49 +1697,49 @@
           "modes": {
             "profile": {
               "title": "From my profile",
-              "desc": "The core experience: one draft aligned with your Persona and a full brief — refine then validate.",
-              "badge": "1 draft",
+              "desc": "1 draft grounded in your Persona. Optional brief to refine objective, angle, and proof.",
+              "badge": "Persona",
               "outputs": [
-                "Persona + Topic DNA",
-                "Objective / proof brief",
-                "Hooks & Quality Panel"
+                "Persona voice",
+                "Brief & objectives",
+                "Quality Panel"
               ]
             },
             "news": {
               "title": "From the news",
-              "desc": "Scan 4 recent stories, pick one, then 1 post that comments in your voice — source in the first comment.",
-              "badge": "News < 7 days",
+              "desc": "4 stories scanned in your niche : pick one, get 1 commented post in your voice.",
+              "badge": "News",
               "outputs": [
-                "Targeted web scan",
-                "1 reactive post",
-                "Source citation"
+                "News < 7 days",
+                "Source in comment",
+                "Quality Panel"
               ]
             },
             "inspiration": {
-              "title": "From existing content",
-              "desc": "Paste, link + excerpt, or pick a saved inspiration — 1 rewritten draft with a distinct angle.",
-              "badge": "1 focused draft",
+              "title": "From inspiration",
+              "desc": "Pasted text, URL, or library : 1 rewritten draft with a distinct angle, without copying the source.",
+              "badge": "Inspiration",
               "outputs": [
                 "Paste · URL · Library",
                 "Anti-plagiarism angle",
-                "Regenerate angle"
+                "Quality Panel"
               ]
             },
             "article": {
-              "title": "Create an article",
-              "desc": "You already know the topic — capture your main idea in a light form, then get a draft you can refine with the usual tools.",
-              "badge": "Your topic",
+              "title": "From my topic",
+              "desc": "You already have the idea, describe the topic in a few lines, the AI structures the draft in your tone.",
+              "badge": "Free topic",
               "outputs": [
                 "Light topic brief",
-                "Quality Panel & tone",
-                "Translations & edit"
+                "Tone of choice",
+                "Quality Panel"
               ]
             }
           }
         },
         "articleTopic": {
           "title": "Your post idea",
-          "subtitle": "Share what you want to communicate — choose a tone, then the AI helps you rephrase and structure it using your profile.",
+          "subtitle": "Share what you want to communicate : choose a tone, then the AI helps you rephrase and structure it using your profile.",
           "writingStyleLabel": "Writing tone",
           "writingStyleHint": "Pick how the first draft should sound. You can always edit afterward.",
           "writingStyle": {
@@ -1186,7 +1749,7 @@
             },
             "personal": {
               "title": "Personal / authentic",
-              "desc": "First person, human tone — e.g. diploma, career step, meaningful news. The AI rephrases and structures your words without turning them into a generic LinkedIn post."
+              "desc": "First person, human tone : e.g. diploma, career step, meaningful news. The AI rephrases and structures your words without turning them into a generic LinkedIn post."
             }
           },
           "topicLabel": "Post topic",
@@ -1195,16 +1758,16 @@
           "topicPlaceholder": "E.g. I just completed my Executive Master at HEC Paris",
           "messageLabel": "What you want to say",
           "messageHelpLabel": "Message",
-          "messageHelp": "Your story in your own words — feelings, context, what matters to you. The AI will rephrase, not replace your meaning.",
-          "messagePlaceholder": "E.g. This journey took three years alongside my role as plant director. The hardest part wasn't the exams — it was learning to lead change while still being in the field…",
+          "messageHelp": "Your story in your own words : feelings, context, what matters to you. The AI will rephrase, not replace your meaning.",
+          "messagePlaceholder": "E.g. This journey took three years alongside my role as plant director. The hardest part wasn't the exams, it was learning to lead change while still being in the field…",
           "exampleLabel": "Detail or proof (optional)",
           "examplePlaceholder": "E.g. Final project on operational excellence in automotive supply chain, grade 18/20…",
           "ctaLabel": "Closing intention (optional)",
           "ctaPlaceholder": "E.g. Thank the teams who supported me; invite peers to share their own learning path",
-          "ctaHint": "Optional — the Quality Panel can suggest improvements based on your profile after generation.",
+          "ctaHint": "Optional, the Quality Panel can suggest improvements based on your profile after generation.",
           "incomplete": "Add a topic (8+ characters) and your main message (8+ characters).",
           "afterGenerate": "After generation: edit freely, run the Quality Panel, adjust tone, add translations, then validate when ready.",
-          "afterGeneratePersonal": "After generation: the draft stays in your voice (first person). Use the Quality Panel for suggestions grounded in your profile — then edit and validate when ready."
+          "afterGeneratePersonal": "After generation: the draft stays in your voice (first person). Use the Quality Panel for suggestions grounded in your profile, then edit and validate when ready."
         },
         "recentPosts": {
           "title": "Rework an existing post",
@@ -1214,7 +1777,7 @@
           "seeLess": "See less",
           "maxHint": "Showing up to the {max} most recent posts.",
           "reworkCta": "Rework this post →",
-          "selected": "Selected — brief prefilled",
+          "selected": "Selected, brief prefilled",
           "untitled": "Untitled",
           "status": {
             "draft": "Draft",
@@ -1233,7 +1796,7 @@
           },
           "inspiration": {
             "title": "From existing content",
-            "desc": "Paste text, a link + excerpt, or a saved inspiration — 1 draft with a distinct angle."
+            "desc": "Paste text, a link + excerpt, or a saved inspiration : 1 draft with a distinct angle."
           }
         },
         "inspiration": {
@@ -1271,7 +1834,7 @@
           "urlInvalid": "Invalid URL (https://…)",
           "excerptLabel": "Excerpt to repurpose",
           "excerptPlaceholder": "Paste the post text or key passages from the article here…",
-          "excerptHelp": "At least 40 characters. Do not copy verbatim — the AI must rewrite.",
+          "excerptHelp": "At least 40 characters. Do not copy verbatim, the AI must rewrite.",
           "libraryTitle": "Choose an inspiration",
           "libraryHint": "LinkedIn posts or profiles you saved with the aspects to reuse.",
           "profileBadge": "Profile",
@@ -1287,17 +1850,17 @@
         "newsIntro": "We scan 4 recent publications for your domain. Select the story to anchor on.",
         "continueWithNews": "Continue with this story",
         "pasteTitle": "Reference content",
-        "pasteHint": "Paste the full text (LinkedIn post, article excerpt, etc.). The AI will propose a new angle — not a paraphrase.",
+        "pasteHint": "Paste the full text (LinkedIn post, article excerpt, etc.). The AI will propose a new angle, not a paraphrase.",
         "pasteLabel": "Text to repurpose",
         "pastePlaceholder": "Paste the source post or article here…",
         "pasteRequired": "Paste at least a few lines of reference text.",
         "continueToBrief": "Continue to brief",
         "generateDraft": "Generate draft",
         "draftDoneTitle": "Your draft",
-        "draftDoneHint": "Review the title and body, adjust the angle if needed, pick a CTA, then validate — same as the full editor.",
+        "draftDoneHint": "Review the title and body, adjust the angle if needed, pick a CTA, then validate, same as the full editor.",
         "regenerateDraft": "Regenerate draft",
         "regeneratingDraft": "Regenerating…",
-        "regeneratingDraftHint": "New angle from the same brief — the current text will be replaced.",
+        "regeneratingDraftHint": "New angle from the same brief, the current text will be replaced.",
         "browseArchive": "Browse archived news stories",
         "selectedNewsLabel": "Selected story",
         "pastedPreviewLabel": "Reference excerpt",
@@ -1336,7 +1899,7 @@
         "noResultsFiltered": "Stories were found but none passed the 7-day filter. Try different topics.",
         "refineTitle": "Refine your focus",
         "refineHintDefault": "Add sectors, regions, or themes to steer the news scan.",
-        "refineHintFiltered": "Broaden or sharpen your topics — returned dates or sources were outside the window.",
+        "refineHintFiltered": "Broaden or sharpen your topics : returned dates or sources were outside the window.",
         "refineHintNoLlm": "The search returned nothing. Add concrete keywords (sector, country, trend).",
         "refineLabel": "Topics or keywords to search",
         "refinePlaceholder": "e.g. Mexico nearshoring, supply chain, SME export, energy…",
@@ -1355,7 +1918,7 @@
         "selectedBadge": "Story selected",
         "selectedTitle": "Create your LinkedIn posts from this story",
         "selectedNextStep": "Next step",
-        "selectedExplain": "The AI will draft one LinkedIn post reacting to this story in your voice and Persona — not a neutral press recap.",
+        "selectedExplain": "The AI will draft one LinkedIn post reacting to this story in your voice and Persona, not a neutral press recap.",
         "citationNote": "Posts name the source without a URL in the body (better LinkedIn reach). The full article URL will be suggested in your first comment under the post.",
         "changeNews": "Pick another story",
         "generateFromNews": "Generate a LinkedIn post from this story",
@@ -1363,13 +1926,17 @@
         "generateFromNewsHint": "1 story-anchored draft · source link in the first comment (not in the post body).",
         "previousNews": "Previous news"
       },
-      "briefIncomplete": "Complete the post brief (objective, problem, point of view, and proof) before generating.",
+      "briefIncomplete": "Could not start generation : please try again in a moment.",
       "brief": {
         "title": "Batch brief",
-        "subtitle": "Steers the draft toward your LinkedIn goal — the post will reflect problem, POV, and proof.",
+        "subtitle": "Steers the draft toward your LinkedIn goal : problem, POV, and proof when you add them.",
+        "optionalHint": "All fields are optional, the more detail you add, the more refined the draft.",
+        "refinementTip": "Keep refining problem, POV, and proof for a more targeted draft.",
         "objective": "Post objective",
         "objectivesHint": "Select up to 3 objectives. Rank 1 is the primary driver for tone and CTA.",
-        "objectivesMax": "Maximum 3 objectives — deselect one to add another.",
+        "objectivesSelectedCount": "{count} / {max} selected",
+        "objectivesMax": "Maximum 3 objectives, deselect one to add another.",
+        "primaryObjective": "Primary",
         "priorityLabel": "Priority",
         "priorityOption": "Priority {rank}",
         "objectivePriorityFor": "Priority for {objective}",
@@ -1379,16 +1946,22 @@
           "awareness": "Visibility",
           "leads": "Inbound"
         },
+        "objectiveDescriptions": {
+          "credibility": "Establish authority with proof and expertise.",
+          "conversation": "Spark thoughtful comments and dialogue.",
+          "awareness": "Grow reach with shareable angles.",
+          "leads": "Drive qualified inbound requests."
+        },
         "problemLabel": "Audience problem",
         "problemPlaceholder": "E.g. SMB exporters struggling to secure supply chains…",
         "problemNewsLabel": "Topic or stakes",
-        "problemNewsPlaceholder": "E.g. Record fines on Asian markets — what it means for investors…",
+        "problemNewsPlaceholder": "E.g. Record fines on Asian markets : what it means for investors…",
         "problemInspirationLabel": "Source content angle",
-        "problemInspirationPlaceholder": "E.g. The piece describes sector consolidation — what your reader should take away…",
+        "problemInspirationPlaceholder": "E.g. The piece describes sector consolidation : what your reader should take away…",
         "pointOfView": "Point of view",
         "pointOfViewPlaceholder": "E.g. The real lever isn't price but end-to-end visibility…",
         "proof": "Proof or experience",
-        "proofPlaceholder": "E.g. client case, internal metric, field observation (required)",
+        "proofPlaceholder": "E.g. client case, internal metric, field observation",
         "incomplete": "Enter at least 8 characters for problem, POV, and proof.",
         "help": {
           "objective": {
@@ -1401,24 +1974,24 @@
           },
           "problemNews": {
             "label": "Help: topic or stakes",
-            "body": "What the story is about and why it matters to your audience. You do not need to invent a “pain point” — the news or trend can already be the angle."
+            "body": "What the story is about and why it matters to your audience. You do not need to invent a “pain point”, the news or trend can already be the angle."
           },
           "problemInspiration": {
             "label": "Help: content angle",
-            "body": "What you take from the pasted content and why it matters to your reader. News, analysis, or opinion is enough — not always a classic customer problem."
+            "body": "What you take from the pasted content and why it matters to your reader. News, analysis, or opinion is enough, not always a classic customer problem."
           },
           "proof": {
             "label": "Help: proof",
-            "body": "Lived example, metric, client case, or field observation — what makes the post credible, not generic."
+            "body": "Lived example, metric, client case, or field observation : what makes the post credible, not generic."
           }
         },
         "niche": {
           "title": "Niche clarity",
           "deepen": "Deep AI analysis",
-          "warning": "Brief is too generic — add sector, ICP, or proof before publishing.",
+          "warning": "Brief is too generic, add sector, ICP, or proof before publishing.",
           "feedback": {
             "brief_too_generic": "This brief could target any professional on LinkedIn.",
-            "brief_niche_ok": "Good specificity — the brief anchors identifiable expertise.",
+            "brief_niche_ok": "Good specificity, the brief anchors identifiable expertise.",
             "brief_could_be_sharper": "OK, but a sector detail or metric would strengthen credibility."
           },
           "suggestions": {
@@ -1440,7 +2013,7 @@
           "short_video": "Native short video"
         },
         "alternatives": "Alternatives",
-        "carouselHint": "Consider a 5–7 slide carousel — generate the outline below, then visuals in Illustration.",
+        "carouselHint": "Consider a 5–7 slide carousel : generate the outline below, then visuals in Illustration.",
         "repurposeTitle": "Repurpose this post",
         "generateRepurpose": "Generate carousel + video script",
         "refreshRepurpose": "Regenerate",
@@ -1452,13 +2025,13 @@
         "generateComment": "Suggest a comment",
         "refreshComment": "Regenerate",
         "firstCommentHint": "Paste this as your first comment right after posting to seed qualified discussion.",
-        "firstCommentHintNews": "For news-based posts: paste this comment right after publishing — it includes the source with the URL (keep links out of the post body).",
+        "firstCommentHintNews": "For news-based posts: paste this comment right after publishing, it includes the source with the URL (keep links out of the post body).",
         "copyComment": "Copy comment",
         "copied": "Copied"
       },
       "translate": {
         "title": "Translations",
-        "subtitle": "Produce a version in your target language — LinkedIn length and line breaks respected.",
+        "subtitle": "Produce a version in your target language. LinkedIn length and line breaks respected.",
         "targetLanguageLabel": "1. Target language",
         "styleLabel": "2. Translation style",
         "literal": "Faithful translation",
@@ -1484,28 +2057,28 @@
         "title": "Generic phrasing (AI / LinkedIn style)",
         "help": {
           "label": "Help: cliché detection",
-          "body": "Flags LinkedIn / AI “template” phrases (game changer, excited to share, numbered lessons…). Instant local analysis, no API call. Not an overall post grade — a signal to personalize before publishing."
+          "body": "Flags LinkedIn / AI “template” phrases (game changer, excited to share, numbered lessons…). Instant local analysis, no API call. Not an overall post grade, a signal to personalize before publishing."
         },
-        "intro": "This panel flags wording everyone sees on LinkedIn and that AI tools often reuse (“game changer”, “excited to share”, numbered lessons, etc.). It is not an overall quality grade for your post — only a signal to make it more personal, concrete, and credible.",
+        "intro": "This panel flags wording everyone sees on LinkedIn and that AI tools often reuse (“game changer”, “excited to share”, numbered lessons, etc.). It is not an overall quality grade for your post, only a signal to make it more personal, concrete, and credible.",
         "howItWorksTitle": "How it works",
-        "howItWorks": "The app compares your text to a built-in list of known patterns — instant analysis, no API key used. Scores update as soon as you edit the hook or body.",
+        "howItWorks": "The app compares your text to a built-in list of known patterns : instant analysis, no API key used. Scores update as soon as you edit the hook or body.",
         "save": "Save analysis",
         "saved": "Analysis saved",
         "humanScoreLabel": "Perceived authenticity",
-        "humanScoreHelp": "Higher (near 10/10) means fewer generic clichés detected — the post sounds more like a real person wrote it.",
+        "humanScoreHelp": "Higher (near 10/10) means fewer generic clichés detected, the post sounds more like a real person wrote it.",
         "slopScoreLabel": "Cliché level",
         "slopScoreHelp": "Higher (near 10/10) means more template-style phrases. Aim for 1–3 before you publish.",
         "guidanceClean": "Good sign: keep going and add concrete proof (metric, case study, field observation) plus your personal angle.",
         "guidanceMild": "Worth refining: replace flagged phrases with your own words, a lived example, or a more direct line.",
-        "guidanceHeavy": "Priority: rewrite generic passages — use Apply feedback or the LinkedIn Quality levers (more proof, more niche…).",
+        "guidanceHeavy": "Priority: rewrite generic passages, use Apply feedback or the LinkedIn Quality levers (more proof, more niche…).",
         "flagsTitle": "Phrases flagged in this post",
-        "flagsHint": "These are lines readers have already seen many times — rework them in your voice.",
+        "flagsHint": "These are lines readers have already seen many times : rework them in your voice.",
         "warning": "Many clichés detected: rewrite with more proof, a niche angle, and a voice that sounds like you before posting on LinkedIn.",
         "summary": {
-          "empty": "Empty text — nothing to analyze yet.",
+          "empty": "Empty text, nothing to analyze yet.",
           "clean": "Few generic phrases: tone feels fairly personal.",
-          "mild_slop": "Some typical LinkedIn / AI wording — rephrase to stand out.",
-          "heavy_slop": "Many generic phrases — a focused rewrite is recommended."
+          "mild_slop": "Some typical LinkedIn / AI wording : rephrase to stand out.",
+          "heavy_slop": "Many generic phrases, a focused rewrite is recommended."
         },
         "flags": {
           "game_changer": "Game changer",
@@ -1529,13 +2102,13 @@
         "subtitle": "Scores and levers for credible, niche, conversational posts.",
         "help": {
           "label": "Help: Quality Panel",
-          "body": "Four scores (niche clarity, human voice, proof, conversation) plus targeted rewrite levers. Not an official LinkedIn grade — a guide to refine before publishing."
+          "body": "Four scores (niche clarity, human voice, proof, conversation) plus targeted rewrite levers. Not an official LinkedIn grade, a guide to refine before publishing."
         },
         "analyze": "Analyze this post",
         "refresh": "Re-analyze",
         "loadFailed": "Could not analyze the post.",
-        "linkWarning": "An external link appears in the post body. LinkedIn often reduces reach — prefer putting it in a comment.",
-        "linkWarningNews": "This post is anchored on news: remove the link from the body (LinkedIn reach penalty). Generate or copy the first comment below — it will include the source URL.",
+        "linkWarning": "An external link appears in the post body. LinkedIn often reduces reach : prefer putting it in a comment.",
+        "linkWarningNews": "This post is anchored on news: remove the link from the body (LinkedIn reach penalty). Generate or copy the first comment below, it will include the source URL.",
         "alternativeHooks": "Alternative hooks",
         "useHook": "Use",
         "scores": {
@@ -1567,7 +2140,7 @@
       "untitled": "Untitled",
       "cta": {
         "title": "Choose your CTA",
-        "subtitle": "3 suggestions aligned with the brief objective (conversation, save, leads…) — pick intensity.",
+        "subtitle": "3 suggestions aligned with the brief objective (conversation, save, leads…) : pick intensity.",
         "loading": "Generating CTAs…",
         "regenerate": "Regenerate 3 CTAs",
         "loadFailed": "Could not generate CTAs. Try again.",
@@ -1628,8 +2201,8 @@
         "default": "Standard",
         "corrosive": "Contrarian",
         "hint": {
-          "default": "Tone aligned with your Persona — balanced and professional.",
-          "corrosive": "Challenges a received idea or an \"obvious\" angle (including news). Forbidden: insults, politics, racism — even as humor."
+          "default": "Tone aligned with your Persona : balanced and professional.",
+          "corrosive": "Challenges a received idea or an \"obvious\" angle (including news). Forbidden: insults, politics, racism : even as humor."
         }
       },
       "refinement": {
@@ -1655,7 +2228,7 @@
         "notFound": "Post not found.",
         "applyFeedback": "Apply feedback and regenerate",
         "reviseFailed": "Revision failed. Try again.",
-        "reviseFailedHint": "Wait 30–60 s, shorten the global comment, or try again. Use Apply feedback in Refine — not Validate. Technical detail appears below when available.",
+        "reviseFailedHint": "Wait 30–60 s, shorten the global comment, or try again. Use Apply feedback in Refine, not Validate. Technical detail appears below when available.",
         "reviseJsonFailed": "The model returned an invalid format. Retry in 30 s or switch models in Settings.",
         "reviseRateLimit": "Rate or quota limit reached. Wait a minute and try again.",
         "reviseTimeout": "Revision timed out. Try again with a shorter comment.",
@@ -1676,20 +2249,20 @@
         "hashtagsHint": "4 LinkedIn hashtags will be appended at the end (content + profile) when you validate.",
         "characterCount": "{count} / {max} characters (LinkedIn)",
         "copyLinkedIn": "Copy & open LinkedIn",
-        "copied": "Copied — LinkedIn opened",
+        "copied": "Copied. LinkedIn opened",
         "copyLinkedInHint": "Text is on your clipboard. If LinkedIn’s composer is empty, paste with Ctrl+V (Cmd+V on Mac). Auto-publishing requires a LinkedIn connection (coming later).",
         "copyFailed": "Could not copy. Allow clipboard access or copy the text manually.",
         "newsAnchor": "Batch generated from this news story",
         "newsSourceInComment": "The source citation with the article URL belongs in your first comment (Format section), not in the post body.",
         "readSource": "Read source article",
         "inspirationAnchor": "Post inspired by existing content",
-        "inspirationAnchorHint": "Generated from a reference — rewritten angle with your Persona, no plagiarism.",
+        "inspirationAnchorHint": "Generated from a reference : rewritten angle with your Persona, no plagiarism.",
         "readInspirationSource": "Open inspiration source",
         "personaAlignedHint": "Generation aligned with your Persona",
         "help": {
           "topicDna": {
             "label": "Help: Topic DNA",
-            "body": "Recurring themes, convictions, and off-topic rules in your Persona (## Topic DNA section). Every post and CTA follows them — edit Persona if tone drifts."
+            "body": "Recurring themes, convictions, and off-topic rules in your Persona (## Topic DNA section). Every post and CTA follows them : edit Persona if tone drifts."
           }
         },
         "sections": {
@@ -1698,7 +2271,7 @@
           },
           "analysis": {
             "title": "Quality & generic phrasing",
-            "hint": "LinkedIn scores, rewrite levers, and cliché detection — open when you want to polish before validating.",
+            "hint": "LinkedIn scores, rewrite levers, and cliché detection : open when you want to polish before validating.",
             "hintValidated": "Re-check clichés before republishing a variant."
           },
           "cta": {
@@ -1710,7 +2283,7 @@
           },
           "illustration": {
             "title": "Illustration",
-            "hint": "Visual suggestions and image prompts — loaded when you open this section."
+            "hint": "Visual suggestions and image prompts : loaded when you open this section."
           },
           "share": {
             "title": "Share",
@@ -1723,11 +2296,13 @@
         "hint": "Send this post to a colleague by email or WhatsApp. The Ultra Content Maker mention is added for sharing only (not in the LinkedIn copy).",
         "email": "Email",
         "whatsapp": "WhatsApp"
-      }
+      },
+      "insufficientCredits": "Monthly quota reached.",
+      "premiumRequired": "Feature reserved for paid plans."
     },
     "news": {
       "title": "Previous news",
-      "subtitle": "Stories archived from your posts page — browse details or regenerate 2 posts (brief is set on the posts page).",
+      "subtitle": "Stories archived from your posts page : browse details or regenerate 2 posts (brief is set on the posts page).",
       "subtitleArchive": "The 10 most recently scanned stories. Select one to create a post, or run a fresh scan.",
       "archiveLimitNote": "Showing the 10 latest archived stories (by scan date).",
       "backToWizard": "Back to news creation",
@@ -1746,7 +2321,43 @@
       "generateFromNews": "Generate 2 posts from this story",
       "generatingFromNews": "Generating from story…",
       "generateFromNewsHint": "1 generalist + 1 niche post, both anchored on this news.",
-      "generatingHint": "AI is writing 2 posts from your Persona (30–60 s)."
+      "generatingHint": "AI is writing 2 posts from your Persona (30–60 s).",
+      "premiumRequired": "Archived news is available on Pro and Pro+.",
+      "upgradeCta": "Upgrade"
+    },
+    "express": {
+      "title": "Express start",
+      "subtitle": "LinkedIn and language are enough for a first test. The AI reads your profile and drafts a Persona : refine everything later.",
+      "trustNote": "Targeted read of your public LinkedIn profile · never scraped without your input. All fields remain editable.",
+      "linkedin": "LinkedIn profile URL",
+      "linkedinHint": "Paste your profile URL (linkedin.com/in/…), then click Scan to prefill role and bio.",
+      "scanProfile": "Scan my profile",
+      "scanProfileLoading": "Analyzing…",
+      "scanProfileHint": "Click Scan for an influence-oriented read of your LinkedIn : role and bio stay editable.",
+      "contentLanguage": "Language for generated posts",
+      "contentLanguageHint": "Used for Persona and drafts. Translation is available when creating posts.",
+      "suggestedSection": "Suggested from LinkedIn (editable)",
+      "role": "Role / title",
+      "rolePlaceholder": "e.g. Founder · B2B automation for SMBs",
+      "positioning": "A few lines about you",
+      "positioningPlaceholder": "Short bio: expertise, audience, proof, distinctive angle…",
+      "prefillLoading": "Critical LinkedIn analysis (influence, industry vertical)…",
+      "prefillSuccess": "Profile analyzed : tweak the suggestions below if needed.",
+      "prefillFailed": "Could not analyze right now. Retry or fill the fields manually.",
+      "profileNotAccessible": "LinkedIn profile not accessible (bad URL or private profile). Check the URL or enter role and bio manually.",
+      "fullProfileLater": "To go further (inspirations, documents, LinkedIn activity):",
+      "fullProfileLink": "Full profile →",
+      "continue": "Generate my Persona and try it",
+      "generatingPersona": "Building your Persona…",
+      "generatingPersonaHint": "30–90 seconds · keep this tab open.",
+      "errors": {
+        "invalidLinkedIn": "Enter a valid LinkedIn URL (https://…).",
+        "notProfileUrl": "Use your profile URL (…/in/your-name), not a post.",
+        "saveFailed": "Could not save. Try again.",
+        "personaFailed": "Persona not generated, you can run it from the Persona step.",
+        "llmNotConfigured": "AI connection unavailable. Scan uses your public LinkedIn data, retry or fill in manually.",
+        "subscriptionExpired": "Your trial or subscription has expired. Renew to use AI analysis."
+      }
     }
   },
   "dashboard": {
@@ -1852,7 +2463,7 @@
         "posts": "Example posts (paste)",
         "postsPlaceholder": "Paste 1–3 posts they wrote or like…",
         "googleDoc": "Google Doc URL (optional)",
-        "pdfNote": "PDF upload coming in the next update — use paste or Google Doc for now."
+        "pdfNote": "PDF upload coming in the next update, use paste or Google Doc for now."
       }
     }
   },
@@ -1863,5 +2474,250 @@
     "comingSoon": "Coming soon",
     "optional": "(optional)",
     "required": "(required)"
+  },
+  "pricing": {
+    "brand": "ULTRA CONTENT MAKER",
+    "eyebrow": "Pricing",
+    "title": "Choose your publishing pace",
+    "subtitle": "Free trial, then Pro or Pro+ depending on how hands-on you want to be. Platform AI included on trial and Pro+.",
+    "subtitleNote": "Platform AI included on trial and on Pro+.",
+    "wireHint": "Pay by card or wire transfer, activation within 24h after confirmation.",
+    "perMonth": "/ month",
+    "popular": "Most popular",
+    "comparePro": "Pro · your API key (OpenAI, Perplexity…)",
+    "compareIncluded": "Trial and Pro+ · platform AI included",
+    "usdNote": "Amounts in USD. Billed monthly.",
+    "hideFeatures": "Show less",
+    "showAllFeatures": "Show all",
+    "trial": {
+      "name": "Trial",
+      "description": "{days} days · {posts} posts to publish",
+      "f1": "Persona & Topic DNA",
+      "f2": "Guided brief & generation",
+      "f3": "4 exploratory drafts",
+      "f4": "LinkedIn quality scores",
+      "f5": "Platform AI included",
+      "f6": "No credit card",
+      "cta": "Start free"
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "{posts} posts / month · your API key",
+      "f1": "Everything in trial, no time limit",
+      "f2": "Your OpenAI or Perplexity key",
+      "f3": "Regeneration & refinement",
+      "f4": "News & inspirations",
+      "f5": "LinkedIn export & quality",
+      "f6": "Unlimited library",
+      "cta": "Choose Pro"
+    },
+    "proPlus": {
+      "name": "Pro+",
+      "description": "{posts} posts / month · platform AI included",
+      "f1": "All Pro features without managing an API key",
+      "f2": "Platform AI included",
+      "f3": "Advanced Persona & strategy",
+      "f4": "Premium news & archives",
+      "f5": "Priority support",
+      "f6": "Best for a fast start",
+      "cta": "Choose Pro+"
+    },
+    "support": {
+      "title": "Managed production",
+      "titleMode": "Support Total mode",
+      "subtitle": "We draft and refine with you : for founders and executives who want to delegate editorial work.",
+      "cta": "Request a quote",
+      "quoteHint": "Reply within 48h · custom quote based on your pace and sector.",
+      "starter": {
+        "name": "Starter",
+        "description": "{posts} posts / month · {months}-month minimum",
+        "f1": "Brief & validation with you",
+        "f2": "LinkedIn-ready posts",
+        "f3": "Revisions included"
+      },
+      "regular": {
+        "name": "Regular",
+        "description": "1 post / week · {months}-month minimum",
+        "f1": "Ongoing editorial line",
+        "f2": "Monitoring & topic proposals",
+        "f3": "Monthly calibration check-in"
+      },
+      "quoteForm": {
+        "dialogTitle": "Quote request. Managed production",
+        "dialogSubtitle": "Describe your needs : we'll get back within 48h.",
+        "plan": "Plan",
+        "planStarter": "Starter",
+        "planRegular": "Regular",
+        "planUnspecified": "To be defined together",
+        "fullName": "Full name",
+        "company": "Company",
+        "position": "Role",
+        "activityNeed": "Your editorial need",
+        "activityNeedPlaceholder": "Desired frequency, sector, LinkedIn goals…",
+        "email": "Email",
+        "whatsapp": "WhatsApp (optional)",
+        "whatsappPlaceholder": "+1…",
+        "submit": "Send request",
+        "pending": "Sending…",
+        "close": "Close",
+        "success": "Request sent : we'll contact you shortly.",
+        "errors": {
+          "notConfigured": "Service unavailable. Contact support.",
+          "generic": "Could not send. Try again or email us directly."
+        }
+      }
+    },
+    "billing": {
+      "authRequired": "Sign in to continue.",
+      "notConfigured": "Online checkout is not available yet.",
+      "failed": "Payment failed. Try again.",
+      "noCustomer": "No active subscription found.",
+      "portalFailed": "Could not open billing portal."
+    },
+    "compareHint": "Pro = your API key (OpenAI, Perplexity…). Pro+ and Trial = platform AI included."
+  },
+  "subscription": {
+    "banner": {
+      "trialShort": "Trial · {posts} post(s) left to publish",
+      "upgradeCta": "View plans",
+      "proLow": "Pro · {remaining} post(s) left this month",
+      "proPlusLow": "Pro+ · {remaining} post(s) left this month",
+      "addKey": "Add your API key"
+    },
+    "expired": {
+      "title": "Your trial has ended",
+      "body": "Upgrade to Pro or Pro+ to keep creating and access your library.",
+      "reassurance": "Pick a plan to restore access to your content.",
+      "upgrade": "Upgrade",
+      "pricing": "View pricing"
+    },
+    "upgrade": {
+      "title": "Upgrade",
+      "subtitle": "Pro with your API key, or Pro+ with platform AI included.",
+      "trialContext": "Trial: {days} days · {posts} posts included",
+      "activateTitle": "Activate your plan",
+      "activateBody": "Card or wire transfer, your workspace unlocks once confirmed.",
+      "couponSection": "Promo code",
+      "proBlurb": "You manage your API key : full control of AI costs.",
+      "proPlusBlurb": "Platform AI included · {posts} posts / month with no key setup.",
+      "viewPricing": "Compare plans"
+    },
+    "wire": {
+      "loginRequired": "Sign in to request a wire transfer.",
+      "loading": "Loading…",
+      "perMonth": "/ month",
+      "intro": "Wire {amount} USD, activation after receipt.",
+      "getBankDetails": "Get bank details",
+      "pending": "Processing…",
+      "requestCreated": "Request recorded.",
+      "approved": "Wire approved, your plan is active.",
+      "rejected": "Request declined. Contact support.",
+      "bankTitle": "Bank details",
+      "holder": "Account holder",
+      "bank": "Bank",
+      "amount": "Amount",
+      "payIn": "Currency: {currency}",
+      "reference": "Reference to include",
+      "bankNotConfigured": "Bank details not configured : contact support.",
+      "referenceHint": "Include this reference in the wire memo.",
+      "awaitingActivation": "Awaiting wire receipt.",
+      "notePlaceholder": "Optional note (billing, company…)",
+      "confirmWire": "I've sent the wire",
+      "wireSent": "Thank you : we'll activate your account upon receipt.",
+      "errors": {
+        "generic": "Action failed. Try again."
+      }
+    },
+    "coupon": {
+      "placeholder": "Promo code",
+      "submit": "Activate",
+      "pending": "Checking…",
+      "success": "Plan {tier} activated.",
+      "errors": {
+        "generic": "Invalid or expired code.",
+        "invalid": "Invalid code.",
+        "unauthorized": "Not authorized.",
+        "invalid_body": "Invalid request.",
+        "missing_code": "Enter a code."
+      }
+    },
+    "quiz": {
+      "title": "Which plan fits you?",
+      "subtitle": "Two quick questions to point you in the right direction.",
+      "optSimpleTitle": "I want to move fast",
+      "optSimple": "AI included : no API key to configure.",
+      "optOwnKeyTitle": "I already have an API key",
+      "optOwnKey": "OpenAI or Perplexity. I control AI costs.",
+      "optSupportLead": "I'd rather delegate",
+      "optSupport": "Managed production by the NS Suite team.",
+      "resultLabel": "Recommendation",
+      "resultProTitle": "Pro is a good fit",
+      "resultProPlusTitle": "Pro+ is a good fit",
+      "resultProBody": "Your API key, regen & news : the best value if you're comfortable with OpenAI or Perplexity.",
+      "resultProPlusBody": "Platform AI included : start without technical setup.",
+      "continue": "Continue to activation",
+      "compare": "Compare all plans"
+    },
+    "support": {
+      "title": "Managed production",
+      "titleMode": "Support Total mode",
+      "subtitle": "Brief, drafting & validation : we keep your editorial calendar on track.",
+      "body": "For leaders who want a steady LinkedIn presence without late-night writing.",
+      "starterLabel": "Starter",
+      "perMonth": "/ month",
+      "starterDetail": "{posts} posts / month",
+      "regularLabel": "Regular",
+      "regularDetail": "1 post / week",
+      "responseHint": "Reply within 48 business hours.",
+      "formTitle": "Tell us about your needs",
+      "formSubtitle": "Describe your context : we'll tailor the plan."
+    }
+  },
+  "adminDigest": {
+    "title": "Weekly digest",
+    "subtitle": "Email admins an MRR and activity summary",
+    "preview": "Preview",
+    "previewOk": "Preview OK : est. MRR: {mrr}",
+    "sendNow": "Send now",
+    "pending": "Sending…",
+    "sent": "Digest emailed successfully.",
+    "sentNoEmail": "Digest generated (no admin email configured).",
+    "error": "Could not send digest."
+  },
+  "adminSubscription": {
+    "title": "Assign subscription",
+    "subtitle": "Manually update a user's subscription tier",
+    "userId": "User ID (Firebase UID)",
+    "tier": "Tier",
+    "bonusPosts": "Bonus posts (Pro+)",
+    "submit": "Apply",
+    "pending": "Saving…",
+    "error": "Could not update subscription.",
+    "success": "Tier updated: {tier}"
+  },
+  "adminWire": {
+    "title": "Pending wire transfers",
+    "subtitle": "Approve or reject wire payment requests",
+    "loading": "Loading…",
+    "loadFailed": "Could not load requests.",
+    "pending": "Working…",
+    "approve": "Approve",
+    "reject": "Reject",
+    "actionFailed": "Action failed.",
+    "empty": "No pending requests.",
+    "columns": {
+      "user": "User",
+      "tier": "Tier",
+      "amount": "Amount",
+      "reference": "Reference",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "wire_sent": "Wire sent",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
   }
 }

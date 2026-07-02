@@ -11,10 +11,10 @@ import { useEffect, useRef, type ReactNode } from "react";
 export type OnboardingGuardMode = "creation" | "persona" | "none";
 
 type Props = {
-  mode?: OnboardingGuardMode;
-  children: ReactNode;
-  /** When true, redirect instead of showing banner (creation flow). */
-  redirect?: boolean;
+ mode?: OnboardingGuardMode;
+ children: ReactNode;
+ /** When true, redirect instead of showing banner (creation flow). */
+ redirect?: boolean;
 };
 
 /**
@@ -23,60 +23,60 @@ type Props = {
  * - persona: requires validated persona only (legacy articles hub)
  */
 export function OnboardingGuard({
-  mode = "none",
-  children,
-  redirect = false,
+ mode = "none",
+ children,
+ redirect = false,
 }: Props) {
-  const t = useTranslations("setup.onboarding.guard");
-  const router = useRouter();
-  const { progress, status, loading } = useOnboardingProgress();
-  const bootstrapping = isOnboardingBootstrapping(loading, progress);
-  const didRedirect = useRef(false);
+ const t = useTranslations("setup.onboarding.guard");
+ const router = useRouter();
+ const { progress, status, loading } = useOnboardingProgress();
+ const bootstrapping = isOnboardingBootstrapping(loading, progress);
+ const didRedirect = useRef(false);
 
-  const blocked =
-    progress &&
-    (mode === "creation"
-      ? !progress.canAccessCreation
-      : mode === "persona"
-        ? !progress.completion.hasPersonaValidated
-        : false);
+ const blocked =
+ progress &&
+ (mode === "creation"
+ ? !progress.canAccessCreation
+ : mode === "persona"
+ ? !progress.completion.hasPersonaValidated
+ : false);
 
-  const redirectHref =
-    mode === "creation"
-      ? (status?.nextHref ?? progress?.creationRedirectHref ?? "/start")
-      : (status?.nextHref ?? progress?.nextHref);
+ const redirectHref =
+ mode === "creation"
+ ? (status?.nextHref ?? progress?.creationRedirectHref ?? "/start")
+ : (status?.nextHref ?? progress?.nextHref);
 
-  useEffect(() => {
-    if (!redirect || !blocked || !redirectHref || didRedirect.current) return;
-    didRedirect.current = true;
-    router.replace(redirectHref);
-  }, [redirect, blocked, redirectHref, router]);
+ useEffect(() => {
+ if (!redirect || !blocked || !redirectHref || didRedirect.current) return;
+ didRedirect.current = true;
+ router.replace(redirectHref);
+ }, [redirect, blocked, redirectHref, router]);
 
-  // Only block the tree on the first progress load — silent refreshes (e.g. after
-  // generating a post) must not unmount creation wizards and reset their state.
-  if (bootstrapping || (redirect && blocked)) {
-    return (
-      <GeneratingIndicator
-        label={t("checking")}
-        hint={blocked ? t("redirecting") : undefined}
-        className="max-w-xl"
-      />
-    );
-  }
+ // Only block the tree on the first progress load · silent refreshes (e.g. after
+ // generating a post) must not unmount creation wizards and reset their state.
+ if (bootstrapping || (redirect && blocked)) {
+ return (
+ <GeneratingIndicator
+ label={t("checking")}
+ hint={blocked ? t("redirecting") : undefined}
+ className="max-w-xl"
+ />
+ );
+ }
 
-  if (blocked && !redirect) {
-    const reason =
-      mode === "persona"
-        ? "persona"
-        : progress?.completion.hasApiKey
-          ? progress.completion.hasProfileMinimum
-            ? progress.completion.hasAudience
-              ? "persona"
-              : "audience"
-            : "author"
-          : "llm";
-    return <OnboardingBlockedBanner reason={reason} />;
-  }
+ if (blocked && !redirect) {
+ const reason =
+ mode === "persona"
+ ? "persona"
+ : progress?.completion.hasApiKey
+ ? progress.completion.hasProfileMinimum
+ ? progress.completion.hasAudience
+ ? "persona"
+ : "audience"
+ : "express"
+ : "llm";
+ return <OnboardingBlockedBanner reason={reason} />;
+ }
 
-  return <>{children}</>;
+ return <>{children}</>;
 }

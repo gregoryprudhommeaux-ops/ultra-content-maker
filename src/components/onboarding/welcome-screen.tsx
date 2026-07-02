@@ -6,7 +6,7 @@ import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { resolveWelcomeRedirect } from "@/lib/workspace/onboarding-routes";
 import type { OnboardingNextStep } from "@/lib/workspace/onboarding-status";
-import { BTN_PRIMARY } from "@/lib/ui/nextstep";
+import { BTN_PRIMARY, PAGE_TITLE } from "@/lib/ui/nextstep";
 import { Link, useRouter } from "@/i18n/navigation";
 import { CheckCircle2, CircleDashed } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -14,6 +14,7 @@ import { useEffect } from "react";
 
 const STEP_I18N_KEY: Record<OnboardingNextStep, string> = {
   "setup-llm": "setupLlm",
+  "setup-express": "setupExpress",
   "author-essential": "authorEssential",
   audience: "audience",
   persona: "persona",
@@ -60,7 +61,7 @@ export function WelcomeScreen() {
         <p className="text-xs font-black uppercase tracking-widest text-ns-primary">
           {t("eyebrow")}
         </p>
-        <h1 className="mt-2 text-2xl font-black uppercase tracking-tight text-ns-tertiary md:text-3xl">
+        <h1 className={`mt-2 ${PAGE_TITLE}`}>
           {t("title")}
         </h1>
         <p className="mt-3 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary md:text-base">

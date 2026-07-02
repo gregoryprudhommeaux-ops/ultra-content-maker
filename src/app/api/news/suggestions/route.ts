@@ -1,11 +1,13 @@
+import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
 import { buildNewsProfileContext } from "@/lib/news/profile-context";
 import { normalizeNewsSuggestions } from "@/lib/news/normalize";
-import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
-import { chatCompletionJson } from "@/lib/llm/chat";
+import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
+import { resolveRequestLlm } from "@/lib/llm/resolve-request-llm";
+import { requireActiveSubscriptionLlm } from "@/lib/subscription/llm-gate.server";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
-  buildNewsSuggestionsSystemPrompt,
-  buildNewsSuggestionsUserPrompt,
+ buildNewsSuggestionsSystemPrompt,
+ buildNewsSuggestionsUserPrompt,
 } from "@/lib/prompts/news-suggestions";
 import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, LlmProvider } from "@/types/workspace";
@@ -15,111 +17,112 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  contentLanguage: string;
-  author?: Record<string, unknown> | null;
-  audience?: Record<string, unknown> | null;
-  profileEnrichment?: Record<string, unknown>;
-  personaExcerpt?: string;
-  /** @deprecated use personaExcerpt — kept for older clients */
-  personaPromptText?: string;
-  newsInterestQuery?: string;
-  authorSteering?: AuthorSteeringPayload;
-  llm?: {
-    provider: LlmProvider;
-    apiKey: string;
-    model?: string;
-  };
+ contentLanguage: string;
+ author?: Record<string, unknown> | null;
+ audience?: Record<string, unknown> | null;
+ profileEnrichment?: Record<string, unknown>;
+ personaExcerpt?: string;
+ /** @deprecated use personaExcerpt · kept for older clients */
+ personaPromptText?: string;
+ newsInterestQuery?: string;
+ authorSteering?: AuthorSteeringPayload;
+ llm?: {
+ provider: LlmProvider;
+ apiKey: string;
+ model?: string;
+ };
 };
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+ const userId = await verifyBearerUserId(request.headers.get("authorization"));
+ if (!userId) {
+ return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+ }
 
-  let body: Body;
-  try {
-    body = (await request.json()) as Body;
-    if (!body.contentLanguage) throw new Error("invalid");
-  } catch {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
-  }
+ const subGate = await requireActiveSubscriptionLlm(userId, { premium: true });
+ if (!subGate.ok) {
+ return NextResponse.json(
+ { error: subGate.code, subscription: subGate.access },
+ { status: subGate.status },
+ );
+ }
 
-  const contentLanguage = body.contentLanguage as ContentLanguage;
-  const llm =
-    body.llm?.apiKey?.trim()
-      ? configFromUserLlm({
-          provider: body.llm.provider,
-          apiKey: body.llm.apiKey.trim(),
-          model: body.llm.model,
-        })
-      : getLlmConfig();
+ let body: Body;
+ try {
+ body = (await request.json()) as Body;
+ if (!body.contentLanguage) throw new Error("invalid");
+ } catch {
+ return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+ }
 
-  if (!llm) {
-    return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
-  }
+ const contentLanguage = body.contentLanguage as ContentLanguage;
+ const llm = await resolveRequestLlm(userId, body.llm);
 
-  const personaExcerpt =
-    body.personaExcerpt?.trim() || body.personaPromptText?.trim() || "";
-  const newsInterestQuery =
-    body.newsInterestQuery?.trim() ||
-    (typeof body.audience?.newsInterestQuery === "string"
-      ? body.audience.newsInterestQuery.trim()
-      : "");
+ if (!llm) {
+ return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
+ }
 
-  const profileContext = buildNewsProfileContext({
-    author: body.author ?? null,
-    audience: body.audience ?? null,
-    profileEnrichment: body.profileEnrichment,
-    personaExcerpt,
-    newsInterestQuery,
-    authorSteering: body.authorSteering,
-  });
+ const personaExcerpt =
+ body.personaExcerpt?.trim() || body.personaPromptText?.trim() || "";
+ const newsInterestQuery =
+ body.newsInterestQuery?.trim() ||
+ (typeof body.audience?.newsInterestQuery === "string"
+ ? body.audience.newsInterestQuery.trim()
+ : "");
 
-  try {
-    const raw = await chatCompletionJson(llm, [
-      {
-        role: "system",
-        content: buildNewsSuggestionsSystemPrompt(contentLanguage),
-      },
-      {
-        role: "user",
-        content: buildNewsSuggestionsUserPrompt(profileContext, newsInterestQuery),
-      },
-    ]);
+ const profileContext = buildNewsProfileContext({
+ author: body.author ?? null,
+ audience: body.audience ?? null,
+ profileEnrichment: body.profileEnrichment,
+ personaExcerpt,
+ newsInterestQuery,
+ authorSteering: body.authorSteering,
+ });
 
-    const parsed = parseLlmJson<{ news?: unknown }>(raw);
-    const { news, rawCount, rejectedByAge, rejectedIncomplete } =
-      normalizeNewsSuggestions(parsed);
+ try {
+ const raw = await chatCompletionJson(llm, [
+ {
+ role: "system",
+ content: buildNewsSuggestionsSystemPrompt(contentLanguage),
+ },
+ {
+ role: "user",
+ content: buildNewsSuggestionsUserPrompt(profileContext, newsInterestQuery),
+ },
+ ], mergeUsageLog(userId, "news/suggestions"));
 
-    if (news.length === 0) {
-      const error =
-        rawCount === 0
-          ? "no_llm_results"
-          : rejectedByAge > 0 && rejectedIncomplete === 0
-            ? "all_filtered_by_date"
-            : "no_recent_news";
+ const parsed = parseLlmJson<{ news?: unknown }>(raw);
+ const { news, rawCount, rejectedByAge, rejectedIncomplete } =
+ normalizeNewsSuggestions(parsed);
 
-      return NextResponse.json(
-        {
-          error,
-          stats: { rawCount, rejectedByAge, rejectedIncomplete },
-        },
-        { status: 502 },
-      );
-    }
+ if (news.length === 0) {
+ const error =
+ rawCount === 0
+ ? "no_llm_results"
+ : rejectedByAge > 0 && rejectedIncomplete === 0
+ ? "all_filtered_by_date"
+ : "no_recent_news";
 
-    return NextResponse.json({
-      news,
-      provider: llm.provider,
-    });
-  } catch (e) {
-    return NextResponse.json(
-      {
-        error: "llm_request_failed",
-        detail: e instanceof Error ? e.message : "Unknown",
-      },
-      { status: 502 },
-    );
-  }
+ return NextResponse.json(
+ {
+ error,
+ stats: { rawCount, rejectedByAge, rejectedIncomplete },
+ },
+ { status: 502 },
+ );
+ }
+
+ return NextResponse.json({
+ news,
+ provider: llm.provider,
+ });
+ } catch (e) {
+ return NextResponse.json(
+ {
+ error: "llm_request_failed",
+ detail: e instanceof Error ? e.message : "Unknown",
+ },
+ { status: 502 },
+ );
+ }
 }

@@ -1,5 +1,6 @@
-import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
-import { chatCompletionJson } from "@/lib/llm/chat";
+import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
+import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
+import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
   buildUnifyPostExportSystemPrompt,
@@ -32,8 +33,8 @@ function cleanField(value: unknown): string {
 }
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) {
+  const userId = await verifyBearerUserId(request.headers.get("authorization"));
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -49,14 +50,7 @@ export async function POST(request: Request) {
 
   const contentLanguage = (body.contentLanguage || "fr") as ContentLanguage;
   const ctaStyle = body.ctaStyle ?? "medium";
-  const llm =
-    body.llm?.apiKey?.trim()
-      ? configFromUserLlm({
-          provider: body.llm.provider,
-          apiKey: body.llm.apiKey.trim(),
-          model: body.llm.model,
-        })
-      : getLlmConfig();
+  const llm = await resolveContentRouteLlm(userId, body.llm);
 
   if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
@@ -79,7 +73,7 @@ export async function POST(request: Request) {
           contentLanguage,
         }),
       },
-    ]);
+    ], mergeUsageLog(userId, "articles/unify-export"));
 
     const parsed = parseLlmJson<{
       hook?: string;

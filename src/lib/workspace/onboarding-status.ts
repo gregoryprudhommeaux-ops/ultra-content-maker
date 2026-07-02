@@ -8,6 +8,7 @@ import {
 /** Single source of truth for “where should this user go next?”. */
 export type OnboardingNextStep =
   | "setup-llm"
+  | "setup-express"
   | "author-essential"
   | "audience"
   | "persona"
@@ -39,8 +40,8 @@ export function resolveNextStep(completion: SetupCompletion): {
   }
   if (!completion.hasProfileMinimum) {
     return {
-      nextStep: "author-essential",
-      nextHref: "/setup/author?tab=essential",
+      nextStep: "setup-express",
+      nextHref: "/setup/express",
     };
   }
   if (!completion.hasAudience) {

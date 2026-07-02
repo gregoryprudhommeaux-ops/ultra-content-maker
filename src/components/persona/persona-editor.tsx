@@ -29,9 +29,9 @@ import { getClientAuth } from "@/lib/firebase/client";
 import { ContextHelp } from "@/components/ui/context-help";
 import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import {
-  DashboardPageHero,
-  DashboardPageSection,
-  DashboardPageShell,
+ DashboardPageHero,
+ DashboardPageSection,
+ DashboardPageShell,
 } from "@/components/layout/dashboard-page";
 import { BTN_PRIMARY, DASHBOARD_PAGE_WIDTH } from "@/lib/ui/nextstep";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
@@ -39,465 +39,484 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { ContentLanguage, GapAnswerValue, ProfileGapQuestion } from "@/types/workspace";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSubscription } from "@/contexts/subscription-context";
 
 export function PersonaEditor() {
-  const t = useTranslations("setup.persona");
-  const tSteps = useTranslations("setup.steps");
-  const tCommon = useTranslations("common");
-  const locale = useLocale() as ContentLanguage;
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
-  const [promptText, setPromptText] = useState("");
-  const [status, setStatus] = useState<"none" | "draft" | "validated">("none");
-  const [gapQuestions, setGapQuestions] = useState<ProfileGapQuestion[]>([]);
-  const [enrichmentDetails, setEnrichmentDetails] = useState<
-    Record<string, GapAnswerValue>
-  >({});
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [versionNumber, setVersionNumber] = useState<number | null>(null);
-  const [recentChanges, setRecentChanges] = useState<PersonaRecentChange[]>([]);
-  const [personaUpdatedAt, setPersonaUpdatedAt] = useState<Date | null>(null);
-  const [contentLang, setContentLang] = useState<ContentLanguage>(locale);
-  const [authorProfile, setAuthorProfile] = useState<
-    Awaited<ReturnType<typeof getAuthorProfile>>
-  >(null);
-  const [audienceProfile, setAudienceProfile] = useState<
-    Awaited<ReturnType<typeof getAudienceProfile>>
-  >(null);
-  const [pillarSaving, setPillarSaving] = useState<PersonaRevealCardKey | null>(null);
+ const t = useTranslations("setup.persona");
+ const tSteps = useTranslations("setup.steps");
+ const tCommon = useTranslations("common");
+ const locale = useLocale() as ContentLanguage;
+ const { user, loading: authLoading } = useAuth();
+ const { access } = useSubscription();
+ const personaTeaserOnly =
+ Boolean(access?.canViewPersonaSummary) && !access?.canViewFullPersona;
+ const router = useRouter();
+ const [promptText, setPromptText] = useState("");
+ const [status, setStatus] = useState<"none" | "draft" | "validated">("none");
+ const [gapQuestions, setGapQuestions] = useState<ProfileGapQuestion[]>([]);
+ const [enrichmentDetails, setEnrichmentDetails] = useState<
+ Record<string, GapAnswerValue>
+ >({});
+ const [error, setError] = useState<string | null>(null);
+ const [pending, setPending] = useState(false);
+ const [loaded, setLoaded] = useState(false);
+ const [versionNumber, setVersionNumber] = useState<number | null>(null);
+ const [recentChanges, setRecentChanges] = useState<PersonaRecentChange[]>([]);
+ const [personaUpdatedAt, setPersonaUpdatedAt] = useState<Date | null>(null);
+ const [contentLang, setContentLang] = useState<ContentLanguage>(locale);
+ const [authorProfile, setAuthorProfile] = useState<
+ Awaited<ReturnType<typeof getAuthorProfile>>
+ >(null);
+ const [audienceProfile, setAudienceProfile] = useState<
+ Awaited<ReturnType<typeof getAudienceProfile>>
+ >(null);
+ const [pillarSaving, setPillarSaving] = useState<PersonaRevealCardKey | null>(null);
 
-  const load = useCallback(async () => {
-    if (!user) {
-      setLoaded(true);
-      return;
-    }
-    try {
-      const [p, enrichment, author, audience] = await Promise.all([
-        getPersona(user.uid),
-        getProfileEnrichment(user.uid),
-        getAuthorProfile(user.uid),
-        getAudienceProfile(user.uid),
-      ]);
-      setAuthorProfile(author);
-      setAudienceProfile(audience);
-      if (author?.contentLanguage) setContentLang(author.contentLanguage);
-      if (p) {
-        setPromptText(p.promptText);
-        setStatus(
-          p.status === "validated" ? "validated" : p.promptText ? "draft" : "none",
-        );
-        setGapQuestions(p.gapQuestions ?? []);
-        setVersionNumber(p.versionNumber ?? null);
-        setRecentChanges(p.recentChanges ?? []);
-        setPersonaUpdatedAt(p.updatedAt);
-      }
-      if (enrichment) setEnrichmentDetails(enrichment.details);
-    } catch {
-      setError(t("loadFailed"));
-    } finally {
-      setLoaded(true);
-    }
-  }, [user, t]);
+ const load = useCallback(async () => {
+ if (!user) {
+ setLoaded(true);
+ return;
+ }
+ try {
+ const [p, enrichment, author, audience] = await Promise.all([
+ getPersona(user.uid),
+ getProfileEnrichment(user.uid),
+ getAuthorProfile(user.uid),
+ getAudienceProfile(user.uid),
+ ]);
+ setAuthorProfile(author);
+ setAudienceProfile(audience);
+ if (author?.contentLanguage) setContentLang(author.contentLanguage);
+ if (p) {
+ setPromptText(p.promptText);
+ setStatus(
+ p.status === "validated" ? "validated" : p.promptText ? "draft" : "none",
+ );
+ setGapQuestions(p.gapQuestions ?? []);
+ setVersionNumber(p.versionNumber ?? null);
+ setRecentChanges(p.recentChanges ?? []);
+ setPersonaUpdatedAt(p.updatedAt);
+ }
+ if (enrichment) setEnrichmentDetails(enrichment.details);
+ } catch {
+ setError(t("loadFailed"));
+ } finally {
+ setLoaded(true);
+ }
+ }, [user, t]);
 
-  const revealSummary = useMemo(
-    () => buildPersonaRevealSummary(authorProfile, audienceProfile, promptText),
-    [authorProfile, audienceProfile, promptText],
-  );
+ const revealSummary = useMemo(
+ () => buildPersonaRevealSummary(authorProfile, audienceProfile, promptText),
+ [authorProfile, audienceProfile, promptText],
+ );
 
-  const audienceSkipped = Boolean(audienceProfile?.skipped);
+ const audienceSkipped = Boolean(audienceProfile?.skipped);
 
-  useEffect(() => {
-    if (authLoading) return;
-    setLoaded(false);
-    load();
-  }, [authLoading, load]);
+ useEffect(() => {
+ if (authLoading) return;
+ setLoaded(false);
+ load();
+ }, [authLoading, load]);
 
-  async function onGenerate() {
-    if (!user) return;
-    setError(null);
-    setPending(true);
-    try {
-      const auth = getClientAuth();
-      const token = auth ? await auth.currentUser?.getIdToken() : null;
-      if (!token) throw new Error("No auth token");
+ async function onGenerate() {
+ if (!user) return;
+ setError(null);
+ setPending(true);
+ try {
+ const auth = getClientAuth();
+ const token = auth ? await auth.currentUser?.getIdToken() : null;
+ if (!token) throw new Error("No auth token");
 
-      const [author, audience, sources, llmProfile, enrichment] = await Promise.all([
-        getAuthorProfile(user.uid),
-        getAudienceProfile(user.uid),
-        listSources(user.uid),
-        getUserLlmProfile(user.uid),
-        getProfileEnrichment(user.uid),
-      ]);
+ const [author, audience, sources, llmProfile, enrichment] = await Promise.all([
+ getAuthorProfile(user.uid),
+ getAudienceProfile(user.uid),
+ listSources(user.uid),
+ getUserLlmProfile(user.uid),
+ getProfileEnrichment(user.uid),
+ ]);
 
-      if (!llmProfile?.apiKey) {
-        setError(t("noLlmKey"));
-        return;
-      }
+ if (!llmProfile?.apiKey) {
+ setError(t("noLlmKey"));
+ return;
+ }
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120_000);
+ const controller = new AbortController();
+ const timeoutId = setTimeout(() => controller.abort(), 120_000);
 
-      let res: Response;
-      try {
-        res = await fetch("/api/persona/generate", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            author: serializeForApi(author),
-            audience: serializeForApi(audience),
-            sources: serializeForApi(sources),
-            contentLanguage: author?.contentLanguage ?? locale,
-            profileEnrichment: enrichment?.details ?? {},
-            llm: {
-              provider: llmProfile.provider,
-              apiKey: llmProfile.apiKey,
-              model: llmProfile.model,
-            },
-          }),
-        });
-      } finally {
-        clearTimeout(timeoutId);
-      }
+ let res: Response;
+ try {
+ res = await fetch("/api/persona/generate", {
+ method: "POST",
+ headers: {
+ Authorization: `Bearer ${token}`,
+ "Content-Type": "application/json",
+ },
+ signal: controller.signal,
+ body: JSON.stringify({
+ author: serializeForApi(author),
+ audience: serializeForApi(audience),
+ sources: serializeForApi(sources),
+ contentLanguage: author?.contentLanguage ?? locale,
+ profileEnrichment: enrichment?.details ?? {},
+ llm: {
+ provider: llmProfile.provider,
+ apiKey: llmProfile.apiKey,
+ model: llmProfile.model,
+ },
+ }),
+ });
+ } finally {
+ clearTimeout(timeoutId);
+ }
 
-      const data = await res.json();
-      if (!res.ok) {
-        const detail = typeof data.detail === "string" ? data.detail : "";
-        if (
-          data.error === "no_llm_key" ||
-          data.error === "OPENAI_API_KEY not configured"
-        ) {
-          setError(t("noLlmKey"));
-        } else if (isInvalidApiKeyError(detail)) {
-          setError(t("invalidApiKey"));
-        } else if (detail) {
-          setError(t("generateFailedDetail", { detail: detail.slice(0, 180) }));
-        } else {
-          setError(t("generateFailed"));
-        }
-        return;
-      }
+ const data = await res.json();
+ if (!res.ok) {
+ const detail = typeof data.detail === "string" ? data.detail : "";
+ if (
+ data.error === "no_llm_key" ||
+ data.error === "OPENAI_API_KEY not configured"
+ ) {
+ setError(t("noLlmKey"));
+ } else if (isInvalidApiKeyError(detail)) {
+ setError(t("invalidApiKey"));
+ } else if (detail) {
+ setError(t("generateFailedDetail", { detail: detail.slice(0, 180) }));
+ } else {
+ setError(t("generateFailed"));
+ }
+ return;
+ }
 
-      const lang = (author?.contentLanguage ?? locale) as ContentLanguage;
-      setPromptText(data.promptText);
-      setGapQuestions(data.gapQuestions ?? []);
-      setStatus("draft");
-      await savePersonaDraft(
-        user.uid,
-        data.promptText,
-        data.model,
-        data.gapQuestions,
-        lang,
-      );
-      const saved = await getPersona(user.uid);
-      if (saved) {
-        setPromptText(saved.promptText);
-        setVersionNumber(saved.versionNumber ?? 1);
-        setRecentChanges(saved.recentChanges ?? []);
-        setPersonaUpdatedAt(saved.updatedAt);
-      }
-    } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") {
-        setError(t("generateTimeout"));
-      } else {
-        setError(t("generateFailed"));
-      }
-    } finally {
-      setPending(false);
-    }
-  }
+ const lang = (author?.contentLanguage ?? locale) as ContentLanguage;
+ setPromptText(data.promptText);
+ setGapQuestions(data.gapQuestions ?? []);
+ setStatus("draft");
+ await savePersonaDraft(
+ user.uid,
+ data.promptText,
+ data.model,
+ data.gapQuestions,
+ lang,
+ );
+ const saved = await getPersona(user.uid);
+ if (saved) {
+ setPromptText(saved.promptText);
+ setVersionNumber(saved.versionNumber ?? 1);
+ setRecentChanges(saved.recentChanges ?? []);
+ setPersonaUpdatedAt(saved.updatedAt);
+ }
+ } catch (e) {
+ if (e instanceof Error && e.name === "AbortError") {
+ setError(t("generateTimeout"));
+ } else {
+ setError(t("generateFailed"));
+ }
+ } finally {
+ setPending(false);
+ }
+ }
 
-  async function onSaveGaps(answers: Record<string, GapAnswerValue>) {
-    if (!user) return;
-    await recordGapFeedback(user.uid, gapQuestions, answers);
-    const [enrichment, persona] = await Promise.all([
-      getProfileEnrichment(user.uid),
-      getPersona(user.uid),
-    ]);
-    if (enrichment) setEnrichmentDetails(enrichment.details);
-    if (persona?.promptText) {
-      setPromptText(persona.promptText);
-      setVersionNumber(persona.versionNumber ?? null);
-      setRecentChanges(persona.recentChanges ?? []);
-      setPersonaUpdatedAt(persona.updatedAt);
-    }
-  }
+ async function onSaveGaps(answers: Record<string, GapAnswerValue>) {
+ if (!user) return;
+ await recordGapFeedback(user.uid, gapQuestions, answers);
+ const [enrichment, persona] = await Promise.all([
+ getProfileEnrichment(user.uid),
+ getPersona(user.uid),
+ ]);
+ if (enrichment) setEnrichmentDetails(enrichment.details);
+ if (persona?.promptText) {
+ setPromptText(persona.promptText);
+ setVersionNumber(persona.versionNumber ?? null);
+ setRecentChanges(persona.recentChanges ?? []);
+ setPersonaUpdatedAt(persona.updatedAt);
+ }
+ }
 
-  function applyPersonaFromStore(p: Awaited<ReturnType<typeof getPersona>>) {
-    if (!p) return;
-    setPromptText(p.promptText);
-    setVersionNumber(p.versionNumber ?? null);
-    setRecentChanges(p.recentChanges ?? []);
-    setPersonaUpdatedAt(p.updatedAt);
-  }
+ function applyPersonaFromStore(p: Awaited<ReturnType<typeof getPersona>>) {
+ if (!p) return;
+ setPromptText(p.promptText);
+ setVersionNumber(p.versionNumber ?? null);
+ setRecentChanges(p.recentChanges ?? []);
+ setPersonaUpdatedAt(p.updatedAt);
+ }
 
-  async function onPillarSave(key: PersonaRevealCardKey, newText: string) {
-    if (!user || !promptText.trim()) return;
-    setPillarSaving(key);
-    setError(null);
-    try {
-      const card = revealSummary.cards.find((c) => c.key === key);
-      const nextPrompt = patchPersonaPromptSection(
-        promptText,
-        key,
-        newText,
-        contentLang,
-      );
-      setPromptText(nextPrompt);
+ async function onPillarSave(key: PersonaRevealCardKey, newText: string) {
+ if (!user || !promptText.trim()) return;
+ setPillarSaving(key);
+ setError(null);
+ try {
+ const card = revealSummary.cards.find((c) => c.key === key);
+ const nextPrompt = patchPersonaPromptSection(
+ promptText,
+ key,
+ newText,
+ contentLang,
+ );
+ setPromptText(nextPrompt);
 
-      const pillarLabel = t(`reveal.cards.${key}.label`);
-      const changeSummary =
-        contentLang === "fr"
-          ? `Pilier « ${pillarLabel} » mis à jour manuellement.`
-          : contentLang === "es"
-            ? `Pilar « ${pillarLabel} » actualizado manualmente.`
-            : `Pillar "${pillarLabel}" updated manually.`;
+ const pillarLabel = t(`reveal.cards.${key}.label`);
+ const changeSummary =
+ contentLang === "fr"
+ ? `Pilier « ${pillarLabel} » mis à jour manuellement.`
+ : contentLang === "es"
+ ? `Pilar « ${pillarLabel} » actualizado manualmente.`
+ : `Pillar "${pillarLabel}" updated manually.`;
 
-      await updatePersonaPromptText(user.uid, nextPrompt, {
-        changeSummary,
-        contentLanguage: contentLang,
-        reason: "user_refinement",
-        bumpVersion: true,
-      });
-      const saved = await getPersona(user.uid);
-      if (saved) applyPersonaFromStore(saved);
+ await updatePersonaPromptText(user.uid, nextPrompt, {
+ changeSummary,
+ contentLanguage: contentLang,
+ reason: "user_refinement",
+ bumpVersion: true,
+ });
+ const saved = await getPersona(user.uid);
+ if (saved) applyPersonaFromStore(saved);
 
-      if (card?.source === "profile") {
-        if (key === "positioning") {
-          const dash = newText.indexOf(" — ");
-          if (dash > 0) {
-            await saveAuthorProfile(user.uid, {
-              roleTitle: newText.slice(0, dash).trim(),
-              positioningLine: newText.slice(dash + 3).trim(),
-            });
-          } else {
-            await saveAuthorProfile(user.uid, { positioningLine: newText.trim() });
-          }
-          setAuthorProfile(await getAuthorProfile(user.uid));
-        } else if (key === "audience" && audienceProfile && !audienceProfile.skipped) {
-          const dot = newText.indexOf(". ");
-          if (dot > 0) {
-            await saveAudienceProfile(user.uid, {
-              targetLabel: newText.slice(0, dot).trim(),
-              contentFocus: newText.slice(dot + 2).trim(),
-            });
-          } else {
-            await saveAudienceProfile(user.uid, { targetLabel: newText.trim() });
-          }
-          setAudienceProfile(await getAudienceProfile(user.uid));
-        }
-      }
-    } catch {
-      setError(t("pillarSaveFailed"));
-    } finally {
-      setPillarSaving(null);
-    }
-  }
+ if (card?.source === "profile") {
+ if (key === "positioning") {
+ const dash = newText.indexOf(" · ");
+ if (dash > 0) {
+ await saveAuthorProfile(user.uid, {
+ roleTitle: newText.slice(0, dash).trim(),
+ positioningLine: newText.slice(dash + 3).trim(),
+ });
+ } else {
+ await saveAuthorProfile(user.uid, { positioningLine: newText.trim() });
+ }
+ setAuthorProfile(await getAuthorProfile(user.uid));
+ } else if (key === "audience" && audienceProfile && !audienceProfile.skipped) {
+ const dot = newText.indexOf(". ");
+ if (dot > 0) {
+ await saveAudienceProfile(user.uid, {
+ targetLabel: newText.slice(0, dot).trim(),
+ contentFocus: newText.slice(dot + 2).trim(),
+ });
+ } else {
+ await saveAudienceProfile(user.uid, { targetLabel: newText.trim() });
+ }
+ setAudienceProfile(await getAudienceProfile(user.uid));
+ }
+ }
+ } catch {
+ setError(t("pillarSaveFailed"));
+ } finally {
+ setPillarSaving(null);
+ }
+ }
 
-  async function onValidate() {
-    if (!user || promptText.length < 200) return;
-    setPending(true);
-    setError(null);
-    try {
-      const author = await getAuthorProfile(user.uid);
-      await validatePersona(
-        user.uid,
-        promptText,
-        author?.contentLanguage ?? locale,
-      );
-      await updateSetupStep(user.uid, "articles");
-      setStatus("validated");
-      router.push("/start/ready");
-      notifyOnboardingProgressChangedDeferred();
-    } catch {
-      setError(t("saveFailed"));
-    } finally {
-      setPending(false);
-    }
-  }
+ async function onValidate() {
+ if (!user || promptText.length < 200) return;
+ setPending(true);
+ setError(null);
+ try {
+ const author = await getAuthorProfile(user.uid);
+ await validatePersona(
+ user.uid,
+ promptText,
+ author?.contentLanguage ?? locale,
+ );
+ await updateSetupStep(user.uid, "articles");
+ setStatus("validated");
+ router.push("/start/ready");
+ notifyOnboardingProgressChangedDeferred();
+ } catch {
+ setError(t("saveFailed"));
+ } finally {
+ setPending(false);
+ }
+ }
 
-  if (!loaded) {
-    return (
-      <GeneratingIndicator
-        label={tCommon("loading")}
-        className={DASHBOARD_PAGE_WIDTH}
-      />
-    );
-  }
+ if (!loaded) {
+ return (
+ <GeneratingIndicator
+ label={tCommon("loading")}
+ className={DASHBOARD_PAGE_WIDTH}
+ />
+ );
+ }
 
-  return (
-    <DashboardPageShell>
-      <OnboardingStepBanner stepKey="persona" />
-      <DashboardPageHero
-        eyebrow={tSteps("persona")}
-        title={t("title")}
-        subtitle={t("subtitle")}
-      />
+ return (
+ <DashboardPageShell>
+ <OnboardingStepBanner stepKey="persona" />
+ <DashboardPageHero
+ eyebrow={tSteps("persona")}
+ title={t("title")}
+ subtitle={t("subtitle")}
+ />
 
-      <DashboardPageSection className="space-y-6">
-      {promptText ? (
-        <PersonaReveal
-          onPillarSave={onPillarSave}
-          pillarSaving={pillarSaving}
-          {...(status === "validated"
-            ? {
-                mode: "validated" as const,
-                summary: revealSummary,
-                audienceSkipped,
-              }
-            : {
-                mode: "draft" as const,
-                summary: revealSummary,
-                audienceSkipped,
-                onRegenerate: onGenerate,
-                onValidate,
-                validateDisabled: promptText.length < 200,
-                pending,
-              })}
-        />
-      ) : (
-        <PersonaContextGuide />
-      )}
+ <DashboardPageSection className="space-y-6">
+ {personaTeaserOnly && (
+ <div className="rounded-xl border border-ns-primary/30 bg-ns-primary/10 p-4 text-sm text-ns-tertiary">
+ <p className="font-medium">{t("trialTeaser.title")}</p>
+ <p className="mt-1 text-ns-secondary">{t("trialTeaser.body")}</p>
+ <Link href="/upgrade" className="mt-3 inline-block font-semibold text-ns-primary underline-offset-2 hover:underline">
+ {t("trialTeaser.cta")}
+ </Link>
+ </div>
+ )}
+ {promptText ? (
+ <PersonaReveal
+ onPillarSave={onPillarSave}
+ pillarSaving={pillarSaving}
+ {...(status === "validated"
+ ? {
+ mode: "validated" as const,
+ summary: revealSummary,
+ audienceSkipped,
+ }
+ : {
+ mode: "draft" as const,
+ summary: revealSummary,
+ audienceSkipped,
+ onRegenerate: onGenerate,
+ onValidate,
+ validateDisabled: promptText.length < 200,
+ pending,
+ })}
+ />
+ ) : (
+ <PersonaContextGuide />
+ )}
 
-      {pending && (
-        <GeneratingIndicator
-          label={t("generating")}
-          hint={t("generatingHint")}
-          className={DASHBOARD_PAGE_WIDTH}
-        />
-      )}
+ {pending && (
+ <GeneratingIndicator
+ label={t("generating")}
+ hint={t("generatingHint")}
+ className={DASHBOARD_PAGE_WIDTH}
+ />
+ )}
 
-      {status === "none" && !promptText && !pending && (
-        <button type="button" onClick={onGenerate} className={BTN_PRIMARY}>
-          {t("generate")}
-        </button>
-      )}
+ {status === "none" && !promptText && !pending && (
+ <button type="button" onClick={onGenerate} className={BTN_PRIMARY}>
+ {t("generate")}
+ </button>
+ )}
 
-      {promptText && (
-        <>
-          {user && (
-            <PersonaHistoryPanel
-              userId={user.uid}
-              currentPromptText={promptText}
-              onRestored={async (text, nextStatus) => {
-                setPromptText(text);
-                setStatus(
-                  nextStatus === "validated"
-                    ? "validated"
-                    : text
-                      ? "draft"
-                      : "none",
-                );
-                if (user) {
-                  const p = await getPersona(user.uid);
-                  applyPersonaFromStore(p);
-                }
-              }}
-            />
-          )}
+ {promptText && (
+ <>
+ {user && (
+ <PersonaHistoryPanel
+ userId={user.uid}
+ currentPromptText={promptText}
+ onRestored={async (text, nextStatus) => {
+ setPromptText(text);
+ setStatus(
+ nextStatus === "validated"
+ ? "validated"
+ : text
+ ? "draft"
+ : "none",
+ );
+ if (user) {
+ const p = await getPersona(user.uid);
+ applyPersonaFromStore(p);
+ }
+ }}
+ />
+ )}
 
-          {gapQuestions.length > 0 && status !== "validated" && (
-            <GapsQuestionnaire
-              questions={gapQuestions}
-              initialAnswers={enrichmentDetails}
-              onSave={onSaveGaps}
-            />
-          )}
+ {gapQuestions.length > 0 && status !== "validated" && (
+ <GapsQuestionnaire
+ questions={gapQuestions}
+ initialAnswers={enrichmentDetails}
+ onSave={onSaveGaps}
+ />
+ )}
 
-          {versionNumber != null && personaUpdatedAt && (
-            <p className="text-sm font-medium text-ns-tertiary">
-              {formatVersionLine(versionNumber, personaUpdatedAt, contentLang)}
-            </p>
-          )}
+ {versionNumber != null && personaUpdatedAt && (
+ <p className="text-sm font-medium text-ns-tertiary">
+ {formatVersionLine(versionNumber, personaUpdatedAt, contentLang)}
+ </p>
+ )}
 
-          <details className="rounded-xl border border-gray-100 bg-ns-brand-light/40">
-            <summary className="cursor-pointer list-none px-4 py-3 marker:content-none [&::-webkit-details-marker]:hidden">
-              <span className="flex items-center justify-between gap-2 text-sm font-semibold text-ns-tertiary">
-                {t("reveal.promptToggle")}
-                <span className="text-xs font-medium text-ns-secondary" aria-hidden>
-                  ▾
-                </span>
-              </span>
-              <p className="mt-1 text-xs font-medium text-ns-secondary">
-                {t("reveal.promptHint")}
-              </p>
-            </summary>
-            <div className="space-y-3 border-t border-gray-100 px-4 py-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-ns-tertiary">
-                  {t("help.promptLabel")}
-                </span>
-                <ContextHelp label={t("help.promptLabel")}>
-                  {t("help.promptBody")}
-                </ContextHelp>
-              </div>
-              <ImeSafeTextarea
-                value={promptText}
-                onValueChange={setPromptText}
-                rows={16}
-                className="w-full rounded-xl border border-ns-alternate bg-white p-4 font-mono text-sm text-ns-tertiary leading-relaxed"
-                readOnly={status === "validated"}
-              />
-            </div>
-          </details>
+ <details className="rounded-xl border border-gray-100 bg-ns-brand-light/40">
+ <summary className="cursor-pointer list-none px-4 py-3 marker:content-none [&::-webkit-details-marker]:hidden">
+ <span className="flex items-center justify-between gap-2 text-sm font-semibold text-ns-tertiary">
+ {t("reveal.promptToggle")}
+ <span className="text-xs font-medium text-ns-secondary" aria-hidden>
+ ▾
+ </span>
+ </span>
+ <p className="mt-1 text-xs font-medium text-ns-secondary">
+ {personaTeaserOnly ? t("trialTeaser.promptLocked") : t("reveal.promptHint")}
+ </p>
+ </summary>
+ {!personaTeaserOnly ? (
+ <div className="space-y-3 border-t border-gray-100 px-4 py-4">
+ <div className="flex items-center gap-2">
+ <span className="text-sm font-semibold text-ns-tertiary">
+ {t("help.promptLabel")}
+ </span>
+ <ContextHelp label={t("help.promptLabel")}>
+ {t("help.promptBody")}
+ </ContextHelp>
+ </div>
+ <ImeSafeTextarea
+ value={promptText}
+ onValueChange={setPromptText}
+ rows={16}
+ className="w-full rounded-xl border border-ns-alternate bg-white p-4 font-mono text-sm text-ns-tertiary leading-relaxed"
+ readOnly={status === "validated"}
+ />
+ </div>
+ ) : (
+ <p className="border-t border-gray-100 px-4 py-4 text-sm text-ns-secondary">
+ {t("trialTeaser.promptLocked")}
+ </p>
+ )}
+ </details>
 
-          {status === "validated" && (
-            <PersonaPerformanceInsightsPanel
-              personaPromptText={promptText}
-              disabled={pending}
-            />
-          )}
+ {status === "validated" && !personaTeaserOnly && (
+ <PersonaPerformanceInsightsPanel
+ personaPromptText={promptText}
+ disabled={pending}
+ />
+ )}
 
-          {recentChanges.length > 0 && (
-            <PersonaRecentUpdatesPanel changes={recentChanges} />
-          )}
+ {recentChanges.length > 0 && (
+ <PersonaRecentUpdatesPanel changes={recentChanges} />
+ )}
 
-          {user && (
-            <PersonaRefinementPanel
-              userId={user.uid}
-              contentLanguage={contentLang}
-              disabled={pending}
-              onUpdated={(text) => {
-                setPromptText(text);
-                void getPersona(user.uid).then(applyPersonaFromStore);
-              }}
-            />
-          )}
+ {user && !personaTeaserOnly && (
+ <PersonaRefinementPanel
+ userId={user.uid}
+ contentLanguage={contentLang}
+ disabled={pending}
+ onUpdated={(text) => {
+ setPromptText(text);
+ void getPersona(user.uid).then(applyPersonaFromStore);
+ }}
+ />
+ )}
 
-          {status === "validated" && (
-            <div className="flex flex-wrap gap-3">
-              <Link href="/start/ready" className={BTN_PRIMARY}>
-                {t("reveal.goCreate")}
-              </Link>
-              <Link
-                href="/setup/author?tab=essential"
-                className="rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light"
-              >
-                {t("reveal.completeProfile")}
-              </Link>
-            </div>
-          )}
+ {status === "validated" && (
+ <div className="flex flex-wrap gap-3">
+ <Link href="/start/ready" className={BTN_PRIMARY}>
+ {t("reveal.goCreate")}
+ </Link>
+ <Link
+ href="/setup/author?tab=essential"
+ className="rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light"
+ >
+ {t("reveal.completeProfile")}
+ </Link>
+ </div>
+ )}
 
-          <PersonaContextGuide />
-        </>
-      )}
+ <PersonaContextGuide />
+ </>
+ )}
 
-      {error && (
-        <div className="space-y-2 rounded-xl border border-rose-200 bg-rose-50/80 p-4">
-          <p className="text-sm font-medium text-rose-900">{error}</p>
-          {(error === t("noLlmKey") || error === t("invalidApiKey")) && (
-            <Link href="/setup/llm" className="text-sm font-semibold text-ns-tertiary underline">
-              → {t("goLlmSetup")}
-            </Link>
-          )}
-        </div>
-      )}
-      </DashboardPageSection>
-    </DashboardPageShell>
-  );
+ {error && (
+ <div className="space-y-2 rounded-xl border border-rose-200 bg-rose-50/80 p-4">
+ <p className="text-sm font-medium text-rose-900">{error}</p>
+ {(error === t("noLlmKey") || error === t("invalidApiKey")) && (
+ <Link href="/setup/llm" className="text-sm font-semibold text-ns-tertiary underline">
+ → {t("goLlmSetup")}
+ </Link>
+ )}
+ </div>
+ )}
+ </DashboardPageSection>
+ </DashboardPageShell>
+ );
 }

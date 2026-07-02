@@ -1,6 +1,6 @@
 import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
-import { chatCompletionJson } from "@/lib/llm/chat";
+import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
 import { resolveRequestLlm } from "@/lib/llm/resolve-request-llm";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
           authorSteering,
         ),
       },
-    ]);
+    ], mergeUsageLog(userId, "articles/brief-check"));
 
     const parsed = parseLlmJson<{
       score?: unknown;

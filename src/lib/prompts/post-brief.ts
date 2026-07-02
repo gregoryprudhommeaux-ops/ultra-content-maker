@@ -1,84 +1,80 @@
 import {
-  hasPostObjectivesFromUnknown,
-  normalizePostBrief,
-  sortObjectivesByPriority,
+ normalizePostBrief,
+ sortObjectivesByPriority,
 } from "@/lib/articles/post-brief-objectives";
 import type { ContentLanguage, PostBrief, PostObjective } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
-  fr: "French",
-  en: "English",
-  es: "Spanish",
+ fr: "French",
+ en: "English",
+ es: "Spanish",
 };
 
 const OBJECTIVE_LABELS: Record<PostObjective, string> = {
-  awareness: "visibility / reach",
-  credibility: "credibility / authority",
-  conversation: "qualified conversation in comments",
-  leads: "inbound interest (DMs, calls)",
+ awareness: "visibility / reach",
+ credibility: "credibility / authority",
+ conversation: "qualified conversation in comments",
+ leads: "inbound interest (DMs, calls)",
 };
 
 function formatObjectivesBlock(brief: PostBrief): string {
-  const ranked = sortObjectivesByPriority(brief.objectives ?? []);
-  if (ranked.length === 0) return "- Objectives: (none)";
+ const ranked = sortObjectivesByPriority(brief.objectives ?? []);
+ if (ranked.length === 0) return "- Objectives: (none)";
 
-  return ranked
-    .map(
-      ({ objective, priority }) =>
-        `- Priority ${priority}: ${objective} — ${OBJECTIVE_LABELS[objective]}`,
-    )
-    .join("\n");
+ return ranked
+ .map(
+ ({ objective, priority }) =>
+ `- Priority ${priority}: ${objective} · ${OBJECTIVE_LABELS[objective]}`,
+ )
+ .join("\n");
 }
 
 export function buildPostBriefInstruction(
-  brief: PostBrief,
-  contentLanguage: ContentLanguage,
+ brief: PostBrief,
+ contentLanguage: ContentLanguage,
 ): string {
-  const normalized = normalizePostBrief(brief);
-  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
-  const objectivesBlock = formatObjectivesBlock(normalized);
-  const primary = sortObjectivesByPriority(normalized.objectives)[0]?.objective;
+ const normalized = normalizePostBrief(brief);
+ const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
+ const objectivesBlock = formatObjectivesBlock(normalized);
+ const primary = sortObjectivesByPriority(normalized.objectives)[0]?.objective;
 
-  return `POST BRIEF (mandatory — all ${lang} posts in this batch must follow):
+ return `POST BRIEF (mandatory · all ${lang} posts in this batch must follow):
 ${objectivesBlock}
 - Primary objective (priority 1) drives hook, body shape, and closing; secondary objectives may appear subtly but must not dilute the main intent.
 - Audience problem: ${normalized.problem.trim()}
 - Author point of view: ${normalized.pointOfView.trim()}
 - Proof to weave in (required): ${normalized.proof.trim()}
 
-Each post must visibly reflect the problem, POV, and proof. Match the ranked objectives in hook, body shape, and closing (no hard-sell CTA block — user adds a signature CTA later; body ending must not duplicate that CTA's opener).${
-    primary === "conversation"
-      ? " When conversation is ranked, end with a specific question for the target ICP."
-      : ""
-  }`;
+Each post must visibly reflect the problem, POV, and proof. Match the ranked objectives in hook, body shape, and closing (no hard-sell CTA block · user adds a signature CTA later; body ending must not duplicate that CTA's opener).${
+ primary === "conversation"
+ ? " When conversation is ranked, end with a specific question for the target ICP."
+ : ""
+ }`;
 }
 
+/** Rich enough brief to run niche check (optional UX — does not block generation). */
 export function isPostBriefComplete(brief: PostBrief): boolean {
-  const normalized = normalizePostBrief(brief);
-  return (
-    hasPostObjectivesFromUnknown(normalized) &&
-    normalized.problem.trim().length >= 8 &&
-    normalized.pointOfView.trim().length >= 8 &&
-    normalized.proof.trim().length >= 8
-  );
+ const normalized = normalizePostBrief(brief);
+ return (
+ normalized.problem.trim().length >= 8 &&
+ normalized.pointOfView.trim().length >= 8 &&
+ normalized.proof.trim().length >= 8
+ );
 }
 
 export type WizardCreationMode = "profile" | "news" | "inspiration" | "article";
 
 export function isArticleTopicBriefComplete(brief: PostBrief): boolean {
-  const normalized = normalizePostBrief(brief);
-  return (
-    normalized.problem.trim().length >= 8 &&
-    normalized.pointOfView.trim().length >= 8
-  );
+ const normalized = normalizePostBrief(brief);
+ return (
+ normalized.problem.trim().length >= 8 &&
+ normalized.pointOfView.trim().length >= 8
+ );
 }
 
-/** Profile = full brief; article = light topic form; news/inspiration = objective required. */
-export function isWizardBriefComplete(
-  brief: PostBrief,
-  mode: WizardCreationMode,
-): boolean {
-  if (mode === "profile") return isPostBriefComplete(brief);
-  if (mode === "article") return isArticleTopicBriefComplete(brief);
-  return hasPostObjectivesFromUnknown(brief);
+/** Brief fields are optional for generation in every wizard mode. */
+export function isWizardBriefComplete(brief: PostBrief, mode: WizardCreationMode): boolean {
+ void brief;
+ void mode;
+ return true;
 }

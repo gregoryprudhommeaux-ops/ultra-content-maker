@@ -11,6 +11,7 @@ export async function getAudienceProfile(userId: string): Promise<AudienceProfil
   return {
     targetLabel: d.targetLabel as string | undefined,
     contentFocus: d.contentFocus as string | undefined,
+    contentNiche: d.contentNiche as string | undefined,
     newsInterestQuery: d.newsInterestQuery as string | undefined,
     optionalNotes: d.optionalNotes as string | undefined,
     skipped: d.skipped as boolean | undefined,
@@ -27,6 +28,7 @@ export async function saveAudienceProfile(
     {
       targetLabel: input.targetLabel ?? null,
       contentFocus: input.contentFocus ?? null,
+      contentNiche: input.contentNiche ?? null,
       newsInterestQuery: input.newsInterestQuery ?? null,
       optionalNotes: input.optionalNotes ?? null,
       skipped: input.skipped ?? false,

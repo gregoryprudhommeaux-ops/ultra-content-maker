@@ -3,7 +3,7 @@
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
-import { BTN_PRIMARY } from "@/lib/ui/nextstep";
+import { BTN_PRIMARY, PAGE_TITLE } from "@/lib/ui/nextstep";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -50,7 +50,7 @@ export function ReadyScreen() {
         <p className="text-4xl" aria-hidden>
           ✓
         </p>
-        <h1 className="mt-3 text-2xl font-black uppercase tracking-tight text-ns-tertiary">
+        <h1 className={`mt-3 ${PAGE_TITLE}`}>
           {t("title")}
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-sm font-medium leading-relaxed text-ns-secondary">

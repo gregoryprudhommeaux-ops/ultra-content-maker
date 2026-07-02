@@ -65,16 +65,19 @@ export function classifyProviderErrorMessage(message: string): ProviderErrorKind
     return "insufficient_credits";
   }
 
+  const keyHints = [
+    "invalid_api_key",
+    "invalid x-api-key",
+    "incorrect api key",
+    "invalid api key",
+    "api key not valid",
+    "no api key provided",
+    "missing api key provided",
+  ];
+
   if (
-    m.includes("invalid_api_key") ||
-    m.includes("invalid x-api-key") ||
-    m.includes("incorrect api key") ||
-    m.includes("invalid api key") ||
-    m.includes("api key not valid") ||
-    readable.includes("invalid api key") ||
-    (m.includes("authentication_error") && !m.includes("invalid_request")) ||
-    (m.includes("401") &&
-      !creditHints.some((h) => m.includes(h) || readable.includes(h)))
+    keyHints.some((h) => m.includes(h) || readable.includes(h)) ||
+    (m.includes("authentication_error") && !m.includes("invalid_request"))
   ) {
     return "invalid_key";
   }

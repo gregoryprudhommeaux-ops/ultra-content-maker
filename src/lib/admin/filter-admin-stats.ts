@@ -2,7 +2,7 @@ import {
   ARTICLE_CREATION_MODES,
   emptyCreationModeCounts,
 } from "@/lib/articles/infer-creation-mode";
-import type { AdminUserMetrics } from "@/lib/admin/analytics-types";
+import type { AdminUserMetrics, ConnectionBucket } from "@/lib/admin/analytics-types";
 import type { ArticleCreationMode } from "@/types/workspace";
 
 export type FilteredAdminTotals = {
@@ -53,3 +53,21 @@ export function aggregateAdminStats(
     articleModeCounts,
   };
 }
+
+/** Recompute connection buckets for included users only. */
+export function filterConnectionBuckets(
+  buckets: ConnectionBucket[],
+  includedUserIds: ReadonlySet<string>,
+): ConnectionBucket[] {
+  return buckets.map((bucket) => {
+    const filteredIds = bucket.userIds.filter((id) => includedUserIds.has(id));
+    return {
+      ...bucket,
+      userIds: filteredIds,
+      uniqueUsers: filteredIds.length,
+    };
+  });
+}
+
+export { computeRevenueSummary, listBlockedUsers } from "@/lib/admin/admin-economics";
+export type { RevenueSummary, BlockedUserRow } from "@/lib/admin/admin-economics";

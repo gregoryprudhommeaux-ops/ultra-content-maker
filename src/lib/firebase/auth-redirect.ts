@@ -8,7 +8,7 @@ import { ensureUserDoc } from "@/lib/workspace/user";
 import { clearGoogleRedirectPending } from "./google-redirect";
 
 /** Full-page navigation so Firebase session is ready before RequireAuth runs. */
-export function redirectAfterSignIn(locale: AppLocale, path = "/setup/author") {
+export function redirectAfterSignIn(locale: AppLocale, path = "/setup/express") {
   clearGoogleRedirectPending();
   const href = `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
   window.location.assign(href);

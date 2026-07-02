@@ -16,9 +16,8 @@ export type SetupCompletion = {
 /** Steps required before opening the creation wizard (not incl. first generated post). */
 export const CREATION_GATE_STEPS: readonly OnboardingStepKey[] = [
   "llm",
-  "author",
+  "express",
   "audience",
-  "persona",
 ] as const;
 
 export type CreationGateResult = {
@@ -41,7 +40,7 @@ export function completionFromSteps(
 
   return {
     hasApiKey: byKey.llm ?? false,
-    hasProfileMinimum: byKey.author ?? false,
+    hasProfileMinimum: byKey.express ?? false,
     hasAudience: byKey.audience ?? false,
     hasPersonaValidated: byKey.persona ?? false,
     hasGeneratedPost: byKey.articles ?? false,
@@ -73,7 +72,7 @@ function stepToFlag(key: OnboardingStepKey): keyof SetupCompletion {
   switch (key) {
     case "llm":
       return "hasApiKey";
-    case "author":
+    case "express":
       return "hasProfileMinimum";
     case "audience":
       return "hasAudience";

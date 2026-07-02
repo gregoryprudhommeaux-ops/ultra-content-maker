@@ -1,5 +1,6 @@
-import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
-import { chatCompletionJson } from "@/lib/llm/chat";
+import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
+import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
+import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
   buildFirstCommentSystemPrompt,
@@ -38,8 +39,8 @@ type Body = {
 };
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) {
+  const userId = await verifyBearerUserId(request.headers.get("authorization"));
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -53,14 +54,7 @@ export async function POST(request: Request) {
 
   const contentLanguage = (body.contentLanguage || "en") as ContentLanguage;
   const hasNewsSource = Boolean(body.newsSource?.url?.trim());
-  const llm =
-    body.llm?.apiKey?.trim()
-      ? configFromUserLlm({
-          provider: body.llm.provider,
-          apiKey: body.llm.apiKey.trim(),
-          model: body.llm.model,
-        })
-      : getLlmConfig();
+  const llm = await resolveContentRouteLlm(userId, body.llm);
 
   if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
@@ -92,7 +86,7 @@ export async function POST(request: Request) {
           authorSteering,
         }),
       },
-    ]);
+    ], mergeUsageLog(userId, "articles/first-comment"));
 
     const parsed = parseLlmJson<{ comment?: string }>(raw);
     let comment = typeof parsed.comment === "string" ? parsed.comment.trim() : "";

@@ -6,13 +6,12 @@ import { isFirebaseConfigured } from "@/lib/firebase/config";
 import { getClientAuth } from "@/lib/firebase/client";
 import { resolveAuthErrorMessage } from "@/lib/firebase/auth-errors";
 import { clearGoogleRedirectPending } from "@/lib/firebase/google-redirect";
+import { signInWithGoogle } from "@/lib/firebase/google-sign-in";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { BTN_PRIMARY, BTN_SECONDARY, INPUT_CLASS, LABEL_CLASS } from "@/lib/ui/nextstep";
 import {
-  GoogleAuthProvider,
   signInWithEmailAndPassword,
-  signInWithPopup,
 } from "firebase/auth";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -117,15 +116,14 @@ export function LoginForm() {
       setPending(false);
       return;
     }
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
     try {
-      const cred = await signInWithPopup(auth, provider);
+      const result = await signInWithGoogle(auth);
+      if (result === "redirect") return;
       await redirectAfterSignInForUser(
         locale,
-        cred.user.uid,
-        cred.user.email ?? "",
-        cred.user.displayName ?? undefined,
+        result.user.uid,
+        result.user.email ?? "",
+        result.user.displayName ?? undefined,
         { method: "google", event: "login" },
         inviteToken,
       );

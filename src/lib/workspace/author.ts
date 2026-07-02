@@ -25,6 +25,15 @@ export function isAuthorProfileMinimumComplete(
   );
 }
 
+/** Express onboarding: LinkedIn + language — enough to draft a Persona and test. */
+export function isAuthorProfileExpressComplete(
+  profile: Pick<AuthorProfile, "linkedinProfileUrl" | "contentLanguage"> | null | undefined,
+): boolean {
+  if (!profile) return false;
+  const linkedin = profile.linkedinProfileUrl?.trim() ?? "";
+  return linkedin.length > 0 && isValidUrl(linkedin) && Boolean(profile.contentLanguage);
+}
+
 const DOC_ID = "profile";
 
 export async function getAuthorProfile(userId: string): Promise<AuthorProfile | null> {

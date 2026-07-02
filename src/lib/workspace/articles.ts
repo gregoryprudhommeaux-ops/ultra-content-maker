@@ -528,7 +528,38 @@ export async function validateArticleWithCta(
     linkUrl?: string;
   },
   hashtags?: string[],
+  opts?: { idToken?: string; hook?: string; body?: string; ps?: string },
 ) {
+  const token = opts?.idToken;
+  if (token) {
+    const res = await fetch("/api/articles/validate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        articleId,
+        exportText,
+        cta,
+        hashtags,
+        hook: opts.hook,
+        body: opts.body,
+        ps: opts.ps,
+      }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      subscription?: unknown;
+    };
+    if (!res.ok) {
+      const err = new Error(data.error ?? "validate_failed");
+      (err as Error & { code?: string }).code = data.error;
+      throw err;
+    }
+    return;
+  }
+
   const normalized = hashtags?.length ? normalizeHashtags(hashtags) : [];
   await updateDoc(articleDocRef(userId, articleId), {
     exportText,

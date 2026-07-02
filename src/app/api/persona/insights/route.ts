@@ -1,5 +1,7 @@
-import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
-import { chatCompletionJson } from "@/lib/llm/chat";
+import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
+import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
+import { resolveRequestLlm } from "@/lib/llm/resolve-request-llm";
+import { requireActiveSubscriptionLlm } from "@/lib/subscription/llm-gate.server";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
   buildPersonaInsightsSystemPrompt,
@@ -41,9 +43,17 @@ type Body = {
 };
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) {
+  const userId = await verifyBearerUserId(request.headers.get("authorization"));
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const subGate = await requireActiveSubscriptionLlm(userId, { premium: true });
+  if (!subGate.ok) {
+    return NextResponse.json(
+      { error: subGate.code, subscription: subGate.access },
+      { status: subGate.status },
+    );
   }
 
   let body: Body;
@@ -64,14 +74,7 @@ export async function POST(request: Request) {
   }
 
   const contentLanguage = (body.contentLanguage || "en") as ContentLanguage;
-  const llm =
-    body.llm?.apiKey?.trim()
-      ? configFromUserLlm({
-          provider: body.llm.provider,
-          apiKey: body.llm.apiKey.trim(),
-          model: body.llm.model,
-        })
-      : getLlmConfig();
+  const llm = await resolveRequestLlm(userId, body.llm);
 
   if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
@@ -87,7 +90,7 @@ export async function POST(request: Request) {
           posts: body.posts,
         }),
       },
-    ]);
+    ], mergeUsageLog(userId, "persona/insights"));
 
     const parsed = parseLlmJson<{
       summary?: string;

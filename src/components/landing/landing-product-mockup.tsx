@@ -1,145 +1,114 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-const POST_KEYS = ["post1", "post2", "post3", "post4"] as const;
-const SCOPES = ["generalist", "generalist", "niche", "niche"] as const;
+const WOW_KEYS = ["persona", "batch", "quality"] as const;
+const FLOW_KEYS = ["sources", "brief", "drafts", "export"] as const;
 
 export function LandingProductMockup() {
   const t = useTranslations("landing.product");
 
   return (
-    <div className="mx-auto w-full max-w-6xl" role="group" aria-label={t("mockupAria")}>
-      <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:gap-2">
-        <Panel label={t("panels.brief.label")} step="1" className="lg:flex-1">
-          <div className="flex min-h-[200px] flex-col justify-between gap-3">
-            <div className="flex flex-wrap gap-1.5">
-              {(["credibility", "conversation"] as const).map((obj) => (
-                <span
-                  key={obj}
-                  className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                    obj === "credibility"
-                      ? "bg-ns-primary/25 text-ns-tertiary ring-1 ring-ns-primary/40"
-                      : "bg-gray-100 text-ns-secondary"
-                  }`}
+    <div className="mx-auto w-full max-w-6xl space-y-5" role="group" aria-label={t("mockupAria")}>
+      {/* Hero WOW: 4 drafts */}
+      <article className="relative overflow-hidden rounded-2xl bg-ns-hero p-6 text-white shadow-lg md:p-8">
+        <div
+          className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-ns-primary/20 blur-3xl"
+          aria-hidden
+        />
+        <div className="relative grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-ns-primary">
+              {t("wowHero.eyebrow")}
+            </p>
+            <h3 className="mt-2 text-balance text-2xl font-bold tracking-tight text-white md:text-3xl">
+              {t("wowHero.title")}
+            </h3>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-white/90 md:text-base">
+              {t("wowHero.body")}
+            </p>
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {(["stat1", "stat2", "stat3"] as const).map((key) => (
+                <li
+                  key={key}
+                  className="rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-semibold text-white"
                 >
-                  {t(`panels.brief.objectives.${obj}`)}
-                </span>
+                  {t(`wowHero.${key}`)}
+                </li>
               ))}
-            </div>
-            <div className="space-y-2">
-              <BriefField label={t("panels.brief.fields.problem")} value={t("panels.brief.sampleProblem")} />
-              <BriefField label={t("panels.brief.fields.pov")} value={t("panels.brief.samplePov")} />
-            </div>
-            <span className="inline-flex w-fit rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
-              {t("panels.brief.nicheOk")}
-            </span>
+            </ul>
           </div>
-        </Panel>
 
-        <FlowArrow />
-
-        <Panel label={t("panels.exploration.label")} step="2" className="lg:flex-[1.15]">
-          <div className="grid min-h-[200px] grid-cols-2 gap-2 content-stretch">
-            {POST_KEYS.map((key, i) => {
-              const scope = SCOPES[i];
-              const border =
-                scope === "generalist" ? "border-l-ns-primary" : "border-l-ns-secondary";
+          <div className="grid grid-cols-2 gap-2.5">
+            {(["post1", "post2", "post3", "post4"] as const).map((key, i) => {
+              const isNiche = i >= 2;
               return (
                 <div
                   key={key}
-                  className={`flex min-h-[88px] flex-col rounded-lg border border-gray-100 border-l-[3px] bg-ns-brand-light p-2.5 ${border}`}
+                  className={`rounded-xl border bg-white p-3 shadow-md ${
+                    isNiche ? "border-ns-secondary/40" : "border-ns-primary/50"
+                  }`}
                 >
-                  <span className="text-[9px] font-bold uppercase tracking-wide text-ns-secondary">
-                    {t(`scope.${scope}`)}
+                  <span
+                    className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
+                      isNiche
+                        ? "bg-ns-secondary text-white"
+                        : "bg-ns-primary text-ns-hero"
+                    }`}
+                  >
+                    {t(`scope.${isNiche ? "niche" : "generalist"}`)}
                   </span>
-                  <p className="mt-auto text-[11px] font-medium leading-snug text-ns-tertiary line-clamp-3">
+                  <p className="mt-2 text-[11px] font-semibold leading-snug text-ns-tertiary line-clamp-2">
                     {t(`posts.${key}`)}
                   </p>
                 </div>
               );
             })}
           </div>
-        </Panel>
+        </div>
+      </article>
 
-        <FlowArrow />
+      {/* 3 WOW features, equal grid */}
+      <ul className="grid gap-4 md:grid-cols-3">
+        {WOW_KEYS.map((key) => (
+          <li key={key}>
+            <article className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ns-primary/15 text-[11px] font-black tracking-wide text-ns-tertiary">
+                {t(`wow.${key}.abbr`)}
+              </span>
+              <h4 className="mt-3 text-base font-bold text-ns-tertiary">{t(`wow.${key}.title`)}</h4>
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-ns-secondary">
+                {t(`wow.${key}.body`)}
+              </p>
+              <p className="mt-4 text-xs font-bold uppercase tracking-wide text-ns-primary">
+                {t(`wow.${key}.tag`)}
+              </p>
+            </article>
+          </li>
+        ))}
+      </ul>
 
-        <Panel label={t("panels.refine.label")} step="3" className="lg:flex-1">
-          <div className="flex min-h-[200px] flex-col justify-between gap-3">
-            <ul className="space-y-2.5">
-              {(["nicheClarity", "proofDensity", "conversationPotential"] as const).map(
-                (score) => (
-                  <li key={score}>
-                    <div className="flex justify-between text-[10px] font-medium text-ns-secondary">
-                      <span>{t(`panels.refine.scores.${score}`)}</span>
-                      <span className="font-bold text-ns-tertiary">8/10</span>
-                    </div>
-                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-100">
-                      <div className="h-full w-[80%] rounded-full bg-ns-primary" />
-                    </div>
-                  </li>
-                ),
-              )}
-            </ul>
-            <p className="rounded-md bg-amber-50 px-2 py-1.5 text-[10px] font-medium leading-snug text-amber-900">
-              {t("panels.refine.slopHint")}
-            </p>
-          </div>
-        </Panel>
+      {/* Pipeline: uniform strip */}
+      <div className="rounded-2xl border border-ns-alternate/60 bg-ns-brand-light/40 px-4 py-5 md:px-6">
+        <p className="text-center text-xs font-bold uppercase tracking-[0.18em] text-ns-secondary">
+          {t("flow.label")}
+        </p>
+        <ol className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {FLOW_KEYS.map((key, index) => (
+            <li key={key} className="relative text-center">
+              <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-ns-tertiary text-xs font-black text-white">
+                {index + 1}
+              </span>
+              <p className="mt-2 text-sm font-bold text-ns-tertiary">{t(`flow.steps.${key}.title`)}</p>
+              <p className="mt-1 text-xs leading-snug text-ns-secondary">
+                {t(`flow.steps.${key}.hint`)}
+              </p>
+            </li>
+          ))}
+        </ol>
       </div>
 
       <p className="sr-only">{t("mockupSummary")}</p>
-    </div>
-  );
-}
-
-function BriefField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-gray-100 bg-white px-2.5 py-2">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">{label}</p>
-      <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-ns-tertiary/85">{value}</p>
-    </div>
-  );
-}
-
-function FlowArrow() {
-  return (
-    <div
-      className="hidden shrink-0 items-center justify-center px-0.5 text-ns-secondary/35 lg:flex"
-      aria-hidden
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </div>
-  );
-}
-
-function Panel({
-  label,
-  step,
-  className = "",
-  children,
-}: {
-  label: string;
-  step: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className={`flex h-full flex-col rounded-2xl border border-gray-100/80 bg-ns-surface p-4 shadow-md shadow-ns-tertiary/5 md:p-4 ${className}`}
-    >
-      <div className="mb-3 flex items-center gap-2.5 border-b border-gray-100 pb-2.5">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ns-primary/20 text-xs font-black text-ns-tertiary">
-          {step}
-        </span>
-        <span className="text-[11px] font-bold uppercase leading-tight tracking-wide text-ns-tertiary">
-          {label}
-        </span>
-      </div>
-      <div className="flex-1">{children}</div>
     </div>
   );
 }

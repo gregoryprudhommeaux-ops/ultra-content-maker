@@ -1,7 +1,10 @@
 "use client";
 
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { NsMark } from "@/components/brand/ns-mark";
+import { MarketingPageHeader } from "@/components/marketing/marketing-page-header";
+import {
+  MarketingIntroParagraph,
+  MarketingPageIntro,
+} from "@/components/marketing/marketing-page-intro";
 import { AppFooter } from "@/components/layout/app-footer";
 import { APP_HOME_PATH } from "@/lib/workspace/onboarding-routes";
 import { useLazyAuthUser } from "@/hooks/use-lazy-auth-user";
@@ -18,25 +21,9 @@ const LandingProductMockup = dynamic(
   {
     loading: () => (
       <div
-        className="mx-auto h-96 w-full max-w-5xl animate-pulse rounded-2xl bg-white/40"
+        className="mx-auto h-96 w-full max-w-5xl animate-pulse rounded-2xl bg-ns-brand-light"
         aria-hidden
       />
-    ),
-  },
-);
-
-const LandingCapabilities = dynamic(
-  () =>
-    import("@/components/landing/landing-capabilities").then((m) => ({
-      default: m.LandingCapabilities,
-    })),
-  {
-    loading: () => (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-hidden>
-        {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-28 animate-pulse rounded-2xl bg-gray-100" />
-        ))}
-      </div>
     ),
   },
 );
@@ -48,7 +35,19 @@ const LandingHowItWorks = dynamic(
     })),
   {
     loading: () => (
-      <div className="h-32 animate-pulse rounded-2xl bg-gray-100" aria-hidden />
+      <div className="h-32 animate-pulse rounded-2xl bg-ns-brand-light" aria-hidden />
+    ),
+  },
+);
+
+const LandingCapabilities = dynamic(
+  () =>
+    import("@/components/landing/landing-capabilities").then((m) => ({
+      default: m.LandingCapabilities,
+    })),
+  {
+    loading: () => (
+      <div className="h-48 animate-pulse rounded-2xl bg-ns-brand-light" aria-hidden />
     ),
   },
 );
@@ -66,153 +65,128 @@ export function LandingPage({ isMarketing }: LandingPageProps) {
   const tTrust = useTranslations("landing.trust");
   const { user } = useLazyAuthUser();
 
+  const signedInBanner = user ? (
+    <div className="mb-4 flex flex-wrap items-center justify-center gap-3 rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-center text-sm">
+      <span className="font-medium text-white/80">{tMarketing("signedIn")}</span>
+      <Link
+        href="/articles/new"
+        className="font-semibold text-ns-primary underline-offset-2 hover:underline"
+      >
+        {tMarketing("backToApp")}
+      </Link>
+    </div>
+  ) : null;
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="relative overflow-hidden bg-ns-hero text-white">
-        <div className="pointer-events-none absolute inset-0 opacity-20">
+    <div className="flex min-h-screen flex-col bg-ns-background">
+      <MarketingPageHeader
+        brand={tHero("brand")}
+        homeHref={APP_HOME_PATH}
+        signInLabel={tHero("signIn")}
+        showSignIn={!user}
+        topBanner={signedInBanner}
+        borderless
+      />
+
+      <section className="relative overflow-hidden bg-ns-hero text-white">
+        <div className="pointer-events-none absolute inset-0 opacity-20" aria-hidden>
           <div className="absolute left-1/4 top-1/4 h-72 w-72 rounded-full bg-ns-primary blur-[120px]" />
           <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-ns-secondary blur-[120px]" />
         </div>
 
-        <header className="relative z-10 px-4 py-6 md:px-8">
-          {user && (
-            <div className="mb-4 flex flex-wrap items-center justify-center gap-3 rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-center text-sm">
-              <span className="font-medium text-white/80">{tMarketing("signedIn")}</span>
+        <div className="relative px-4 pb-14 pt-10 md:px-8 md:pb-20 md:pt-12">
+          <div className="mx-auto max-w-3xl text-center">
+            <MarketingPageIntro
+              eyebrow={tHero("eyebrow")}
+              title={tHero("headline")}
+              variant="dark"
+              className="max-w-none"
+            >
+              <p className="mx-auto max-w-2xl text-pretty text-base leading-relaxed text-white/75 md:text-lg">
+                {tHero("headlineSubtitle")}
+              </p>
+            </MarketingPageIntro>
+
+            <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+              <Link href="/signup" className={`${BTN_PRIMARY_LG} w-full sm:w-auto sm:min-w-[13rem]`}>
+                {tHero("cta")}
+              </Link>
               <Link
-                href="/articles/new"
-                className="font-semibold text-ns-primary underline-offset-2 hover:underline"
+                href="/pricing"
+                className={`${BTN_SECONDARY_ON_DARK} w-full sm:w-auto sm:min-w-[13rem]`}
               >
-                {tMarketing("backToApp")}
+                {tHero("ctaPricing")}
               </Link>
             </div>
-          )}
-          <div className="flex items-center justify-between gap-3">
-            <Link
-              href={APP_HOME_PATH}
-              className="flex items-center gap-3 rounded-lg transition-opacity hover:opacity-90"
-            >
-              <NsMark size="md" />
-              <span className="text-sm font-bold tracking-tight text-white">
-                {tHero("brand")}
-              </span>
-            </Link>
-            <LanguageSwitcher variant="dark" />
-          </div>
-        </header>
 
-        <section className="relative z-10 mx-auto max-w-4xl px-4 pb-20 pt-4 md:px-8 md:pb-28">
-          <p className="text-xs font-bold uppercase tracking-widest text-ns-primary">
-            {tHero("languagesBadge")}
-          </p>
-          <h1 className="mt-3 text-3xl font-bold leading-[1.12] tracking-tight md:text-5xl lg:text-6xl">
-            {tHero("headline")}
-          </h1>
-          <p className="mt-3 max-w-2xl text-xl font-semibold leading-snug text-white/85 md:mt-4 md:text-2xl">
-            {tHero("headlineSubtitle")}
-          </p>
-          <p className="mt-5 max-w-2xl text-base font-medium leading-relaxed text-white/80 md:text-lg">
-            {tHero("subheadline")}
-          </p>
-          <p className="mt-6 max-w-2xl border-l-4 border-ns-primary bg-white/5 py-3 pl-5 text-sm font-medium leading-relaxed text-white/90 md:text-base">
-            {tHero("benefit")}
-          </p>
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Link href="/signup" className={BTN_PRIMARY_LG}>
-              {tHero("cta")}
-            </Link>
-            <a href="#landing-product" className={BTN_SECONDARY_ON_DARK}>
-              {tHero("ctaSecondary")}
-            </a>
-            <Link
-              href="/login"
-              className="text-center text-sm font-semibold text-white/80 underline-offset-2 hover:text-white hover:underline"
-            >
-              {tHero("signIn")}
-            </Link>
+            <p className="mt-5 text-sm font-medium text-white/55">{tHero("microTrust")}</p>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
       <section
         id="landing-product"
-        className="relative scroll-mt-20 bg-ns-brand-light px-4 pt-12 pb-10 md:px-8 md:pt-16 md:pb-12"
+        className="scroll-mt-20 border-t border-ns-border bg-ns-brand-light/50 px-4 py-14 md:px-8 md:py-16"
         aria-labelledby="landing-product-title"
       >
         <div className="mx-auto max-w-6xl">
-          <div className="relative z-10 mx-auto max-w-2xl text-center">
-            <h2
-              id="landing-product-title"
-              className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl"
-            >
-              {tProduct("title")}
-            </h2>
-            <p className="mt-4 text-sm font-medium leading-relaxed text-ns-secondary md:text-base">
-              {tProduct("subtitle")}
-            </p>
-          </div>
-          <div className="relative z-0 mt-6 md:mt-8">
+          <MarketingPageIntro
+            eyebrow={tProduct("eyebrow")}
+            title={tProduct("title")}
+            className="max-w-2xl"
+          >
+            <MarketingIntroParagraph>{tProduct("subtitle")}</MarketingIntroParagraph>
+          </MarketingPageIntro>
+          <div className="mt-10">
             <LandingProductMockup />
           </div>
         </div>
       </section>
 
       <section
-        className="bg-ns-background px-4 pt-10 pb-14 md:px-8 md:pt-12 md:pb-16"
-        aria-labelledby="landing-how-title"
-      >
-        <div className="mx-auto max-w-5xl">
-          <div className="mx-auto mb-8 max-w-2xl text-center">
-            <h2
-              id="landing-how-title"
-              className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl"
-            >
-              {tHow("title")}
-            </h2>
-            <p className="mt-4 text-sm font-medium leading-relaxed text-ns-secondary md:text-base">
-              {tHow("subtitle")}
-            </p>
-          </div>
-          <LandingHowItWorks />
-        </div>
-      </section>
-
-      <section
-        className="bg-ns-brand-light px-4 py-16 md:px-8 md:py-20"
+        className="border-t border-ns-border px-4 py-14 md:px-8 md:py-16"
         aria-labelledby="landing-capabilities-title"
       >
         <div className="mx-auto max-w-6xl">
-          <div className="mx-auto mb-8 max-w-2xl text-center md:mb-10">
-            <h2
-              id="landing-capabilities-title"
-              className="text-2xl font-bold tracking-tight text-ns-tertiary md:text-3xl"
-            >
-              {tCapabilities("title")}
-            </h2>
-            <p className="mt-4 text-sm font-medium leading-relaxed text-ns-secondary md:text-base">
-              {tCapabilities("subtitle")}
-            </p>
-          </div>
+          <MarketingPageIntro
+            eyebrow={tCapabilities("eyebrow")}
+            title={tCapabilities("title")}
+            className="mb-10 max-w-3xl"
+          >
+            <MarketingIntroParagraph>{tCapabilities("subtitle")}</MarketingIntroParagraph>
+          </MarketingPageIntro>
           <LandingCapabilities />
         </div>
       </section>
 
-      <section className="bg-ns-hero px-4 py-14 text-white md:px-8 md:py-16">
+      <section
+        className="border-t border-ns-border px-4 py-14 md:px-8 md:py-16"
+        aria-labelledby="landing-how-title"
+      >
+        <div className="mx-auto max-w-5xl">
+          <MarketingPageIntro eyebrow={tHow("eyebrow")} title={tHow("title")} className="mb-10">
+            <MarketingIntroParagraph>{tHow("subtitle")}</MarketingIntroParagraph>
+          </MarketingPageIntro>
+          <LandingHowItWorks />
+        </div>
+      </section>
+
+      <section className="border-t border-ns-border bg-ns-hero px-4 py-14 text-white md:px-8 md:py-16">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
-          <h2 className="text-xl font-bold leading-snug md:text-2xl">{tTrust("headline")}</h2>
-          <p className="max-w-2xl text-sm font-medium leading-relaxed tracking-wide text-white/70 md:text-base">
+          <h2 className="text-balance text-lg font-bold uppercase tracking-wider text-ns-primary">
+            {tTrust("headline")}
+          </h2>
+          <p className="max-w-2xl text-balance text-xl font-bold leading-snug text-white md:text-2xl">
             {tTrust("points")}
           </p>
+          <p className="max-w-xl text-sm leading-relaxed text-white/70">{tTrust("subpoints")}</p>
           <Link href="/signup" className={BTN_PRIMARY}>
             {tTrust("cta")}
           </Link>
         </div>
       </section>
 
-      <AppFooter
-        variant="dark"
-        showAuthLinks={!user}
-        showAppLinks={!!user}
-      />
+      <AppFooter variant="dark" showAuthLinks={!user} showAppLinks={!!user} />
     </div>
   );
 }

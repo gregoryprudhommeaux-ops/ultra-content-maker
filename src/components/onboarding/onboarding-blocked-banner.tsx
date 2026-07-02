@@ -10,12 +10,12 @@ import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
-type BannerReason = "persona" | "llm" | "author" | "audience" | "generic";
+type BannerReason = "persona" | "llm" | "express" | "audience" | "generic";
 
 const REASON_TO_STEP: Partial<Record<BannerReason, OnboardingStepKey>> = {
   persona: "persona",
   llm: "llm",
-  author: "author",
+  express: "express",
   audience: "audience",
 };
 
@@ -30,7 +30,7 @@ function resolveReason(
 ): BannerReason {
   if (explicit) return explicit;
   if (nextStep === "llm") return "llm";
-  if (nextStep === "author") return "author";
+  if (nextStep === "express") return "express";
   if (nextStep === "audience") return "audience";
   if (nextStep === "persona") return "persona";
   return "generic";
@@ -69,11 +69,6 @@ export function OnboardingBlockedBanner({ reason: reasonProp }: Props) {
       <p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-ns-secondary">
         {t(`${reason}.description`)}
       </p>
-      {progress && (
-        <p className="mt-2 text-xs font-medium text-ns-secondary">
-          {t("progressHint", { percent: progress.percent })}
-        </p>
-      )}
       <Link href={href} className={`mt-4 ${BTN_PRIMARY}`}>
         {t("cta", { step: ctaLabel })}
       </Link>

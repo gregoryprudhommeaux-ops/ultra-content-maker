@@ -1,8 +1,6 @@
-import {
-  fetchInspirationUrlExcerpt,
-  resolveUserLlmConfig,
-} from "@/lib/inspiration/fetch-url-excerpt";
-import { getLlmConfig } from "@/lib/llm/config";
+import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
+import { fetchInspirationUrlExcerpt } from "@/lib/inspiration/fetch-url-excerpt";
+import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import type { ContentLanguage, LlmProvider } from "@/types/workspace";
 import { NextResponse } from "next/server";
@@ -21,8 +19,8 @@ type Body = {
 };
 
 export async function POST(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) {
+  const userId = await verifyBearerUserId(request.headers.get("authorization"));
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -35,13 +33,7 @@ export async function POST(request: Request) {
   }
 
   const contentLanguage = (body.contentLanguage || "fr") as ContentLanguage;
-  const llm = body.llm?.apiKey?.trim()
-    ? resolveUserLlmConfig({
-        provider: body.llm.provider,
-        apiKey: body.llm.apiKey.trim(),
-        model: body.llm.model,
-      })
-    : getLlmConfig();
+  const llm = await resolveContentRouteLlm(userId, body.llm);
 
   if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
@@ -52,6 +44,7 @@ export async function POST(request: Request) {
       url: body.url,
       contentLanguage,
       llm,
+      userId,
     });
 
     return NextResponse.json({

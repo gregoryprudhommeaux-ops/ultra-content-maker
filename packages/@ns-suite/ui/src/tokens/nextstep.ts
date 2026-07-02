@@ -25,12 +25,20 @@ export const DASHBOARD_FORM_COMPACT = `${DASHBOARD_PAGE_WIDTH} space-y-4`;
 export const DASHBOARD_PAGE_DESC =
   "mt-3 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary md:text-base";
 
+/** Uppercase display titles — airy tracking for legibility (French all-caps). */
+const DISPLAY_TRACKING = "tracking-[0.06em]";
+const DISPLAY_WORD = "[word-spacing:0.1em]";
+
 /** Typography */
 export const PAGE_TITLE =
-  "text-2xl font-black uppercase tracking-tighter text-ns-tertiary md:text-3xl";
-export const PAGE_DESC = "mt-2 max-w-xl text-sm font-medium leading-relaxed text-ns-secondary";
+  `text-2xl font-black uppercase ${DISPLAY_TRACKING} ${DISPLAY_WORD} leading-tight text-ns-tertiary md:text-3xl`;
+export const HEADING_TITLE =
+  `text-xl font-black uppercase ${DISPLAY_TRACKING} ${DISPLAY_WORD} leading-snug text-ns-tertiary md:text-2xl`;
 export const SECTION_TITLE =
-  "text-base font-black uppercase tracking-tight text-ns-tertiary";
+  `text-base font-black uppercase tracking-[0.05em] leading-snug text-ns-tertiary`;
+export const CARD_TITLE =
+  `font-black uppercase tracking-[0.05em] leading-snug text-ns-tertiary`;
+export const PAGE_DESC = "mt-2 max-w-xl text-sm font-medium leading-relaxed text-ns-secondary";
 export const META_LABEL =
   "text-[10px] font-black uppercase tracking-widest text-ns-secondary";
 export const BODY_TEXT = "text-sm font-medium leading-relaxed text-ns-secondary";

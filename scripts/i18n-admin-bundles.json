@@ -1,0 +1,578 @@
+{
+  "fr": {
+    "adminAnalytics": {
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "actions": "Actions",
+        "support": "Support",
+        "users": "Utilisateurs",
+        "billing": "Facturation"
+      },
+      "tierMix": {
+        "title": "Mix par offre",
+        "subtitleAll": "Tous les utilisateurs inclus dans les stats"
+      },
+      "tiers": {
+        "freeTest": "FREE TEST",
+        "pro": "PRO",
+        "proPlus": "PRO+",
+        "supportStarter": "SUPPORT STARTER",
+        "supportRegular": "SUPPORT REGULAR",
+        "supportTotal": "SUPPORT TOTAL",
+        "fullFree": "FULL FREE",
+        "freeWithoutApi": "FREE w/o API",
+        "expired": "EXPIRED"
+      },
+      "kpiGroups": {
+        "product": "Produit",
+        "revenue": "Revenus",
+        "costs": "Coûts"
+      },
+      "kpis": {
+        "validatedArticles": "Validés",
+        "mrr": "MRR estimé",
+        "estimatedMargin": "Marge brute",
+        "stripeMrr": "MRR Stripe",
+        "stripeSubscribers": "{count} abonnés Stripe",
+        "estimatedLlmCost": "Coût LLM est.",
+        "loggedLlmCost": "Coût LLM log."
+      },
+      "funnel": {
+        "title": "Entonnoir d'onboarding",
+        "subtitle": "Progression des étapes clés après inscription",
+        "empty": "Aucun utilisateur inscrit pour l'instant.",
+        "steps": {
+          "llm": "LLM configuré",
+          "persona": "Persona",
+          "author": "Voix auteur",
+          "audience": "Audience",
+          "firstArticle": "1er article",
+          "firstValidated": "1er post validé"
+        }
+      },
+      "filterPresets": {
+        "label": "Filtres rapides",
+        "active": "Filtre actif : {label} ({count} utilisateurs)",
+        "product": "Produit",
+        "trial": "Essai",
+        "paying": "Payants",
+        "blocked": "Bloqués",
+        "support": "Support"
+      },
+      "exportCsv": "Exporter CSV",
+      "periods": {
+        "label": "Période"
+      },
+      "production": {
+        "to_produce": "À produire",
+        "client_review": "Revue client",
+        "published": "Publiés",
+        "empty": "Aucune activité de production ce mois."
+      },
+      "supportCockpit": {
+        "title": "Cockpit support",
+        "subtitle": "Suivi des accompagnants et livraisons du mois",
+        "account": "Compte",
+        "clients": "Clientes",
+        "collapse": "Réduire",
+        "expand": "Détail",
+        "empty": "Aucun compte support pour l'instant.",
+        "filterAll": "Tout",
+        "filterProduction": "Filtrer par statut",
+        "linkedClient": "Cliente liée",
+        "llmCost": "Coût LLM",
+        "margin": "Marge",
+        "monthlyQuota": "Quota mensuel",
+        "noWorkspaces": "Aucun espace client.",
+        "quota": "Restant",
+        "revenue": "CA",
+        "status": "Statut",
+        "tier": "Offre",
+        "workspaceName": "Espace",
+        "delivered": "Livrés",
+        "deliveryStatus": {
+          "on_track": "Dans les temps",
+          "at_risk": "À risque",
+          "over_quota": "Dépassement"
+        }
+      },
+      "blocked": {
+        "title": "Utilisateurs bloqués",
+        "subtitle": "Comptes qui ne peuvent plus générer de contenu",
+        "postsLeft": "posts restants",
+        "reasonBlocked": "Bloqué",
+        "reasonLowCompletion": "Profil incomplet",
+        "codes": {
+          "trial_expired": "Essai expiré",
+          "trial_posts_exhausted": "Posts essai épuisés",
+          "pro_cap": "Plafond Pro atteint",
+          "pro_plus_cap": "Plafond Pro+ atteint",
+          "subscription_required": "Abonnement requis",
+          "support_no_generate": "Support sans génération"
+        }
+      },
+      "errorInbox": {
+        "title": "Boîte d'erreurs",
+        "subtitle": "Signalements utilisateurs en attente de résolution",
+        "resolve": "Résoudre"
+      },
+      "sections": {
+        "charts": "Graphiques",
+        "chartsSubtitle": "Connexions uniques et styles de création"
+      },
+      "errors": {
+        "adminNotConfigured": "Admin plateforme non configuré. Vérifiez les variables d'environnement."
+      },
+      "usersTable": {
+        "tier": "Offre",
+        "blockReason": "Blocage",
+        "changeTier": "Changer l'offre",
+        "confirmTierChange": "Passer {name} sur l'offre {tier} ?",
+        "tierConfirm": "Confirmer l'offre",
+        "tierChangeFailed": "Impossible de modifier l'offre.",
+        "tierFilterAll": "Toutes les offres",
+        "tierFilterLabel": "Filtrer par offre",
+        "tierSaving": "Enregistrement…",
+        "validated": "Validés",
+        "postsRemaining": "Posts restants",
+        "onboardingComplete": "Complet",
+        "onboardingGuideHint": "Cliquez pour voir le détail des étapes",
+        "onboardingHoverHint": "Survolez pour le détail",
+        "onboardingMissing": "Étapes manquantes",
+        "onboardingStepsHint": "Étapes d'onboarding",
+        "noBlock": "N/D"
+      }
+    },
+    "adminDigest": {
+      "title": "Digest hebdomadaire",
+      "subtitle": "Envoyer un résumé MRR et activité par e-mail aux admins",
+      "preview": "Aperçu",
+      "previewOk": "Aperçu OK. MRR estimé : {mrr} $",
+      "sendNow": "Envoyer maintenant",
+      "pending": "Envoi…",
+      "sent": "Digest envoyé par e-mail.",
+      "sentNoEmail": "Digest généré (aucun e-mail admin configuré).",
+      "error": "Impossible d'envoyer le digest."
+    },
+    "adminSubscription": {
+      "title": "Attribuer une offre",
+      "subtitle": "Modifier manuellement l'abonnement d'un utilisateur",
+      "userId": "ID utilisateur (Firebase UID)",
+      "tier": "Offre",
+      "bonusPosts": "Posts bonus (Pro+)",
+      "submit": "Appliquer",
+      "pending": "Enregistrement…",
+      "error": "Impossible de modifier l'abonnement.",
+      "success": "Offre mise à jour : {tier}"
+    },
+    "adminWire": {
+      "title": "Virements en attente",
+      "subtitle": "Approuver ou rejeter les demandes de paiement par virement",
+      "loading": "Chargement…",
+      "loadFailed": "Impossible de charger les demandes.",
+      "pending": "En cours…",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "actionFailed": "Action impossible.",
+      "empty": "Aucune demande en attente.",
+      "columns": {
+        "user": "Utilisateur",
+        "tier": "Offre",
+        "amount": "Montant",
+        "reference": "Référence",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "status": {
+        "pending": "En attente",
+        "wire_sent": "Virement envoyé",
+        "approved": "Approuvé",
+        "rejected": "Rejeté"
+      }
+    }
+  },
+  "en": {
+    "adminAnalytics": {
+      "tabs": {
+        "overview": "Overview",
+        "actions": "Actions",
+        "support": "Support",
+        "users": "Users",
+        "billing": "Billing"
+      },
+      "tierMix": {
+        "title": "Tier mix",
+        "subtitleAll": "All users included in stats"
+      },
+      "tiers": {
+        "freeTest": "FREE TEST",
+        "pro": "PRO",
+        "proPlus": "PRO+",
+        "supportStarter": "SUPPORT STARTER",
+        "supportRegular": "SUPPORT REGULAR",
+        "supportTotal": "SUPPORT TOTAL",
+        "fullFree": "FULL FREE",
+        "freeWithoutApi": "FREE w/o API",
+        "expired": "EXPIRED"
+      },
+      "kpiGroups": {
+        "product": "Product",
+        "revenue": "Revenue",
+        "costs": "Costs"
+      },
+      "kpis": {
+        "validatedArticles": "Validated",
+        "mrr": "Est. MRR",
+        "estimatedMargin": "Gross margin",
+        "stripeMrr": "Stripe MRR",
+        "stripeSubscribers": "{count} Stripe subs",
+        "estimatedLlmCost": "Est. LLM cost",
+        "loggedLlmCost": "Logged LLM cost"
+      },
+      "funnel": {
+        "title": "Onboarding funnel",
+        "subtitle": "Key step completion after signup",
+        "empty": "No registered users yet.",
+        "steps": {
+          "llm": "LLM set up",
+          "persona": "Persona",
+          "author": "Author voice",
+          "audience": "Audience",
+          "firstArticle": "1st article",
+          "firstValidated": "1st validated post"
+        }
+      },
+      "filterPresets": {
+        "label": "Quick filters",
+        "active": "Active filter: {label} ({count} users)",
+        "product": "Product",
+        "trial": "Trial",
+        "paying": "Paying",
+        "blocked": "Blocked",
+        "support": "Support"
+      },
+      "exportCsv": "Export CSV",
+      "periods": {
+        "label": "Period"
+      },
+      "production": {
+        "to_produce": "To produce",
+        "client_review": "Client review",
+        "published": "Published",
+        "empty": "No production activity this month."
+      },
+      "supportCockpit": {
+        "title": "Support cockpit",
+        "subtitle": "Coach accounts and monthly deliveries",
+        "account": "Account",
+        "clients": "Clients",
+        "collapse": "Collapse",
+        "expand": "Details",
+        "empty": "No support accounts yet.",
+        "filterAll": "All",
+        "filterProduction": "Filter by status",
+        "linkedClient": "Linked client",
+        "llmCost": "LLM cost",
+        "margin": "Margin",
+        "monthlyQuota": "Monthly quota",
+        "noWorkspaces": "No client workspaces.",
+        "quota": "Remaining",
+        "revenue": "Revenue",
+        "status": "Status",
+        "tier": "Tier",
+        "workspaceName": "Workspace",
+        "delivered": "Delivered",
+        "deliveryStatus": {
+          "on_track": "On track",
+          "at_risk": "At risk",
+          "over_quota": "Over quota"
+        }
+      },
+      "blocked": {
+        "title": "Blocked users",
+        "subtitle": "Accounts that can no longer generate content",
+        "postsLeft": "posts left",
+        "reasonBlocked": "Blocked",
+        "reasonLowCompletion": "Incomplete profile",
+        "codes": {
+          "trial_expired": "Trial expired",
+          "trial_posts_exhausted": "Trial posts used up",
+          "pro_cap": "Pro cap reached",
+          "pro_plus_cap": "Pro+ cap reached",
+          "subscription_required": "Subscription required",
+          "support_no_generate": "Support, no generation"
+        }
+      },
+      "errorInbox": {
+        "title": "Error inbox",
+        "subtitle": "User reports awaiting resolution",
+        "resolve": "Resolve"
+      },
+      "sections": {
+        "charts": "Charts",
+        "chartsSubtitle": "Unique logins and creation styles"
+      },
+      "errors": {
+        "adminNotConfigured": "Platform admin not configured. Check environment variables."
+      },
+      "usersTable": {
+        "tier": "Tier",
+        "blockReason": "Block reason",
+        "changeTier": "Change tier",
+        "confirmTierChange": "Change {name} to plan {tier}?",
+        "tierConfirm": "Confirm plan",
+        "tierChangeFailed": "Could not change tier.",
+        "tierFilterAll": "All tiers",
+        "tierFilterLabel": "Filter by tier",
+        "tierSaving": "Saving…",
+        "validated": "Validated",
+        "postsRemaining": "Posts left",
+        "onboardingComplete": "Complete",
+        "onboardingGuideHint": "Click to see step details",
+        "onboardingHoverHint": "Hover for details",
+        "onboardingMissing": "Missing steps",
+        "onboardingStepsHint": "Onboarding steps",
+        "noBlock": "N/A"
+      }
+    },
+    "adminDigest": {
+      "title": "Weekly digest",
+      "subtitle": "Email admins an MRR and activity summary",
+      "preview": "Preview",
+      "previewOk": "Preview OK : est. MRR: {mrr}",
+      "sendNow": "Send now",
+      "pending": "Sending…",
+      "sent": "Digest emailed successfully.",
+      "sentNoEmail": "Digest generated (no admin email configured).",
+      "error": "Could not send digest."
+    },
+    "adminSubscription": {
+      "title": "Assign subscription",
+      "subtitle": "Manually update a user's subscription tier",
+      "userId": "User ID (Firebase UID)",
+      "tier": "Tier",
+      "bonusPosts": "Bonus posts (Pro+)",
+      "submit": "Apply",
+      "pending": "Saving…",
+      "error": "Could not update subscription.",
+      "success": "Tier updated: {tier}"
+    },
+    "adminWire": {
+      "title": "Pending wire transfers",
+      "subtitle": "Approve or reject wire payment requests",
+      "loading": "Loading…",
+      "loadFailed": "Could not load requests.",
+      "pending": "Working…",
+      "approve": "Approve",
+      "reject": "Reject",
+      "actionFailed": "Action failed.",
+      "empty": "No pending requests.",
+      "columns": {
+        "user": "User",
+        "tier": "Tier",
+        "amount": "Amount",
+        "reference": "Reference",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "pending": "Pending",
+        "wire_sent": "Wire sent",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    }
+  },
+  "es": {
+    "adminAnalytics": {
+      "tabs": {
+        "overview": "Resumen",
+        "actions": "Acciones",
+        "support": "Soporte",
+        "users": "Usuarios",
+        "billing": "Facturación"
+      },
+      "tierMix": {
+        "title": "Mix por plan",
+        "subtitleAll": "Todos los usuarios incluidos en las estadísticas"
+      },
+      "tiers": {
+        "freeTest": "FREE TEST",
+        "pro": "PRO",
+        "proPlus": "PRO+",
+        "supportStarter": "SUPPORT STARTER",
+        "supportRegular": "SUPPORT REGULAR",
+        "supportTotal": "SUPPORT TOTAL",
+        "fullFree": "FULL FREE",
+        "freeWithoutApi": "FREE w/o API",
+        "expired": "EXPIRED"
+      },
+      "kpiGroups": {
+        "product": "Producto",
+        "revenue": "Ingresos",
+        "costs": "Costes"
+      },
+      "kpis": {
+        "validatedArticles": "Validados",
+        "mrr": "MRR est.",
+        "estimatedMargin": "Margen bruto",
+        "stripeMrr": "MRR Stripe",
+        "stripeSubscribers": "{count} suscr. Stripe",
+        "estimatedLlmCost": "Coste LLM est.",
+        "loggedLlmCost": "Coste LLM log."
+      },
+      "funnel": {
+        "title": "Embudo de onboarding",
+        "subtitle": "Progresión de pasos clave tras el registro",
+        "empty": "Aún no hay usuarios registrados.",
+        "steps": {
+          "llm": "LLM configurado",
+          "persona": "Persona",
+          "author": "Voz autora",
+          "audience": "Audiencia",
+          "firstArticle": "1.er artículo",
+          "firstValidated": "1.er post validado"
+        }
+      },
+      "filterPresets": {
+        "label": "Filtros rápidos",
+        "active": "Filtro activo: {label} ({count} usuarios)",
+        "product": "Producto",
+        "trial": "Prueba",
+        "paying": "De pago",
+        "blocked": "Bloqueados",
+        "support": "Soporte"
+      },
+      "exportCsv": "Exportar CSV",
+      "periods": {
+        "label": "Período"
+      },
+      "production": {
+        "to_produce": "Por producir",
+        "client_review": "Revisión cliente",
+        "published": "Publicados",
+        "empty": "Sin actividad de producción este mes."
+      },
+      "supportCockpit": {
+        "title": "Cockpit de soporte",
+        "subtitle": "Cuentas de acompañamiento y entregas del mes",
+        "account": "Cuenta",
+        "clients": "Clientas",
+        "collapse": "Contraer",
+        "expand": "Detalle",
+        "empty": "Sin cuentas de soporte por ahora.",
+        "filterAll": "Todo",
+        "filterProduction": "Filtrar por estado",
+        "linkedClient": "Clienta vinculada",
+        "llmCost": "Coste LLM",
+        "margin": "Margen",
+        "monthlyQuota": "Cuota mensual",
+        "noWorkspaces": "Sin espacios de cliente.",
+        "quota": "Restante",
+        "revenue": "Ingresos",
+        "status": "Estado",
+        "tier": "Plan",
+        "workspaceName": "Espacio",
+        "delivered": "Entregados",
+        "deliveryStatus": {
+          "on_track": "En plazo",
+          "at_risk": "En riesgo",
+          "over_quota": "Sobre cuota"
+        }
+      },
+      "blocked": {
+        "title": "Usuarios bloqueados",
+        "subtitle": "Cuentas que ya no pueden generar contenido",
+        "postsLeft": "posts restantes",
+        "reasonBlocked": "Bloqueado",
+        "reasonLowCompletion": "Perfil incompleto",
+        "codes": {
+          "trial_expired": "Prueba expirada",
+          "trial_posts_exhausted": "Posts de prueba agotados",
+          "pro_cap": "Límite Pro alcanzado",
+          "pro_plus_cap": "Límite Pro+ alcanzado",
+          "subscription_required": "Suscripción requerida",
+          "support_no_generate": "Soporte sin generación"
+        }
+      },
+      "errorInbox": {
+        "title": "Bandeja de errores",
+        "subtitle": "Reportes de usuarios pendientes de resolución",
+        "resolve": "Resolver"
+      },
+      "sections": {
+        "charts": "Gráficos",
+        "chartsSubtitle": "Conexiones únicas y estilos de creación"
+      },
+      "errors": {
+        "adminNotConfigured": "Admin de plataforma no configurado. Revise las variables de entorno."
+      },
+      "usersTable": {
+        "tier": "Plan",
+        "blockReason": "Bloqueo",
+        "changeTier": "Cambiar plan",
+        "confirmTierChange": "¿Cambiar a {name} al plan {tier}?",
+        "tierConfirm": "Confirmar plan",
+        "tierChangeFailed": "No se pudo cambiar el plan.",
+        "tierFilterAll": "Todos los planes",
+        "tierFilterLabel": "Filtrar por plan",
+        "tierSaving": "Guardando…",
+        "validated": "Validados",
+        "postsRemaining": "Posts restantes",
+        "onboardingComplete": "Completo",
+        "onboardingGuideHint": "Clic para ver el detalle de pasos",
+        "onboardingHoverHint": "Pase el cursor para detalles",
+        "onboardingMissing": "Pasos pendientes",
+        "onboardingStepsHint": "Pasos de onboarding",
+        "noBlock": "N/D"
+      }
+    },
+    "adminDigest": {
+      "title": "Resumen semanal",
+      "subtitle": "Enviar por correo un resumen de MRR y actividad a los admins",
+      "preview": "Vista previa",
+      "previewOk": "Vista previa OK. MRR est.: {mrr}",
+      "sendNow": "Enviar ahora",
+      "pending": "Enviando…",
+      "sent": "Resumen enviado por correo.",
+      "sentNoEmail": "Resumen generado (sin correo admin configurado).",
+      "error": "No se pudo enviar el resumen."
+    },
+    "adminSubscription": {
+      "title": "Asignar suscripción",
+      "subtitle": "Modificar manualmente el plan de un usuario",
+      "userId": "ID de usuario (Firebase UID)",
+      "tier": "Plan",
+      "bonusPosts": "Posts extra (Pro+)",
+      "submit": "Aplicar",
+      "pending": "Guardando…",
+      "error": "No se pudo actualizar la suscripción.",
+      "success": "Plan actualizado: {tier}"
+    },
+    "adminWire": {
+      "title": "Transferencias pendientes",
+      "subtitle": "Aprobar o rechazar solicitudes de pago por transferencia",
+      "loading": "Cargando…",
+      "loadFailed": "No se pudieron cargar las solicitudes.",
+      "pending": "En curso…",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "actionFailed": "Acción fallida.",
+      "empty": "Sin solicitudes pendientes.",
+      "columns": {
+        "user": "Usuario",
+        "tier": "Plan",
+        "amount": "Importe",
+        "reference": "Referencia",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "wire_sent": "Transferencia enviada",
+        "approved": "Aprobado",
+        "rejected": "Rechazado"
+      }
+    }
+  }
+}

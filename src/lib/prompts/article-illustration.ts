@@ -2,52 +2,52 @@ import { ILLUSTRATION_FORMATS } from "@/lib/articles/illustration";
 import type { ContentLanguage } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
-  fr: "French",
-  en: "English",
-  es: "Spanish",
+ fr: "French",
+ en: "English",
+ es: "Spanish",
 };
 
 export function buildIllustrationSystemPrompt(contentLanguage: ContentLanguage): string {
-  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
+ const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
 
-  return `You are a LinkedIn visual content strategist.
+ return `You are a LinkedIn visual content strategist.
 
 Given a LinkedIn post (hook, body, optional PS), recommend ONE primary visual format for the feed and explain why it fits.
 
 Allowed format values (exactly one for "format"): ${ILLUSTRATION_FORMATS.join(", ")}.
 
 Also return:
-- rationale: 2-4 sentences in ${lang} — what to show, mood, composition, LinkedIn feed best practices (readable on mobile, no tiny text).
+- rationale: 2-4 sentences in ${lang} · what to show, mood, composition, LinkedIn feed best practices (readable on mobile, no tiny text).
 - alternativeFormats: 0-2 other formats from the same list that could work as backups.
 - searchKeywords: one short line in ${lang} for stock photo search (5-12 words, no hashtags).
 - imagePrompts: exactly 3 distinct SHORT prompts in ${lang} (each 12-25 words) to paste into an image GenAI (DALL·E, Midjourney, Ideogram) or image search. Be concrete: subject, style, lighting, colors, no text in image unless quote_card. No brand names. Professional B2B LinkedIn tone.
 
 Return JSON only:
 {
-  "format": string,
-  "rationale": string,
-  "alternativeFormats": string[],
-  "searchKeywords": string,
-  "imagePrompts": [string, string, string]
+ "format": string,
+ "rationale": string,
+ "alternativeFormats": string[],
+ "searchKeywords": string,
+ "imagePrompts": [string, string, string]
 }`;
 }
 
 export function buildIllustrationUserPrompt(input: {
-  hook: string;
-  body: string;
-  ps?: string;
-  scope?: string;
+ hook: string;
+ body: string;
+ ps?: string;
+ scope?: string;
 }): string {
-  return JSON.stringify(
-    {
-      hook: input.hook,
-      body: input.body,
-      ps: input.ps ?? "",
-      scope: input.scope ?? "",
-      instruction:
-        "Recommend the best LinkedIn illustration for this post. Prompts must match the post message, not generic stock.",
-    },
-    null,
-    2,
-  );
+ return JSON.stringify(
+ {
+ hook: input.hook,
+ body: input.body,
+ ps: input.ps ?? "",
+ scope: input.scope ?? "",
+ instruction:
+ "Recommend the best LinkedIn illustration for this post. Prompts must match the post message, not generic stock.",
+ },
+ null,
+ 2,
+ );
 }

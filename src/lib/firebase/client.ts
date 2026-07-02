@@ -11,6 +11,7 @@ import {
 import { Firestore, getFirestore } from "firebase/firestore";
 import { FirebaseStorage, getStorage } from "firebase/storage";
 import { firebasePublicConfig, isFirebaseConfigured } from "./config";
+import { startGoogleRedirectResult } from "./google-redirect";
 
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
@@ -34,6 +35,9 @@ export function getClientAuth(): Auth | null {
       });
     } catch {
       auth = getAuth(firebaseApp);
+    }
+    if (typeof window !== "undefined") {
+      void startGoogleRedirectResult(auth);
     }
   }
   return auth;

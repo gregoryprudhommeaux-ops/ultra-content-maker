@@ -9,7 +9,7 @@ import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
-import { META_LABEL } from "@/lib/ui/nextstep";
+import { META_LABEL, CARD_TITLE } from "@/lib/ui/nextstep";
 import type {
   ContentLanguage,
   CreationStrategyGuide,
@@ -237,7 +237,7 @@ export function CreationStrategyGuidePanel({
 
           <div className="rounded-xl border border-ns-primary/30 bg-ns-primary/5 px-4 py-4">
             <p className={META_LABEL}>{t("modeLabel")}</p>
-            <p className="mt-1 text-sm font-black uppercase tracking-tight text-ns-tertiary">
+            <p className={`mt-1 text-sm ${CARD_TITLE}`}>
               {t(`modes.${guide.recommendedMode}`)}
             </p>
             <button

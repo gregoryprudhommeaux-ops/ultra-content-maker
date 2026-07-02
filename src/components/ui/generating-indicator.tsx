@@ -1,3 +1,5 @@
+import { CARD_TITLE } from "@/lib/ui/nextstep";
+
 type Props = {
   label: string;
   hint?: string;
@@ -20,7 +22,7 @@ export function GeneratingIndicator({ label, hint, className = "" }: Props) {
         <span className="absolute h-10 w-10 animate-spin rounded-full border-2 border-ns-alternate border-t-ns-primary" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-black uppercase tracking-tight text-ns-tertiary">
+        <p className={`text-sm ${CARD_TITLE}`}>
           {label}
         </p>
         {hint ? (

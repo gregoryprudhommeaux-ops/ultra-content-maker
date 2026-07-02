@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSubscription } from "@/contexts/subscription-context";
 import { Link, usePathname } from "@/i18n/navigation";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { getUserDoc } from "@/lib/workspace/user";
@@ -12,6 +13,7 @@ const LLM_SETUP_PATH = "/setup/llm";
 
 export function LlmKeyDialog() {
   const { user, loading: authLoading } = useAuth();
+  const { access, loading: subLoading } = useSubscription();
   const pathname = usePathname();
   const t = useTranslations("settings.llmKeyDialog");
   const [missingKey, setMissingKey] = useState(false);
@@ -20,23 +22,28 @@ export function LlmKeyDialog() {
   const onLlmSetupPage = pathname === LLM_SETUP_PATH;
 
   useEffect(() => {
-    if (authLoading || !user) {
+    if (authLoading || subLoading || !user) {
       setChecked(false);
       setMissingKey(false);
+      return;
+    }
+    if (access?.canUsePlatformLlm && !access.canUseOwnLlmOnly) {
+      setMissingKey(false);
+      setChecked(true);
       return;
     }
     let cancelled = false;
     getUserDoc(user.uid)
       .then((userDoc) => {
         if (cancelled) return;
-        if (userDoc?.linkedWorkspace?.ownerId) {
+        if (userDoc?.linkedWorkspace?.ownerId || userDoc?.managedBy?.adminUid) {
           setMissingKey(false);
           setChecked(true);
           return;
         }
         return getUserLlmProfile(user.uid).then((profile) => {
           if (cancelled) return;
-          const needsKey = !profile?.apiKey?.trim();
+          const needsKey = !profile?.userProvided || !profile?.apiKey?.trim();
           setMissingKey(needsKey);
           if (!needsKey) setDismissed(false);
           setChecked(true);
@@ -48,7 +55,7 @@ export function LlmKeyDialog() {
     return () => {
       cancelled = true;
     };
-  }, [user, authLoading, pathname]);
+  }, [user, authLoading, subLoading, access, pathname]);
 
   const showDialog = checked && missingKey && !onLlmSetupPage && !dismissed;
 

@@ -1,4 +1,5 @@
 import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { defaultSubscriptionProfile } from "@/lib/subscription/access";
 import type { SetupStep, UserDoc } from "@/types/workspace";
 import { getClientFirestore } from "@/lib/firebase/client";
 import { isPlatformAdminIdentity } from "./platform-admin";
@@ -26,7 +27,10 @@ export async function getUserDoc(userId: string): Promise<UserDoc | null> {
     setupStep: (d.setupStep as SetupStep) ?? "llm",
     activeAccountId: d.activeAccountId as string | undefined,
     linkedWorkspace: d.linkedWorkspace as UserDoc["linkedWorkspace"],
+    managedClients: d.managedClients as UserDoc["managedClients"],
+    managedBy: d.managedBy as UserDoc["managedBy"],
     isPlatformAdmin: Boolean(d.isPlatformAdmin),
+    subscription: d.subscription as UserDoc["subscription"],
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),
   };
@@ -41,11 +45,13 @@ export async function ensureUserDoc(
   if (existing) return existing;
   const now = serverTimestamp();
   const isPlatformAdmin = isPlatformAdminIdentity({ uid: userId, email });
+  const subscription = defaultSubscriptionProfile();
   await setDoc(userRef(userId), {
     email,
     displayName: displayName ?? null,
     setupStep: "llm",
     isPlatformAdmin,
+    subscription,
     createdAt: now,
     updatedAt: now,
   });
@@ -54,6 +60,7 @@ export async function ensureUserDoc(
     displayName,
     setupStep: "llm",
     isPlatformAdmin,
+    subscription,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -71,6 +78,8 @@ export function setupStepToPath(step: SetupStep): string {
   switch (step) {
     case "llm":
       return "/setup/llm";
+    case "express":
+      return "/setup/express";
     case "author":
       return "/setup/author";
     case "audience":

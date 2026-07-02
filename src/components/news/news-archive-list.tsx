@@ -63,7 +63,7 @@ export function NewsArchiveList() {
             !progress.completion.hasApiKey
               ? "llm"
               : !progress.completion.hasProfileMinimum
-                ? "author"
+                ? "express"
                 : !progress.completion.hasAudience
                   ? "audience"
                   : "persona"

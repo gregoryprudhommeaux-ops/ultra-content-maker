@@ -4,7 +4,7 @@ import type {
   PersonaRevealCardKey,
   PersonaRevealSummary,
 } from "@/lib/persona/extract-persona-summary";
-import { BTN_PRIMARY } from "@/lib/ui/nextstep";
+import { BTN_PRIMARY, HEADING_TITLE } from "@/lib/ui/nextstep";
 import { ButtonSpinner } from "@/components/ui/generating-indicator";
 import { Link } from "@/i18n/navigation";
 import { CheckCircle2, Pencil } from "lucide-react";
@@ -157,7 +157,7 @@ export function PersonaReveal(props: Props) {
               <p className="text-xs font-black uppercase tracking-widest text-ns-primary">
                 {t("validatedEyebrow")}
               </p>
-              <h2 className="mt-1 text-xl font-black uppercase tracking-tight text-ns-tertiary">
+              <h2 className={`mt-1 ${HEADING_TITLE}`}>
                 {t("validatedTitle")}
               </h2>
               <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary">
@@ -170,7 +170,7 @@ export function PersonaReveal(props: Props) {
             <p className="text-xs font-black uppercase tracking-widest text-ns-primary">
               {t("eyebrow")}
             </p>
-            <h2 className="mt-1 text-xl font-black uppercase tracking-tight text-ns-tertiary md:text-2xl">
+            <h2 className={`mt-1 ${HEADING_TITLE}`}>
               {t("title")}
             </h2>
             <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary">

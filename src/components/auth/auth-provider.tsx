@@ -36,42 +36,68 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [googleRedirectFinishing, setGoogleRedirectFinishing] = useState(false);
+  const [googleRedirectFinishing, setGoogleRedirectFinishing] = useState(() =>
+    typeof window !== "undefined" ? isGoogleRedirectPending() : false,
+  );
   const [redirectError, setRedirectError] = useState<unknown>(null);
 
   useEffect(() => {
     const auth = getClientAuth();
     if (!auth) {
       setLoading(false);
+      setGoogleRedirectFinishing(false);
       return;
     }
+
+    let disposed = false;
 
     void setPersistence(auth, browserLocalPersistence).catch(() => {});
 
-    const unsub = onAuthStateChanged(auth, (next) => {
-      setUser(next);
-      setLoading(false);
-      if (next) clearGoogleRedirectPending();
-    });
-
-    if (isGoogleRedirectPending()) {
-      void completeGoogleRedirect(auth).catch((err) => {
+    void completeGoogleRedirect(auth)
+      .then((cred) => {
+        if (disposed) return;
+        if (cred?.user) {
+          setUser(cred.user);
+          clearGoogleRedirectPending();
+          setGoogleRedirectFinishing(false);
+          return;
+        }
+        if (isGoogleRedirectPending()) {
+          clearGoogleRedirectPending();
+          setGoogleRedirectFinishing(false);
+          if (!auth.currentUser) {
+            const err = new Error("Google redirect returned no user") as Error & {
+              code: string;
+            };
+            err.code = "auth/redirect-failed";
+            setRedirectError(err);
+          }
+          return;
+        }
+        setGoogleRedirectFinishing(false);
+      })
+      .catch((err) => {
+        if (disposed) return;
         clearGoogleRedirectPending();
+        setGoogleRedirectFinishing(false);
         setRedirectError(err);
       });
-    }
 
-    return () => unsub();
+    const unsub = onAuthStateChanged(auth, (next) => {
+      if (disposed) return;
+      setUser(next);
+      setLoading(false);
+      if (next) {
+        clearGoogleRedirectPending();
+        setGoogleRedirectFinishing(false);
+      }
+    });
+
+    return () => {
+      disposed = true;
+      unsub();
+    };
   }, []);
-
-  useEffect(() => {
-    if (!loading) {
-      setGoogleRedirectFinishing(false);
-      if (!user && isGoogleRedirectPending()) clearGoogleRedirectPending();
-      return;
-    }
-    setGoogleRedirectFinishing(isGoogleRedirectPending());
-  }, [loading, user]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

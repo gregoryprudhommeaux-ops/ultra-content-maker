@@ -13,37 +13,37 @@ import { useEffect, useRef, type ReactNode } from "react";
  * (e.g. /persona before profile is complete).
  */
 export function OnboardingRouteGuard({ children }: { children: ReactNode }) {
-  const t = useTranslations("setup.onboarding.guard");
-  const pathname = usePathname();
-  const router = useRouter();
-  const { progress, status, loading } = useOnboardingProgress();
-  const didRedirect = useRef(false);
+ const t = useTranslations("setup.onboarding.guard");
+ const pathname = usePathname();
+ const router = useRouter();
+ const { progress, status, loading } = useOnboardingProgress();
+ const didRedirect = useRef(false);
 
-  const locked =
-    Boolean(progress) && isPathLockedForProgress(pathname, progress!);
-  const redirectHref = status?.nextHref;
+ const locked =
+ Boolean(progress) && isPathLockedForProgress(pathname, progress!);
+ const redirectHref = status?.nextHref;
 
-  useEffect(() => {
-    didRedirect.current = false;
-  }, [pathname]);
+ useEffect(() => {
+ didRedirect.current = false;
+ }, [pathname]);
 
-  const bootstrapping = isOnboardingBootstrapping(loading, progress);
+ const bootstrapping = isOnboardingBootstrapping(loading, progress);
 
-  useEffect(() => {
-    if (bootstrapping || !locked || !redirectHref || didRedirect.current) return;
-    didRedirect.current = true;
-    router.replace(redirectHref);
-  }, [bootstrapping, locked, redirectHref, router]);
+ useEffect(() => {
+ if (bootstrapping || !locked || !redirectHref || didRedirect.current) return;
+ didRedirect.current = true;
+ router.replace(redirectHref);
+ }, [bootstrapping, locked, redirectHref, router]);
 
-  // Only block on first progress load — silent refreshes must not unmount page trees.
-  if (bootstrapping) {
-    return (
-      <GeneratingIndicator
-        label={t("checking")}
-        className="max-w-xl"
-      />
-    );
-  }
+ // Only block on first progress load · silent refreshes must not unmount page trees.
+ if (bootstrapping) {
+ return (
+ <GeneratingIndicator
+ label={t("checking")}
+ className="max-w-xl"
+ />
+ );
+ }
 
-  return <>{children}</>;
+ return <>{children}</>;
 }

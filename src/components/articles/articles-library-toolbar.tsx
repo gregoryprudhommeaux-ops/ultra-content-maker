@@ -43,9 +43,9 @@ function FilterChip({
     <Link
       href={href}
       className={[
-        "rounded-full px-3 py-1 text-xs font-semibold transition-colors",
+        "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
         active
-          ? "bg-ns-primary text-black"
+          ? "bg-ns-primary text-black shadow-sm"
           : "border border-gray-200 bg-white text-ns-secondary hover:border-ns-primary/40 hover:text-ns-tertiary",
       ].join(" ")}
     >
@@ -72,7 +72,7 @@ export function ArticlesLibraryToolbar({
 
   return (
     <section
-      className="space-y-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm md:p-5"
+      className="space-y-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6"
       aria-label={t("toolbarLabel")}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -90,7 +90,7 @@ export function ArticlesLibraryToolbar({
         {hasActiveFilters && (
           <Link
             href={buildLibraryFilterHref("all", "all")}
-            className="shrink-0 text-xs font-semibold text-ns-primary underline hover:text-ns-tertiary"
+            className="shrink-0 text-xs font-semibold text-ns-primary underline-offset-2 hover:text-ns-tertiary hover:underline"
             onClick={onResetQuery}
           >
             {t("resetFilters")}
@@ -98,44 +98,46 @@ export function ArticlesLibraryToolbar({
         )}
       </div>
 
-      <div className="space-y-2">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-ns-secondary">
-          {t("statusLabel")}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {STATUS_OPTIONS.map((status) => (
-            <FilterChip
-              key={status}
-              active={filters.status === status}
-              href={buildLibraryFilterHref(status, filters.scope)}
-              label={t(`status.${status}`)}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-ns-secondary">
-            {t("scopeLabel")}
+      <div className="grid gap-5 md:grid-cols-2">
+        <div className="space-y-2">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-ns-primary">
+            {t("statusLabel")}
           </p>
-          <ContextHelp label={tHelp("scopeFilter.label")}>
-            {tHelp("scopeFilter.body")}
-          </ContextHelp>
+          <div className="flex flex-wrap gap-2">
+            {STATUS_OPTIONS.map((status) => (
+              <FilterChip
+                key={status}
+                active={filters.status === status}
+                href={buildLibraryFilterHref(status, filters.scope)}
+                label={t(`status.${status}`)}
+              />
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {SCOPE_OPTIONS.map((scope) => (
-            <FilterChip
-              key={scope}
-              active={filters.scope === scope}
-              href={buildLibraryFilterHref(filters.status, scope)}
-              label={t(`scope.${scope}`)}
-            />
-          ))}
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-ns-primary">
+              {t("scopeLabel")}
+            </p>
+            <ContextHelp label={tHelp("scopeFilter.label")}>
+              {tHelp("scopeFilter.body")}
+            </ContextHelp>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {SCOPE_OPTIONS.map((scope) => (
+              <FilterChip
+                key={scope}
+                active={filters.scope === scope}
+                href={buildLibraryFilterHref(filters.status, scope)}
+                label={t(`scope.${scope}`)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      <p className="text-xs font-medium text-ns-secondary">
+      <p className="border-t border-gray-100 pt-4 text-sm font-medium text-ns-secondary">
         {t("resultsCount", { visible: visibleCount, total: totalCount })}
       </p>
     </section>

@@ -7,6 +7,9 @@ import { AdminClaimBootstrap } from "@/components/admin/admin-claim-bootstrap";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { LlmKeyDialog } from "@/components/settings/llm-key-dialog";
+import { SubscriptionProvider } from "@/contexts/subscription-context";
+import { SubscriptionBanner } from "@/components/subscription/subscription-banner";
+import { SubscriptionExpiredGuard } from "@/components/subscription/subscription-expired-guard";
 import type { ReactNode } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -14,14 +17,19 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <AuthProvider>
       <RequireAuth>
         <WorkspaceProvider>
+          <SubscriptionProvider>
           <AdminClaimBootstrap />
           <OnboardingProgressProvider>
             <DashboardShell>
+            <SubscriptionBanner />
             <LlmKeyDialog />
             <OnboardingStepper placement="dashboard" />
-            <OnboardingRouteGuard>{children}</OnboardingRouteGuard>
+            <SubscriptionExpiredGuard>
+              <OnboardingRouteGuard>{children}</OnboardingRouteGuard>
+            </SubscriptionExpiredGuard>
             </DashboardShell>
           </OnboardingProgressProvider>
+          </SubscriptionProvider>
         </WorkspaceProvider>
       </RequireAuth>
     </AuthProvider>

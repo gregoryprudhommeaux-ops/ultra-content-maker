@@ -2,7 +2,7 @@
 
 import { CreationStrategyGuidePanel } from "@/components/articles/creation/creation-strategy-guide";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
-import { META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
+import { BTN_PRIMARY, BTN_SECONDARY, META_LABEL, PAGE_TITLE, SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { CreationStrategyTheme } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useCallback, useRef, useState } from "react";
@@ -32,49 +32,57 @@ const MODES: ModeConfig[] = [
 
 const ACCENT = {
   lime: {
-    ring: "ring-ns-primary/40",
-    border: "border-ns-primary/30",
-    borderHover: "hover:border-ns-primary",
-    bg: "bg-ns-primary/10",
-    icon: "text-ns-primary",
+    ring: "ring-ns-primary/35",
+    border: "border-ns-primary/25",
+    borderFeatured: "border-ns-primary/45",
+    borderHover: "hover:border-ns-primary/70",
+    bg: "bg-ns-primary/12",
+    icon: "text-ns-tertiary",
     badge: "bg-ns-primary text-black",
-    gradient: "from-ns-primary/20 via-ns-primary/5 to-transparent",
+    gradient: "from-ns-primary/15 via-ns-primary/5 to-transparent",
     dot: "bg-ns-primary",
+    tag: "border-ns-primary/20 bg-ns-primary/5",
   },
   sky: {
-    ring: "ring-sky-400/40",
-    border: "border-sky-200/80",
+    ring: "ring-sky-400/35",
+    border: "border-sky-200/90",
+    borderFeatured: "border-sky-300",
     borderHover: "hover:border-sky-400",
     bg: "bg-sky-50",
-    icon: "text-sky-700",
+    icon: "text-sky-800",
     badge: "bg-sky-600 text-white",
-    gradient: "from-sky-100/80 via-sky-50/50 to-transparent",
+    gradient: "from-sky-100/70 via-sky-50/40 to-transparent",
     dot: "bg-sky-500",
+    tag: "border-sky-100 bg-sky-50/80",
   },
   violet: {
-    ring: "ring-violet-400/40",
-    border: "border-violet-200/80",
+    ring: "ring-violet-400/35",
+    border: "border-violet-200/90",
+    borderFeatured: "border-violet-300",
     borderHover: "hover:border-violet-400",
     bg: "bg-violet-50",
     icon: "text-violet-800",
     badge: "bg-violet-700 text-white",
-    gradient: "from-violet-100/80 via-violet-50/50 to-transparent",
+    gradient: "from-violet-100/70 via-violet-50/40 to-transparent",
     dot: "bg-violet-500",
+    tag: "border-violet-100 bg-violet-50/80",
   },
   amber: {
-    ring: "ring-amber-400/40",
-    border: "border-amber-200/80",
+    ring: "ring-amber-400/35",
+    border: "border-amber-200/90",
+    borderFeatured: "border-amber-300",
     borderHover: "hover:border-amber-400",
     bg: "bg-amber-50",
-    icon: "text-amber-800",
+    icon: "text-amber-900",
     badge: "bg-amber-700 text-white",
-    gradient: "from-amber-100/80 via-amber-50/50 to-transparent",
+    gradient: "from-amber-100/70 via-amber-50/40 to-transparent",
     dot: "bg-amber-500",
+    tag: "border-amber-100 bg-amber-50/80",
   },
 } as const;
 
 function ModeIcon({ mode, className }: { mode: ModeId; className?: string }) {
-  const cn = className ?? "h-7 w-7";
+  const cn = className ?? "h-6 w-6";
   if (mode === "profile") {
     return (
       <svg className={cn} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -85,12 +93,6 @@ function ModeIcon({ mode, className }: { mode: ModeId; className?: string }) {
         />
         <path
           d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          strokeLinecap="round"
-        />
-        <path
-          d="M17 4l2 2m0-2-2 2"
           stroke="currentColor"
           strokeWidth="1.75"
           strokeLinecap="round"
@@ -189,17 +191,15 @@ export function CreationModePicker({
           aria-hidden
         />
         <p className={META_LABEL}>{t("heroEyebrow")}</p>
-        <h2 className="mt-2 max-w-2xl text-2xl font-black uppercase tracking-tighter text-ns-tertiary md:text-3xl">
-          {t("heroTitle")}
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm font-medium leading-relaxed text-ns-secondary md:text-base">
+        <h2 className={`mt-2 max-w-2xl ${PAGE_TITLE}`}>{t("heroTitle")}</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ns-secondary md:text-base">
           {t("heroSubtitle")}
         </p>
         <ul className="mt-5 flex flex-wrap gap-2">
           {[t("heroPill1"), t("heroPill2"), t("heroPill3")].map((pill) => (
             <li
               key={pill}
-              className="rounded-full border border-ns-primary/25 bg-white/80 px-3 py-1 text-xs font-semibold text-ns-tertiary backdrop-blur-sm"
+              className="rounded-full border border-ns-primary/20 bg-white/90 px-3 py-1 text-xs font-semibold text-ns-tertiary"
             >
               {pill}
             </li>
@@ -207,23 +207,12 @@ export function CreationModePicker({
         </ul>
       </section>
 
-      <div className="space-y-4">
-        {MODES.filter((m) => m.featured).map((config) => (
-          <ModeCard
-            key={config.id}
-            config={config}
-            highlighted={guideHighlight === config.id}
-            pulsing={pulseMode === config.id}
-            cardRef={(el) => {
-              modeCardRefs.current[config.id] = el;
-            }}
-            onSelect={onSelect}
-            t={t}
-            featured
-          />
-        ))}
-        <div className="grid gap-4 md:grid-cols-2">
-          {MODES.filter((m) => !m.featured && m.id !== "article").map((config) => (
+      <div>
+        <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ns-secondary">
+          {t("modesSectionLabel")}
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {MODES.map((config) => (
             <ModeCard
               key={config.id}
               config={config}
@@ -237,20 +226,6 @@ export function CreationModePicker({
             />
           ))}
         </div>
-        {MODES.filter((m) => m.id === "article").map((config) => (
-          <ModeCard
-            key={config.id}
-            config={config}
-            highlighted={guideHighlight === config.id}
-            pulsing={pulseMode === config.id}
-            cardRef={(el) => {
-              modeCardRefs.current[config.id] = el;
-            }}
-            onSelect={onSelect}
-            t={t}
-            band
-          />
-        ))}
       </div>
 
       <details className="group rounded-2xl border border-dashed border-ns-alternate/80 bg-ns-brand-light/40">
@@ -265,7 +240,7 @@ export function CreationModePicker({
               </span>
               <span>
                 <span className={SECTION_TITLE}>{t("strategyDrawerTitle")}</span>
-                <span className="mt-1 block text-sm font-medium text-ns-secondary">
+                <span className="mt-1 block text-sm text-ns-secondary">
                   {t("strategyDrawerHint")}
                 </span>
               </span>
@@ -328,8 +303,6 @@ function ModeCard({
   cardRef,
   onSelect,
   t,
-  featured = false,
-  band = false,
 }: {
   config: ModeConfig;
   highlighted: boolean;
@@ -337,13 +310,11 @@ function ModeCard({
   cardRef?: (el: HTMLButtonElement | null) => void;
   onSelect: (mode: ModeId) => void;
   t: ReturnType<typeof useTranslations<"setup.articles.create.modePicker">>;
-  featured?: boolean;
-  band?: boolean;
 }) {
   const mode = config.id;
   const accent = ACCENT[config.accent];
   const outputs = t.raw(`modes.${mode}.outputs`) as string[];
-  const isWide = featured || band;
+  const featured = config.featured === true;
 
   return (
     <button
@@ -351,75 +322,75 @@ function ModeCard({
       ref={cardRef}
       onClick={() => onSelect(mode)}
       className={[
-        "group relative w-full overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition-all duration-200",
-        accent.border,
+        "group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition-all duration-200",
+        featured ? accent.borderFeatured : accent.border,
         accent.borderHover,
-        "hover:-translate-y-0.5 hover:shadow-lg",
-        isWide ? "p-6 md:p-7" : "p-5",
+        "hover:-translate-y-0.5 hover:shadow-md",
+        "p-5 md:p-6",
         highlighted ? `ring-2 ${accent.ring} shadow-md` : "",
         pulsing ? `ring-4 ${accent.ring} scale-[1.01] shadow-lg` : "",
       ].join(" ")}
     >
       <div
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${accent.gradient} opacity-80`}
+        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${accent.gradient}`}
         aria-hidden
       />
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex gap-4">
+
+      <div className="relative flex flex-1 flex-col">
+        <div className="flex items-start gap-3">
           <div
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${accent.bg} ${accent.icon}`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${accent.bg} ${accent.icon}`}
           >
             <ModeIcon mode={mode} />
           </div>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5">
               {featured && (
                 <span
-                  className={`rounded-sm px-2 py-0.5 text-[10px] font-black uppercase tracking-widest ${accent.badge}`}
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
                 >
                   {t("recommended")}
                 </span>
               )}
               <span className={`h-1.5 w-1.5 rounded-full ${accent.dot}`} aria-hidden />
-              <span className="text-[10px] font-black uppercase tracking-widest text-ns-secondary">
+              <span className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
                 {t(`modes.${mode}.badge`)}
               </span>
             </div>
-            <h3
-              className={`mt-1 font-black uppercase tracking-tight text-ns-tertiary ${isWide ? "text-xl" : "text-base"}`}
-            >
+            <h3 className="mt-2 text-base font-bold leading-snug text-ns-tertiary md:text-lg">
               {t(`modes.${mode}.title`)}
             </h3>
-            <p className="mt-2 text-sm font-medium leading-relaxed text-ns-secondary">
-              {t(`modes.${mode}.desc`)}
-            </p>
           </div>
         </div>
+
+        <p className="relative mt-3 min-h-[2.75rem] text-sm leading-relaxed text-ns-secondary line-clamp-2">
+          {t(`modes.${mode}.desc`)}
+        </p>
+
+        {Array.isArray(outputs) && outputs.length > 0 && (
+          <ul className="relative mt-4 flex flex-wrap gap-1.5">
+            {outputs.map((item) => (
+              <li
+                key={item}
+                className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium text-ns-tertiary ${accent.tag}`}
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
+
         <span
           className={[
-            "inline-flex shrink-0 items-center justify-center rounded-lg bg-ns-hero px-4 py-2.5 text-sm font-semibold text-ns-primary transition-colors",
-            "group-hover:bg-ns-primary group-hover:text-black",
-            isWide ? "sm:self-center" : "w-full sm:w-auto",
+            "relative mt-5 inline-flex w-full items-center justify-center gap-1",
+            featured ? BTN_PRIMARY : BTN_SECONDARY,
+            "!py-2.5 text-sm",
           ].join(" ")}
         >
           {t("start")}
-          <span className="ml-1 transition-transform group-hover:translate-x-0.5" aria-hidden>
-            →
-          </span>
+          <span aria-hidden>→</span>
         </span>
       </div>
-      {Array.isArray(outputs) && outputs.length > 0 && (
-        <ul className="relative mt-4 flex flex-wrap gap-2 border-t border-gray-100/80 pt-4">
-          {outputs.map((item) => (
-            <li
-              key={item}
-              className="rounded-md border border-gray-100 bg-white/90 px-2.5 py-1 text-xs font-medium text-ns-tertiary"
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
-      )}
     </button>
   );
 }

@@ -124,6 +124,7 @@ export function AudienceSetupForm() {
         <form onSubmit={onSubmit} className={DASHBOARD_FORM_COMPACT} aria-busy={pending}>
         <div>
           <OptionalLabel htmlFor="target">{t("targetLabel")}</OptionalLabel>
+          <p className="mb-2 text-xs leading-relaxed text-ns-secondary">{t("targetHint")}</p>
           <ImeSafeInput
             id="target"
             value={targetLabel}
@@ -135,6 +136,7 @@ export function AudienceSetupForm() {
         </div>
         <div>
           <OptionalLabel htmlFor="focus">{t("contentFocus")}</OptionalLabel>
+          <p className="mb-2 text-xs leading-relaxed text-ns-secondary">{t("contentFocusHint")}</p>
           <ImeSafeTextarea
             id="focus"
             rows={3}
@@ -157,7 +159,8 @@ export function AudienceSetupForm() {
           />
         </div>
 
-        <p className="text-xs text-ns-secondary">{t("optionalNote")}</p>
+        <p className="text-xs leading-relaxed text-ns-secondary">{t("optionalNote")}</p>
+        <p className="text-xs leading-relaxed text-ns-secondary/90">{t("skipHint")}</p>
 
         <div
           className={`rounded-xl border border-gray-100 bg-ns-brand-light p-4 ${pending ? "pointer-events-none opacity-60" : ""}`}

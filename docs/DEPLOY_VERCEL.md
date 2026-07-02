@@ -26,6 +26,17 @@ RESEND_FROM_EMAIL=Ultra Content Maker <notifications@votredomaine.com>
 ADMIN_LOGIN_NOTIFY_EMAIL=gregory.prudhommeaux@gmail.com
 ```
 
+**Digest hebdomadaire admin (lundi 08:00 Paris / 07:00 UTC) :**
+
+```
+CRON_SECRET=une-chaine-aleatoire-longue
+ADMIN_WEEKLY_DIGEST_EMAIL=gregory.prudhommeaux@gmail.com
+```
+
+Ajoutez `CRON_SECRET` aussi sur Vercel. Le cron est déclaré dans `vercel.json` (`/api/cron/admin-weekly-digest`).
+
+Test manuel (connecté en admin) : `POST /api/admin/weekly-digest` · aperçu sans envoi : `POST /api/admin/weekly-digest?dryRun=1`
+
 Créez une clé API sur [Resend](https://resend.com), vérifiez un domaine d’envoi (ou utilisez `onboarding@resend.dev` en test — envoi limité au propriétaire du compte Resend). Sans `RESEND_API_KEY`, les connexions fonctionnent mais aucun e-mail n’est envoyé.
 
 ## Firebase après le 1er déploiement

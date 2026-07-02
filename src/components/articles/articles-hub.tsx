@@ -3,7 +3,6 @@
 import {
   countScopes,
   resolveArticleScope,
-  SCOPE_CARD_CLASS,
 } from "@/lib/articles/scope";
 import {
   articleMatchesLibraryFilters,
@@ -21,6 +20,7 @@ import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
 import { listArticleBatches, type ArticleBatchGroup } from "@/lib/workspace/articles";
 import { Link, useRouter } from "@/i18n/navigation";
+import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useLocale, useTranslations } from "next-intl";
 import type {
   ArticleCreationMode,
@@ -142,49 +142,56 @@ export function ArticlesHub() {
       )}
 
       {!hasAnyPosts && (
-        <div className="rounded-xl border border-dashed border-gray-200 bg-ns-brand-light/30 p-8 text-center">
-          <p className="text-sm text-ns-secondary">{t("empty")}</p>
-          <Link
-            href={CREATE_FRESH_HREF}
-            className="mt-4 inline-block text-sm font-semibold text-ns-primary underline"
-          >
-            {t("createCta")} →
+        <div className="rounded-2xl border border-dashed border-ns-border bg-ns-brand-light/40 px-8 py-12 text-center">
+          <p className="text-base font-semibold text-ns-tertiary">{t("library.emptyTitle")}</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ns-secondary">
+            {t("empty")}
+          </p>
+          <Link href={CREATE_FRESH_HREF} className={`mt-6 inline-flex ${BTN_PRIMARY}`}>
+            {t("createCta")}
           </Link>
         </div>
       )}
 
       {hasAnyPosts && !hasFilterResults && (
-        <div className="rounded-xl border border-dashed border-gray-200 bg-ns-brand-light/30 p-8 text-center">
-          <p className="text-sm text-ns-secondary">{t("library.emptyFiltered")}</p>
+        <div className="rounded-2xl border border-dashed border-ns-border bg-white px-8 py-10 text-center">
+          <p className="text-sm font-medium text-ns-secondary">{t("library.emptyFiltered")}</p>
         </div>
       )}
 
       {visibleBatches.map((batch) => {
         const { generalist, niche } = countScopes(batch.articles);
         return (
-          <section key={batch.batchId} className="space-y-3">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h2 className="text-sm font-semibold text-ns-tertiary">
-                {t("library.batchTitle", {
-                  dateTime: formatBatchDateTime(batch.createdAt, locale),
-                })}
-              </h2>
-              <span
-                className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${SESSION_BADGE[batch.sessionMode]}`}
-              >
-                {tSession(batch.sessionMode)}
-              </span>
-              <p className="flex items-center gap-1.5 text-xs text-ns-secondary/80">
-                <span>{t("scopeMix", { generalist, niche })}</span>
-                <ContextHelp label={t("help.scopeMix.label")}>
-                  {t("help.scopeMix.body")}
-                </ContextHelp>
-              </p>
-              <span className="rounded-full bg-ns-brand-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
-                {t("library.batchCount", { count: batch.articles.length })}
-              </span>
+          <section key={batch.batchId} className="space-y-4">
+            <div className="flex flex-wrap items-end justify-between gap-3 border-b border-gray-100 pb-4">
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-ns-primary">
+                  {t("library.batchEyebrow")}
+                </p>
+                <h2 className="mt-1 text-base font-bold text-ns-tertiary md:text-lg">
+                  {t("library.batchTitle", {
+                    dateTime: formatBatchDateTime(batch.createdAt, locale),
+                  })}
+                </h2>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-ns-secondary">
+                  <span>{t("scopeMix", { generalist, niche })}</span>
+                  <ContextHelp label={t("help.scopeMix.label")}>
+                    {t("help.scopeMix.body")}
+                  </ContextHelp>
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${SESSION_BADGE[batch.sessionMode]}`}
+                >
+                  {tSession(batch.sessionMode)}
+                </span>
+                <span className="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+                  {t("library.batchCount", { count: batch.articles.length })}
+                </span>
+              </div>
             </div>
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className="grid gap-4 sm:grid-cols-2">
               {batch.articles.map((a) => (
                 <ArticleLibraryCard key={a.id} article={a} reworkLabel={tRework("reworkCta")} t={t} />
               ))}
@@ -207,33 +214,37 @@ function ArticleLibraryCard({
   t: ReturnType<typeof useTranslations<"setup.articles">>;
 }) {
   const scope = resolveArticleScope(article);
+  const accent =
+    scope === "generalist"
+      ? "border-l-ns-primary hover:border-ns-primary/35"
+      : "border-l-ns-secondary hover:border-ns-secondary/35";
 
   return (
     <li
-      className={`overflow-hidden rounded-xl border border-gray-100 ${SCOPE_CARD_CLASS[scope]}`}
+      className={`group flex flex-col overflow-hidden rounded-2xl border border-gray-100 border-l-[5px] bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${accent}`}
     >
       <Link
         href={`/articles/${article.id}`}
-        className="block p-4 transition-colors hover:bg-white/60"
+        className="block flex-1 p-5 transition-colors"
       >
         <div className="flex items-start justify-between gap-2">
           <span
-            className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${STATUS_BADGE[article.status]}`}
+            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${STATUS_BADGE[article.status]}`}
           >
             {t(`status.${article.status}`)}
           </span>
-          <span className="text-[10px] font-medium uppercase tracking-wide text-ns-secondary">
+          <span className="rounded-full border border-gray-200 bg-ns-brand-light/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
             {t(`scope.${scope}`)}
           </span>
         </div>
-        <p className="mt-2 line-clamp-3 text-sm font-medium text-ns-tertiary">
+        <p className="mt-3 line-clamp-4 text-sm font-medium leading-relaxed text-ns-tertiary group-hover:text-ns-hero">
           {article.hook || t("untitled")}
         </p>
       </Link>
-      <div className="border-t border-gray-100/80 px-4 py-2">
+      <div className="border-t border-gray-100 bg-ns-brand-light/20 px-5 py-3">
         <Link
           href={`/articles/new?rework=${article.id}`}
-          className="text-xs font-semibold text-ns-primary underline hover:text-ns-tertiary"
+          className="text-xs font-semibold text-ns-primary underline-offset-2 hover:text-ns-tertiary hover:underline"
         >
           {reworkLabel}
         </Link>

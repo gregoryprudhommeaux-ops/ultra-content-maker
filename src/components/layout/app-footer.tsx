@@ -30,6 +30,7 @@ export function AppFooter({
         footerNavAria: "Footer",
         home: t("home"),
         library: t("library"),
+        pricing: t("pricing"),
         signup: t("signup"),
         login: t("login"),
       }}

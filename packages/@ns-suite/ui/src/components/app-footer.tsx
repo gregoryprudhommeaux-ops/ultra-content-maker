@@ -10,6 +10,7 @@ export type NsAppFooterLabels = {
   footerNavAria?: string;
   home?: string;
   library?: string;
+  pricing?: string;
   signup?: string;
   login?: string;
 };
@@ -74,7 +75,7 @@ export function NsAppFooter({
             className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold md:max-w-xs md:justify-end md:pt-1"
             aria-label={navAria}
           >
-            {showAppLinks && labels.home && labels.library && (
+            {showAppLinks && labels.home && labels.library && labels.pricing && (
               <>
                 <Link
                   href="/start"
@@ -95,6 +96,16 @@ export function NsAppFooter({
                   }
                 >
                   {labels.library}
+                </Link>
+                <Link
+                  href="/pricing"
+                  className={
+                    isDark
+                      ? "text-white/80 hover:text-white"
+                      : "text-ns-secondary hover:text-ns-tertiary"
+                  }
+                >
+                  {labels.pricing}
                 </Link>
               </>
             )}

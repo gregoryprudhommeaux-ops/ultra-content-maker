@@ -1,11 +1,19 @@
-import { configFromUserLlm, getLlmConfig } from "@/lib/llm/config";
-import { chatCompletionJson } from "@/lib/llm/chat";
+import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
+import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
+import { resolveRequestLlm } from "@/lib/llm/resolve-request-llm";
+import { requireActiveSubscriptionLlm } from "@/lib/subscription/llm-gate.server";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import { normalizeGapQuestions } from "@/lib/persona/gap-questions";
 import {
   buildPersonaSystemPrompt,
   buildPersonaUserPrompt,
 } from "@/lib/prompts/persona-generate";
+import { getAdminFirestore } from "@/lib/firebase/admin";
+import {
+  listBioDocumentsServer,
+  serializeBioDocumentsForPrompt,
+} from "@/lib/workspace/bio-documents.server";
+import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
 import type {
   AudienceProfile,
   AuthorProfile,
@@ -33,12 +41,17 @@ type GenerateBody = {
 };
 
 export async function POST(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  const token = authHeader?.startsWith("Bearer ")
-    ? authHeader.slice(7)
-    : null;
-  if (!token) {
+  const userId = await verifyBearerUserId(request.headers.get("authorization"));
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const subGate = await requireActiveSubscriptionLlm(userId);
+  if (!subGate.ok) {
+    return NextResponse.json(
+      { error: subGate.code, subscription: subGate.access },
+      { status: subGate.status },
+    );
   }
 
   let body: GenerateBody;
@@ -51,14 +64,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const userLlm = body.llm?.apiKey?.trim()
-    ? configFromUserLlm({
-        provider: body.llm.provider,
-        apiKey: body.llm.apiKey.trim(),
-        model: body.llm.model,
-      })
-    : null;
-  const llm = userLlm ?? getLlmConfig();
+  const llm = await resolveRequestLlm(userId, body.llm);
   if (!llm) {
     return NextResponse.json(
       {
@@ -71,6 +77,15 @@ export async function POST(request: Request) {
 
   const contentLanguage = body.contentLanguage as ContentLanguage;
   const systemPrompt = buildPersonaSystemPrompt(contentLanguage);
+
+  let bioReferenceDocuments: ReturnType<typeof serializeBioDocumentsForPrompt> = [];
+  const db = getAdminFirestore();
+  if (db) {
+    const scope = await resolveWorkspaceScopeForUser(db, userId);
+    const bioDocs = await listBioDocumentsServer(db, scope.ownerId, scope.accountId);
+    bioReferenceDocuments = serializeBioDocumentsForPrompt(bioDocs);
+  }
+
   const userContent = buildPersonaUserPrompt(
     body.author as AuthorProfile | null,
     body.audience as AudienceProfile | null,
@@ -79,6 +94,7 @@ export async function POST(request: Request) {
     body.profileEnrichment
       ? { details: body.profileEnrichment, updatedAt: new Date() }
       : null,
+    bioReferenceDocuments,
   );
 
   let raw: string;
@@ -86,7 +102,7 @@ export async function POST(request: Request) {
     raw = await chatCompletionJson(llm, [
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent },
-    ]);
+    ], mergeUsageLog(userId, "persona/generate"));
   } catch (e) {
     return NextResponse.json(
       {

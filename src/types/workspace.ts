@@ -1,6 +1,8 @@
 export type ContentLanguage = "en" | "fr" | "es";
 
-export type SetupStep = "llm" | "author" | "audience" | "persona" | "articles" | "ready";
+import type { SubscriptionProfile } from "@/types/subscription";
+
+export type SetupStep = "llm" | "express" | "author" | "audience" | "persona" | "articles" | "ready";
 
 export type LlmProvider = "openai" | "perplexity" | "anthropic" | "google";
 
@@ -10,125 +12,166 @@ export type PersonaStatus = "none" | "draft" | "validated";
 
 export type ArticleStatus = "draft" | "refining" | "validated";
 
+/** Support Total production pipeline (admin-managed, not editorial status). */
+export type SupportProductionStatus = "to_produce" | "client_review" | "published";
+
 export type SourceType =
-  | "linkedin_profile"
-  | "linkedin_post"
-  | "blog"
-  | "website"
-  | "other";
+ | "linkedin_profile"
+ | "linkedin_post"
+ | "blog"
+ | "website"
+ | "other";
 
 /** How this URL is used for Persona / content generation */
 export type SourceCategory =
-  | "my_post"
-  | "inspiration_post"
-  | "inspiration_profile";
+ | "my_post"
+ | "inspiration_post"
+ | "inspiration_profile";
 
 export type InspirationAspect =
-  | "tone"
-  | "angle"
-  | "subject"
-  | "approach"
-  | "content"
-  | "format";
+ | "tone"
+ | "angle"
+ | "subject"
+ | "approach"
+ | "content"
+ | "format";
 
 export interface UserLlmProfile {
-  provider: LlmProvider;
-  apiKey: string;
-  model?: string;
-  configuredAt: Date;
-  updatedAt: Date;
+ provider: LlmProvider;
+ apiKey: string;
+ /** True only when the user explicitly saved their own BYOK via the app UI. */
+ userProvided?: boolean;
+ model?: string;
+ configuredAt: Date;
+ updatedAt: Date;
 }
 
 export type LinkedWorkspace = {
-  ownerId: string;
-  accountId: string;
-  accountName?: string;
+ ownerId: string;
+ accountId: string;
+ accountName?: string;
+};
+
+/** Client-owned account managed by a platform admin (agency model). */
+export type ManagedBy = {
+ adminUid: string;
+ linkedAt?: Date;
+};
+
+export type ManagedClientEntry = {
+ clientUid: string;
+ accountId: string;
+ email: string;
+ displayName?: string;
+ linkedAt?: Date;
 };
 
 export interface UserDoc {
-  email: string;
-  displayName?: string;
-  preferredLocale?: ContentLanguage;
-  setupStep: SetupStep;
-  /** Active workspace account (client) for multi-account admins. */
-  activeAccountId?: string;
-  /** Client invited to complete onboarding on an admin-owned workspace account. */
-  linkedWorkspace?: LinkedWorkspace;
-  isPlatformAdmin?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+ email: string;
+ displayName?: string;
+ preferredLocale?: ContentLanguage;
+ setupStep: SetupStep;
+ /** Active workspace account (client) for multi-account admins. */
+ activeAccountId?: string;
+ /** Client invited to complete onboarding on an admin-owned workspace account. */
+ linkedWorkspace?: LinkedWorkspace;
+ /** Client accounts this admin manages (client-first agency model). */
+ managedClients?: ManagedClientEntry[];
+ /** Agency admin assigned to support this client's own account. */
+ managedBy?: ManagedBy;
+ isPlatformAdmin?: boolean;
+ subscription?: SubscriptionProfile;
+ createdAt: Date;
+ updatedAt: Date;
 }
 
 export type ArticleCreationMode = "profile" | "news" | "inspiration" | "article";
 
 export type CreationStrategyThemeRelation =
-  | "continuity"
-  | "correction"
-  | "pivot"
-  | "news";
+ | "continuity"
+ | "correction"
+ | "pivot"
+ | "news";
 
 export interface CreationStrategyTheme {
-  title: string;
-  angle: string;
-  rationale: string;
-  relationToHistory: CreationStrategyThemeRelation;
-  suggestedMode: ArticleCreationMode;
-  newsHook?: string;
+ title: string;
+ angle: string;
+ rationale: string;
+ relationToHistory: CreationStrategyThemeRelation;
+ suggestedMode: ArticleCreationMode;
+ newsHook?: string;
 }
 
 export interface CreationStrategyGuide {
-  postsAnalyzed: number;
-  periodLabel: string;
-  patternSummary: string;
-  recommendedMode: ArticleCreationMode;
-  modeJustification: string;
-  themes: CreationStrategyTheme[];
+ postsAnalyzed: number;
+ periodLabel: string;
+ patternSummary: string;
+ recommendedMode: ArticleCreationMode;
+ modeJustification: string;
+ themes: CreationStrategyTheme[];
 }
 
 export interface CreationStrategyCache {
-  activityUrl: string;
-  analyzedAt: string;
-  guide: CreationStrategyGuide;
-  /** Steering text used when this cache was built (empty = none). */
-  steering?: string;
+ activityUrl: string;
+ analyzedAt: string;
+ guide: CreationStrategyGuide;
+ /** Steering text used when this cache was built (empty = none). */
+ steering?: string;
 }
 
 export interface AuthorProfile {
-  linkedinProfileUrl?: string;
-  /** Public activity feed URL (recent posts) for AI pattern analysis. */
-  linkedinActivityUrl?: string;
-  websiteUrl?: string;
-  blogUrl?: string;
-  contentLanguage: ContentLanguage;
-  roleTitle?: string;
-  positioningLine?: string;
-  creationStrategyCache?: CreationStrategyCache;
-  /** Optional angle / keywords to steer the next strategy analysis. */
-  creationStrategySteering?: string;
-  status: AuthorStatus;
-  updatedAt: Date;
+ linkedinProfileUrl?: string;
+ /** Public activity feed URL (recent posts) for AI pattern analysis. */
+ linkedinActivityUrl?: string;
+ websiteUrl?: string;
+ blogUrl?: string;
+ contentLanguage: ContentLanguage;
+ roleTitle?: string;
+ positioningLine?: string;
+ creationStrategyCache?: CreationStrategyCache;
+ /** Optional angle / keywords to steer the next strategy analysis. */
+ creationStrategySteering?: string;
+ status: AuthorStatus;
+ updatedAt: Date;
+}
+
+export type AuthorBioDocumentKind = "file" | "link";
+
+export interface AuthorBioDocument {
+ id: string;
+ kind: AuthorBioDocumentKind;
+ label: string;
+ mimeType?: string;
+ sizeBytes?: number;
+ storagePath?: string;
+ sourceUrl?: string;
+ extractedText: string;
+ createdAt: Date;
+ updatedAt: Date;
 }
 
 export interface AudienceProfile {
-  targetLabel?: string;
-  contentFocus?: string;
-  /** Optional keywords / topics to steer news scan (wizard + API). */
-  newsInterestQuery?: string;
-  optionalNotes?: string;
-  skipped?: boolean;
-  updatedAt: Date;
+ targetLabel?: string;
+ contentFocus?: string;
+ /** Owned niche statement — one reader, one problem (editable; steers draft generation). */
+ contentNiche?: string;
+ /** Optional keywords / topics to steer news scan (wizard + API). */
+ newsInterestQuery?: string;
+ optionalNotes?: string;
+ skipped?: boolean;
+ updatedAt: Date;
 }
 
 export interface SourceLink {
-  id: string;
-  type: SourceType;
-  url: string;
-  label?: string;
-  category: SourceCategory;
-  likedAspects?: InspirationAspect[];
-  whyLike?: string;
-  sortOrder: number;
-  createdAt: Date;
+ id: string;
+ type: SourceType;
+ url: string;
+ label?: string;
+ category: SourceCategory;
+ likedAspects?: InspirationAspect[];
+ whyLike?: string;
+ sortOrder: number;
+ createdAt: Date;
 }
 
 export type GapQuestionField = "author" | "audience" | "enrichment";
@@ -136,80 +179,80 @@ export type GapQuestionField = "author" | "audience" | "enrichment";
 export type GapQuestionType = "single" | "multi" | "text" | "rank";
 
 export interface ProfileGapQuestion {
-  id: string;
-  field: GapQuestionField;
-  profileKey: string;
-  label: string;
-  hint?: string;
-  type: GapQuestionType;
-  options?: string[];
+ id: string;
+ field: GapQuestionField;
+ profileKey: string;
+ label: string;
+ hint?: string;
+ type: GapQuestionType;
+ options?: string[];
 }
 
 export type GapAnswerValue = string | string[];
 
 export interface ProfileEnrichment {
-  details: Record<string, GapAnswerValue>;
-  updatedAt: Date;
+ details: Record<string, GapAnswerValue>;
+ updatedAt: Date;
 }
 
 export type PersonaUpdateSource =
-  | "generate"
-  | "profile_sync"
-  | "feedback_sync"
-  | "user_refinement"
-  | "validate";
+ | "generate"
+ | "profile_sync"
+ | "feedback_sync"
+ | "user_refinement"
+ | "validate";
 
 export interface PersonaRecentChange {
-  summary: string;
-  source: PersonaUpdateSource;
-  at: Date;
+ summary: string;
+ source: PersonaUpdateSource;
+ at: Date;
 }
 
 export interface PersonaDoc {
-  promptText: string;
-  status: PersonaStatus;
-  model?: string;
-  gapQuestions?: ProfileGapQuestion[];
-  validatedAt?: Date;
-  updatedAt: Date;
-  /** Monotonic version shown at the top of the prompt. */
-  versionNumber?: number;
-  recentChanges?: PersonaRecentChange[];
-  /** Fingerprint of author + audience fields for change detection. */
-  profileFingerprint?: string;
-  /** Fingerprint of learning entry texts at last successful sync. */
-  learningSyncHash?: string;
-  /** Fingerprint of enrichment questionnaire answers. */
-  enrichmentFingerprint?: string;
+ promptText: string;
+ status: PersonaStatus;
+ model?: string;
+ gapQuestions?: ProfileGapQuestion[];
+ validatedAt?: Date;
+ updatedAt: Date;
+ /** Monotonic version shown at the top of the prompt. */
+ versionNumber?: number;
+ recentChanges?: PersonaRecentChange[];
+ /** Fingerprint of author + audience fields for change detection. */
+ profileFingerprint?: string;
+ /** Fingerprint of learning entry texts at last successful sync. */
+ learningSyncHash?: string;
+ /** Fingerprint of enrichment questionnaire answers. */
+ enrichmentFingerprint?: string;
 }
 
 export type PersonaHistoryReason =
-  | "generate"
-  | "feedback_sync"
-  | "profile_sync"
-  | "user_refinement"
-  | "validate"
-  | "restore"
-  | "before_restore";
+ | "generate"
+ | "feedback_sync"
+ | "profile_sync"
+ | "user_refinement"
+ | "validate"
+ | "restore"
+ | "before_restore";
 
 export interface PersonaHistoryEntry {
-  id: string;
-  promptText: string;
-  status: PersonaStatus;
-  model?: string;
-  gapQuestions?: ProfileGapQuestion[];
-  reason: PersonaHistoryReason;
-  createdAt: Date;
+ id: string;
+ promptText: string;
+ status: PersonaStatus;
+ model?: string;
+ gapQuestions?: ProfileGapQuestion[];
+ reason: PersonaHistoryReason;
+ createdAt: Date;
 }
 
 export interface CtaDoc {
-  id: string;
-  label: string;
-  text: string;
-  linkUrl?: string;
-  isDefault?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+ id: string;
+ label: string;
+ text: string;
+ linkUrl?: string;
+ isDefault?: boolean;
+ createdAt: Date;
+ updatedAt: Date;
 }
 
 export type RefinementAnswer = "yes" | "no" | "partial";
@@ -231,81 +274,81 @@ export type PostObjectivePriority = 1 | 2 | 3;
 export type ArticleWritingStyle = "linkedin" | "personal";
 
 export type RankedPostObjective = {
-  objective: PostObjective;
-  priority: PostObjectivePriority;
+ objective: PostObjective;
+ priority: PostObjectivePriority;
 };
 
 export interface PostBrief {
-  /** Up to 3 ranked objectives (1 = primary). */
-  objectives: RankedPostObjective[];
-  problem: string;
-  pointOfView: string;
-  proof: string;
-  /** Set in article-topic wizard only. */
-  articleWritingStyle?: ArticleWritingStyle;
+ /** Up to 3 ranked objectives (1 = primary). */
+ objectives: RankedPostObjective[];
+ problem: string;
+ pointOfView: string;
+ proof: string;
+ /** Set in article-topic wizard only. */
+ articleWritingStyle?: ArticleWritingStyle;
 }
 
 export interface ArticleQualityScores {
-  nicheClarity: number;
-  humanPov: number;
-  proofDensity: number;
-  conversationPotential: number;
+ nicheClarity: number;
+ humanPov: number;
+ proofDensity: number;
+ conversationPotential: number;
 }
 
 /** Native LinkedIn content format (Phase 2). */
 export type LinkedInPostFormat = "text_post" | "carousel" | "short_video";
 
 export interface PostFormatPlan {
-  primaryFormat: LinkedInPostFormat;
-  rationale: string;
-  alternativeFormats?: LinkedInPostFormat[];
+ primaryFormat: LinkedInPostFormat;
+ rationale: string;
+ alternativeFormats?: LinkedInPostFormat[];
 }
 
 export interface BriefNicheCheck {
-  score: number;
-  isTooGeneric: boolean;
-  feedback: string;
-  suggestions?: string[];
+ score: number;
+ isTooGeneric: boolean;
+ feedback: string;
+ suggestions?: string[];
 }
 
 export interface CarouselSlide {
-  title: string;
-  bullets: string[];
+ title: string;
+ bullets: string[];
 }
 
 export interface CarouselRepurpose {
-  slides: CarouselSlide[];
-  designNotes?: string;
+ slides: CarouselSlide[];
+ designNotes?: string;
 }
 
 export interface VideoScriptSegment {
-  label: string;
-  script: string;
-  durationSec?: number;
+ label: string;
+ script: string;
+ durationSec?: number;
 }
 
 export interface VideoScriptRepurpose {
-  hookLine: string;
-  segments: VideoScriptSegment[];
-  closingLine: string;
-  totalDurationSec?: number;
+ hookLine: string;
+ segments: VideoScriptSegment[];
+ closingLine: string;
+ totalDurationSec?: number;
 }
 
 export interface ArticleRepurpose {
-  carousel?: CarouselRepurpose;
-  videoScript?: VideoScriptRepurpose;
+ carousel?: CarouselRepurpose;
+ videoScript?: VideoScriptRepurpose;
 }
 
 export type ArticleTranslationMode = "literal" | "localized";
 
 export interface ArticleTranslationVariant {
-  mode: ArticleTranslationMode;
-  hook: string;
-  body: string;
-  ps?: string;
-  exportText?: string;
-  hashtags?: string[];
-  generatedAt: string;
+ mode: ArticleTranslationMode;
+ hook: string;
+ body: string;
+ ps?: string;
+ exportText?: string;
+ hashtags?: string[];
+ generatedAt: string;
 }
 
 /** Regional target locale for stored article translations. */
@@ -313,150 +356,152 @@ export type ArticleTranslationLocale = "fr" | "es-mx" | "es" | "en-gb" | "en-us"
 
 /** Alternate-language versions of a validated post (key = target locale). */
 export type ArticleTranslations = Partial<
-  Record<ArticleTranslationLocale, ArticleTranslationVariant>
+ Record<ArticleTranslationLocale, ArticleTranslationVariant>
 >;
 
 /** Post-publication signals (manual entry, Phase 3). */
 export interface ArticlePerformanceSignals {
-  saves?: number;
-  qualifiedComments?: number;
-  profileVisits?: number;
-  dms?: number;
-  businessOpportunity?: string;
-  notes?: string;
-  /** ISO date when metrics were recorded */
-  recordedAt?: string;
+ saves?: number;
+ qualifiedComments?: number;
+ profileVisits?: number;
+ dms?: number;
+ businessOpportunity?: string;
+ notes?: string;
+ /** ISO date when metrics were recorded */
+ recordedAt?: string;
 }
 
 export interface SlopAnalysis {
-  /** 1–10 authenticity / human voice (higher is better) */
-  humanScore: number;
-  /** 1–10 AI-slop intensity (higher is worse) */
-  slopScore: number;
-  flags: string[];
-  summary: "empty" | "clean" | "mild_slop" | "heavy_slop";
+ /** 1–10 authenticity / human voice (higher is better) */
+ humanScore: number;
+ /** 1–10 AI-slop intensity (higher is worse) */
+ slopScore: number;
+ flags: string[];
+ summary: "empty" | "clean" | "mild_slop" | "heavy_slop";
 }
 
 export interface PersonaPerformanceInsights {
-  summary: string;
-  suggestions: string[];
-  generatedAt: Date;
-  postsAnalyzed: number;
+ summary: string;
+ suggestions: string[];
+ generatedAt: Date;
+ postsAnalyzed: number;
 }
 
 export interface CtaSuggestion {
-  style: CtaIntensity;
-  text: string;
-  linkUrl?: string;
+ style: CtaIntensity;
+ text: string;
+ linkUrl?: string;
 }
 
 export interface RefinementQuestion {
-  id: string;
-  questionKey: string;
-  answer?: RefinementAnswer;
-  comment?: string;
+ id: string;
+ questionKey: string;
+ answer?: RefinementAnswer;
+ comment?: string;
 }
 
 /** Per-article editorial tone shift (revision only, not global Persona default). */
 export type ToneEdge = "default" | "corrosive";
 
 export interface ArticleRefinement {
-  questions: RefinementQuestion[];
-  emojiLevel?: EmojiLevel;
-  /** Corrosive / contrarian rewrite for this post */
-  toneEdge?: ToneEdge;
-  globalComment?: string;
-  lastRegeneratedAt?: Date;
+ questions: RefinementQuestion[];
+ emojiLevel?: EmojiLevel;
+ /** Corrosive / contrarian rewrite for this post */
+ toneEdge?: ToneEdge;
+ globalComment?: string;
+ lastRegeneratedAt?: Date;
 }
 
 export type IllustrationFormat =
-  | "photo"
-  | "illustration"
-  | "drawing"
-  | "chart"
-  | "graph"
-  | "infographic"
-  | "diagram"
-  | "quote_card"
-  | "screenshot_mockup";
+ | "photo"
+ | "illustration"
+ | "drawing"
+ | "chart"
+ | "graph"
+ | "infographic"
+ | "diagram"
+ | "quote_card"
+ | "screenshot_mockup";
 
 export interface NewsSuggestion {
-  id: string;
-  title: string;
-  summary: string;
-  url: string;
-  sourceName?: string;
-  /** ISO date YYYY-MM-DD */
-  publishedAt: string;
+ id: string;
+ title: string;
+ summary: string;
+ url: string;
+ sourceName?: string;
+ /** ISO date YYYY-MM-DD */
+ publishedAt: string;
 }
 
 export interface ArticleNewsSource {
-  title: string;
-  summary: string;
-  url: string;
-  publishedAt: string;
-  sourceName?: string;
+ title: string;
+ summary: string;
+ url: string;
+ publishedAt: string;
+ sourceName?: string;
 }
 
 export type InspirationInputKind = "paste" | "url" | "library";
 
 /** Traceability when a post was generated from the inspiration wizard */
 export interface ArticleInspirationSource {
-  kind: InspirationInputKind;
-  sourceId?: string;
-  url: string;
-  label?: string;
-  category?: SourceCategory;
-  likedAspects?: InspirationAspect[];
-  whyLike?: string;
+ kind: InspirationInputKind;
+ sourceId?: string;
+ url: string;
+ label?: string;
+ category?: SourceCategory;
+ likedAspects?: InspirationAspect[];
+ whyLike?: string;
 }
 
 export interface ArticleIllustration {
-  format: IllustrationFormat;
-  rationale: string;
-  /** Three short prompts for GenAI or image search engines */
-  imagePrompts: [string, string, string];
-  searchKeywords?: string;
-  alternativeFormats?: IllustrationFormat[];
+ format: IllustrationFormat;
+ rationale: string;
+ /** Three short prompts for GenAI or image search engines */
+ imagePrompts: [string, string, string];
+ searchKeywords?: string;
+ alternativeFormats?: IllustrationFormat[];
 }
 
 export interface ArticleDoc {
-  id: string;
-  batchId: string;
-  indexInBatch: number;
-  status: ArticleStatus;
-  hook: string;
-  body: string;
-  ps?: string;
-  illustration?: ArticleIllustration;
-  newsSource?: ArticleNewsSource;
-  inspirationSource?: ArticleInspirationSource;
-  /** generalist = broad angle; niche = vertical / ICP-specific */
-  scope?: ArticleScope;
-  /** Up to 4 LinkedIn hashtags (without #), appended on export */
-  hashtags?: string[];
-  exportText?: string;
-  selectedCtaId?: string;
-  selectedCtaStyle?: CtaIntensity;
-  selectedCtaText?: string;
-  contentLanguage: ContentLanguage;
-  refinement?: ArticleRefinement;
-  /** Brief used when this batch was generated (v3). */
-  postBrief?: PostBrief;
-  qualityScores?: ArticleQualityScores;
-  alternativeHooks?: string[];
-  qualityCritique?: string;
-  postFormatPlan?: PostFormatPlan;
-  repurpose?: ArticleRepurpose;
-  suggestedFirstComment?: string;
-  /** Planned publish time (user reminder — not LinkedIn native scheduling). */
-  scheduledPublishAt?: Date;
-  performanceSignals?: ArticlePerformanceSignals;
-  slopAnalysis?: SlopAnalysis;
-  translations?: ArticleTranslations;
-  createdAt: Date;
-  updatedAt: Date;
-  validatedAt?: Date;
+ id: string;
+ batchId: string;
+ indexInBatch: number;
+ status: ArticleStatus;
+ hook: string;
+ body: string;
+ ps?: string;
+ illustration?: ArticleIllustration;
+ newsSource?: ArticleNewsSource;
+ inspirationSource?: ArticleInspirationSource;
+ /** generalist = broad angle; niche = vertical / ICP-specific */
+ scope?: ArticleScope;
+ /** Up to 4 LinkedIn hashtags (without #), appended on export */
+ hashtags?: string[];
+ exportText?: string;
+ selectedCtaId?: string;
+ selectedCtaStyle?: CtaIntensity;
+ selectedCtaText?: string;
+ contentLanguage: ContentLanguage;
+ refinement?: ArticleRefinement;
+ /** Brief used when this batch was generated (v3). */
+ postBrief?: PostBrief;
+ qualityScores?: ArticleQualityScores;
+ alternativeHooks?: string[];
+ qualityCritique?: string;
+ postFormatPlan?: PostFormatPlan;
+ repurpose?: ArticleRepurpose;
+ suggestedFirstComment?: string;
+ /** Planned publish time (user reminder · not LinkedIn native scheduling). */
+ scheduledPublishAt?: Date;
+ performanceSignals?: ArticlePerformanceSignals;
+ slopAnalysis?: SlopAnalysis;
+ translations?: ArticleTranslations;
+ createdAt: Date;
+ updatedAt: Date;
+ validatedAt?: Date;
+ /** Support Total delivery pipeline — defaults to to_produce when unset. */
+ productionStatus?: SupportProductionStatus;
 }
 
 export { INPUT_CLASS, LABEL_CLASS } from "@/lib/ui/nextstep";

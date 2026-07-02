@@ -1,4 +1,6 @@
 import { getAdminAuth } from "@/lib/firebase/admin-auth";
+import { getAdminFirestore } from "@/lib/firebase/admin";
+import { persistErrorReport } from "@/lib/admin/error-reports.server";
 import {
   isErrorReportConfigured,
   sendErrorReportEmail,
@@ -30,11 +32,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!isErrorReportConfigured()) {
-    return NextResponse.json({ error: "email_not_configured" }, { status: 503 });
-  }
-
   const adminAuth = getAdminAuth();
+  const db = getAdminFirestore();
   if (!adminAuth) {
     return NextResponse.json({ error: "admin_not_configured" }, { status: 503 });
   }
@@ -66,7 +65,18 @@ export async function POST(request: Request) {
       userAgent,
     };
 
-    await sendErrorReportEmail(payload);
+    let persisted = false;
+    if (db) {
+      await persistErrorReport(db, payload);
+      persisted = true;
+    }
+
+    if (isErrorReportConfigured()) {
+      await sendErrorReportEmail(payload);
+    } else if (!persisted) {
+      return NextResponse.json({ error: "email_not_configured" }, { status: 503 });
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     const detail = e instanceof Error ? e.message : "Unknown";

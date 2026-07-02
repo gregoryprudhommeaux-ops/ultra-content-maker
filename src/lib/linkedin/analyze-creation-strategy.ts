@@ -1,5 +1,5 @@
 import type { LlmConfig } from "@/lib/llm/config";
-import { chatCompletionJson } from "@/lib/llm/chat";
+import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
   buildCreationStrategyGuideSystemPrompt,
@@ -21,6 +21,7 @@ export type AnalyzeCreationStrategyInput = {
   activityUrl: string;
   contentLanguage: ContentLanguage;
   personaPromptText: string;
+  userId?: string;
   authorContext?: {
     roleTitle?: string;
     positioningLine?: string;
@@ -45,6 +46,7 @@ export async function fetchLinkedInActivityPosts(
   activityUrl: string,
   fetchLlm: LlmConfig,
   contentLanguage: ContentLanguage,
+  userId?: string,
 ): Promise<LinkedInActivityPostLlm[]> {
   const normalized = normalizeLinkedInActivityUrl(activityUrl) ?? activityUrl.trim();
 
@@ -57,7 +59,7 @@ export async function fetchLinkedInActivityPosts(
       role: "user",
       content: buildLinkedInActivityFetchUserPrompt(normalized),
     },
-  ]);
+  ], userId ? mergeUsageLog(userId, "linkedin/creation-strategy/fetch") : undefined);
 
   const parsed = parseLlmJson<LinkedInActivityFetchLlmResult>(raw);
   return normalizeLinkedInActivityPosts(parsed);
@@ -73,6 +75,7 @@ export async function analyzeCreationStrategy(
     normalized,
     input.fetchLlm,
     input.contentLanguage,
+    input.userId,
   );
 
   const raw = await chatCompletionJson(input.strategyLlm, [
@@ -92,7 +95,7 @@ export async function analyzeCreationStrategy(
         authorSteering: input.authorSteering,
       }),
     },
-  ]);
+  ], input.userId ? mergeUsageLog(input.userId, "linkedin/creation-strategy") : undefined);
 
   const parsed = parseLlmJson<Record<string, unknown>>(raw);
   const guide = normalizeCreationStrategyGuide(parsed);

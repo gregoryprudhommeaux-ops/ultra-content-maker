@@ -32,7 +32,7 @@ export function UserErrorBanner({
   errorCode,
   detail,
   hint,
-  technical,
+  technical: _technical,
   onRetry,
   retryLabel,
   showProviderConsole,
@@ -44,7 +44,6 @@ export function UserErrorBanner({
   const t = useTranslations("errors");
   const locale = useLocale();
   const { user } = useAuth();
-  const [showTechnical, setShowTechnical] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [userNote, setUserNote] = useState("");
   const [reportState, setReportState] = useState<"idle" | "sending" | "sent" | "failed">(
@@ -101,23 +100,6 @@ export function UserErrorBanner({
       {showConsole ? (
         <div className="mt-2 rounded-lg border border-red-200/80 bg-white/70 px-3 py-2">
           <LlmProviderConsoleLink />
-        </div>
-      ) : null}
-
-      {technical ? (
-        <div className="mt-2">
-          <button
-            type="button"
-            onClick={() => setShowTechnical((v) => !v)}
-            className="text-xs font-semibold underline"
-          >
-            {showTechnical ? t("hideTechnical") : t("showTechnical")}
-          </button>
-          {showTechnical ? (
-            <pre className="mt-1.5 max-h-32 overflow-auto rounded-lg bg-red-100/80 p-2 text-xs text-red-900 whitespace-pre-wrap break-words">
-              {technical}
-            </pre>
-          ) : null}
         </div>
       ) : null}
 

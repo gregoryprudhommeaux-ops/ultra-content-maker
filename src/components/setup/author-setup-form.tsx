@@ -6,15 +6,20 @@ import {
   type AuthorProfileTab,
 } from "@/components/setup/author-profile-tabs";
 import { ClientInvitePanel } from "@/components/workspace/client-invite-panel";
-import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { InspirationsEditor } from "@/components/setup/inspirations-editor";
 import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
+import { AuthorBioDocumentsPanel } from "@/components/setup/author-bio-documents-panel";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
 import { resolveInspirationsReturn } from "@/lib/navigation/inspirations-return";
 import { completeAuthorStep, getAuthorProfile, isAuthorProfileMinimumComplete, saveAuthorProfile } from "@/lib/workspace/author";
+import {
+  hasExpressVoiceBasics,
+  isAuthorEnrichContext,
+  resolveAuthorEnrichTab,
+} from "@/lib/workspace/author-enrich";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import type { ContentLanguage } from "@/types/workspace";
@@ -27,11 +32,11 @@ import {
 import { SaveFeedbackOverlay } from "@/components/ui/save-feedback-overlay";
 import { BTN_PRIMARY, DASHBOARD_FORM } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
-import { ImeSafeInput } from "@/components/ui/ime-safe-field";
-import { useRouter } from "@/i18n/navigation";
+import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 export function AuthorSetupForm() {
   const t = useTranslations("setup.author");
@@ -62,6 +67,13 @@ export function AuthorSetupForm() {
   const [pending, setPending] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [savedProfile, setSavedProfile] = useState<Awaited<ReturnType<typeof getAuthorProfile>>>(null);
+  const autoTabAppliedRef = useRef(false);
+
+  const enrichMode = useMemo(
+    () => isAuthorEnrichContext(savedProfile, fromParam),
+    [savedProfile, fromParam],
+  );
 
   useEffect(() => {
     if (!user || !activeAccount) return;
@@ -73,6 +85,7 @@ export function AuthorSetupForm() {
       const profile = await getAuthorProfile(user.uid);
       if (cancelled) return;
       if (profile) {
+        setSavedProfile(profile);
         setLinkedinProfileUrl(profile.linkedinProfileUrl ?? "");
         setLinkedinActivityUrl(profile.linkedinActivityUrl ?? "");
         setWebsiteUrl(profile.websiteUrl ?? "");
@@ -81,6 +94,7 @@ export function AuthorSetupForm() {
         setPositioningLine(profile.positioningLine ?? "");
         setContentLanguage(profile.contentLanguage);
       } else {
+        setSavedProfile(null);
         setLinkedinProfileUrl("");
         setLinkedinActivityUrl("");
         setWebsiteUrl("");
@@ -95,6 +109,18 @@ export function AuthorSetupForm() {
       cancelled = true;
     };
   }, [user, activeAccount?.id, activeAccount?.contentLanguage, locale]);
+
+  useEffect(() => {
+    if (!loaded || autoTabAppliedRef.current) return;
+    if (searchParams.get("tab")) return;
+    if (!isAuthorEnrichContext(savedProfile, fromParam)) return;
+
+    autoTabAppliedRef.current = true;
+    const tab = resolveAuthorEnrichTab(savedProfile);
+    const params = new URLSearchParams({ tab });
+    if (fromParam) params.set("from", fromParam);
+    router.replace(`/setup/author?${params.toString()}`);
+  }, [loaded, savedProfile, fromParam, searchParams, router]);
 
   async function persist(markComplete: boolean) {
     if (!user) return false;
@@ -127,7 +153,7 @@ export function AuthorSetupForm() {
       contentLanguage,
     };
 
-    if (markComplete && !isAuthorProfileMinimumComplete(draft)) {
+    if (markComplete && !enrichMode && !isAuthorProfileMinimumComplete(draft)) {
       const missingTab = resolveMissingAuthorTab(draft);
       if (missingTab !== activeTab) {
         navigateToTab(missingTab);
@@ -198,11 +224,27 @@ export function AuthorSetupForm() {
         message={t("saveSuccess")}
         onDismiss={() => setSavedFlash(false)}
       />
-      <OnboardingStepBanner stepKey="author" />
+      <div className="mb-6 rounded-xl border border-ns-primary/20 bg-ns-primary/5 px-4 py-3 text-sm leading-relaxed text-ns-secondary">
+        <p className="font-medium text-ns-tertiary">
+          {enrichMode ? t("fullProfile.enrichTitle") : t("fullProfile.anytimeTitle")}
+        </p>
+        <p className="mt-1">
+          {enrichMode ? t("fullProfile.enrichBody") : t("fullProfile.anytimeBody")}
+        </p>
+      </div>
+      {enrichMode && savedProfile && (
+        <ExpressCapturedSummary
+          t={t}
+          linkedinProfileUrl={linkedinProfileUrl}
+          roleTitle={roleTitle}
+          positioningLine={positioningLine}
+          contentLanguage={contentLanguage}
+        />
+      )}
       <DashboardPageHero
         eyebrow={tSteps("author")}
-        title={t("title")}
-        subtitle={t("subtitle")}
+        title={enrichMode ? t("enrichTitle") : t("title")}
+        subtitle={enrichMode ? t("enrichSubtitle") : t("subtitle")}
       />
 
       <ClientInvitePanel />
@@ -214,12 +256,15 @@ export function AuthorSetupForm() {
           {tCommon("required")} · {tCommon("optional")}
         </p>
 
-        <p className="text-sm font-medium text-ns-secondary">{t(`tabs.hint.${activeTab}`)}</p>
+        <p className="rounded-xl border border-gray-100 bg-ns-brand-light/40 px-4 py-3 text-sm leading-relaxed text-ns-secondary">
+          {enrichMode ? t(`tabs.enrichHint.${activeTab}`) : t(`tabs.hint.${activeTab}`)}
+        </p>
 
-        <form onSubmit={onContinue} className={DASHBOARD_FORM}>
+        <form onSubmit={enrichMode ? onSave : onContinue} className={DASHBOARD_FORM}>
         {activeTab === "essential" && (
           <EssentialFields
             t={t}
+            enrichMode={enrichMode}
             linkedinProfileUrl={linkedinProfileUrl}
             setLinkedinProfileUrl={setLinkedinProfileUrl}
             linkedinActivityUrl={linkedinActivityUrl}
@@ -234,6 +279,7 @@ export function AuthorSetupForm() {
         {activeTab === "voice" && user && (
           <VoiceFields
             t={t}
+            enrichMode={enrichMode}
             userId={user.uid}
             roleTitle={roleTitle}
             setRoleTitle={setRoleTitle}
@@ -255,22 +301,36 @@ export function AuthorSetupForm() {
           />
         )}
 
-        <p className="text-xs text-ns-secondary">{t(`tabs.requiredNote.${activeTab}`)}</p>
+        <p className="rounded-lg border border-gray-100 bg-white/60 px-3 py-2 text-xs leading-relaxed text-ns-secondary">
+          {enrichMode
+            ? t(`tabs.enrichRequiredNote.${activeTab}`)
+            : t(`tabs.requiredNote.${activeTab}`)}
+        </p>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            disabled={pending}
-            onClick={onSave}
-            className="rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
-          >
-            {t("save")}
-          </button>
+          {!enrichMode && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={onSave}
+              className="rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
+            >
+              {t("save")}
+            </button>
+          )}
           <button type="submit" disabled={pending} className={`${BTN_PRIMARY} disabled:opacity-50`}>
-            {t("continue")}
+            {enrichMode ? t("enrichSave") : t("continue")}
           </button>
+          {enrichMode && (
+            <Link
+              href="/articles/new"
+              className="inline-flex items-center rounded-lg border border-ns-alternate px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light"
+            >
+              {t("enrichBackToCreate")}
+            </Link>
+          )}
         </div>
         </form>
       </DashboardPageSection>
@@ -278,8 +338,118 @@ export function AuthorSetupForm() {
   );
 }
 
+function ExpressCapturedSummary({
+  t,
+  linkedinProfileUrl,
+  roleTitle,
+  positioningLine,
+  contentLanguage,
+}: {
+  t: ReturnType<typeof useTranslations<"setup.author">>;
+  linkedinProfileUrl: string;
+  roleTitle: string;
+  positioningLine: string;
+  contentLanguage: ContentLanguage;
+}) {
+  const langLabel =
+    contentLanguage === "fr"
+      ? "Français"
+      : contentLanguage === "es"
+        ? "Español"
+        : "English";
+
+  return (
+    <div className="mb-6 space-y-2 rounded-xl border border-emerald-200/80 bg-emerald-50/40 px-4 py-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-900">
+        {t("fullProfile.capturedTitle")}
+      </p>
+      <ul className="space-y-1.5 text-sm text-ns-secondary">
+        {linkedinProfileUrl.trim() && (
+          <li className="flex gap-2">
+            <span className="shrink-0 text-emerald-700">✓</span>
+            <span>
+              <span className="font-medium text-ns-tertiary">{t("linkedin")}:</span>{" "}
+              {linkedinProfileUrl.trim()}
+            </span>
+          </li>
+        )}
+        {roleTitle.trim() && (
+          <li className="flex gap-2">
+            <span className="shrink-0 text-emerald-700">✓</span>
+            <span>
+              <span className="font-medium text-ns-tertiary">{t("role")}:</span> {roleTitle.trim()}
+            </span>
+          </li>
+        )}
+        {positioningLine.trim() && (
+          <li className="flex gap-2">
+            <span className="shrink-0 text-emerald-700">✓</span>
+            <span className="line-clamp-2">
+              <span className="font-medium text-ns-tertiary">{t("positioning")}:</span>{" "}
+              {positioningLine.trim()}
+            </span>
+          </li>
+        )}
+        {contentLanguage && (
+          <li className="flex gap-2">
+            <span className="shrink-0 text-emerald-700">✓</span>
+            <span>
+              <span className="font-medium text-ns-tertiary">{t("contentLanguage")}:</span>{" "}
+              {langLabel}
+            </span>
+          </li>
+        )}
+      </ul>
+      <p className="text-xs leading-relaxed text-ns-secondary">{t("fullProfile.capturedHint")}</p>
+    </div>
+  );
+}
+
+function PrefilledFieldBlock({
+  t,
+  label,
+  value,
+  children,
+}: {
+  t: ReturnType<typeof useTranslations<"setup.author">>;
+  label: string;
+  value: string;
+  children: ReactNode;
+}) {
+  const [editing, setEditing] = useState(false);
+  const trimmed = value.trim();
+
+  if (!trimmed || editing) {
+    return <>{children}</>;
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/50 px-3 py-2.5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-emerald-900">{label}</p>
+            <p className="mt-0.5 text-sm leading-relaxed text-ns-secondary line-clamp-3">{trimmed}</p>
+          </div>
+          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+            {t("fullProfile.alreadyProvided")}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          className="mt-2 text-xs font-medium text-ns-tertiary underline hover:text-ns-primary"
+        >
+          {t("fullProfile.editField")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function EssentialFields({
   t,
+  enrichMode,
   linkedinProfileUrl,
   setLinkedinProfileUrl,
   linkedinActivityUrl,
@@ -290,6 +460,7 @@ function EssentialFields({
   setBlogUrl,
 }: {
   t: ReturnType<typeof useTranslations<"setup.author">>;
+  enrichMode: boolean;
   linkedinProfileUrl: string;
   setLinkedinProfileUrl: (v: string) => void;
   linkedinActivityUrl: string;
@@ -299,23 +470,34 @@ function EssentialFields({
   blogUrl: string;
   setBlogUrl: (v: string) => void;
 }) {
+  const linkedinField = (
+    <div>
+      <OptionalLabel htmlFor="linkedin" optional={!enrichMode}>
+        {t("linkedin")}
+      </OptionalLabel>
+      <p className="mb-2 text-xs leading-relaxed text-ns-secondary">{t("linkedinHint")}</p>
+      <input
+        id="linkedin"
+        type="text"
+        inputMode="url"
+        autoComplete="url"
+        value={linkedinProfileUrl}
+        onChange={(e) => setLinkedinProfileUrl(e.target.value)}
+        placeholder="https://www.linkedin.com/in/..."
+        className={INPUT_CLASS}
+      />
+    </div>
+  );
+
   return (
     <>
-      <div>
-        <OptionalLabel htmlFor="linkedin" optional={false}>
-          {t("linkedin")}
-        </OptionalLabel>
-        <input
-          id="linkedin"
-          type="text"
-          inputMode="url"
-          autoComplete="url"
-          value={linkedinProfileUrl}
-          onChange={(e) => setLinkedinProfileUrl(e.target.value)}
-          placeholder="https://www.linkedin.com/in/..."
-          className={INPUT_CLASS}
-        />
-      </div>
+      {enrichMode ? (
+        <PrefilledFieldBlock t={t} label={t("linkedin")} value={linkedinProfileUrl}>
+          {linkedinField}
+        </PrefilledFieldBlock>
+      ) : (
+        linkedinField
+      )}
       <div>
         <OptionalLabel htmlFor="linkedin-activity">{t("linkedinActivity")}</OptionalLabel>
         <p className="mb-2 text-xs text-ns-secondary">{t("linkedinActivityHint")}</p>
@@ -360,6 +542,7 @@ function EssentialFields({
 
 function VoiceFields({
   t,
+  enrichMode,
   userId,
   roleTitle,
   setRoleTitle,
@@ -369,6 +552,7 @@ function VoiceFields({
   setContentLanguage,
 }: {
   t: ReturnType<typeof useTranslations<"setup.author">>;
+  enrichMode: boolean;
   userId: string;
   roleTitle: string;
   setRoleTitle: (v: string) => void;
@@ -377,46 +561,103 @@ function VoiceFields({
   contentLanguage: ContentLanguage;
   setContentLanguage: (v: ContentLanguage) => void;
 }) {
+  const voiceBasicsDone = enrichMode && hasExpressVoiceBasics({
+    roleTitle,
+    positioningLine,
+    contentLanguage,
+  });
+
+  const roleField = (
+    <div>
+      <OptionalLabel htmlFor="role" optional={enrichMode}>
+        {t("role")}
+      </OptionalLabel>
+      <ImeSafeInput
+        id="role"
+        value={roleTitle}
+        onValueChange={setRoleTitle}
+        className={INPUT_CLASS}
+      />
+    </div>
+  );
+
+  const positioningField = (
+    <div>
+      <OptionalLabel htmlFor="positioning" optional={enrichMode}>
+        {t("positioning")}
+      </OptionalLabel>
+      <p className="mb-2 text-sm leading-relaxed text-ns-secondary">
+        {t("positioningHint")}
+      </p>
+      <ImeSafeTextarea
+        id="positioning"
+        rows={4}
+        value={positioningLine}
+        onValueChange={setPositioningLine}
+        className={`${INPUT_CLASS} min-h-[6.5rem] resize-y`}
+      />
+    </div>
+  );
+
+  const languageField = (
+    <div>
+      <OptionalLabel htmlFor="lang" optional={enrichMode}>
+        {t("contentLanguage")}
+      </OptionalLabel>
+      <p className="mb-2 text-sm leading-relaxed text-ns-secondary">
+        {t("contentLanguageHint")}
+      </p>
+      <select
+        id="lang"
+        value={contentLanguage}
+        onChange={(e) => setContentLanguage(e.target.value as ContentLanguage)}
+        className={INPUT_CLASS}
+      >
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="es">Español</option>
+      </select>
+    </div>
+  );
+
   return (
     <>
-      <div>
-        <OptionalLabel htmlFor="role" optional={false}>
-          {t("role")}
-        </OptionalLabel>
-        <ImeSafeInput
-          id="role"
-          value={roleTitle}
-          onValueChange={setRoleTitle}
-          className={INPUT_CLASS}
-        />
-      </div>
-      <div>
-        <OptionalLabel htmlFor="positioning" optional={false}>
-          {t("positioning")}
-        </OptionalLabel>
-        <ImeSafeInput
-          id="positioning"
-          value={positioningLine}
-          onValueChange={setPositioningLine}
-          className={INPUT_CLASS}
-        />
-      </div>
-      <div>
-        <OptionalLabel htmlFor="lang" optional={false}>
-          {t("contentLanguage")}
-        </OptionalLabel>
-        <select
-          id="lang"
-          value={contentLanguage}
-          onChange={(e) => setContentLanguage(e.target.value as ContentLanguage)}
-          className={INPUT_CLASS}
+      {enrichMode ? (
+        <PrefilledFieldBlock t={t} label={t("role")} value={roleTitle}>
+          {roleField}
+        </PrefilledFieldBlock>
+      ) : (
+        roleField
+      )}
+      {enrichMode ? (
+        <PrefilledFieldBlock t={t} label={t("positioning")} value={positioningLine}>
+          {positioningField}
+        </PrefilledFieldBlock>
+      ) : (
+        positioningField
+      )}
+      <AuthorBioDocumentsPanel userId={userId} />
+      {enrichMode ? (
+        <PrefilledFieldBlock
+          t={t}
+          label={t("contentLanguage")}
+          value={
+            contentLanguage === "fr"
+              ? "Français"
+              : contentLanguage === "es"
+                ? "Español"
+                : "English"
+          }
         >
-          <option value="en">English</option>
-          <option value="fr">Français</option>
-          <option value="es">Español</option>
-        </select>
-      </div>
+          {languageField}
+        </PrefilledFieldBlock>
+      ) : (
+        languageField
+      )}
       <MyPostsLinksEditor userId={userId} />
+      {voiceBasicsDone && (
+        <p className="text-xs leading-relaxed text-ns-secondary">{t("fullProfile.voiceExtrasHint")}</p>
+      )}
     </>
   );
 }

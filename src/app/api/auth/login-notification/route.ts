@@ -7,6 +7,9 @@ import {
   sendLoginNotificationEmail,
   type LoginNotifyPayload,
 } from "@/lib/email/send-login-notification";
+import { formatDisplayNameFromEmail } from "@/lib/workspace/display-name";
+import { isPlatformAdminIdentity } from "@/lib/workspace/platform-admin";
+import { FieldValue } from "firebase-admin/firestore";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -59,6 +62,27 @@ export async function POST(request: Request) {
         event: payload.event,
         locale: payload.locale,
       }).catch(() => {});
+
+      if (
+        isPlatformAdminIdentity({
+          uid: decoded.uid,
+          email: user.email ?? decoded.email,
+        })
+      ) {
+        const nextName =
+          user.displayName?.trim() ||
+          formatDisplayNameFromEmail(user.email ?? payload.userEmail) ||
+          null;
+        if (nextName) {
+          await db.doc(`users/${decoded.uid}`).set(
+            {
+              displayName: nextName,
+              updatedAt: FieldValue.serverTimestamp(),
+            },
+            { merge: true },
+          );
+        }
+      }
     }
 
     await ensurePlatformAdminClaim(adminAuth, decoded.uid, user.email ?? decoded.email).catch(
