@@ -2505,6 +2505,7 @@
       "f4": "LinkedIn quality scores",
       "f5": "Platform AI included",
       "f6": "No credit card",
+      "f7": "Professionals radar in your field",
       "cta": "Start free"
     },
     "pro": {
@@ -2516,6 +2517,7 @@
       "f4": "News & inspirations",
       "f5": "LinkedIn export & quality",
       "f6": "Unlimited library",
+      "f7": "Professionals radar in your field",
       "cta": "Choose Pro"
     },
     "proPlus": {
@@ -2527,6 +2529,7 @@
       "f4": "Premium news & archives",
       "f5": "Priority support",
       "f6": "Best for a fast start",
+      "f7": "Professionals radar in your field",
       "cta": "Choose Pro+"
     },
     "support": {

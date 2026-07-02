@@ -2506,6 +2506,7 @@
       "f4": "Scores qualité LinkedIn",
       "f5": "IA plateforme incluse",
       "f6": "Sans carte bancaire",
+      "f7": "Radar de professionnels dans votre domaine",
       "cta": "Démarrer gratuitement"
     },
     "pro": {
@@ -2517,6 +2518,7 @@
       "f4": "Actu et inspirations",
       "f5": "Export LinkedIn et qualité",
       "f6": "Bibliothèque illimitée",
+      "f7": "Radar de professionnels dans votre domaine",
       "cta": "Choisir Pro"
     },
     "proPlus": {
@@ -2528,6 +2530,7 @@
       "f4": "Actu premium et archives",
       "f5": "Support prioritaire",
       "f6": "Idéal pour démarrer vite",
+      "f7": "Radar de professionnels dans votre domaine",
       "cta": "Choisir Pro+"
     },
     "support": {

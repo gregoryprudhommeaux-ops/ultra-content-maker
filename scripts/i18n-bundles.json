@@ -34,6 +34,7 @@
         "f4": "Scores qualité LinkedIn",
         "f5": "IA plateforme incluse",
         "f6": "Sans carte bancaire",
+        "f7": "Radar de professionnels dans votre domaine",
         "cta": "Démarrer gratuitement"
       },
       "pro": {
@@ -45,6 +46,7 @@
         "f4": "Actu et inspirations",
         "f5": "Export LinkedIn et qualité",
         "f6": "Bibliothèque illimitée",
+        "f7": "Radar de professionnels dans votre domaine",
         "cta": "Choisir Pro"
       },
       "proPlus": {
@@ -56,6 +58,7 @@
         "f4": "Actu premium et archives",
         "f5": "Support prioritaire",
         "f6": "Idéal pour démarrer vite",
+        "f7": "Radar de professionnels dans votre domaine",
         "cta": "Choisir Pro+"
       },
       "support": {
@@ -280,6 +283,7 @@
         "f4": "LinkedIn quality scores",
         "f5": "Platform AI included",
         "f6": "No credit card",
+        "f7": "Professionals radar in your field",
         "cta": "Start free"
       },
       "pro": {
@@ -291,6 +295,7 @@
         "f4": "News & inspirations",
         "f5": "LinkedIn export & quality",
         "f6": "Unlimited library",
+        "f7": "Professionals radar in your field",
         "cta": "Choose Pro"
       },
       "proPlus": {
@@ -302,6 +307,7 @@
         "f4": "Premium news & archives",
         "f5": "Priority support",
         "f6": "Best for a fast start",
+        "f7": "Professionals radar in your field",
         "cta": "Choose Pro+"
       },
       "support": {
@@ -526,6 +532,7 @@
         "f4": "Puntuaciones de calidad LinkedIn",
         "f5": "IA de plataforma incluida",
         "f6": "Sin tarjeta",
+        "f7": "Radar de profesionales en tu sector",
         "cta": "Empezar gratis"
       },
       "pro": {
@@ -537,6 +544,7 @@
         "f4": "Actualidad e inspiraciones",
         "f5": "Exportación LinkedIn y calidad",
         "f6": "Biblioteca ilimitada",
+        "f7": "Radar de profesionales en tu sector",
         "cta": "Elegir Pro"
       },
       "proPlus": {
@@ -548,6 +556,7 @@
         "f4": "Actualidad premium y archivos",
         "f5": "Soporte prioritario",
         "f6": "Ideal para empezar rápido",
+        "f7": "Radar de profesionales en tu sector",
         "cta": "Elegir Pro+"
       },
       "support": {

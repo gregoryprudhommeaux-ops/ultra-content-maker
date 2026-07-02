@@ -39,6 +39,7 @@ export function PricingPageContent() {
               t("trial.f1"),
               t("trial.f2"),
               t("trial.f3"),
+              t("trial.f7"),
               t("trial.f4"),
               t("trial.f5"),
               t("trial.f6"),
@@ -57,6 +58,7 @@ export function PricingPageContent() {
               t("pro.f2"),
               t("pro.f3"),
               t("pro.f4"),
+              t("pro.f7"),
               t("pro.f5"),
               t("pro.f6"),
             ]}
@@ -76,6 +78,7 @@ export function PricingPageContent() {
               t("proPlus.f2"),
               t("proPlus.f3"),
               t("proPlus.f4"),
+              t("proPlus.f7"),
               t("proPlus.f5"),
               t("proPlus.f6"),
             ]}
