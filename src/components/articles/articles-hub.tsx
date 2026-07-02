@@ -10,10 +10,13 @@ import {
   libraryFiltersFromSearchParams,
 } from "@/lib/articles/library-filters";
 import { ArticlesHubHeader } from "@/components/articles/articles-hub-header";
+import {
+  ArticlesLibraryBatches,
+  BatchScopeMix,
+} from "@/components/articles/articles-library-batches";
 import { DashboardPageShell } from "@/components/layout/dashboard-page";
 import { CREATE_FRESH_HREF } from "@/lib/navigation/dashboard-nav";
 import { ArticlesLibraryToolbar } from "@/components/articles/articles-library-toolbar";
-import { ContextHelp } from "@/components/ui/context-help";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
@@ -159,46 +162,46 @@ export function ArticlesHub() {
         </div>
       )}
 
-      {visibleBatches.map((batch) => {
-        const { generalist, niche } = countScopes(batch.articles);
-        return (
-          <section key={batch.batchId} className="space-y-4">
-            <div className="flex flex-wrap items-end justify-between gap-3 border-b border-gray-100 pb-4">
-              <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-ns-primary">
-                  {t("library.batchEyebrow")}
-                </p>
-                <h2 className="mt-1 text-base font-bold text-ns-tertiary md:text-lg">
-                  {t("library.batchTitle", {
-                    dateTime: formatBatchDateTime(batch.createdAt, locale),
-                  })}
-                </h2>
-                <p className="mt-1 flex items-center gap-1.5 text-xs text-ns-secondary">
-                  <span>{t("scopeMix", { generalist, niche })}</span>
-                  <ContextHelp label={t("help.scopeMix.label")}>
-                    {t("help.scopeMix.body")}
-                  </ContextHelp>
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${SESSION_BADGE[batch.sessionMode]}`}
-                >
-                  {tSession(batch.sessionMode)}
-                </span>
-                <span className="rounded-full border border-gray-200 bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
-                  {t("library.batchCount", { count: batch.articles.length })}
-                </span>
-              </div>
-            </div>
+      {hasFilterResults && (
+        <>
+          <p className="text-xs text-ns-secondary">{t("library.batchCollapseHint")}</p>
+          <ArticlesLibraryBatches
+          batches={visibleBatches}
+          locale={locale}
+          formatBatchDateTime={formatBatchDateTime}
+          sessionBadge={(batch) => (
+            <span
+              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${SESSION_BADGE[batch.sessionMode]}`}
+            >
+              {tSession(batch.sessionMode)}
+            </span>
+          )}
+          scopeMix={(batch) => {
+            const { generalist, niche } = countScopes(batch.articles);
+            return (
+              <BatchScopeMix
+                generalist={generalist}
+                niche={niche}
+                helpLabel={t("help.scopeMix.label")}
+                helpBody={t("help.scopeMix.body")}
+              />
+            );
+          }}
+          renderBatchCards={(batch) => (
             <ul className="grid gap-4 sm:grid-cols-2">
               {batch.articles.map((a) => (
-                <ArticleLibraryCard key={a.id} article={a} reworkLabel={tRework("reworkCta")} t={t} />
+                <ArticleLibraryCard
+                  key={a.id}
+                  article={a}
+                  reworkLabel={tRework("reworkCta")}
+                  t={t}
+                />
               ))}
             </ul>
-          </section>
-        );
-      })}
+          )}
+        />
+        </>
+      )}
       </div>
     </DashboardPageShell>
   );

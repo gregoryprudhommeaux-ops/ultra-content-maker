@@ -1379,6 +1379,8 @@
         "emptyFiltered": "Ningún post coincide con estos filtros.",
         "batchTitle": "Sesión · {dateTime}",
         "batchCount": "{count, plural, one {# post} other {# posts}}",
+        "batchHiddenNote": "{count, plural, one {# sesión anterior oculta (máx. 10).} other {# sesiones anteriores ocultas (máx. 10).}}",
+        "batchCollapseHint": "La sesión más reciente queda abierta. Las anteriores están plegadas: usa el chevron para desplegar.",
         "status": {
           "all": "Todos",
           "pending": "Por publicar",

@@ -1379,6 +1379,8 @@
         "emptyFiltered": "No posts match these filters.",
         "batchTitle": "Session · {dateTime}",
         "batchCount": "{count, plural, one {# post} other {# posts}}",
+        "batchHiddenNote": "{count, plural, one {# older session hidden (10 max).} other {# older sessions hidden (10 max).}}",
+        "batchCollapseHint": "The latest session stays open. Older ones are collapsed: use the chevron to expand.",
         "status": {
           "all": "All",
           "pending": "To publish",
