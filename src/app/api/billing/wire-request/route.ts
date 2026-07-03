@@ -3,6 +3,7 @@ import {
   findOpenWireRequest,
   listWireRequestsForUser,
   markWireRequestSent,
+  updatePendingWireRequestCurrency,
 } from "@/lib/billing/wire-requests.server";
 import {
   getWireBankDetailsForCurrency,
@@ -139,7 +140,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "admin_not_configured" }, { status: 503 });
   }
 
-  let body: { requestId?: string; userNote?: string };
+  let body: { requestId?: string; userNote?: string; currency?: string };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -151,7 +152,29 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "invalid_body" }, { status: 400 });
   }
 
+  const currency = parseCurrency(body.currency);
+
   try {
+    if (currency) {
+      const updated = await updatePendingWireRequestCurrency(
+        db,
+        requestId,
+        userId,
+        currency,
+      );
+      if (!updated) {
+        return NextResponse.json({ error: "not_found" }, { status: 404 });
+      }
+      return NextResponse.json({
+        request: updated,
+        bank: getWireBankDetailsForCurrency(currency),
+        banks: {
+          mxn: getWireBankDetailsMx(),
+          eur: getWireBankDetailsSepa(),
+        },
+      });
+    }
+
     const result = await markWireRequestSent(db, requestId, userId, body.userNote);
     if (!result) {
       return NextResponse.json({ error: "not_found" }, { status: 404 });

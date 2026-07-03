@@ -42,15 +42,19 @@ export default function UpgradePageClient() {
     <DashboardPageShell>
       {trialBanner}
       <DashboardPageHero title={t("title")} subtitle={t("subtitle")} />
-      <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
+      <div className="flex flex-col gap-10">
         <DashboardPageSection>
           <UpgradeQuiz />
         </DashboardPageSection>
         <DashboardPageSection>
-          <div className="rounded-2xl border border-ns-border bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-ns-tertiary">{t("activateTitle")}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-ns-secondary">{t("activateBody")}</p>
-            <WireTransferForm suggestedPlan={suggestedPlan} />
+          <div className="rounded-2xl border border-ns-border bg-white p-6 shadow-sm md:p-8">
+            <h2 className="text-xl font-bold text-ns-tertiary">{t("activateTitle")}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-ns-secondary md:text-base">
+              {t("activateBody")}
+            </p>
+            <div className="mt-6">
+              <WireTransferForm suggestedPlan={suggestedPlan} />
+            </div>
             <div className="mt-8 border-t border-ns-border pt-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-ns-secondary">
                 {t("couponSection")}

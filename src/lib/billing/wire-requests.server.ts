@@ -150,7 +150,18 @@ export async function createWireRequest(
   },
 ): Promise<WireRequestRow> {
   const existing = await findOpenWireRequest(db, input.userId, input.tier);
-  if (existing) return existing;
+  if (existing) {
+    if (existing.status === "pending" && existing.currency !== input.currency) {
+      const updated = await updatePendingWireRequestCurrency(
+        db,
+        existing.id,
+        input.userId,
+        input.currency,
+      );
+      return updated ?? existing;
+    }
+    return existing;
+  }
 
   const periodMonth = await resolvePaymentPeriodMonth(input.userId);
   const reference = buildWireReference(input.userId, input.tier);
@@ -213,6 +224,34 @@ export async function markWireRequestSent(
   });
   const next = await ref.get();
   return { row: mapDoc(next.id, next.data() ?? {}), newlyMarked: true };
+}
+
+export async function updatePendingWireRequestCurrency(
+  db: Firestore,
+  requestId: string,
+  userId: string,
+  currency: WirePaymentCurrency,
+): Promise<WireRequestRow | null> {
+  const ref = itemsCollection(db).doc(requestId);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  const data = snap.data();
+  if (data?.userId !== userId) return null;
+  if (data?.status !== "pending") {
+    return mapDoc(snap.id, data);
+  }
+  const tier: WirePlan = data.tier === "pro_plus" ? "pro_plus" : "pro";
+  if (data.currency === currency) {
+    return mapDoc(snap.id, data);
+  }
+
+  await ref.update({
+    currency,
+    amount: wireAmountForCurrency(tier, currency),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+  const next = await ref.get();
+  return mapDoc(next.id, next.data() ?? {});
 }
 
 export async function listWireRequests(
