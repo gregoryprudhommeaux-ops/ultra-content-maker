@@ -539,6 +539,7 @@
         "pro_cap": "Plafond Pro atteint",
         "pro_plus_cap": "Plafond Pro+ atteint",
         "subscription_required": "Abonnement requis",
+        "wire_payment_overdue": "Virement en retard",
         "support_no_generate": "Support sans génération"
       }
     },
@@ -852,6 +853,26 @@
         "apiKeyPlatform": "IA plateforme (incluse)",
         "apiKeyNotConfigured": "Non configurée",
         "changeApiKey": "Changer de clé API"
+      },
+      "invoices": {
+        "title": "Historique virements",
+        "subtitle": "Factures pour les abonnements par virement.",
+        "loading": "Chargement…",
+        "loadFailed": "Impossible de charger les factures.",
+        "empty": "Aucune facture pour l'instant.",
+        "pendingHint": "Les factures en attente doivent être réglées avant la fin du mois pour conserver l'accès.",
+        "columns": {
+          "period": "Période",
+          "tier": "Offre",
+          "amount": "Montant",
+          "status": "Statut",
+          "memo": "Libellé virement"
+        },
+        "status": {
+          "pending": "En attente",
+          "paid": "Payée",
+          "void": "Annulée"
+        }
       },
       "dataManagement": {
         "title": "Gestion des données",
@@ -2599,6 +2620,9 @@
       "title": "Votre essai est terminé",
       "body": "Passez à Pro ou Pro+ pour continuer à créer et accéder à votre bibliothèque.",
       "reassurance": "Choisissez une offre pour retrouver l'accès à vos contenus.",
+      "wireOverdueTitle": "Abonnement suspendu",
+      "wireOverdueBody": "Votre virement mensuel n'a pas été reçu dans les délais (7 jours de grâce après la fin de couverture).",
+      "wireOverdueReassurance": "Effectuez le virement pour le mois en cours depuis Mettre à niveau ou consultez vos factures dans Réglages.",
       "upgrade": "Mettre à niveau",
       "pricing": "Voir les tarifs"
     },
@@ -2617,18 +2641,29 @@
       "loginRequired": "Connectez-vous pour demander un virement.",
       "loading": "Chargement…",
       "perMonth": "/ mois",
-      "intro": "Virement de {amount} USD, activation après réception.",
+      "intro": "Virement de {amount}, activation après réception.",
       "getBankDetails": "Obtenir les coordonnées bancaires",
+      "currencyLabel": "Devise de paiement",
+      "currencyEur": "EUR (SEPA)",
+      "currencyMxn": "MXN (SPEI)",
+      "transferMemo": "Libellé du virement (obligatoire)",
+      "graceNote": "Après la fin de couverture, 7 jours de grâce avant suspension de l'accès.",
+      "memoHint": "Indiquez votre nom et identifiant utilisateur dans le libellé (voir ci-dessous).",
+      "memo": "Libellé virement",
+      "userIdHint": "Préfixe de votre identifiant : {uid}…",
       "pending": "Demande en cours…",
       "requestCreated": "Demande enregistrée.",
       "approved": "Virement approuvé : votre offre est active.",
       "rejected": "Demande refusée. Contactez le support.",
       "bankTitle": "Coordonnées bancaires",
       "holder": "Titulaire",
+      "entity": "Entidad",
+      "clabe": "CLABE",
+      "accountNumber": "Número de cuenta",
       "bank": "Banque",
       "amount": "Montant",
       "payIn": "Devise : {currency}",
-      "reference": "Référence à indiquer",
+      "reference": "Référence",
       "bankNotConfigured": "Coordonnées non configurées, contactez le support.",
       "referenceHint": "Indiquez cette référence dans le libellé du virement.",
       "awaitingActivation": "En attente de réception du virement.",

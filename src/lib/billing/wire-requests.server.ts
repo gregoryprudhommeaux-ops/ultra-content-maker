@@ -2,10 +2,21 @@ import type { Firestore } from "firebase-admin/firestore";
 import { FieldValue } from "firebase-admin/firestore";
 import {
   buildWireReference,
-  wireAmountUsd,
-  type WirePlan,
+  buildWireTransferMemo,
 } from "@/lib/billing/wire-config";
-import { activateTierServer } from "@/lib/subscription/subscription.server";
+import type { WirePlan } from "@/lib/billing/wire-config.types";
+import {
+  monthKeyFromDate,
+  nextMonthKey,
+  wireCoverageMonth,
+} from "@/lib/billing/wire-billing";
+import { extendWireSubscriptionOnPayment } from "@/lib/billing/invoices.server";
+import { sendWireActivatedEmail } from "@/lib/email/send-wire-activated";
+import {
+  wireAmountForCurrency,
+  type WirePaymentCurrency,
+} from "@/lib/billing/wire-pricing";
+import { getSubscriptionProfileServer } from "@/lib/subscription/subscription.server";
 
 export type WireRequestStatus = "pending" | "wire_sent" | "approved" | "rejected";
 
@@ -15,7 +26,10 @@ export type WireRequestRow = {
   userEmail: string;
   displayName?: string;
   tier: WirePlan;
-  amountUsd: number;
+  currency: WirePaymentCurrency;
+  amount: number;
+  transferMemo: string;
+  periodMonth: string;
   reference: string;
   status: WireRequestStatus;
   userNote?: string;
@@ -23,6 +37,8 @@ export type WireRequestRow = {
   createdAt: string | null;
   updatedAt: string | null;
   resolvedAt?: string | null;
+  /** @deprecated legacy USD field */
+  amountUsd?: number;
 };
 
 function itemsCollection(db: Firestore) {
@@ -43,6 +59,17 @@ function toIsoDate(value: unknown): string | null {
   return null;
 }
 
+async function resolvePaymentPeriodMonth(userId: string): Promise<string> {
+  const profile = await getSubscriptionProfileServer(userId);
+  const current = monthKeyFromDate();
+  const coverage = wireCoverageMonth(profile);
+  if (!coverage) return current;
+  if (coverage >= current) {
+    return nextMonthKey(coverage) ?? current;
+  }
+  return current;
+}
+
 function mapDoc(id: string, data: FirebaseFirestore.DocumentData): WireRequestRow {
   const tier = data.tier === "pro_plus" ? "pro_plus" : "pro";
   const status = data.status as WireRequestStatus;
@@ -52,20 +79,44 @@ function mapDoc(id: string, data: FirebaseFirestore.DocumentData): WireRequestRo
     "approved",
     "rejected",
   ];
+  const currency: WirePaymentCurrency = data.currency === "mxn" ? "mxn" : "eur";
+  const amount =
+    typeof data.amount === "number"
+      ? data.amount
+      : typeof data.amountUsd === "number"
+        ? data.amountUsd
+        : wireAmountForCurrency(tier, currency);
+  const reference = String(data.reference ?? buildWireReference(String(data.userId ?? ""), tier));
+  const transferMemo =
+    typeof data.transferMemo === "string" && data.transferMemo.trim()
+      ? data.transferMemo
+      : buildWireTransferMemo({
+          userId: String(data.userId ?? ""),
+          tier,
+          displayName: data.displayName ? String(data.displayName) : undefined,
+        });
+
   return {
     id,
     userId: String(data.userId ?? ""),
     userEmail: String(data.userEmail ?? ""),
     displayName: data.displayName ? String(data.displayName) : undefined,
     tier,
-    amountUsd: typeof data.amountUsd === "number" ? data.amountUsd : wireAmountUsd(tier),
-    reference: String(data.reference ?? ""),
+    currency,
+    amount,
+    transferMemo,
+    periodMonth:
+      typeof data.periodMonth === "string" && data.periodMonth
+        ? data.periodMonth
+        : monthKeyFromDate(),
+    reference,
     status: validStatus.includes(status) ? status : "pending",
     userNote: data.userNote ? String(data.userNote) : undefined,
     locale: data.locale ? String(data.locale) : undefined,
     createdAt: toIsoDate(data.createdAt),
     updatedAt: toIsoDate(data.updatedAt),
     resolvedAt: data.resolvedAt ? String(data.resolvedAt) : undefined,
+    amountUsd: typeof data.amountUsd === "number" ? data.amountUsd : undefined,
   };
 }
 
@@ -94,20 +145,32 @@ export async function createWireRequest(
     userEmail: string;
     displayName?: string;
     tier: WirePlan;
+    currency: WirePaymentCurrency;
     locale?: string;
   },
 ): Promise<WireRequestRow> {
   const existing = await findOpenWireRequest(db, input.userId, input.tier);
   if (existing) return existing;
 
-  const ref = itemsCollection(db).doc();
+  const periodMonth = await resolvePaymentPeriodMonth(input.userId);
   const reference = buildWireReference(input.userId, input.tier);
+  const transferMemo = buildWireTransferMemo({
+    userId: input.userId,
+    tier: input.tier,
+    displayName: input.displayName,
+  });
+  const amount = wireAmountForCurrency(input.tier, input.currency);
+
+  const ref = itemsCollection(db).doc();
   const payload = {
     userId: input.userId,
     userEmail: input.userEmail,
     displayName: input.displayName ?? null,
     tier: input.tier,
-    amountUsd: wireAmountUsd(input.tier),
+    currency: input.currency,
+    amount,
+    transferMemo,
+    periodMonth,
     reference,
     status: "pending" satisfies WireRequestStatus,
     locale: input.locale ?? null,
@@ -119,19 +182,28 @@ export async function createWireRequest(
   return mapDoc(snap.id, snap.data() ?? payload);
 }
 
+export type MarkWireRequestSentResult = {
+  row: WireRequestRow;
+  /** True when status transitioned to wire_sent (admin should be notified). */
+  newlyMarked: boolean;
+};
+
 export async function markWireRequestSent(
   db: Firestore,
   requestId: string,
   userId: string,
   userNote?: string,
-): Promise<WireRequestRow | null> {
+): Promise<MarkWireRequestSentResult | null> {
   const ref = itemsCollection(db).doc(requestId);
   const snap = await ref.get();
   if (!snap.exists) return null;
   const data = snap.data();
   if (data?.userId !== userId) return null;
   if (data?.status === "approved" || data?.status === "rejected") {
-    return mapDoc(snap.id, data);
+    return { row: mapDoc(snap.id, data), newlyMarked: false };
+  }
+  if (data?.status === "wire_sent") {
+    return { row: mapDoc(snap.id, data), newlyMarked: false };
   }
 
   await ref.update({
@@ -140,7 +212,7 @@ export async function markWireRequestSent(
     updatedAt: FieldValue.serverTimestamp(),
   });
   const next = await ref.get();
-  return mapDoc(next.id, next.data() ?? {});
+  return { row: mapDoc(next.id, next.data() ?? {}), newlyMarked: true };
 }
 
 export async function listWireRequests(
@@ -190,13 +262,23 @@ export async function resolveWireRequest(
     return mapDoc(next.id, next.data() ?? {});
   }
 
-  const subscriptionTier = row.tier === "pro" ? "pro" : "pro_plus";
-  await activateTierServer(row.userId, subscriptionTier, "wire");
+  await extendWireSubscriptionOnPayment(db, {
+    userId: row.userId,
+    tier: row.tier,
+    currency: row.currency,
+    periodMonth: row.periodMonth,
+    wireRequestId: requestId,
+    displayName: row.displayName,
+  });
+
   await ref.update({
     status: "approved",
     resolvedAt: now,
     updatedAt: FieldValue.serverTimestamp(),
   });
+
   const next = await ref.get();
-  return mapDoc(next.id, next.data() ?? {});
+  const approved = mapDoc(next.id, next.data() ?? {});
+  void sendWireActivatedEmail(approved).catch(() => undefined);
+  return approved;
 }

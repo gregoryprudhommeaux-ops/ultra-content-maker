@@ -115,7 +115,9 @@ export function AdminWireRequestsPanel({ embedded = false }: AdminWireRequestsPa
                     <div className="text-xs text-ns-secondary">{row.userId}</div>
                   </td>
                   <td className="px-2 py-2">{row.tier}</td>
-                  <td className="px-2 py-2 tabular-nums">${row.amountUsd}</td>
+                  <td className="px-2 py-2 tabular-nums">
+                    {row.currency === "eur" ? `${row.amount} €` : `$${row.amount} MXN`}
+                  </td>
                   <td className="px-2 py-2 font-mono text-xs">{row.reference}</td>
                   <td className="px-2 py-2">{t(`status.${row.status}`)}</td>
                   <td className="px-2 py-2">

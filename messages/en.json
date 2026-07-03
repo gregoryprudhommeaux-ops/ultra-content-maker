@@ -539,6 +539,7 @@
         "pro_cap": "Pro cap reached",
         "pro_plus_cap": "Pro+ cap reached",
         "subscription_required": "Subscription required",
+        "wire_payment_overdue": "Wire payment overdue",
         "support_no_generate": "Support, no generation"
       }
     },
@@ -852,6 +853,26 @@
         "apiKeyPlatform": "Platform AI (included)",
         "apiKeyNotConfigured": "Not configured",
         "changeApiKey": "Change API key"
+      },
+      "invoices": {
+        "title": "Wire billing history",
+        "subtitle": "Invoices for wire transfer subscriptions.",
+        "loading": "Loading…",
+        "loadFailed": "Could not load invoices.",
+        "empty": "No invoices yet.",
+        "pendingHint": "Pending invoices must be paid before month end to keep access.",
+        "columns": {
+          "period": "Period",
+          "tier": "Plan",
+          "amount": "Amount",
+          "status": "Status",
+          "memo": "Transfer memo"
+        },
+        "status": {
+          "pending": "Pending",
+          "paid": "Paid",
+          "void": "Void"
+        }
       },
       "dataManagement": {
         "title": "Data management",
@@ -2598,6 +2619,9 @@
       "title": "Your trial has ended",
       "body": "Upgrade to Pro or Pro+ to keep creating and access your library.",
       "reassurance": "Pick a plan to restore access to your content.",
+      "wireOverdueTitle": "Subscription suspended",
+      "wireOverdueBody": "Your monthly wire was not received in time (7-day grace after coverage ends).",
+      "wireOverdueReassurance": "Send your wire for the current month from Upgrade, or check invoices in Settings.",
       "upgrade": "Upgrade",
       "pricing": "View pricing"
     },
@@ -2616,18 +2640,29 @@
       "loginRequired": "Sign in to request a wire transfer.",
       "loading": "Loading…",
       "perMonth": "/ month",
-      "intro": "Wire {amount} USD, activation after receipt.",
+      "intro": "Wire transfer of {amount}, activation after receipt.",
       "getBankDetails": "Get bank details",
+      "currencyLabel": "Payment currency",
+      "currencyEur": "EUR (SEPA)",
+      "currencyMxn": "MXN (SPEI)",
+      "transferMemo": "Transfer memo (required)",
+      "graceNote": "After coverage ends, you have 7 days of grace before access is suspended.",
+      "memoHint": "Include your name and user ID in the transfer memo (see below).",
+      "memo": "Transfer memo",
+      "userIdHint": "Your user ID prefix: {uid}…",
       "pending": "Processing…",
       "requestCreated": "Request recorded.",
       "approved": "Wire approved, your plan is active.",
       "rejected": "Request declined. Contact support.",
       "bankTitle": "Bank details",
       "holder": "Account holder",
+      "entity": "Entity",
+      "clabe": "CLABE",
+      "accountNumber": "Account number",
       "bank": "Bank",
       "amount": "Amount",
       "payIn": "Currency: {currency}",
-      "reference": "Reference to include",
+      "reference": "Reference",
       "bankNotConfigured": "Bank details not configured : contact support.",
       "referenceHint": "Include this reference in the wire memo.",
       "awaitingActivation": "Awaiting wire receipt.",

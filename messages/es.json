@@ -539,6 +539,7 @@
         "pro_cap": "Límite Pro alcanzado",
         "pro_plus_cap": "Límite Pro+ alcanzado",
         "subscription_required": "Suscripción requerida",
+        "wire_payment_overdue": "Transferencia atrasada",
         "support_no_generate": "Soporte sin generación"
       }
     },
@@ -852,6 +853,26 @@
         "apiKeyPlatform": "IA de plataforma (incluida)",
         "apiKeyNotConfigured": "No configurada",
         "changeApiKey": "Cambiar clave API"
+      },
+      "invoices": {
+        "title": "Historial de transferencias",
+        "subtitle": "Facturas de suscripciones por transferencia.",
+        "loading": "Cargando…",
+        "loadFailed": "No se pudieron cargar las facturas.",
+        "empty": "Sin facturas por ahora.",
+        "pendingHint": "Las facturas pendientes deben pagarse antes de fin de mes para mantener el acceso.",
+        "columns": {
+          "period": "Periodo",
+          "tier": "Plan",
+          "amount": "Importe",
+          "status": "Estado",
+          "memo": "Concepto transferencia"
+        },
+        "status": {
+          "pending": "Pendiente",
+          "paid": "Pagada",
+          "void": "Anulada"
+        }
       },
       "dataManagement": {
         "title": "Gestión de datos",
@@ -2598,6 +2619,9 @@
       "title": "Tu prueba terminó",
       "body": "Pasa a Pro o Pro+ para seguir creando y acceder a tu biblioteca.",
       "reassurance": "Elige un plan para recuperar el acceso a tus contenidos.",
+      "wireOverdueTitle": "Suscripción suspendida",
+      "wireOverdueBody": "No recibimos tu transferencia mensual a tiempo (7 días de gracia tras el fin de cobertura).",
+      "wireOverdueReassurance": "Realiza la transferencia del mes en Mejorar plan o consulta tus facturas en Ajustes.",
       "upgrade": "Mejorar plan",
       "pricing": "Ver precios"
     },
@@ -2616,18 +2640,29 @@
       "loginRequired": "Inicia sesión para solicitar transferencia.",
       "loading": "Cargando…",
       "perMonth": "/ mes",
-      "intro": "Transferencia de {amount} USD, activación tras recepción.",
+      "intro": "Transferencia de {amount}, activación tras recepción.",
       "getBankDetails": "Obtener datos bancarios",
+      "currencyLabel": "Moneda de pago",
+      "currencyEur": "EUR (SEPA)",
+      "currencyMxn": "MXN (SPEI)",
+      "transferMemo": "Concepto de transferencia (obligatorio)",
+      "graceNote": "Tras el fin de cobertura, 7 días de gracia antes de suspender el acceso.",
+      "memoHint": "Incluye tu nombre e identificador de usuario en el concepto (ver abajo).",
+      "memo": "Concepto transferencia",
+      "userIdHint": "Prefijo de tu identificador: {uid}…",
       "pending": "Procesando…",
       "requestCreated": "Solicitud registrada.",
       "approved": "Transferencia aprobada, tu plan está activo.",
       "rejected": "Solicitud rechazada. Contacta soporte.",
       "bankTitle": "Datos bancarios",
       "holder": "Titular",
+      "entity": "Entidad",
+      "clabe": "CLABE",
+      "accountNumber": "Número de cuenta",
       "bank": "Banco",
       "amount": "Importe",
       "payIn": "Moneda: {currency}",
-      "reference": "Referencia a indicar",
+      "reference": "Referencia",
       "bankNotConfigured": "Datos no configurados, contacta soporte.",
       "referenceHint": "Indica esta referencia en el concepto de la transferencia.",
       "awaitingActivation": "Esperando recepción de la transferencia.",

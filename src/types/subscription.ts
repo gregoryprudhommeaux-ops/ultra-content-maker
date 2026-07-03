@@ -35,6 +35,12 @@ export type SubscriptionProfile = {
  /** Stripe Customer ID · populated when billing goes live. */
  stripeCustomerId?: string | null;
  stripeSubscriptionId?: string | null;
+ /** Wire billing: paid through end of this instant (UTC). Grace +7 days after. */
+ wireCoverageEnd?: string;
+ wirePreferredCurrency?: "eur" | "mxn";
+ wirePlan?: "pro" | "pro_plus";
+ /** ISO date (YYYY-MM-DD) of coverage end when grace reminder was sent. */
+ wireGraceReminderFor?: string;
 };
 
 export type SubscriptionAccess = {
@@ -64,7 +70,8 @@ export type SubscriptionAccess = {
   | "subscription_required"
   | "pro_cap"
   | "pro_plus_cap"
-  | "support_no_generate";
+  | "support_no_generate"
+  | "wire_payment_overdue";
 };
 
 export type TierQuizAnswer = "has_api_key" | "no_api_key" | "want_done_for_you";

@@ -1,3 +1,4 @@
+import { isWireSubscriptionSuspended } from "@/lib/billing/wire-billing";
 import {
   PRICING,
   TRIAL_DAYS,
@@ -128,6 +129,14 @@ export function normalizeSubscriptionProfile(raw: unknown): SubscriptionProfile 
         : r.stripeSubscriptionId === null
           ? null
           : undefined,
+    wireCoverageEnd: typeof r.wireCoverageEnd === "string" ? r.wireCoverageEnd : undefined,
+    wirePreferredCurrency:
+      r.wirePreferredCurrency === "eur" || r.wirePreferredCurrency === "mxn"
+        ? r.wirePreferredCurrency
+        : undefined,
+    wirePlan: r.wirePlan === "pro" || r.wirePlan === "pro_plus" ? r.wirePlan : undefined,
+    wireGraceReminderFor:
+      typeof r.wireGraceReminderFor === "string" ? r.wireGraceReminderFor : undefined,
   };
 }
 
@@ -166,10 +175,19 @@ export function resolveSubscriptionAccess(
 
   let tier = p.tier;
   let blockReason: SubscriptionAccess["blockReason"];
+  const now = new Date();
+
+  if (
+    (tier === "pro" || tier === "pro_plus") &&
+    p.activationMethod === "wire" &&
+    isWireSubscriptionSuspended(p, now)
+  ) {
+    tier = "expired";
+    blockReason = "wire_payment_overdue";
+  }
 
   const trialStart = parseIso(p.trialStartedAt);
   const trialEnd = parseIso(p.trialExpiresAt);
-  const now = new Date();
 
   let isTrialActive = isFreeTestTier(tier);
   if (isTrialActive && trialStart) {

@@ -4,6 +4,7 @@ import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-ba
 import { OnboardingStepper } from "@/components/onboarding/onboarding-stepper";
 import { LlmTrustPanel } from "@/components/setup/llm-trust-panel";
 import { ProfileDataManagement } from "@/components/setup/profile-data-management";
+import { BillingInvoicesPanel } from "@/components/billing/billing-invoices-panel";
 import { UserAccountInfoPanel } from "@/components/setup/user-account-info-panel";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -179,6 +180,10 @@ export function LlmSetupForm() {
  });
  }}
  />
+ </DashboardPageSection>
+
+ <DashboardPageSection>
+ <BillingInvoicesPanel />
  </DashboardPageSection>
 
  {showPlatformIncluded ? (

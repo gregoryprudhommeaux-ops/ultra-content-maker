@@ -4,8 +4,14 @@ import {
   listWireRequestsForUser,
   markWireRequestSent,
 } from "@/lib/billing/wire-requests.server";
-import { getWireBankDetails } from "@/lib/billing/wire-config";
+import {
+  getWireBankDetailsForCurrency,
+  getWireBankDetailsMx,
+  getWireBankDetailsSepa,
+} from "@/lib/billing/wire-config";
 import type { WirePlan } from "@/lib/billing/wire-config";
+import type { WirePaymentCurrency } from "@/lib/billing/wire-pricing";
+import { sendWirePaymentInstructionsEmail } from "@/lib/email/send-wire-customer-email";
 import { sendWireRequestNotification } from "@/lib/email/send-wire-request";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
@@ -16,6 +22,10 @@ export const dynamic = "force-dynamic";
 
 function parseTier(raw: unknown): WirePlan | null {
   return raw === "pro" || raw === "pro_plus" ? raw : null;
+}
+
+function parseCurrency(raw: unknown): WirePaymentCurrency | null {
+  return raw === "eur" || raw === "mxn" ? raw : null;
 }
 
 export async function GET(request: Request) {
@@ -31,15 +41,20 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const tier = parseTier(url.searchParams.get("tier"));
-  const bank = getWireBankDetails();
+  const currency = parseCurrency(url.searchParams.get("currency")) ?? "eur";
+  const bank = getWireBankDetailsForCurrency(currency);
+  const banks = {
+    mxn: getWireBankDetailsMx(),
+    eur: getWireBankDetailsSepa(),
+  };
 
   try {
     if (tier) {
       const open = await findOpenWireRequest(db, userId, tier);
-      return NextResponse.json({ request: open, bank });
+      return NextResponse.json({ request: open, bank, banks });
     }
     const requests = await listWireRequestsForUser(db, userId);
-    return NextResponse.json({ requests, bank });
+    return NextResponse.json({ requests, bank, banks });
   } catch (e) {
     const detail = e instanceof Error ? e.message : "Unknown";
     return NextResponse.json({ error: "load_failed", detail }, { status: 500 });
@@ -57,7 +72,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "admin_not_configured" }, { status: 503 });
   }
 
-  let body: { tier?: string; userEmail?: string; displayName?: string; locale?: string };
+  let body: {
+    tier?: string;
+    currency?: string;
+    userEmail?: string;
+    displayName?: string;
+    locale?: string;
+  };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -65,8 +86,9 @@ export async function POST(request: Request) {
   }
 
   const tier = parseTier(body.tier);
+  const currency = parseCurrency(body.currency);
   const userEmail = body.userEmail?.trim();
-  if (!tier || !userEmail) {
+  if (!tier || !currency || !userEmail) {
     return NextResponse.json({ error: "invalid_body" }, { status: 400 });
   }
 
@@ -76,10 +98,30 @@ export async function POST(request: Request) {
       userEmail,
       displayName: body.displayName?.trim(),
       tier,
+      currency,
       locale: body.locale?.trim(),
     });
     void sendWireRequestNotification(wireRequest, "created").catch(() => undefined);
-    return NextResponse.json({ request: wireRequest, bank: getWireBankDetails() });
+    void sendWirePaymentInstructionsEmail({
+      userEmail,
+      displayName: body.displayName?.trim(),
+      userId,
+      tier,
+      currency,
+      amount: wireRequest.amount,
+      transferMemo: wireRequest.transferMemo,
+      reference: wireRequest.reference,
+      periodMonth: wireRequest.periodMonth,
+      locale: body.locale?.trim(),
+    }).catch(() => undefined);
+    return NextResponse.json({
+      request: wireRequest,
+      bank: getWireBankDetailsForCurrency(currency),
+      banks: {
+        mxn: getWireBankDetailsMx(),
+        eur: getWireBankDetailsSepa(),
+      },
+    });
   } catch (e) {
     const detail = e instanceof Error ? e.message : "Unknown";
     return NextResponse.json({ error: "create_failed", detail }, { status: 500 });
@@ -110,12 +152,14 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const updated = await markWireRequestSent(db, requestId, userId, body.userNote);
-    if (!updated) {
+    const result = await markWireRequestSent(db, requestId, userId, body.userNote);
+    if (!result) {
       return NextResponse.json({ error: "not_found" }, { status: 404 });
     }
-    void sendWireRequestNotification(updated, "wire_sent").catch(() => undefined);
-    return NextResponse.json({ request: updated });
+    if (result.newlyMarked) {
+      void sendWireRequestNotification(result.row, "wire_sent").catch(() => undefined);
+    }
+    return NextResponse.json({ request: result.row });
   } catch (e) {
     const detail = e instanceof Error ? e.message : "Unknown";
     return NextResponse.json({ error: "update_failed", detail }, { status: 500 });

@@ -8,6 +8,7 @@ import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { listSignInProviderIds } from "@/lib/auth/sign-in-methods";
 import { resolveUserEmail } from "@/lib/workspace/resolve-user-email";
 import { getUserDoc } from "@/lib/workspace/user";
+import { BillingInvoicesPanel } from "@/components/setup/billing-invoices-panel";
 import { CARD_SOFT } from "@/lib/ui/nextstep";
 import {
   formatAccountApiKeyDisplay,
@@ -170,6 +171,7 @@ export function UserAccountInfoPanel({ onChangeApiKey }: Props) {
  }
 
  return (
+ <>
  <section className={CARD_SOFT}>
  <header className="mb-1">
  <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
@@ -252,5 +254,9 @@ export function UserAccountInfoPanel({ onChangeApiKey }: Props) {
  </AccountInfoRow>
  </dl>
  </section>
+ <div className="mt-6">
+ <BillingInvoicesPanel />
+ </div>
+ </>
  );
 }
