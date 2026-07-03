@@ -68,7 +68,7 @@ export function LandingProductMockup() {
         </div>
       </article>
 
-      {/* 3 WOW features, equal grid */}
+      {/* WOW moments 2–4 (hero above is #1: 4-draft batch) */}
       <ul className="grid gap-4 md:grid-cols-3">
         {WOW_KEYS.map((key) => (
           <li key={key}>
