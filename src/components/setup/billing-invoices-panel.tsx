@@ -97,7 +97,7 @@ export function BillingInvoicesPanel() {
         </div>
       ) : null}
 
-      {!loading && invoices.some((i) => i.status === "pending") ? (
+      {!loading && invoices.some((i) => i.status === "draft" || i.status === "ready_to_send" || i.status === "sent") ? (
         <p className="mt-3 text-xs text-ns-secondary">{t("pendingHint")}</p>
       ) : null}
     </section>

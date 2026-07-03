@@ -1,6 +1,6 @@
 const RESEND_API = "https://api.resend.com/emails";
 
-export type SupportQuotePlan = "starter" | "regular" | "unspecified";
+export type SupportQuotePlan = "starter" | "regular" | "much_more" | "unspecified";
 
 export type SupportQuotePayload = {
   fullName: string;
@@ -41,6 +41,7 @@ function escapeHtml(value: string): string {
 function planLabel(plan: SupportQuotePlan): string {
   if (plan === "starter") return "Support Starter";
   if (plan === "regular") return "Support Régulier";
+  if (plan === "much_more") return "Beaucoup Plus";
   return "Non précisé";
 }
 

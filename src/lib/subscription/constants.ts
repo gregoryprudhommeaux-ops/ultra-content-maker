@@ -1,4 +1,4 @@
-import type { SubscriptionTier, SupportTier } from "@/types/subscription";
+import type { SubscriptionTier, SupportProposal, SupportTier } from "@/types/subscription";
 
 /** Monthly retained-post quota shared by Pro and Pro+. */
 export const SELF_SERVE_POSTS_PER_MONTH = 20;
@@ -101,4 +101,27 @@ export function supportTierFromSubscription(tier: SubscriptionTier): SupportTier
   if (tier === "support_starter") return "starter";
   if (tier === "support_regular") return "regular";
   return null;
+}
+
+export function supportTierFromRhythm(
+  rhythm: "starter" | "regular" | "much_more",
+): SubscriptionTier {
+  if (rhythm === "starter") return "support_starter";
+  if (rhythm === "regular") return "support_regular";
+  return "support_total";
+}
+
+export function supportRhythmFromTier(
+  tier: SubscriptionTier,
+): "starter" | "regular" | "much_more" | null {
+  if (tier === "support_starter") return "starter";
+  if (tier === "support_regular") return "regular";
+  if (tier === "support_total") return "much_more";
+  return null;
+}
+
+export function defaultSupportProposalForTier(tier: SubscriptionTier): SupportProposal | undefined {
+  if (tier === "support_starter") return { rhythm: "starter" };
+  if (tier === "support_regular") return { rhythm: "regular" };
+  return undefined;
 }

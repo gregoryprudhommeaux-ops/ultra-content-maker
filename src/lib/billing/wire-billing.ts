@@ -2,6 +2,20 @@ import type { WirePaymentCurrency } from "@/lib/billing/wire-pricing";
 import { WIRE_GRACE_DAYS } from "@/lib/billing/wire-pricing";
 import type { SubscriptionProfile } from "@/types/subscription";
 
+export type {
+  BillingInvoiceKind,
+  BillingInvoiceRow,
+  BillingInvoiceStatus,
+  BillingInvoiceTier,
+} from "@/lib/billing/invoice-types";
+export {
+  invoiceKindLabel,
+  isBillingInvoiceStatus,
+  normalizeInvoiceKind,
+  normalizeInvoiceStatus,
+  normalizeInvoiceTier,
+} from "@/lib/billing/invoice-types";
+
 /** Last day of calendar month (UTC), 23:59:59.999 */
 export function endOfUtcMonth(year: number, month1: number): Date {
   return new Date(Date.UTC(year, month1, 0, 23, 59, 59, 999));
@@ -77,22 +91,15 @@ export function wireCoverageMonth(profile: SubscriptionProfile): string | null {
   return monthKeyFromDate(d);
 }
 
-export type BillingInvoiceStatus = "pending" | "paid" | "void";
-
-export type BillingInvoiceRow = {
-  id: string;
-  userId: string;
-  periodMonth: string;
-  tier: "pro" | "pro_plus";
-  currency: WirePaymentCurrency;
-  amount: number;
-  status: BillingInvoiceStatus;
-  memoReference: string;
-  wireRequestId?: string;
-  createdAt: string | null;
-  paidAt?: string | null;
-};
-
 export function formatInvoiceAmount(currency: WirePaymentCurrency, amount: number): string {
   return currency === "eur" ? `${amount} €` : `$${amount} MXN`;
 }
+
+/** Open invoice statuses (not paid / void). */
+export const OPEN_INVOICE_STATUSES = [
+  "draft",
+  "ready_to_send",
+  "sent",
+  "follow_up",
+  "pending",
+] as const;

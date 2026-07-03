@@ -13,6 +13,8 @@ import {
 import { extendWireSubscriptionOnPayment } from "@/lib/billing/invoices.server";
 import { sendWireActivatedEmail } from "@/lib/email/send-wire-activated";
 import {
+  resolveWireRequestAmount,
+  storedWireAmountNeedsRepair,
   wireAmountForCurrency,
   type WirePaymentCurrency,
 } from "@/lib/billing/wire-pricing";
@@ -43,6 +45,22 @@ export type WireRequestRow = {
 
 function itemsCollection(db: Firestore) {
   return db.collection("platform").doc("wireRequests").collection("items");
+}
+
+async function repairLegacyWireAmountIfNeeded(
+  db: Firestore,
+  docId: string,
+  data: FirebaseFirestore.DocumentData,
+  row: WireRequestRow,
+): Promise<void> {
+  const stored = typeof data.amount === "number" ? data.amount : null;
+  if (row.status !== "pending" && row.status !== "wire_sent") return;
+  if (!storedWireAmountNeedsRepair(row.tier, row.currency, stored)) return;
+
+  await itemsCollection(db).doc(docId).update({
+    amount: wireAmountForCurrency(row.tier, row.currency),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
 }
 
 function toIsoDate(value: unknown): string | null {
@@ -80,12 +98,13 @@ function mapDoc(id: string, data: FirebaseFirestore.DocumentData): WireRequestRo
     "rejected",
   ];
   const currency: WirePaymentCurrency = data.currency === "mxn" ? "mxn" : "eur";
-  const amount =
+  const storedAmount =
     typeof data.amount === "number"
       ? data.amount
       : typeof data.amountUsd === "number"
         ? data.amountUsd
-        : wireAmountForCurrency(tier, currency);
+        : null;
+  const amount = resolveWireRequestAmount(tier, currency, storedAmount);
   const reference = String(data.reference ?? buildWireReference(String(data.userId ?? ""), tier));
   const transferMemo =
     typeof data.transferMemo === "string" && data.transferMemo.trim()
@@ -263,7 +282,13 @@ export async function listWireRequests(
     .limit(limit)
     .get();
 
-  return snap.docs.map((doc) => mapDoc(doc.id, doc.data()));
+  const rows: WireRequestRow[] = [];
+  for (const doc of snap.docs) {
+    const row = mapDoc(doc.id, doc.data());
+    await repairLegacyWireAmountIfNeeded(db, doc.id, doc.data(), row);
+    rows.push(row);
+  }
+  return rows;
 }
 
 export async function listWireRequestsForUser(

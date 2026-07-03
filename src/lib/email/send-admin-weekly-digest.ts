@@ -90,6 +90,9 @@ function buildHtml(payload: WeeklyDigestPayload): string {
   <h2 style="font-size:16px;margin:24px 0 8px;">Support Total · livraison</h2>
   ${renderRows(payload.supportAlerts, "Tous les comptes Support sont dans les clous.")}
 
+  <h2 style="font-size:16px;margin:24px 0 8px;">Renouvellements Support (≤ 30 j)</h2>
+  <p style="font-size:14px;margin:0 0 8px;">${payload.contractRenewalsDue === 0 ? "Aucun contrat à renouveler." : `<strong>${payload.contractRenewalsDue}</strong> contrat(s) à traiter dans le cockpit facturation.`}</p>
+
   <p style="margin-top:32px;">
     <a href="${escapeHtml(payload.adminUrl)}" style="display:inline-block;background:#1e1b4b;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Ouvrir le cockpit admin</a>
   </p>

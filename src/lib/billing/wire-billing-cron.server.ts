@@ -5,7 +5,7 @@ import {
   wireGraceEndsAt,
 } from "@/lib/billing/wire-billing";
 import {
-  ensurePendingRenewalInvoice,
+  ensureDraftRenewalInvoice,
   renewalPeriodForReminder,
 } from "@/lib/billing/invoices.server";
 import { buildWireTransferMemo } from "@/lib/billing/wire-config";
@@ -13,8 +13,7 @@ import type { WirePlan } from "@/lib/billing/wire-config.types";
 import type { WirePaymentCurrency } from "@/lib/billing/wire-pricing";
 import { wireAmountForCurrency } from "@/lib/billing/wire-pricing";
 import { sendWireGraceReminderEmail } from "@/lib/email/send-wire-grace-reminder";
-import { sendWireRenewalReminderEmail } from "@/lib/email/send-wire-customer-email";
-import { normalizeSubscriptionProfile } from "@/lib/subscription/access";
+import { runSupportInvoiceDraftCron } from "@/lib/billing/support-invoices.server";
 import {
   getSubscriptionProfileServer,
   setSubscriptionProfileServer,
@@ -26,7 +25,7 @@ export type WireBillingCronResult = {
   suspended: number;
   graceRemindersSent: number;
   renewalInvoicesCreated: number;
-  renewalEmailsSent: number;
+  supportDraftsCreated: number;
   isReminderDay: boolean;
   renewalPeriod: string | null;
 };
@@ -54,7 +53,10 @@ export async function runWireBillingCron(
   let suspended = 0;
   let graceRemindersSent = 0;
   let renewalInvoicesCreated = 0;
-  let renewalEmailsSent = 0;
+
+  const supportResult = isReminderDay
+    ? await runSupportInvoiceDraftCron(db, now)
+    : { draftsCreated: 0, periodMonth: null };
 
   for (const doc of snap.docs) {
     const data = doc.data();
@@ -110,26 +112,18 @@ export async function runWireBillingCron(
     }
 
     if (isReminderDay && renewalPeriod && email) {
-      const { invoice, created } = await ensurePendingRenewalInvoice(db, {
+      const { created } = await ensureDraftRenewalInvoice(db, {
         userId: doc.id,
         tier,
         currency,
         periodMonth: renewalPeriod,
         displayName,
+        customerEmail: email,
+        locale,
       });
 
       if (created) {
         renewalInvoicesCreated += 1;
-        await sendWireRenewalReminderEmail({
-          userEmail: email,
-          displayName,
-          userId: doc.id,
-          tier,
-          currency,
-          invoice,
-          locale,
-        }).catch(() => undefined);
-        renewalEmailsSent += 1;
       }
     }
   }
@@ -139,7 +133,7 @@ export async function runWireBillingCron(
     suspended,
     graceRemindersSent,
     renewalInvoicesCreated,
-    renewalEmailsSent,
+    supportDraftsCreated: supportResult.draftsCreated,
     isReminderDay,
     renewalPeriod,
   };

@@ -14,8 +14,10 @@ import { formatUsdAmount } from "@/lib/subscription/format-usd-price";
 import type { AppLocale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { BTN_SECONDARY } from "@/lib/ui/nextstep";
+import { ChevronDown } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function UpgradePageClient() {
   const t = useTranslations("subscription.upgrade");
@@ -25,6 +27,7 @@ export default function UpgradePageClient() {
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan");
   const suggestedPlan = plan === "pro" || plan === "pro_plus" ? plan : "pro_plus";
+  const [couponOpen, setCouponOpen] = useState(false);
 
   const trialBanner =
     !loading && access?.isTrialActive ? (
@@ -56,10 +59,25 @@ export default function UpgradePageClient() {
               <WireTransferForm suggestedPlan={suggestedPlan} />
             </div>
             <div className="mt-8 border-t border-ns-border pt-6">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ns-secondary">
-                {t("couponSection")}
-              </p>
-              <CouponActivationForm suggestedPlan={suggestedPlan} />
+              <button
+                type="button"
+                onClick={() => setCouponOpen((open) => !open)}
+                aria-expanded={couponOpen}
+                className="flex w-full items-center gap-2 text-left"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wide text-ns-secondary">
+                  {t("couponSection")}
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 shrink-0 text-ns-secondary transition-transform ${
+                    couponOpen ? "rotate-180" : ""
+                  }`}
+                  aria-hidden
+                />
+              </button>
+              {couponOpen ? (
+                <CouponActivationForm suggestedPlan={suggestedPlan} />
+              ) : null}
             </div>
             <div className="mt-8 space-y-4 border-t border-ns-border pt-6 text-sm">
               <p className="text-ns-secondary">

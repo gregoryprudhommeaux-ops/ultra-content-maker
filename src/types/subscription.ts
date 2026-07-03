@@ -12,6 +12,39 @@ export type SubscriptionTier =
 
 export type SupportTier = "starter" | "regular";
 
+/** Admin-defined Support Total commercial terms (rhythm sold to the client). */
+export type SupportProposalRhythm = "starter" | "regular" | "custom";
+
+export type SupportProposal = {
+  rhythm: SupportProposalRhythm;
+  /** Required when rhythm is custom (Beaucoup Plus). */
+  postsCount?: number;
+  period?: "week" | "month";
+};
+
+/** Commercial terms agreed with the client (proposal + contract). */
+export type SupportCommercialTerms = {
+  monthlyAmount: number;
+  currency: "eur" | "mxn";
+  minCommitmentMonths: number;
+  noticePeriodMonths: number;
+  postsCount?: number;
+  period?: "week" | "month";
+};
+
+/** Active Support contract on a user profile after deal acceptance. */
+export type SupportRenewalStatus = "active" | "renewal_due" | "not_renewing";
+
+export type SupportContract = SupportCommercialTerms & {
+  contractStartAt: string;
+  contractEndAt: string;
+  sourceQuoteId?: string;
+  acceptedAt?: string;
+  renewalStatus?: SupportRenewalStatus;
+  /** ISO date when admin was last reminded for this contract end. */
+  lastRenewalReminderAt?: string;
+};
+
 export type ActivationMethod = "trial_auto" | "coupon" | "admin" | "stripe" | "paypal" | "wire";
 
 export type SubscriptionProfile = {
@@ -28,6 +61,10 @@ export type SubscriptionProfile = {
  proPlusBonusPosts: number;
  proPlusPeriodStart?: string;
  supportTier?: SupportTier;
+ /** Commercial rhythm agreed for Support Total clients. */
+ supportProposal?: SupportProposal;
+ /** Billing contract (amount, commitment, end date) for Support clients. */
+ supportContract?: SupportContract;
  activatedAt?: string;
  activationMethod?: ActivationMethod;
  /** Admin uid that granted full_free (uses that admin's Firestore LLM key). */

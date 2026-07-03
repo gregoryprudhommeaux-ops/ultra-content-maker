@@ -39,6 +39,7 @@ export type WeeklyDigestPayload = {
   blockedTop: WeeklyDigestRow[];
   costlyTop: WeeklyDigestRow[];
   supportAlerts: WeeklyDigestRow[];
+  contractRenewalsDue: number;
   adminUrl: string;
 };
 
@@ -83,13 +84,16 @@ export async function buildWeeklyDigestPayload(db: Firestore): Promise<WeeklyDig
   const since7d = new Date(now);
   since7d.setUTCDate(since7d.getUTCDate() - 7);
 
-  const [analytics, llm7d, errorReports, wireRequests, previousSnapshot] =
+  const [analytics, llm7d, errorReports, wireRequests, previousSnapshot, renewalsDue] =
     await Promise.all([
       buildAdminAnalytics(db, { connectionPeriods: ["week"], useCache: false }),
       summarizeLlmUsage(db, since7d),
       listErrorReports(db, 100),
       listWireRequests(db, 50),
       loadDigestSnapshot(db),
+      import("@/lib/billing/support-contract-renewal.server").then((m) =>
+        m.listSupportRenewalsDue(db),
+      ),
     ]);
 
   const included = defaultIncludedUserIds(analytics.users);
@@ -178,7 +182,8 @@ export async function buildWeeklyDigestPayload(db: Firestore): Promise<WeeklyDig
     })),
     costlyTop,
     supportAlerts,
-    adminUrl: `${site}/fr/admin/analytics`,
+    contractRenewalsDue: renewalsDue.length,
+    adminUrl: `${site}/fr/admin/analytics?tab=billing`,
   };
 }
 

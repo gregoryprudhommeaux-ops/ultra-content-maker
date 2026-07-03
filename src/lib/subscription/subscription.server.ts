@@ -5,12 +5,18 @@ import {
   resolveSubscriptionAccess,
   trialWindowOnFirstRetain,
 } from "./access";
-import { tierHasUnlimitedPosts } from "./constants";
+import {
+  defaultSupportProposalForTier,
+  isSupportTier,
+  tierHasUnlimitedPosts,
+} from "./constants";
 import type {
   ActivationMethod,
   SubscriptionAccess,
   SubscriptionProfile,
   SubscriptionTier,
+  SupportContract,
+  SupportProposal,
 } from "@/types/subscription";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -41,9 +47,22 @@ export async function setSubscriptionProfileServer(
   patch: Partial<SubscriptionProfile>,
 ): Promise<SubscriptionProfile> {
   const current = await getSubscriptionProfileServer(uid);
-  const next = { ...current, ...patch };
+  const next: SubscriptionProfile = { ...current };
+  const subscriptionWrite: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(patch)) {
+    const field = key as keyof SubscriptionProfile;
+    if (value === undefined) {
+      delete next[field];
+      subscriptionWrite[key] = FieldValue.delete();
+    } else {
+      next[field] = value as SubscriptionProfile[keyof SubscriptionProfile];
+      subscriptionWrite[key] = value;
+    }
+  }
+
   await userRef(uid).set(
-    { subscription: next, updatedAt: FieldValue.serverTimestamp() },
+    { subscription: subscriptionWrite, updatedAt: FieldValue.serverTimestamp() },
     { merge: true },
   );
   return next;
@@ -53,7 +72,11 @@ export async function activateTierServer(
   uid: string,
   tier: SubscriptionTier,
   method: ActivationMethod,
-  opts?: { grantedByAdminUid?: string },
+  opts?: {
+    grantedByAdminUid?: string;
+    supportProposal?: SupportProposal;
+    supportContract?: SupportContract;
+  },
 ): Promise<SubscriptionProfile> {
   const now = new Date().toISOString();
   const patch: Partial<SubscriptionProfile> = {
@@ -69,11 +92,21 @@ export async function activateTierServer(
     patch.proPlusPostsUsedThisMonth = 0;
     patch.proPlusPeriodStart = now;
   }
-  if (tier === "support_starter") {
-    patch.supportTier = "starter";
-  }
-  if (tier === "support_regular") {
-    patch.supportTier = "regular";
+  if (isSupportTier(tier)) {
+    if (tier === "support_starter") {
+      patch.supportTier = "starter";
+    } else if (tier === "support_regular") {
+      patch.supportTier = "regular";
+    } else {
+      patch.supportTier = undefined;
+    }
+    patch.supportProposal =
+      opts?.supportProposal ?? defaultSupportProposalForTier(tier);
+    patch.supportContract = opts?.supportContract;
+  } else {
+    patch.supportTier = undefined;
+    patch.supportProposal = undefined;
+    patch.supportContract = undefined;
   }
   if (tier === "free_test") {
     patch.trialPostsUsed = 0;

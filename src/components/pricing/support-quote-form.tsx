@@ -4,7 +4,7 @@ import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui/nextstep";
 import type { SupportQuotePlan } from "@/lib/email/send-support-quote";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useLocale, useTranslations } from "next-intl";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 type Props = {
   plan: SupportQuotePlan;
@@ -26,6 +26,10 @@ export function SupportQuoteForm({ plan, onClose, submitClassName, defaultEmail 
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedPlan(plan);
+  }, [plan]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -95,6 +99,7 @@ export function SupportQuoteForm({ plan, onClose, submitClassName, defaultEmail 
           >
             <option value="starter">{t("planStarter")}</option>
             <option value="regular">{t("planRegular")}</option>
+            <option value="much_more">{t("planMuchMore")}</option>
             <option value="unspecified">{t("planUnspecified")}</option>
           </select>
         </label>
@@ -169,6 +174,10 @@ export function SupportQuoteForm({ plan, onClose, submitClassName, defaultEmail 
       </div>
 
       {error ? <p className="text-xs font-medium text-red-600">{error}</p> : null}
+
+      <p className="rounded-xl border border-ns-primary/25 bg-ns-primary/5 px-3 py-2.5 text-xs leading-relaxed text-ns-secondary">
+        {t("phoneCallNote")}
+      </p>
 
       <div className="flex flex-col gap-2 pt-1 sm:flex-row">
         <button

@@ -1,10 +1,6 @@
 import { requirePlatformAdmin } from "@/lib/admin/require-platform-admin.server";
-import {
-  activateTierServer,
-  addProPlusBonusPostsServer,
-  getSubscriptionProfileServer,
-} from "@/lib/subscription/subscription.server";
-import type { ActivationMethod, SubscriptionTier } from "@/types/subscription";
+import { activateTierServer, getSubscriptionProfileServer } from "@/lib/subscription/subscription.server";
+import type { ActivationMethod, SubscriptionTier, SupportProposal } from "@/types/subscription";
 import { normalizeAdminTier } from "@/lib/subscription/constants";
 import { NextResponse } from "next/server";
 
@@ -14,7 +10,7 @@ export const dynamic = "force-dynamic";
 type SetTierBody = {
   userId?: string;
   tier?: string;
-  bonusPosts?: number;
+  supportProposal?: SupportProposal;
   activationMethod?: "admin" | "wire";
 };
 
@@ -39,12 +35,8 @@ export async function POST(request: Request) {
     body.activationMethod === "wire" ? "wire" : ("admin" satisfies ActivationMethod);
   const profile = await activateTierServer(userId, tier as SubscriptionTier, method, {
     grantedByAdminUid: tier === "full_free" ? admin.uid : undefined,
+    supportProposal: body.supportProposal,
   });
-
-  if (typeof body.bonusPosts === "number" && body.bonusPosts > 0 && tier === "pro_plus") {
-    const updated = await addProPlusBonusPostsServer(userId, body.bonusPosts);
-    return NextResponse.json({ profile: updated });
-  }
 
   return NextResponse.json({ profile });
 }

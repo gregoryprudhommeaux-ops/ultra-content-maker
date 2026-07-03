@@ -2,10 +2,8 @@
 
 import { CreationModePieChart, KpiCard, OnboardingFunnelChart, UsageBarChart } from "@/components/admin/analytics-charts";
 import { UsersMetricsTable } from "@/components/admin/users-metrics-table";
-import { AdminSubscriptionPanel } from "@/components/admin/admin-subscription-panel";
-import { AdminWeeklyDigestPanel } from "@/components/admin/admin-weekly-digest-panel";
+import { AdminBillingHub } from "@/components/admin/admin-billing-hub";
 import { AdminTierMixBar } from "@/components/admin/admin-tier-mix-bar";
-import { AdminWireRequestsPanel } from "@/components/admin/admin-wire-requests-panel";
 import {
   AdminCockpitSection,
   AdminCockpitTabBar,
@@ -23,6 +21,7 @@ import {
 import { aggregateAdminStats, computeRevenueSummary, filterConnectionBuckets, listBlockedUsers } from "@/lib/admin/filter-admin-stats";
 import type { ErrorReportRow } from "@/lib/admin/error-reports.server";
 import type { WireRequestRow } from "@/lib/billing/wire-requests.server";
+import type { SupportQuoteRow } from "@/lib/admin/support-quotes.server";
 import { computeOnboardingFunnel } from "@/lib/admin/onboarding-funnel";
 import { ARTICLE_CREATION_MODES } from "@/lib/articles/infer-creation-mode";
 import type {
@@ -105,6 +104,7 @@ export function AdminAnalyticsDashboard() {
   const [includedUserIds, setIncludedUserIds] = useState<Set<string>>(() => new Set());
   const [errorReports, setErrorReports] = useState<ErrorReportRow[]>([]);
   const [wireRequests, setWireRequests] = useState<WireRequestRow[]>([]);
+  const [supportQuotes, setSupportQuotes] = useState<SupportQuoteRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingConnections, setLoadingConnections] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -247,6 +247,23 @@ export function AdminAnalyticsDashboard() {
     }
   }, [user]);
 
+  const loadSupportQuotes = useCallback(async () => {
+    if (!user) return;
+    try {
+      const auth = getClientAuth();
+      const token = auth ? await auth.currentUser?.getIdToken() : null;
+      if (!token) return;
+      const res = await fetch("/api/admin/support-quotes", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const json = (await res.json()) as { quotes: SupportQuoteRow[] };
+      setSupportQuotes(json.quotes ?? []);
+    } catch {
+      /* badge count is optional */
+    }
+  }, [user]);
+
   useEffect(() => {
     const tabFromUrl = parseCockpitTab(searchParams.get("tab"));
     setActiveTab(tabFromUrl);
@@ -260,7 +277,8 @@ export function AdminAnalyticsDashboard() {
     void load();
     void loadErrorReports();
     void loadWireRequests();
-  }, [isPlatformAdmin, load, loadErrorReports, loadWireRequests, router]);
+    void loadSupportQuotes();
+  }, [isPlatformAdmin, load, loadErrorReports, loadWireRequests, loadSupportQuotes, router]);
 
   useEffect(() => {
     if (!isPlatformAdmin || !data) return;
@@ -318,8 +336,9 @@ export function AdminAnalyticsDashboard() {
   const pendingWireCount = wireRequests.filter(
     (r) => r.status === "pending" || r.status === "wire_sent",
   ).length;
-  const actionsBadge =
-    blockedUsers.length + openErrorReports.length + pendingWireCount;
+  const newSupportQuotesCount = supportQuotes.filter((q) => q.status === "new").length;
+  const actionsBadge = blockedUsers.length + openErrorReports.length;
+  const billingBadge = pendingWireCount + newSupportQuotesCount;
 
   const tierLabels = useMemo(
     () =>
@@ -535,7 +554,7 @@ export function AdminAnalyticsDashboard() {
           { id: "actions", label: t("tabs.actions"), badge: actionsBadge },
           { id: "support", label: t("tabs.support") },
           { id: "users", label: t("tabs.users") },
-          { id: "billing", label: t("tabs.billing") },
+          { id: "billing", label: t("tabs.billing"), badge: billingBadge },
         ]}
         active={activeTab}
         onChange={onTabChange}
@@ -756,8 +775,6 @@ export function AdminAnalyticsDashboard() {
               </ul>
             </section>
           ) : null}
-
-          <AdminWireRequestsPanel embedded />
         </div>
       ) : null}
 
@@ -1050,12 +1067,7 @@ export function AdminAnalyticsDashboard() {
         </div>
       ) : null}
 
-      {activeTab === "billing" ? (
-        <div className="grid gap-4 xl:grid-cols-2">
-          <AdminWeeklyDigestPanel embedded />
-          <AdminSubscriptionPanel embedded />
-        </div>
-      ) : null}
+      {activeTab === "billing" ? <AdminBillingHub /> : null}
 
       <p className="text-xs text-ns-secondary">
         {t("footnote")}{" "}

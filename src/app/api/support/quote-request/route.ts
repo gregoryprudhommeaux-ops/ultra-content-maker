@@ -27,7 +27,7 @@ type Body = {
 };
 
 function normalizePlan(raw?: string): SupportQuotePlan {
-  if (raw === "starter" || raw === "regular") return raw;
+  if (raw === "starter" || raw === "regular" || raw === "much_more") return raw;
   return "unspecified";
 }
 

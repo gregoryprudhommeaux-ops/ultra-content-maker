@@ -69,7 +69,7 @@ export function BillingInvoicesPanel() {
         <p className="text-sm text-ns-secondary">{t("empty")}</p>
       ) : null}
 
-      {!loading && invoices.some((i) => i.status === "pending") ? (
+      {!loading && invoices.some((i) => i.status === "draft" || i.status === "ready_to_send" || i.status === "sent") ? (
         <p className="mt-2 text-xs text-amber-800">{t("pendingHint")}</p>
       ) : null}
 
@@ -97,7 +97,10 @@ export function BillingInvoicesPanel() {
                       className={
                         row.status === "paid"
                           ? "text-green-700"
-                          : row.status === "pending"
+                          : row.status === "draft" ||
+                              row.status === "ready_to_send" ||
+                              row.status === "sent" ||
+                              row.status === "follow_up"
                             ? "text-amber-700"
                             : "text-ns-secondary"
                       }

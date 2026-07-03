@@ -1,4 +1,5 @@
 import { isWireSubscriptionSuspended } from "@/lib/billing/wire-billing";
+import { normalizeSupportContract } from "@/lib/admin/support-deal-terms";
 import {
   PRICING,
   TRIAL_DAYS,
@@ -9,7 +10,7 @@ import {
   tierRequiresOwnLlm,
   tierUsesPlatformLlm,
 } from "./constants";
-import type { SubscriptionAccess, SubscriptionProfile, SubscriptionTier } from "@/types/subscription";
+import type { SubscriptionAccess, SubscriptionProfile, SubscriptionTier, SupportProposal } from "@/types/subscription";
 
 function daysBetween(start: Date, end: Date): number {
   return Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
@@ -76,6 +77,24 @@ export function defaultSubscriptionProfile(): SubscriptionProfile {
   };
 }
 
+function normalizeSupportProposal(raw: unknown): SupportProposal | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const r = raw as Record<string, unknown>;
+  const rhythm =
+    r.rhythm === "starter" || r.rhythm === "regular" || r.rhythm === "custom"
+      ? r.rhythm
+      : null;
+  if (!rhythm) return undefined;
+  const period = r.period === "week" || r.period === "month" ? r.period : undefined;
+  const postsCount = typeof r.postsCount === "number" && r.postsCount > 0 ? r.postsCount : undefined;
+  if (rhythm === "custom" && (!postsCount || !period)) return undefined;
+  return {
+    rhythm,
+    postsCount: rhythm === "custom" ? postsCount : undefined,
+    period: rhythm === "custom" ? period : undefined,
+  };
+}
+
 export function normalizeSubscriptionProfile(raw: unknown): SubscriptionProfile {
   const base = defaultSubscriptionProfile();
   if (!raw || typeof raw !== "object") return base;
@@ -109,6 +128,8 @@ export function normalizeSubscriptionProfile(raw: unknown): SubscriptionProfile 
     proPlusPeriodStart:
       typeof r.proPlusPeriodStart === "string" ? r.proPlusPeriodStart : undefined,
     supportTier: r.supportTier === "starter" || r.supportTier === "regular" ? r.supportTier : undefined,
+    supportProposal: normalizeSupportProposal(r.supportProposal),
+    supportContract: normalizeSupportContract(r.supportContract),
     activatedAt: typeof r.activatedAt === "string" ? r.activatedAt : undefined,
     activationMethod:
       r.activationMethod === "trial_auto" ||

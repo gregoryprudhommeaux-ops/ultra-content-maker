@@ -4,6 +4,7 @@ import { AdminPanelShell } from "@/components/admin/admin-cockpit-layout";
 import { useAuth } from "@/components/auth/auth-provider";
 import { getClientAuth } from "@/lib/firebase/client";
 import type { WireRequestRow } from "@/lib/billing/wire-requests.server";
+import { formatInvoiceAmount } from "@/lib/billing/wire-billing";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
@@ -116,7 +117,7 @@ export function AdminWireRequestsPanel({ embedded = false }: AdminWireRequestsPa
                   </td>
                   <td className="px-2 py-2">{row.tier}</td>
                   <td className="px-2 py-2 tabular-nums">
-                    {row.currency === "eur" ? `${row.amount} €` : `$${row.amount} MXN`}
+                    {formatInvoiceAmount(row.currency, row.amount)}
                   </td>
                   <td className="px-2 py-2 font-mono text-xs">{row.reference}</td>
                   <td className="px-2 py-2">{t(`status.${row.status}`)}</td>

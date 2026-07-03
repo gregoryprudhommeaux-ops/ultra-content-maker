@@ -44,6 +44,9 @@ export function SupportTotalSection({ locale, perMonthLabel }: Props) {
           <p className="mt-3 max-w-3xl text-pretty text-sm leading-relaxed text-white/80">
             {t("subtitle")}
           </p>
+          <p className="mt-2 max-w-3xl text-pretty text-sm leading-relaxed text-ns-primary/90">
+            {t("quoteProcess")}
+          </p>
 
           <div className="mt-8 grid grid-cols-1 items-start gap-5 md:grid-cols-2">
             <PricingPriceCard
@@ -75,6 +78,37 @@ export function SupportTotalSection({ locale, perMonthLabel }: Props) {
               perMonthLabel={perMonthLabel}
               variant="onDark"
             />
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-ns-primary/50 bg-gradient-to-r from-ns-primary/15 via-white/5 to-ns-secondary/10 px-6 py-6 md:px-8">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-ns-primary">
+                  {t("custom.badge")}
+                </p>
+                <h3 className="mt-2 text-xl font-bold text-white">{t("custom.name")}</h3>
+                <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/85">
+                  {t("custom.description")}
+                </p>
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {(["f1", "f2", "f3"] as const).map((key) => (
+                    <li
+                      key={key}
+                      className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/90"
+                    >
+                      {t(`custom.${key}`)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <button
+                type="button"
+                onClick={() => openQuote("much_more")}
+                className={`${BTN_PRIMARY} shrink-0 min-h-[3rem] px-8`}
+              >
+                {t("custom.cta")}
+              </button>
+            </div>
           </div>
 
           <div className="mt-8 flex flex-col items-center gap-3 border-t border-white/10 pt-8 text-center">
