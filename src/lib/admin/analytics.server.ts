@@ -802,6 +802,8 @@ export async function buildAdminAnalyticsCore(
  onboardingSteps: userOnboardingSteps,
  activationMethod: subscription.activationMethod ?? null,
  hasStripeSubscription: Boolean(subscription.stripeSubscriptionId),
+ managedByAdminUid:
+  (userData.managedBy as { adminUid?: string } | undefined)?.adminUid?.trim() ?? null,
  };
 
  let supportAccount: SupportAccountRow | null = null;

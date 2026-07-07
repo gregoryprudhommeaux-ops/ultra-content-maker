@@ -15,6 +15,7 @@ import type {
 import { isInspirationAspect } from "@/lib/inspiration/aspects";
 import { toDate } from "./firestore-utils";
 import {
+  activeWorkspaceOwnerId,
   allowsLegacyWorkspaceFallback,
   legacyCollectionRef,
   legacyDocRef,
@@ -31,7 +32,7 @@ async function listSourcesSnap(userId: string, fromServer = false) {
   const scoped = await read(sourcesCollection(userId));
   if (!scoped.empty) return scoped;
   if (!allowsLegacyWorkspaceFallback(userId)) return scoped;
-  return read(legacyCollectionRef(userId, "sources"));
+  return read(legacyCollectionRef(activeWorkspaceOwnerId(userId), "sources"));
 }
 
 function normalizeCategory(
@@ -141,7 +142,7 @@ export async function removeSource(userId: string, sourceId: string) {
   if (scopedSnap.exists()) {
     await deleteDoc(scopedRef);
   } else {
-    await deleteDoc(legacyDocRef(userId, "sources", sourceId));
+    await deleteDoc(legacyDocRef(activeWorkspaceOwnerId(userId), "sources", sourceId));
   }
   const { getAuthorProfile } = await import("@/lib/workspace/author");
   const author = await getAuthorProfile(userId);

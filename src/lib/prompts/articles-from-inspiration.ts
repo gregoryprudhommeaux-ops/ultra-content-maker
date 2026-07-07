@@ -1,5 +1,6 @@
 import { buildContentNichePromptBlock, resolveContentNicheFromSteering } from "@/lib/articles/content-niche";
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
+import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import {
  injectAuthorSteering,
  type AuthorSteeringPayload,
@@ -20,9 +21,15 @@ export function buildInspirationArticleSystemPrompt(
  contentLanguage: ContentLanguage,
  targetScope: ArticleScope,
  emojiLevel: EmojiLevel = "light",
+ profileEnrichment?: Record<string, unknown>,
+ authorSteering?: AuthorSteeringPayload | null,
 ): string {
  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
  const emoji = emojiInstruction(emojiLevel, contentLanguage);
+ const archetype = resolveContentArchetype({
+ author: authorSteering?.author ?? null,
+ profileEnrichment: profileEnrichment ?? authorSteering?.profileEnrichment ?? null,
+ });
  const scopeLine =
  targetScope === "niche"
  ? `scope "niche" · deep vertical/ICP-specific angle from the Persona.`
@@ -30,7 +37,7 @@ export function buildInspirationArticleSystemPrompt(
 
  return `You are a senior LinkedIn B2B content strategist and ghostwriter. Follow the expert Persona system prompt provided by the user.
 
-${buildLinkedIn2026SystemRules(contentLanguage)}
+${buildLinkedIn2026SystemRules(contentLanguage, archetype)}
 
 ${languageOnlyRule(contentLanguage)}
 

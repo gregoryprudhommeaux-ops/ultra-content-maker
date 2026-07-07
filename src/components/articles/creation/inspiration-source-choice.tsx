@@ -37,6 +37,11 @@ export function InspirationSourceChoice({ onSelect, libraryCount }: Props) {
           : t("input.library.descEmpty"),
       disabled: libraryCount === 0,
     },
+    {
+      id: "document",
+      title: t("input.document.title"),
+      desc: t("input.document.desc"),
+    },
   ];
 
   return (

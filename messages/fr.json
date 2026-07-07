@@ -437,7 +437,23 @@
       "onboardingHoverHint": "Survolez pour le détail",
       "onboardingMissing": "Étapes manquantes",
       "onboardingStepsHint": "Étapes d'onboarding",
-      "noBlock": "N/D"
+      "noBlock": "N/D",
+      "control": {
+        "action": "Contrôler",
+        "confirmControl": "Lier ce compte au vôtre pour le gérer en mode agence (Support Total, etc.) ?",
+        "controlling": "Liaison…",
+        "controlSuccess": "Compte lié — disponible dans Compte actif.",
+        "release": "Relâcher",
+        "confirmRelease": "Retirer votre accès à ce compte ? Le client conserve son espace.",
+        "releasing": "Retrait…",
+        "releaseSuccess": "Accès retiré.",
+        "openWorkspace": "Ouvrir l'espace",
+        "managedByYou": "Sous contrôle",
+        "managedByOther": "Autre admin",
+        "cannotControlAdmin": "N/D",
+        "cannotControlSelf": "N/D",
+        "controlFailed": "Impossible de lier ce compte."
+      }
     },
     "errors": {
       "notAuthenticated": "Session expirée.",
@@ -614,9 +630,18 @@
       "cannot_link_self": "Vous ne pouvez pas lier votre propre compte.",
       "cannot_link_admin": "Impossible de lier un compte administrateur.",
       "client_already_managed": "Ce client est déjà lié à un accompagnant.",
+      "forbidden": "Action réservée aux administrateurs plateforme.",
+      "unauthorized": "Session expirée : reconnectez-vous.",
+      "admin_not_configured": "Service admin indisponible (Firebase Admin).",
       "auth": "Session expirée : reconnectez-vous."
     },
     "managedClientBadge": "Client · {email}",
+    "agencyMode": "Mode agence",
+    "agencyManagedContext": "Espace client",
+    "agencyYourAdminAccount": "Votre compte admin",
+    "agencyBannerSubtitle": "Les actions sur cette page créent du contenu pour ce client, pas pour votre compte personnel.",
+    "agencySwitchAccount": "Changer de compte",
+    "agencyHeaderPill": "Mode agence · {name}",
     "unlinkClientAccount": "Retirer l'accès à ce compte client",
     "unlinkClientConfirm": "Retirer l'accès à « {name} » ? Le client conserve son compte ; vous ne verrez plus son espace ici.",
     "unlinkClientConfirmYes": "Oui, retirer",
@@ -1012,7 +1037,12 @@
       "blog": "URL blog",
       "role": "Rôle / titre",
       "positioning": "Quelques lignes sur vous et votre positionnement",
-      "positioningHint": "Décrivez ce que vous faites et ce qui vous distingue. Vous pouvez coller votre intro LinkedIn, elle résume souvent bien votre expertise et votre expérience.",
+      "positioningHint": "Décrivez ce que vous faites et ce qui vous distingue. Expert-conseil : expertise et méthode. CEO / fondateur : problème ICP, catégorie et ce que votre produit change concrètement. Vous pouvez coller votre intro LinkedIn.",
+      "contentArchetype": "Type de contenu LinkedIn",
+      "contentArchetypeHint": "Calibre le Persona et les posts : expert (savoir-faire), fondateur produit (catégorie + preuves produit), ou les deux.",
+      "contentArchetypeExpert": "Expert / conseil — partager mon savoir-faire",
+      "contentArchetypeFounder": "CEO / fondateur — parler de mon produit et de ma catégorie",
+      "contentArchetypeHybrid": "Hybride — expertise + produit",
       "contentLanguage": "Langue principale des posts LinkedIn générés",
       "contentLanguageHint": "Définit la langue par défaut de vos posts et influence la rédaction de votre Persona. La traduction avec localisation reste disponible à la création.",
       "errors": {
@@ -1656,7 +1686,7 @@
         "modePicker": {
           "heroEyebrow": "Assistant de création",
           "heroTitle": "Votre prochain post LinkedIn, en quelques minutes",
-          "heroSubtitle": "Quatre parcours, une même promesse : un brouillon dans votre voix, prêt à affiner et publier.",
+          "heroSubtitle": "Trois parcours, une même promesse : un brouillon dans votre voix, prêt à affiner et publier.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Prêt pour LinkedIn",
@@ -1664,7 +1694,9 @@
           "recommended": "Recommandé",
           "start": "Commencer",
           "strategyDrawerTitle": "Analyse LinkedIn & recommandations",
-          "strategyDrawerHint": "Optionnel, parcours recommandé et 4 thématiques basées sur vos posts récents.",
+          "strategyDrawerHint": "Optionnel : parcours recommandé et 3 thématiques basées sur vos posts récents.",
+          "decisionMatrixTitle": "Quel parcours choisir ?",
+          "decisionMatrixHint": "Trois intentions, trois chemins — le brief s’adapte ensuite à votre niveau de détail.",
           "guide": {
             "title": "Pas sûr par où commencer ?",
             "subtitle": "Choisissez l’intention qui vous ressemble, nous mettons en avant le bon parcours.",
@@ -1672,7 +1704,7 @@
             "news": "Je veux réagir à l’actualité",
             "repurpose": "Je veux décliner un contenu existant",
             "hint": {
-              "profile": "→ Parcours recommandé : 1 brouillon aligné sur votre Persona et votre brief.",
+              "profile": "→ Parcours expertise : sujet rapide ou brief complet, aligné sur votre Persona.",
               "news": "→ Parcours actu : scan de 4 stories récentes, puis 1 post ancré sur votre angle.",
               "inspiration": "→ Parcours inspiration : 1 brouillon avec un angle distinct (sans copier le source)."
             }
@@ -1694,20 +1726,20 @@
             "retry": "Réessayer",
             "refresh": "Relancer l’analyse",
             "steeringLabel": "Angle, pistes ou mots-clés (optionnel)",
-            "steeringHint": "Précisez ce que vous voulez explorer : thème, secteur, actualité, ton… L’IA réorganisera les 4 thématiques et le parcours recommandé.",
+            "steeringHint": "Précisez ce que vous voulez explorer : thème, secteur, actualité, ton… L’IA réorganisera les 3 thématiques et le parcours recommandé.",
             "steeringPlaceholder": "Ex. : insister sur le Japon et la supply chain F&B, moins de posts « inspiration », plus de cas clients concrets…",
             "patternLabel": "Ce que l’IA observe",
             "postsCount": "{count, plural, =0 {Aucun post récent détecté} one {# post analysé · {period}} other {# posts analysés · {period}}}",
             "modeLabel": "Parcours recommandé",
             "whyRecommendTitle": "Pourquoi cette recommandation ?",
-            "themesDrawerTitle": "4 thématiques stratégiques",
+            "themesDrawerTitle": "3 thématiques stratégiques",
             "highlightMode": "Mettre en avant ce parcours",
-            "themesLabel": "4 thématiques stratégiques",
+            "themesLabel": "3 thématiques stratégiques",
             "newsHook": "Actu",
             "modes": {
-              "profile": "Depuis mon profil",
+              "profile": "Expertise & angle",
               "news": "Depuis l’actualité",
-              "inspiration": "Depuis un contenu existant"
+              "inspiration": "Source externe ou document"
             },
             "relation": {
               "continuity": "Cohérence",
@@ -1721,20 +1753,34 @@
             "themesStartAdjustment": "Démarrer l’ajustement avec cette thématique",
             "themesStartHint": "« {title} » → parcours {mode}"
           },
+          "decisionMatrix": {
+            "profile": {
+              "when": "Vous partez de votre expertise",
+              "outcome": "Sujet rapide ou brief structuré · 1 brouillon dans votre voix."
+            },
+            "news": {
+              "when": "Vous réagissez à l’actualité",
+              "outcome": "4 actus scannées · 1 post commenté avec source."
+            },
+            "inspiration": {
+              "when": "Vous déclinez un contenu existant",
+              "outcome": "Coller, lien, bibliothèque ou document · angle distinct."
+            }
+          },
           "modes": {
             "profile": {
-              "title": "Depuis mon profil",
-              "desc": "1 brouillon calé sur votre Persona. Brief optionnel pour affiner objectif, angle et preuve.",
-              "badge": "Persona",
+              "title": "Expertise & angle",
+              "desc": "Décrivez votre sujet ou complétez le brief : un brouillon dans votre voix, aligné sur votre Persona.",
+              "badge": "Expertise",
               "outputs": [
-                "Voix Persona",
-                "Brief & objectifs",
+                "Sujet rapide ou brief complet",
+                "Persona & objectifs",
                 "Quality Panel"
               ]
             },
             "news": {
               "title": "Depuis l’actualité",
-              "desc": "4 actus scannées dans votre niche : choisissez une story, obtenez 1 post commenté dans votre voix.",
+              "desc": "Choisissez une actu récente dans votre niche : un post commenté dans votre voix, avec la source en commentaire.",
               "badge": "Actualité",
               "outputs": [
                 "Actu < 7 jours",
@@ -1743,11 +1789,11 @@
               ]
             },
             "inspiration": {
-              "title": "Depuis une inspiration",
-              "desc": "Texte collé, URL ou bibliothèque : 1 brouillon réécrit avec un angle distinct, sans copier la source.",
-              "badge": "Inspiration",
+              "title": "Source externe ou document",
+              "desc": "À partir d’un texte, lien ou document : un brouillon réécrit avec un angle distinct, sans copier la source.",
+              "badge": "Source",
               "outputs": [
-                "Coller · URL · Bibliothèque",
+                "Coller · URL · Doc · Bibliothèque",
                 "Angle anti-plagiat",
                 "Quality Panel"
               ]
@@ -1761,6 +1807,20 @@
                 "Ton au choix",
                 "Quality Panel"
               ]
+            }
+          }
+        },
+        "profileBrief": {
+          "toggleTitle": "Niveau de brief",
+          "toggleHint": "Commencez léger avec un sujet, ou ouvrez le brief complet pour affiner objectifs et preuve.",
+          "variants": {
+            "quick": {
+              "title": "Sujet rapide",
+              "desc": "Décrivez l’idée en quelques lignes — idéal si vous savez déjà quoi dire."
+            },
+            "full": {
+              "title": "Brief complet",
+              "desc": "Objectifs, problème, POV et preuve — pour un post plus stratégique."
             }
           }
         },
@@ -1828,8 +1888,8 @@
         },
         "inspiration": {
           "inputTitle": "Comment fournir la référence ?",
-          "inputSubtitle": "L’IA s’inspire de la structure et du ton, sans recopier le texte source.",
-          "referenceRequired": "Complétez la référence (texte, URL + extrait, ou inspiration enregistrée).",
+          "inputSubtitle": "L’IA s’inspire de la structure et du ton, sans recopier le texte source. Collez, liez, importez un document ou réutilisez votre bibliothèque.",
+          "referenceRequired": "Complétez la référence (texte, URL + extrait, document ou inspiration enregistrée).",
           "manageLibrary": "Gérer vos inspirations :",
           "manageLibraryLink": "page Inspirations",
           "input": {
@@ -1845,8 +1905,19 @@
               "title": "Mes inspirations enregistrées",
               "desc": "{count, plural, one {# source} other {# sources}} dans votre bibliothèque",
               "descEmpty": "Ajoutez des inspirations dans la page dédiée pour les réutiliser ici."
+            },
+            "document": {
+              "title": "Importer un document",
+              "desc": "PDF, DOCX ou lien Google Doc — réutilisez vos notes, études ou articles sources."
             }
           },
+          "documentTitle": "Choisir ou importer un document",
+          "documentSubtitle": "Sélectionnez un document déjà importé dans votre profil, ou en ajoutez un nouveau.",
+          "documentUpload": "Importer un fichier",
+          "documentFormats": "PDF, DOCX, TXT · max {maxMb} Mo",
+          "documentEmpty": "Aucun document exploitable. Importez un fichier pour l’utiliser comme référence.",
+          "documentNoPreview": "Aperçu indisponible",
+          "documentPreviewLabel": "Référence (document)",
           "urlTitle": "Lien et extrait",
           "urlHint": "Collez l’URL puis utilisez « Récupérer le contenu » pour préremplir l’extrait. Vous pouvez toujours l’éditer avant de continuer.",
           "fetchContent": "Récupérer le contenu",
@@ -1906,10 +1977,10 @@
           "label": "Parcours :",
           "change": "Changer d’intention",
           "modes": {
-            "profile": "Depuis mon profil",
+            "profile": "Expertise & angle",
             "news": "Depuis l’actualité",
-            "inspiration": "Depuis un contenu existant",
-            "article": "Créer un article"
+            "inspiration": "Source externe ou document",
+            "article": "Expertise & angle"
           }
         }
       },
@@ -2386,8 +2457,52 @@
         "personaFailed": "Persona non généré : vous pourrez le lancer depuis l'étape Persona.",
         "llmNotConfigured": "Connexion IA indisponible. Le scan utilise vos données publiques LinkedIn, réessayez ou complétez à la main.",
         "subscriptionExpired": "Votre essai ou abonnement a expiré. Renouvelez pour utiliser l'analyse IA."
+      },
+      "linkedInDelivery": {
+        "title": "Publication LinkedIn",
+        "subtitle": "Comment souhaitez-vous publier vos posts ?",
+        "agencyPublish": "L'agence publie pour moi",
+        "agencyPublishHint": "Nous publions directement sur votre profil LinkedIn (accès requis).",
+        "clientCopyPaste": "Je copie-colle moi-même",
+        "clientCopyPasteHint": "Nous vous envoyez le texte final, vous publiez sur LinkedIn.",
+        "accessNotes": "Accès LinkedIn (optionnel)",
+        "accessNotesHint": "Indiquez comment nous donner accès (administrateur de page, identifiants partagés, etc.).",
+        "accessNotesPlaceholder": "ex. Ajoutez notre compte comme administrateur de votre page entreprise…"
       }
     }
+  },
+  "draftReview": {
+    "title": "Relecture de votre brouillon",
+    "subtitle": "Lisez le post ci-dessous et indiquez les ajustements souhaités.",
+    "loading": "Chargement…",
+    "questionsTitle": "Vos retours",
+    "questions": {
+      "tone": "Ton et style",
+      "tonePlaceholder": "Trop formel ? Plus direct ? Autre ton souhaité…",
+      "accuracy": "Exactitude et messages clés",
+      "accuracyPlaceholder": "Faits à corriger, points à renforcer ou retirer…",
+      "length": "Longueur et structure",
+      "lengthPlaceholder": "Plus court, plus détaillé, autre accroche…",
+      "other": "Autres remarques",
+      "otherPlaceholder": "Tout ce qui nous aidera à affiner le post…"
+    },
+    "submit": "Envoyer mes retours",
+    "submitting": "Envoi…",
+    "successTitle": "Merci pour vos retours",
+    "successBody": "Nous avons bien reçu vos ajustements et affinerons le post en conséquence.",
+    "errors": {
+      "notFound": "Ce lien de relecture est invalide ou a expiré.",
+      "expired": "Ce lien de relecture a expiré. Contactez votre interlocuteur Support Total.",
+      "loadFailed": "Impossible de charger le brouillon.",
+      "submitFailed": "Envoi impossible. Réessayez dans un instant.",
+      "answersRequired": "Répondez à au moins une question avant d'envoyer."
+    }
+  },
+  "adminDraftReview": {
+    "button": "Envoyer le lien de relecture",
+    "loading": "Génération…",
+    "copied": "Lien copié",
+    "error": "Échec — réessayez"
   },
   "dashboard": {
     "clients": {
@@ -2558,9 +2673,9 @@
       "title": "Production gérée",
       "titleMode": "Mode Support Total",
       "subtitle": "Nous rédigeons et affinez avec vous, pour fondateurs et dirigeants qui veulent déléguer la ligne éditoriale.",
-      "quoteProcess": "Après chaque demande de devis, nous organisons un appel téléphonique avec l'équipe pour cadrer précisément vos besoins.",
+      "quoteProcess": "Après chaque demande de devis, nous organisons une visio ou un appel avec l'équipe pour cadrer précisément vos besoins.",
       "cta": "Demander un devis",
-      "quoteHint": "Réponse sous 48 h · appel téléphonique pour cadrer votre besoin · devis personnalisé.",
+      "quoteHint": "Réponse sous 24 h ouvrées · visio ou appel pour cadrer votre besoin · devis personnalisé.",
       "starter": {
         "name": "Starter",
         "description": "{posts} posts / mois · engagement {months} mois min.",
@@ -2586,8 +2701,8 @@
       },
       "quoteForm": {
         "dialogTitle": "Demande de devis. Production gérée",
-        "dialogSubtitle": "Décrivez votre besoin : nous revenons vers vous sous 48 h pour organiser un appel avec l'équipe.",
-        "phoneCallNote": "Toute demande Support Total est suivie d'un appel téléphonique pour cadrer ensemble votre rythme, vos objectifs et votre secteur.",
+        "dialogSubtitle": "Décrivez votre besoin : nous revenons vers vous sous 24 h ouvrées pour organiser une visio ou un appel avec l'équipe.",
+        "phoneCallNote": "Toute demande Support Total est suivie d'une visio ou d'un appel pour cadrer ensemble votre rythme, vos objectifs et votre secteur.",
         "plan": "Formule",
         "planStarter": "Starter",
         "planRegular": "Regular",
@@ -2604,7 +2719,7 @@
         "submit": "Envoyer la demande",
         "pending": "Envoi…",
         "close": "Fermer",
-        "success": "Demande envoyée. Nous vous recontactons sous 48 h pour planifier un appel avec l'équipe et finaliser votre devis.",
+        "success": "Demande envoyée. Nous vous recontactons sous 24 h ouvrées pour planifier une visio ou un appel avec l'équipe et finaliser votre devis.",
         "errors": {
           "notConfigured": "Service indisponible. Contactez le support.",
           "generic": "Envoi impossible. Réessayez ou écrivez-nous directement."
@@ -2729,8 +2844,8 @@
       "regularDetail": "1 post / semaine",
       "muchMoreLabel": "Beaucoup Plus",
       "muchMoreDetail": "Plus d'1 post / semaine · rythme intensif · sur devis",
-      "responseHint": "Réponse sous 48 h ouvrées · appel téléphonique pour cadrer votre besoin.",
-      "phoneCallNote": "Toute demande Support Total est suivie d'un appel téléphonique pour cadrer ensemble votre rythme, vos objectifs et votre secteur.",
+      "responseHint": "Réponse sous 24 h ouvrées · visio ou appel pour cadrer votre besoin.",
+      "phoneCallNote": "Toute demande Support Total est suivie d'une visio ou d'un appel pour cadrer ensemble votre rythme, vos objectifs et votre secteur.",
       "formTitle": "Parlons de votre besoin",
       "formSubtitle": "Décrivez votre contexte : nous organisons ensuite un appel avec l'équipe pour affiner la formule."
     }
@@ -2827,7 +2942,7 @@
   },
   "adminCommercialProposals": {
     "title": "Deals Support",
-    "subtitle": "De la demande à la proposition, l'acceptation client et la facture draft — tout dans l'app.",
+    "subtitle": "De la demande à la proposition PDF, le retour par e-mail signé, l'acceptation client et la facture draft — tout dans l'app.",
     "loading": "Chargement…",
     "loadFailed": "Impossible de charger les demandes.",
     "saveFailed": "Enregistrement impossible.",
@@ -2864,7 +2979,7 @@
     "accept": {
       "button": "Client a validé — activer le contrat",
       "title": "Activer le contrat Support",
-      "subtitle": "Active l'offre sur le compte client, enregistre le contrat et crée une facture brouillon.",
+      "subtitle": "Validez après réception de la proposition signée par e-mail. L'offre est activée sur le compte client, le contrat enregistré et une facture brouillon créée. Un e-mail de bienvenue part automatiquement au client.",
       "client": "Client",
       "amount": "Montant",
       "commitment": "Engagement",
@@ -2962,8 +3077,10 @@
       "actions": {
         "regenerate": "Régénérer les 3 langues",
         "save": "Enregistrer le brouillon",
-        "send": "Envoyer le devis au client"
-      }
+        "send": "Envoyer le devis au client",
+        "downloadPdf": "Télécharger le PDF"
+      },
+      "downloadingPdf": "Téléchargement…"
     }
   },
   "adminBillingInvoices": {

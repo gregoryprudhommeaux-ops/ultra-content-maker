@@ -18,6 +18,7 @@ import type {
 } from "@/types/workspace";
 import { toDate } from "./firestore-utils";
 import {
+  activeWorkspaceOwnerId,
   allowsLegacyWorkspaceFallback,
   legacyCollectionRef,
   legacyDocRef,
@@ -45,7 +46,11 @@ async function listHistorySnap(userId: string, max: number) {
   if (!scoped.empty) return scoped;
   if (!allowsLegacyWorkspaceFallback(userId)) return scoped;
   return getDocs(
-    query(legacyCollectionRef(userId, "personaHistory"), orderBy("createdAt", "desc"), limit(max)),
+    query(
+      legacyCollectionRef(activeWorkspaceOwnerId(userId), "personaHistory"),
+      orderBy("createdAt", "desc"),
+      limit(max),
+    ),
   );
 }
 
@@ -120,7 +125,7 @@ export async function getPersonaHistoryEntry(
 ): Promise<PersonaHistoryEntry | null> {
   let snap = await getDoc(workspaceDocRef(userId, "personaHistory", historyId));
   if (!snap.exists() && allowsLegacyWorkspaceFallback(userId)) {
-    snap = await getDoc(legacyDocRef(userId, "personaHistory", historyId));
+    snap = await getDoc(legacyDocRef(activeWorkspaceOwnerId(userId), "personaHistory", historyId));
   }
   if (!snap.exists()) return null;
   const entry = mapHistoryDoc(snap.id, snap.data() as Record<string, unknown>);

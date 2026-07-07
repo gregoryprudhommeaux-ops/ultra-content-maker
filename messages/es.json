@@ -437,7 +437,23 @@
       "onboardingHoverHint": "Pase el cursor para detalles",
       "onboardingMissing": "Pasos pendientes",
       "onboardingStepsHint": "Pasos de onboarding",
-      "noBlock": "N/D"
+      "noBlock": "N/D",
+      "control": {
+        "action": "Controlar",
+        "confirmControl": "¿Vincular esta cuenta a la suya para gestión tipo agencia (Support Total, etc.)?",
+        "controlling": "Vinculando…",
+        "controlSuccess": "Cuenta vinculada — disponible en Cuenta activa.",
+        "release": "Soltar",
+        "confirmRelease": "¿Quitar su acceso a esta cuenta? El cliente conserva su espacio.",
+        "releasing": "Quitando…",
+        "releaseSuccess": "Acceso retirado.",
+        "openWorkspace": "Abrir espacio",
+        "managedByYou": "Bajo control",
+        "managedByOther": "Otro admin",
+        "cannotControlAdmin": "N/D",
+        "cannotControlSelf": "N/D",
+        "controlFailed": "No se pudo vincular esta cuenta."
+      }
     },
     "errors": {
       "notAuthenticated": "Sesión caducada.",
@@ -614,9 +630,18 @@
       "cannot_link_self": "No puedes vincular tu propia cuenta.",
       "cannot_link_admin": "No se puede vincular una cuenta de administrador.",
       "client_already_managed": "Este cliente ya está vinculado a otro acompañante.",
+      "forbidden": "Acción reservada a administradores de la plataforma.",
+      "unauthorized": "Sesión expirada, vuelve a iniciar sesión.",
+      "admin_not_configured": "Servicio admin no disponible (Firebase Admin).",
       "auth": "Sesión expirada, vuelve a iniciar sesión."
     },
     "managedClientBadge": "Cliente · {email}",
+    "agencyMode": "Modo agencia",
+    "agencyManagedContext": "Espacio cliente",
+    "agencyYourAdminAccount": "Su cuenta admin",
+    "agencyBannerSubtitle": "Las acciones en esta página crean contenido para este cliente, no para su cuenta personal.",
+    "agencySwitchAccount": "Cambiar cuenta",
+    "agencyHeaderPill": "Modo agencia · {name}",
     "unlinkClientAccount": "Quitar acceso a esta cuenta cliente",
     "unlinkClientConfirm": "¿Quitar el acceso a « {name} »? El cliente conserva su cuenta; ya no verás su espacio aquí.",
     "unlinkClientConfirmYes": "Sí, quitar",
@@ -1012,7 +1037,12 @@
       "blog": "URL blog",
       "role": "Rol / título",
       "positioning": "Unas líneas sobre ti y tu posicionamiento",
-      "positioningHint": "Describe qué haces y qué te diferencia. Puedes pegar tu intro de LinkedIn : suele resumir bien tu experiencia.",
+      "positioningHint": "Describe qué haces y qué te diferencia. Consultor: expertise y método. CEO/fundador: problema del ICP, categoría y qué cambia tu producto. Puedes pegar tu intro de LinkedIn.",
+      "contentArchetype": "Tipo de contenido LinkedIn",
+      "contentArchetypeHint": "Calibra el Persona y los posts: experto (saber hacer), fundador producto (categoría + prueba producto) o ambos.",
+      "contentArchetypeExpert": "Experto / consultor — compartir mi expertise",
+      "contentArchetypeFounder": "CEO / fundador — hablar de mi producto y categoría",
+      "contentArchetypeHybrid": "Híbrido — expertise + producto",
       "contentLanguage": "Idioma principal de los posts de LinkedIn generados",
       "contentLanguageHint": "Define el idioma por defecto de tus posts e influye en cómo se redacta tu Persona. La traducción con localización sigue disponible al crear posts.",
       "errors": {
@@ -1655,7 +1685,7 @@
         "modePicker": {
           "heroEyebrow": "Asistente de creación",
           "heroTitle": "Tu próximo post de LinkedIn, en minutos",
-          "heroSubtitle": "Cuatro recorridos, una misma promesa: un borrador con tu voz, listo para afinar y publicar.",
+          "heroSubtitle": "Tres recorridos, una misma promesa: un borrador con tu voz, listo para afinar y publicar.",
           "heroPill1": "Persona y brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Listo para LinkedIn",
@@ -1663,7 +1693,9 @@
           "recommended": "Recomendado",
           "start": "Empezar",
           "strategyDrawerTitle": "Análisis LinkedIn y recomendaciones",
-          "strategyDrawerHint": "Opcional : recorrido recomendado y 4 temas basados en tus posts recientes.",
+          "strategyDrawerHint": "Opcional: recorrido recomendado y 3 temas basados en tus posts recientes.",
+          "decisionMatrixTitle": "¿Qué recorrido elegir?",
+          "decisionMatrixHint": "Tres intenciones, tres caminos — el brief se adapta al nivel de detalle que necesites.",
           "guide": {
             "title": "¿No sabes por dónde empezar?",
             "subtitle": "Elige la intención que te encaje : resaltamos el recorrido adecuado.",
@@ -1671,7 +1703,7 @@
             "news": "Quiero reaccionar a la actualidad",
             "repurpose": "Quiero adaptar un contenido existente",
             "hint": {
-              "profile": "→ Recorrido recomendado: 1 borrador alineado con tu Persona y tu brief.",
+              "profile": "→ Recorrido experiencia: tema rápido o brief completo, alineado con tu Persona.",
               "news": "→ Recorrido actualidad: escaneo de 4 noticias y 1 post con tu ángulo.",
               "inspiration": "→ Recorrido inspiración: 1 borrador con ángulo distinto (sin copiar la fuente)."
             }
@@ -1693,20 +1725,20 @@
             "retry": "Reintentar",
             "refresh": "Volver a analizar",
             "steeringLabel": "Ángulo, pistas o palabras clave (opcional)",
-            "steeringHint": "Indica qué quieres explorar: tema, sector, actualidad, tono… La IA reorganizará las 4 temáticas y el recorrido recomendado.",
+            "steeringHint": "Indica qué quieres explorar: tema, sector, actualidad, tono… La IA reorganizará las 3 temáticas y el recorrido recomendado.",
             "steeringPlaceholder": "Ej.: enfoque en Japón y supply chain F&B, menos posts « inspiración », más casos de clientes…",
             "patternLabel": "Lo que ve la IA",
             "postsCount": "{count, plural, =0 {No se detectaron posts recientes} one {# post analizado · {period}} other {# posts analizados · {period}}}",
             "modeLabel": "Recorrido recomendado",
             "whyRecommendTitle": "¿Por qué esta recomendación?",
-            "themesDrawerTitle": "4 temas estratégicos",
+            "themesDrawerTitle": "3 temas estratégicos",
             "highlightMode": "Resaltar este recorrido",
-            "themesLabel": "4 temáticas estratégicas",
+            "themesLabel": "3 temas estratégicos",
             "newsHook": "Actualidad",
             "modes": {
-              "profile": "Desde mi perfil",
+              "profile": "Experiencia y ángulo",
               "news": "Desde la actualidad",
-              "inspiration": "Desde contenido existente"
+              "inspiration": "Fuente externa o documento"
             },
             "relation": {
               "continuity": "Coherencia",
@@ -1720,20 +1752,34 @@
             "themesStartAdjustment": "Iniciar ajuste con este tema",
             "themesStartHint": "«{title}» → recorrido {mode}"
           },
+          "decisionMatrix": {
+            "profile": {
+              "when": "Partes de tu experiencia",
+              "outcome": "Tema rápido o brief completo · 1 borrador con tu voz."
+            },
+            "news": {
+              "when": "Reaccionas a la actualidad",
+              "outcome": "4 noticias escaneadas · 1 post comentado con fuente."
+            },
+            "inspiration": {
+              "when": "Adaptas un contenido existente",
+              "outcome": "Pegar, enlace, biblioteca o documento · ángulo distinto."
+            }
+          },
           "modes": {
             "profile": {
-              "title": "Desde mi perfil",
-              "desc": "1 borrador basado en tu Persona. Brief opcional para afinar objetivo, ángulo y prueba.",
-              "badge": "Persona",
+              "title": "Experiencia y ángulo",
+              "desc": "Describe tu tema o completa el brief: un borrador con tu voz, alineado con tu Persona.",
+              "badge": "Experiencia",
               "outputs": [
-                "Voz Persona",
-                "Brief y objetivos",
+                "Tema rápido o brief completo",
+                "Persona y objetivos",
                 "Quality Panel"
               ]
             },
             "news": {
               "title": "Desde la actualidad",
-              "desc": "4 noticias escaneadas en tu nicho, elige una, obtén 1 post comentado con tu voz.",
+              "desc": "Elige una noticia reciente en tu nicho: un post comentado con tu voz y la fuente en el primer comentario.",
               "badge": "Actualidad",
               "outputs": [
                 "Noticias < 7 días",
@@ -1742,11 +1788,11 @@
               ]
             },
             "inspiration": {
-              "title": "Desde una inspiración",
-              "desc": "Texto pegado, URL o biblioteca : 1 borrador reescrito con ángulo distinto, sin copiar la fuente.",
-              "badge": "Inspiración",
+              "title": "Fuente externa o documento",
+              "desc": "A partir de un texto, enlace o documento: un borrador reescrito con ángulo distinto, sin copiar la fuente.",
+              "badge": "Fuente",
               "outputs": [
-                "Pegar · URL · Biblioteca",
+                "Pegar · URL · Doc · Biblioteca",
                 "Ángulo anti-plagio",
                 "Quality Panel"
               ]
@@ -1760,6 +1806,20 @@
                 "Tono a elegir",
                 "Quality Panel"
               ]
+            }
+          }
+        },
+        "profileBrief": {
+          "toggleTitle": "Nivel de brief",
+          "toggleHint": "Empieza ligero con un tema o abre el brief completo para afinar objetivos y prueba.",
+          "variants": {
+            "quick": {
+              "title": "Tema rápido",
+              "desc": "Describe la idea en pocas líneas — ideal si ya sabes qué decir."
+            },
+            "full": {
+              "title": "Brief completo",
+              "desc": "Objetivos, problema, POV y prueba — para un post más estratégico."
             }
           }
         },
@@ -1813,22 +1873,22 @@
         },
         "modes": {
           "profile": {
-            "title": "Desde mi perfil",
-            "desc": "1 borrador desde tu Persona y un brief completo."
+            "title": "Experiencia y ángulo",
+            "desc": "1 borrador desde tu Persona — tema rápido o brief completo."
           },
           "news": {
             "title": "Desde la actualidad",
             "desc": "Escaneo de 4 noticias recientes, eliges una y obtienes 1 post con tu voz."
           },
           "inspiration": {
-            "title": "Desde contenido existente",
-            "desc": "Pega texto, enlace + extracto o una inspiración guardada : 1 borrador con ángulo distinto."
+            "title": "Fuente externa o documento",
+            "desc": "Pega texto, enlace, documento o inspiración guardada: 1 borrador con ángulo distinto."
           }
         },
         "inspiration": {
           "inputTitle": "¿Cómo quieres aportar la referencia?",
-          "inputSubtitle": "La IA se inspira en la estructura y el tono sin copiar el texto fuente.",
-          "referenceRequired": "Completa la referencia (texto, URL + extracto o inspiración guardada).",
+          "inputSubtitle": "La IA se inspira en la estructura y el tono sin copiar el texto fuente. Pega, enlaza, importa un documento o reutiliza tu biblioteca.",
+          "referenceRequired": "Completa la referencia (texto, URL + extracto, documento o inspiración guardada).",
           "manageLibrary": "Gestiona tus inspiraciones:",
           "manageLibraryLink": "página Inspiraciones",
           "input": {
@@ -1844,8 +1904,19 @@
               "title": "Mis inspiraciones guardadas",
               "desc": "{count, plural, one {# fuente} other {# fuentes}} en tu biblioteca",
               "descEmpty": "Añade inspiraciones en la página dedicada para reutilizarlas aquí."
+            },
+            "document": {
+              "title": "Importar un documento",
+              "desc": "PDF, DOCX o enlace Google Doc — reutiliza notas, estudios o artículos fuente."
             }
           },
+          "documentTitle": "Elegir o importar un documento",
+          "documentSubtitle": "Selecciona un documento ya importado en tu perfil o añade uno nuevo.",
+          "documentUpload": "Importar archivo",
+          "documentFormats": "PDF, DOCX, TXT · máx. {maxMb} MB",
+          "documentEmpty": "Ningún documento utilizable. Importa un archivo para usarlo como referencia.",
+          "documentNoPreview": "Vista previa no disponible",
+          "documentPreviewLabel": "Referencia (documento)",
           "urlTitle": "Enlace y extracto",
           "urlHint": "Pega la URL y usa «Recuperar contenido» para rellenar el extracto. Siempre puedes editarlo antes de continuar.",
           "fetchContent": "Recuperar contenido",
@@ -1905,10 +1976,10 @@
           "label": "Recorrido:",
           "change": "Cambiar intención",
           "modes": {
-            "profile": "Desde mi perfil",
+            "profile": "Experiencia y ángulo",
             "news": "Desde la actualidad",
-            "inspiration": "Desde contenido existente",
-            "article": "Crear un artículo"
+            "inspiration": "Fuente externa o documento",
+            "article": "Experiencia y ángulo"
           }
         }
       },
@@ -2385,8 +2456,52 @@
         "personaFailed": "Persona no generado : puedes lanzarlo desde el paso Persona.",
         "llmNotConfigured": "Conexión IA no disponible. El escaneo usa tus datos públicos de LinkedIn : reintenta o completa a mano.",
         "subscriptionExpired": "Tu prueba o suscripción ha expirado. Renueva para usar el análisis IA."
+      },
+      "linkedInDelivery": {
+        "title": "Publicación en LinkedIn",
+        "subtitle": "¿Cómo desea publicar sus posts?",
+        "agencyPublish": "La agencia publica por mí",
+        "agencyPublishHint": "Publicamos directamente en su perfil de LinkedIn (se requiere acceso).",
+        "clientCopyPaste": "Yo copio y pego",
+        "clientCopyPasteHint": "Le enviamos el texto final y usted publica en LinkedIn.",
+        "accessNotes": "Acceso LinkedIn (opcional)",
+        "accessNotesHint": "Indique cómo darnos acceso (administrador de página, credenciales compartidas, etc.).",
+        "accessNotesPlaceholder": "ej. Añada nuestra cuenta como administrador de su página de empresa…"
       }
     }
+  },
+  "draftReview": {
+    "title": "Revisión de su borrador",
+    "subtitle": "Lea el post a continuación e indique los ajustes deseados.",
+    "loading": "Cargando…",
+    "questionsTitle": "Sus comentarios",
+    "questions": {
+      "tone": "Tono y estilo",
+      "tonePlaceholder": "¿Demasiado formal? ¿Más directo? Tono preferido…",
+      "accuracy": "Exactitud y mensajes clave",
+      "accuracyPlaceholder": "Hechos a corregir, puntos a reforzar o eliminar…",
+      "length": "Longitud y estructura",
+      "lengthPlaceholder": "Más corto, más detallado, otro gancho…",
+      "other": "Otras observaciones",
+      "otherPlaceholder": "Todo lo que nos ayude a afinar el post…"
+    },
+    "submit": "Enviar comentarios",
+    "submitting": "Enviando…",
+    "successTitle": "Gracias por sus comentarios",
+    "successBody": "Hemos recibido sus ajustes y afinaremos el post en consecuencia.",
+    "errors": {
+      "notFound": "Este enlace de revisión no es válido o ha expirado.",
+      "expired": "Este enlace de revisión ha expirado. Contacte a su interlocutor Support Total.",
+      "loadFailed": "No se pudo cargar el borrador.",
+      "submitFailed": "No se pudo enviar. Inténtelo de nuevo.",
+      "answersRequired": "Responda al menos una pregunta antes de enviar."
+    }
+  },
+  "adminDraftReview": {
+    "button": "Enviar enlace de revisión al cliente",
+    "loading": "Generando…",
+    "copied": "Enlace copiado",
+    "error": "Error — reintente"
   },
   "dashboard": {
     "clients": {
@@ -2557,9 +2672,9 @@
       "title": "Producción gestionada",
       "titleMode": "Modo Support Total",
       "subtitle": "Redactamos y afinamos contigo, para fundadores y directivos que quieren delegar la línea editorial.",
-      "quoteProcess": "Tras cada solicitud de presupuesto, organizamos una llamada con el equipo para definir con precisión tus necesidades.",
+      "quoteProcess": "Tras cada solicitud de presupuesto, organizamos una videollamada o llamada con el equipo para definir con precisión tus necesidades.",
       "cta": "Solicitar presupuesto",
-      "quoteHint": "Respuesta en 48 h · llamada para definir tu necesidad · presupuesto personalizado.",
+      "quoteHint": "Respuesta en 24 h laborables · videollamada o llamada para definir tu necesidad · presupuesto personalizado.",
       "starter": {
         "name": "Starter",
         "description": "{posts} posts / mes · mínimo {months} meses",
@@ -2585,8 +2700,8 @@
       },
       "quoteForm": {
         "dialogTitle": "Presupuesto. Producción gestionada",
-        "dialogSubtitle": "Describe tu necesidad : respondemos en 48 h para organizar una llamada con el equipo.",
-        "phoneCallNote": "Toda solicitud Support Total va seguida de una llamada para alinear ritmo, objetivos y sector.",
+        "dialogSubtitle": "Describe tu necesidad : respondemos en 24 h laborables para organizar una videollamada o llamada con el equipo.",
+        "phoneCallNote": "Toda solicitud Support Total va seguida de una videollamada o llamada para alinear ritmo, objetivos y sector.",
         "plan": "Plan",
         "planStarter": "Starter",
         "planRegular": "Regular",
@@ -2603,7 +2718,7 @@
         "submit": "Enviar solicitud",
         "pending": "Enviando…",
         "close": "Cerrar",
-        "success": "Solicitud enviada. Te contactamos en 48 h para planificar una llamada con el equipo y cerrar tu presupuesto.",
+        "success": "Solicitud enviada. Te contactamos en 24 h laborables para planificar una videollamada o llamada con el equipo y cerrar tu presupuesto.",
         "errors": {
           "notConfigured": "Servicio no disponible. Contacta soporte.",
           "generic": "No se pudo enviar. Reintenta o escríbenos."
@@ -2728,8 +2843,8 @@
       "regularDetail": "1 post / semana",
       "muchMoreLabel": "Mucho Más",
       "muchMoreDetail": "Más de 1 post / semana · ritmo intensivo · presupuesto a medida",
-      "responseHint": "Respuesta en 48 h laborables · llamada para definir tu necesidad.",
-      "phoneCallNote": "Toda solicitud Support Total va seguida de una llamada para alinear ritmo, objetivos y sector.",
+      "responseHint": "Respuesta en 24 h laborables · videollamada o llamada para definir tu necesidad.",
+      "phoneCallNote": "Toda solicitud Support Total va seguida de una videollamada o llamada para alinear ritmo, objetivos y sector.",
       "formTitle": "Cuéntanos tu necesidad",
       "formSubtitle": "Describe tu contexto : luego organizamos una llamada con el equipo para afinar la fórmula."
     }
@@ -2826,7 +2941,7 @@
   },
   "adminCommercialProposals": {
     "title": "Deals Support",
-    "subtitle": "De la solicitud a la propuesta, aceptación del cliente y factura borrador — todo en la app.",
+    "subtitle": "De la solicitud a la propuesta PDF, retorno por email firmado, aceptación del cliente y factura borrador — todo en la app.",
     "loading": "Cargando…",
     "loadFailed": "No se pudieron cargar las solicitudes.",
     "saveFailed": "No se pudo guardar.",
@@ -2863,7 +2978,7 @@
     "accept": {
       "button": "Cliente aceptó — activar contrato",
       "title": "Activar contrato Support",
-      "subtitle": "Activa la oferta en la cuenta del cliente, registra el contrato y crea una factura borrador.",
+      "subtitle": "Valide tras recibir la propuesta firmada por email. Activa la oferta en la cuenta del cliente, registra el contrato y crea una factura borrador. Se envía automáticamente un email de bienvenida al cliente.",
       "client": "Cliente",
       "amount": "Importe",
       "commitment": "Compromiso",
@@ -2961,8 +3076,10 @@
       "actions": {
         "regenerate": "Regenerar los 3 idiomas",
         "save": "Guardar borrador",
-        "send": "Enviar presupuesto al cliente"
-      }
+        "send": "Enviar presupuesto al cliente",
+        "downloadPdf": "Descargar PDF"
+      },
+      "downloadingPdf": "Descargando…"
     }
   },
   "adminBillingInvoices": {

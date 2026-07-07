@@ -3,6 +3,7 @@ import {
   collection,
   doc,
   getDoc,
+  getDocFromServer,
   getDocs,
   serverTimestamp,
   setDoc,
@@ -29,6 +30,15 @@ import {
 } from "./managed-clients";
 import type { ManagedClientEntry } from "@/types/workspace";
 import { formatDisplayNameFromEmail } from "./display-name";
+import { getClientAuth } from "@/lib/firebase/client";
+
+type ManagedWorkspaceAccountResponse = Omit<
+  WorkspaceAccount,
+  "createdAt" | "updatedAt"
+> & {
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type WorkspaceAccount = {
   id: string;
@@ -89,6 +99,44 @@ export function storeActiveAccountId(ownerId: string, accountId: string): void {
   localStorage.setItem(activeAccountStorageKey(ownerId), accountId);
 }
 
+/** Maps switcher id (incl. managed:…) to Firestore workspace scope. */
+export function resolveWorkspaceScope(
+  sessionOwnerId: string,
+  accountId: string,
+): WorkspaceScope {
+  const parsed = parseManagedAccountId(accountId);
+  if (parsed) {
+    return { ownerId: parsed.clientUid, accountId: parsed.accountId };
+  }
+  return { ownerId: sessionOwnerId, accountId };
+}
+
+export function resolveActiveAccountFromBootstrap(
+  sessionOwnerId: string,
+  accounts: WorkspaceAccount[],
+  scope: WorkspaceScope,
+): WorkspaceAccount | null {
+  const storedId = readStoredActiveAccountId(sessionOwnerId);
+  if (storedId) {
+    const byStored = accounts.find((a) => a.id === storedId);
+    if (byStored) return byStored;
+  }
+  return (
+    accounts.find((a) => {
+      if (a.isManaged) {
+        const parsed = parseManagedAccountId(a.id);
+        return (
+          parsed?.clientUid === scope.ownerId &&
+          parsed.accountId === scope.accountId
+        );
+      }
+      return scope.ownerId === sessionOwnerId && a.id === scope.accountId;
+    }) ??
+    accounts[0] ??
+    null
+  );
+}
+
 export async function listWorkspaceAccounts(ownerId: string): Promise<WorkspaceAccount[]> {
   const snap = await getDocs(accountsCollection(ownerId));
   return snap.docs
@@ -109,6 +157,29 @@ export async function getWorkspaceAccount(
   return mapAccount(snap.id, snap.data());
 }
 
+async function fetchManagedAccountsFromApi(): Promise<WorkspaceAccount[]> {
+  try {
+    const auth = getClientAuth();
+    const token = await auth?.currentUser?.getIdToken();
+    if (!token) return [];
+
+    const res = await fetch("/api/admin/managed-clients", {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+
+    const data = (await res.json()) as { accounts?: ManagedWorkspaceAccountResponse[] };
+    return (data.accounts ?? []).map((account) => ({
+      ...account,
+      createdAt: new Date(account.createdAt),
+      updatedAt: new Date(account.updatedAt),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 async function loadManagedClientAccounts(
   adminUid: string,
   entries: ManagedClientEntry[],
@@ -116,7 +187,13 @@ async function loadManagedClientAccounts(
   const results = await Promise.all(
     entries.map(async (entry) => {
       const clientAccountId = entry.accountId || DEFAULT_ACCOUNT_ID;
-      const snap = await getDoc(accountRef(entry.clientUid, clientAccountId));
+      const ref = accountRef(entry.clientUid, clientAccountId);
+      let snap;
+      try {
+        snap = await getDocFromServer(ref);
+      } catch {
+        snap = await getDoc(ref);
+      }
       const accountData = snap.exists() ? snap.data() : null;
       const name =
         entry.displayName?.trim() ||
@@ -355,15 +432,20 @@ export async function bootstrapWorkspaceAccounts(
 
   if (isPlatformAdmin) {
     accounts = accounts.filter((account) => account.isDefault || account.id === DEFAULT_ACCOUNT_ID);
-    try {
-      const userDoc = await getUserDoc(ownerId);
-      const managedEntries = userDoc?.managedClients ?? [];
-      if (managedEntries.length > 0) {
-        const managedAccounts = await loadManagedClientAccounts(ownerId, managedEntries);
-        accounts = [...managedAccounts, ...accounts];
+    let managedAccounts = await fetchManagedAccountsFromApi();
+    if (managedAccounts.length === 0) {
+      try {
+        const userDoc = await getUserDoc(ownerId);
+        const managedEntries = userDoc?.managedClients ?? [];
+        if (managedEntries.length > 0) {
+          managedAccounts = await loadManagedClientAccounts(ownerId, managedEntries);
+        }
+      } catch {
+        /* managed clients optional */
       }
-    } catch {
-      /* managed clients optional */
+    }
+    if (managedAccounts.length > 0) {
+      accounts = [...managedAccounts, ...accounts];
     }
   }
 
@@ -397,7 +479,7 @@ export async function bootstrapWorkspaceAccounts(
     accounts[0]?.id ||
     DEFAULT_ACCOUNT_ID;
 
-  const scope: WorkspaceScope = { ownerId, accountId: preferredId };
+  const scope = resolveWorkspaceScope(ownerId, preferredId);
   setActiveWorkspaceScope(scope);
   storeActiveAccountId(ownerId, preferredId);
   await setUserActiveAccountId(ownerId, preferredId).catch(() => {});
@@ -416,8 +498,12 @@ export async function switchWorkspaceAccount(
 ): Promise<WorkspaceScope> {
   const parsed = parseManagedAccountId(accountId);
   if (parsed) {
-    const account = await getWorkspaceAccount(parsed.clientUid, parsed.accountId);
-    if (!account) throw new Error("Workspace account not found");
+    const account = await getWorkspaceAccount(parsed.clientUid, parsed.accountId).catch(
+      () => null,
+    );
+    if (!account) {
+      /* Agency manager may switch scope even if client account doc is not yet readable. */
+    }
     const scope: WorkspaceScope = {
       ownerId: parsed.clientUid,
       accountId: parsed.accountId,

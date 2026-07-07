@@ -50,14 +50,14 @@ Return JSON only (${lang} for all user-facing strings):
 }
 
 Rules:
-- Exactly 4 themes in themes array.
-- At least 2 themes must relate to continuity or correction (anchor in past posts).
-- Up to 2 themes may use relationToHistory "news" when timely news clearly strengthens the angle; set newsHook briefly.
+- Exactly 3 themes in themes array (one per creation path: profile, news, inspiration).
+- At least 1 theme must relate to continuity or correction (anchor in past posts).
+- Up to 1 theme may use relationToHistory "news" when timely news clearly strengthens the angle; set newsHook briefly.
 - recommendedMode must match the strongest immediate recommendation.
 - suggestedMode per theme can differ (e.g. one news theme, three profile themes).
 - Be specific to THIS author · no generic "leadership tips".
 - If few or no posts were found, recommend profile mode and themes that establish positioning from Persona.
-- When userSteering is provided, treat it as the author's explicit priority: reshape all 4 themes and mode recommendation around that angle, keywords, or leads · while staying coherent with Persona and post history (or justify a deliberate pivot).`;
+- When userSteering is provided, treat it as the author's explicit priority: reshape all 3 themes and mode recommendation around that angle, keywords, or leads · while staying coherent with Persona and post history (or justify a deliberate pivot).`;
 }
 
 export function buildCreationStrategyGuideUserPrompt(input: {
@@ -147,10 +147,10 @@ export function normalizeCreationStrategyGuide(raw: {
  ? t.newsHook.trim() || undefined
  : undefined,
  });
- if (themes.length >= 4) break;
+ if (themes.length >= 3) break;
  }
 
- if (themes.length < 4) return null;
+ if (themes.length < 3) return null;
 
  return {
  postsAnalyzed:

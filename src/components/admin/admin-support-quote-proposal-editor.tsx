@@ -7,6 +7,8 @@ import {
   type SupportQuoteProposalDraft,
   type SupportQuoteProposalLocaleContent,
 } from "@/lib/admin/support-quote-proposal-shared";
+import { useAuth } from "@/components/auth/auth-provider";
+import { getClientAuth } from "@/lib/firebase/client";
 import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import { useTranslations } from "next-intl";
@@ -35,6 +37,8 @@ type Props = {
 
 export function AdminSupportQuoteProposalEditor({ quote, pending, onPatch }: Props) {
   const t = useTranslations("adminSupportQuotes.proposal");
+  const { user } = useAuth();
+  const [pdfPending, setPdfPending] = useState(false);
   const initial = useMemo(
     () => quote.proposalDraft ?? buildDefaultProposalDraft(quote),
     [quote],
@@ -66,6 +70,30 @@ export function AdminSupportQuoteProposalEditor({ quote, pending, onPatch }: Pro
       ...prev,
       [activeLocale]: { ...prev[activeLocale], [field]: value },
     }));
+  }
+
+  async function onDownloadPdf() {
+    if (!user) return;
+    setPdfPending(true);
+    try {
+      const auth = getClientAuth();
+      const token = await auth?.currentUser?.getIdToken();
+      if (!token) return;
+      const res = await fetch(
+        `/api/admin/support-quotes/${encodeURIComponent(quote.id)}/pdf?locale=${sendLocale}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `support-proposal-${quote.id}.pdf`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPdfPending(false);
+    }
   }
 
   return (
@@ -198,6 +226,14 @@ export function AdminSupportQuoteProposalEditor({ quote, pending, onPatch }: Pro
           onClick={() => onPatch("save_proposal", { proposalDraft: draft })}
         >
           {pending ? t("saving") : t("actions.save")}
+        </button>
+        <button
+          type="button"
+          className={BTN_SECONDARY}
+          disabled={pending || pdfPending}
+          onClick={() => void onDownloadPdf()}
+        >
+          {pdfPending ? t("downloadingPdf") : t("actions.downloadPdf")}
         </button>
         <button
           type="button"

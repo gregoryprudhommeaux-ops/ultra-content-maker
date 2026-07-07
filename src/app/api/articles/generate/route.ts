@@ -231,6 +231,8 @@ export async function POST(request: Request) {
  contentLanguage,
  targetScope,
  emojiLevel,
+ body.profileEnrichment,
+ authorSteering,
  );
  userContent = `${body.personaPromptText}\n\n---\n\n${buildInspirationArticleUserPayload(
  body.personaPromptText,
@@ -274,7 +276,7 @@ export async function POST(request: Request) {
  ? "\n\nAll posts MUST anchor on the news story in the user message. Name the publisher in the text if useful · NEVER paste any https:// URL in hook, body, or PS (source link goes in the first comment only)."
  : "";
 
- systemContent = `${buildArticlesSystemPromptWithCount(contentLanguage, articleCount, emojiLevel, articleCount === 1 ? targetScope : undefined)}${systemExtra}`;
+ systemContent = `${buildArticlesSystemPromptWithCount(contentLanguage, articleCount, emojiLevel, articleCount === 1 ? targetScope : undefined, body.profileEnrichment, authorSteering)}${systemExtra}`;
  userContent = `${body.personaPromptText}\n\n---\n\n${userContent}`;
  }
 

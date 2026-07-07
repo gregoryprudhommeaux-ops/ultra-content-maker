@@ -5,6 +5,11 @@ import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-
 import { useAuth } from "@/components/auth/auth-provider";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import {
+  LinkedInDeliveryPreference,
+  type LinkedInDeliveryMode,
+} from "@/components/setup/linkedin-delivery-preference";
+import { useSubscription } from "@/contexts/subscription-context";
+import {
   DashboardPageHero,
   DashboardPageSection,
   DashboardPageShell,
@@ -47,12 +52,16 @@ export function ExpressSetupForm() {
   const tPersona = useTranslations("setup.persona");
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
+  const { access } = useSubscription();
   const router = useRouter();
 
   const [linkedinProfileUrl, setLinkedinProfileUrl] = useState("");
   const [contentLanguage, setContentLanguage] = useState<ContentLanguage>(
     locale === "fr" || locale === "es" ? locale : "en",
   );
+  const [linkedInDeliveryMode, setLinkedInDeliveryMode] =
+    useState<LinkedInDeliveryMode>("client_copy_paste");
+  const [linkedInPublishAccessNotes, setLinkedInPublishAccessNotes] = useState("");
   const [roleTitle, setRoleTitle] = useState("");
   const [positioningLine, setPositioningLine] = useState("");
   const [prefill, setPrefill] = useState<PrefillState | null>(null);
@@ -71,6 +80,12 @@ export function ExpressSetupForm() {
       if (profile?.contentLanguage) setContentLanguage(profile.contentLanguage);
       if (profile?.roleTitle) setRoleTitle(profile.roleTitle);
       if (profile?.positioningLine) setPositioningLine(profile.positioningLine);
+      if (profile?.linkedInDeliveryMode) {
+        setLinkedInDeliveryMode(profile.linkedInDeliveryMode);
+      }
+      if (profile?.linkedInPublishAccessNotes) {
+        setLinkedInPublishAccessNotes(profile.linkedInPublishAccessNotes);
+      }
       setLoading(false);
     })();
   }, [user]);
@@ -206,6 +221,15 @@ export function ExpressSetupForm() {
         contentLanguage,
         roleTitle: roleTitle.trim() || undefined,
         positioningLine: positioningLine.trim() || undefined,
+        ...(access?.isSupportClient
+          ? {
+              linkedInDeliveryMode,
+              linkedInPublishAccessNotes:
+                linkedInDeliveryMode === "agency_publish"
+                  ? linkedInPublishAccessNotes.trim() || undefined
+                  : undefined,
+            }
+          : {}),
         status: "in_progress",
       });
       await skipAudienceStep(user.uid);
@@ -407,6 +431,15 @@ export function ExpressSetupForm() {
           ) : (
             <p className="text-sm text-ns-secondary">{t("scanProfileHint")}</p>
           )}
+
+          {access?.isSupportClient ? (
+            <LinkedInDeliveryPreference
+              mode={linkedInDeliveryMode}
+              notes={linkedInPublishAccessNotes}
+              onModeChange={setLinkedInDeliveryMode}
+              onNotesChange={setLinkedInPublishAccessNotes}
+            />
+          ) : null}
 
           <div className="rounded-xl border border-dashed border-ns-alternate bg-white/80 px-4 py-3 text-sm leading-relaxed text-ns-secondary">
             {t("fullProfileLater")}{" "}

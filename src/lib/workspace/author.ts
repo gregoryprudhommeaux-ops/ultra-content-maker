@@ -51,6 +51,9 @@ export async function getAuthorProfile(userId: string): Promise<AuthorProfile | 
     contentLanguage: (d.contentLanguage as ContentLanguage) ?? "en",
     roleTitle: d.roleTitle as string | undefined,
     positioningLine: d.positioningLine as string | undefined,
+    contentArchetype: d.contentArchetype as AuthorProfile["contentArchetype"] | undefined,
+    linkedInDeliveryMode: d.linkedInDeliveryMode as AuthorProfile["linkedInDeliveryMode"] | undefined,
+    linkedInPublishAccessNotes: d.linkedInPublishAccessNotes as string | undefined,
     status: (d.status as AuthorProfile["status"]) ?? "not_started",
     updatedAt: toDate(d.updatedAt),
   };
@@ -82,6 +85,10 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
       contentLanguage: input.contentLanguage ?? prev?.contentLanguage ?? "en",
       roleTitle: input.roleTitle ?? prev?.roleTitle ?? null,
       positioningLine: input.positioningLine ?? prev?.positioningLine ?? null,
+      contentArchetype: input.contentArchetype ?? prev?.contentArchetype ?? null,
+      linkedInDeliveryMode: input.linkedInDeliveryMode ?? prev?.linkedInDeliveryMode ?? null,
+      linkedInPublishAccessNotes:
+        input.linkedInPublishAccessNotes ?? prev?.linkedInPublishAccessNotes ?? null,
       status,
       updatedAt: serverTimestamp(),
     },

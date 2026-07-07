@@ -437,7 +437,23 @@
       "onboardingHoverHint": "Hover for details",
       "onboardingMissing": "Missing steps",
       "onboardingStepsHint": "Onboarding steps",
-      "noBlock": "N/A"
+      "noBlock": "N/A",
+      "control": {
+        "action": "Control",
+        "confirmControl": "Link this account to yours for agency-style management (Support Total, etc.)?",
+        "controlling": "Linking…",
+        "controlSuccess": "Account linked — available under Active account.",
+        "release": "Release",
+        "confirmRelease": "Remove your access to this account? The client keeps their workspace.",
+        "releasing": "Removing…",
+        "releaseSuccess": "Access removed.",
+        "openWorkspace": "Open workspace",
+        "managedByYou": "Under control",
+        "managedByOther": "Other admin",
+        "cannotControlAdmin": "N/A",
+        "cannotControlSelf": "N/A",
+        "controlFailed": "Could not link this account."
+      }
     },
     "errors": {
       "notAuthenticated": "Session expired.",
@@ -614,9 +630,18 @@
       "cannot_link_self": "You cannot link your own account.",
       "cannot_link_admin": "Cannot link an admin account.",
       "client_already_managed": "This client is already linked to another coach.",
+      "forbidden": "This action is limited to platform administrators.",
+      "unauthorized": "Session expired, sign in again.",
+      "admin_not_configured": "Admin service unavailable (Firebase Admin).",
       "auth": "Session expired, sign in again."
     },
     "managedClientBadge": "Client · {email}",
+    "agencyMode": "Agency mode",
+    "agencyManagedContext": "Client workspace",
+    "agencyYourAdminAccount": "Your admin account",
+    "agencyBannerSubtitle": "Actions on this page create content for this client, not your personal account.",
+    "agencySwitchAccount": "Switch account",
+    "agencyHeaderPill": "Agency mode · {name}",
     "unlinkClientAccount": "Remove access to this client account",
     "unlinkClientConfirm": "Remove access to “{name}”? The client keeps their account; you will no longer see their workspace here.",
     "unlinkClientConfirmYes": "Yes, remove",
@@ -1012,7 +1037,12 @@
       "blog": "Blog URL",
       "role": "Role / title",
       "positioning": "A few lines about you and your positioning",
-      "positioningHint": "Describe what you do and what sets you apart. You can paste your LinkedIn intro, it often captures your expertise well.",
+      "positioningHint": "Describe what you do and what sets you apart. Consultant: expertise and method. Founder/CEO: ICP problem, category, and what your product changes. You can paste your LinkedIn intro.",
+      "contentArchetype": "LinkedIn content type",
+      "contentArchetypeHint": "Steers your Persona and posts: expert (know-how), product founder (category + product proof), or both.",
+      "contentArchetypeExpert": "Expert / consultant — share my expertise",
+      "contentArchetypeFounder": "CEO / founder — talk about my product and category",
+      "contentArchetypeHybrid": "Hybrid — expertise + product",
       "contentLanguage": "Primary language for generated LinkedIn posts",
       "contentLanguageHint": "Sets the default language for posts and shapes how your Persona is written. Translation with localization is still available when creating posts.",
       "errors": {
@@ -1655,7 +1685,7 @@
         "modePicker": {
           "heroEyebrow": "Creation assistant",
           "heroTitle": "Your next LinkedIn post, in minutes",
-          "heroSubtitle": "Four paths, one promise: a draft in your voice, ready to refine and publish.",
+          "heroSubtitle": "Three paths, one promise: a draft in your voice, ready to refine and publish.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "LinkedIn-ready",
@@ -1663,7 +1693,9 @@
           "recommended": "Recommended",
           "start": "Get started",
           "strategyDrawerTitle": "LinkedIn analysis & recommendations",
-          "strategyDrawerHint": "Optional : recommended path and 4 themes based on your recent posts.",
+          "strategyDrawerHint": "Optional: recommended path and 3 themes based on your recent posts.",
+          "decisionMatrixTitle": "Which path should you pick?",
+          "decisionMatrixHint": "Three intents, three paths — the brief adapts to how much detail you need.",
           "guide": {
             "title": "Not sure where to start?",
             "subtitle": "Pick the intent that fits you : we’ll highlight the right path.",
@@ -1671,7 +1703,7 @@
             "news": "I want to react to the news",
             "repurpose": "I want to repurpose existing content",
             "hint": {
-              "profile": "→ Recommended path: 1 draft aligned with your Persona and brief.",
+              "profile": "→ Expertise path: quick topic or full brief, aligned with your Persona.",
               "news": "→ News path: scan 4 recent stories, then 1 post anchored on your angle.",
               "inspiration": "→ Inspiration path: 1 draft with a distinct angle (no copying the source)."
             }
@@ -1693,20 +1725,20 @@
             "retry": "Retry",
             "refresh": "Re-run analysis",
             "steeringLabel": "Angle, leads, or keywords (optional)",
-            "steeringHint": "Tell the AI what to explore next: topic, sector, news, tone… It will reshape the 4 themes and recommended path.",
+            "steeringHint": "Tell the AI what to explore next: topic, sector, news, tone… It will reshape the 3 themes and recommended path.",
             "steeringPlaceholder": "E.g. focus on Japan and F&B supply chain, fewer “inspiration” posts, more concrete client cases…",
             "patternLabel": "What the AI sees",
             "postsCount": "{count, plural, =0 {No recent posts detected} one {# post analyzed · {period}} other {# posts analyzed · {period}}}",
             "modeLabel": "Recommended path",
             "whyRecommendTitle": "Why this recommendation?",
-            "themesDrawerTitle": "4 strategic themes",
+            "themesDrawerTitle": "3 strategic themes",
             "highlightMode": "Highlight this path",
-            "themesLabel": "4 strategic themes",
+            "themesLabel": "3 strategic themes",
             "newsHook": "News",
             "modes": {
-              "profile": "From my profile",
+              "profile": "Expertise & angle",
               "news": "From the news",
-              "inspiration": "From existing content"
+              "inspiration": "External source or document"
             },
             "relation": {
               "continuity": "Continuity",
@@ -1720,20 +1752,34 @@
             "themesStartAdjustment": "Start adjustment with this theme",
             "themesStartHint": "“{title}” → {mode} path"
           },
+          "decisionMatrix": {
+            "profile": {
+              "when": "You start from your expertise",
+              "outcome": "Quick topic or full brief · 1 draft in your voice."
+            },
+            "news": {
+              "when": "You react to the news",
+              "outcome": "4 stories scanned · 1 commented post with source."
+            },
+            "inspiration": {
+              "when": "You repurpose existing content",
+              "outcome": "Paste, link, library, or document · distinct angle."
+            }
+          },
           "modes": {
             "profile": {
-              "title": "From my profile",
-              "desc": "1 draft grounded in your Persona. Optional brief to refine objective, angle, and proof.",
-              "badge": "Persona",
+              "title": "Expertise & angle",
+              "desc": "Describe your topic or complete the brief: one draft in your voice, aligned with your Persona.",
+              "badge": "Expertise",
               "outputs": [
-                "Persona voice",
-                "Brief & objectives",
+                "Quick topic or full brief",
+                "Persona & objectives",
                 "Quality Panel"
               ]
             },
             "news": {
               "title": "From the news",
-              "desc": "4 stories scanned in your niche : pick one, get 1 commented post in your voice.",
+              "desc": "Pick a recent story in your niche: one commented post in your voice, with the source in the first comment.",
               "badge": "News",
               "outputs": [
                 "News < 7 days",
@@ -1742,11 +1788,11 @@
               ]
             },
             "inspiration": {
-              "title": "From inspiration",
-              "desc": "Pasted text, URL, or library : 1 rewritten draft with a distinct angle, without copying the source.",
-              "badge": "Inspiration",
+              "title": "External source or document",
+              "desc": "From pasted text, a link, or a document: one rewritten draft with a distinct angle, without copying the source.",
+              "badge": "Source",
               "outputs": [
-                "Paste · URL · Library",
+                "Paste · URL · Doc · Library",
                 "Anti-plagiarism angle",
                 "Quality Panel"
               ]
@@ -1760,6 +1806,20 @@
                 "Tone of choice",
                 "Quality Panel"
               ]
+            }
+          }
+        },
+        "profileBrief": {
+          "toggleTitle": "Brief depth",
+          "toggleHint": "Start light with a topic, or open the full brief to refine objectives and proof.",
+          "variants": {
+            "quick": {
+              "title": "Quick topic",
+              "desc": "Describe your idea in a few lines — best when you already know what to say."
+            },
+            "full": {
+              "title": "Full brief",
+              "desc": "Objectives, problem, POV, and proof — for a more strategic post."
             }
           }
         },
@@ -1813,22 +1873,22 @@
         },
         "modes": {
           "profile": {
-            "title": "From my profile",
-            "desc": "1 draft from your Persona and a full brief."
+            "title": "Expertise & angle",
+            "desc": "1 draft from your Persona — quick topic or full brief."
           },
           "news": {
             "title": "From the news",
             "desc": "Scan 4 recent stories, pick one, then get 1 post reacting in your voice."
           },
           "inspiration": {
-            "title": "From existing content",
-            "desc": "Paste text, a link + excerpt, or a saved inspiration : 1 draft with a distinct angle."
+            "title": "External source or document",
+            "desc": "Paste text, a link, upload a document, or a saved inspiration: 1 draft with a distinct angle."
           }
         },
         "inspiration": {
           "inputTitle": "How do you want to provide the reference?",
-          "inputSubtitle": "The AI draws on structure and tone without copying the source text.",
-          "referenceRequired": "Complete the reference (text, URL + excerpt, or saved inspiration).",
+          "inputSubtitle": "The AI draws on structure and tone without copying the source. Paste, link, upload a document, or reuse your library.",
+          "referenceRequired": "Complete the reference (text, URL + excerpt, document, or saved inspiration).",
           "manageLibrary": "Manage your inspirations:",
           "manageLibraryLink": "Inspirations page",
           "input": {
@@ -1844,8 +1904,19 @@
               "title": "My saved inspirations",
               "desc": "{count, plural, one {# source} other {# sources}} in your library",
               "descEmpty": "Add inspirations on the dedicated page to reuse them here."
+            },
+            "document": {
+              "title": "Upload a document",
+              "desc": "PDF, DOCX, or Google Doc link — reuse notes, studies, or source articles."
             }
           },
+          "documentTitle": "Choose or upload a document",
+          "documentSubtitle": "Select a document already imported in your profile, or add a new one.",
+          "documentUpload": "Upload a file",
+          "documentFormats": "PDF, DOCX, TXT · max {maxMb} MB",
+          "documentEmpty": "No usable document yet. Upload a file to use it as reference.",
+          "documentNoPreview": "Preview unavailable",
+          "documentPreviewLabel": "Reference (document)",
           "urlTitle": "Link and excerpt",
           "urlHint": "Paste the URL, then use “Fetch content” to prefill the excerpt. You can still edit it before continuing.",
           "fetchContent": "Fetch content",
@@ -1905,10 +1976,10 @@
           "label": "Path:",
           "change": "Change intent",
           "modes": {
-            "profile": "From my profile",
+            "profile": "Expertise & angle",
             "news": "From the news",
-            "inspiration": "From existing content",
-            "article": "Create an article"
+            "inspiration": "External source or document",
+            "article": "Expertise & angle"
           }
         }
       },
@@ -2385,8 +2456,52 @@
         "personaFailed": "Persona not generated, you can run it from the Persona step.",
         "llmNotConfigured": "AI connection unavailable. Scan uses your public LinkedIn data, retry or fill in manually.",
         "subscriptionExpired": "Your trial or subscription has expired. Renew to use AI analysis."
+      },
+      "linkedInDelivery": {
+        "title": "LinkedIn publishing",
+        "subtitle": "How would you like your posts published?",
+        "agencyPublish": "Agency publishes for me",
+        "agencyPublishHint": "We publish directly on your LinkedIn profile (access required).",
+        "clientCopyPaste": "I copy-paste myself",
+        "clientCopyPasteHint": "We send you the final text and you publish on LinkedIn.",
+        "accessNotes": "LinkedIn access (optional)",
+        "accessNotesHint": "Tell us how to get access (page admin, shared credentials, etc.).",
+        "accessNotesPlaceholder": "e.g. Add our account as admin on your company page…"
       }
     }
+  },
+  "draftReview": {
+    "title": "Review your draft",
+    "subtitle": "Read the post below and tell us what you'd like adjusted.",
+    "loading": "Loading…",
+    "questionsTitle": "Your feedback",
+    "questions": {
+      "tone": "Tone and style",
+      "tonePlaceholder": "Too formal? More direct? Preferred tone…",
+      "accuracy": "Accuracy and key messages",
+      "accuracyPlaceholder": "Facts to fix, points to strengthen or remove…",
+      "length": "Length and structure",
+      "lengthPlaceholder": "Shorter, more detailed, different hook…",
+      "other": "Other notes",
+      "otherPlaceholder": "Anything that will help us refine the post…"
+    },
+    "submit": "Send feedback",
+    "submitting": "Sending…",
+    "successTitle": "Thank you for your feedback",
+    "successBody": "We received your adjustments and will refine the post accordingly.",
+    "errors": {
+      "notFound": "This review link is invalid or has expired.",
+      "expired": "This review link has expired. Contact your Support Total contact.",
+      "loadFailed": "Could not load the draft.",
+      "submitFailed": "Could not send. Try again in a moment.",
+      "answersRequired": "Answer at least one question before sending."
+    }
+  },
+  "adminDraftReview": {
+    "button": "Send review link to client",
+    "loading": "Generating…",
+    "copied": "Link copied",
+    "error": "Failed — try again"
   },
   "dashboard": {
     "clients": {
@@ -2557,9 +2672,9 @@
       "title": "Managed production",
       "titleMode": "Support Total mode",
       "subtitle": "We draft and refine with you : for founders and executives who want to delegate editorial work.",
-      "quoteProcess": "After every quote request, we schedule a phone call with our team to scope your needs in detail.",
+      "quoteProcess": "After every quote request, we schedule a video call or phone call with our team to scope your needs in detail.",
       "cta": "Request a quote",
-      "quoteHint": "Reply within 48h · phone call to scope your needs · custom quote.",
+      "quoteHint": "Reply within 24 business hours · video call or phone call to scope your needs · custom quote.",
       "starter": {
         "name": "Starter",
         "description": "{posts} posts / month · {months}-month minimum",
@@ -2585,8 +2700,8 @@
       },
       "quoteForm": {
         "dialogTitle": "Quote request. Managed production",
-        "dialogSubtitle": "Describe your needs : we'll get back within 48h to schedule a call with our team.",
-        "phoneCallNote": "Every Support Total request is followed by a phone call to align on rhythm, goals, and sector.",
+        "dialogSubtitle": "Describe your needs : we'll get back within 24 business hours to schedule a video call or phone call with our team.",
+        "phoneCallNote": "Every Support Total request is followed by a video call or phone call to align on rhythm, goals, and sector.",
         "plan": "Plan",
         "planStarter": "Starter",
         "planRegular": "Regular",
@@ -2603,7 +2718,7 @@
         "submit": "Send request",
         "pending": "Sending…",
         "close": "Close",
-        "success": "Request sent. We'll get back within 48h to schedule a call with our team and finalize your quote.",
+        "success": "Request sent. We'll get back within 24 business hours to schedule a video call or phone call with our team and finalize your quote.",
         "errors": {
           "notConfigured": "Service unavailable. Contact support.",
           "generic": "Could not send. Try again or email us directly."
@@ -2728,8 +2843,8 @@
       "regularDetail": "1 post / week",
       "muchMoreLabel": "Much More",
       "muchMoreDetail": "More than 1 post / week · high-frequency · custom quote",
-      "responseHint": "Reply within 48 business hours · phone call to scope your needs.",
-      "phoneCallNote": "Every Support Total request is followed by a phone call to align on rhythm, goals, and sector.",
+      "responseHint": "Reply within 24 business hours · video call or phone call to scope your needs.",
+      "phoneCallNote": "Every Support Total request is followed by a video call or phone call to align on rhythm, goals, and sector.",
       "formTitle": "Tell us about your needs",
       "formSubtitle": "Describe your context : we'll then schedule a call with our team to refine the plan."
     }
@@ -2826,7 +2941,7 @@
   },
   "adminCommercialProposals": {
     "title": "Support deals",
-    "subtitle": "From request to proposal, client acceptance and draft invoice — all in-app.",
+    "subtitle": "From request to PDF proposal, signed email return, client acceptance and draft invoice — all in-app.",
     "loading": "Loading…",
     "loadFailed": "Could not load requests.",
     "saveFailed": "Could not save.",
@@ -2863,7 +2978,7 @@
     "accept": {
       "button": "Client accepted — activate contract",
       "title": "Activate Support contract",
-      "subtitle": "Activates the offer on the client account, records the contract and creates a draft invoice.",
+      "subtitle": "Validate after receiving the signed proposal by email. Activates the offer on the client account, records the contract and creates a draft invoice. A welcome email is sent automatically to the client.",
       "client": "Client",
       "amount": "Amount",
       "commitment": "Commitment",
@@ -2961,8 +3076,10 @@
       "actions": {
         "regenerate": "Regenerate all 3 languages",
         "save": "Save draft",
-        "send": "Send quote to client"
-      }
+        "send": "Send quote to client",
+        "downloadPdf": "Download PDF"
+      },
+      "downloadingPdf": "Downloading…"
     }
   },
   "adminBillingInvoices": {

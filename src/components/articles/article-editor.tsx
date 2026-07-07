@@ -1,6 +1,7 @@
 "use client";
 
 import { ArticleFormatPanel } from "@/components/articles/article-format-panel";
+import { ArticleDraftReviewLinkButton } from "@/components/admin/article-draft-review-link-button";
 import { EditorCollapsibleSection } from "@/components/articles/editor-collapsible-section";
 import { EditorPanelPlaceholder } from "@/components/articles/editor-panel-placeholder";
 import dynamic from "next/dynamic";
@@ -989,6 +990,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  <ContextHelp label={tDetailHelp("topicDna.label")}>
  {tDetailHelp("topicDna.body")}
  </ContextHelp>
+ <ArticleDraftReviewLinkButton articleId={articleId} />
  </p>
  )}
 

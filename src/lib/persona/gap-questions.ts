@@ -1,3 +1,4 @@
+import { normalizeContentArchetype } from "@/lib/persona/content-archetype";
 import { getAudienceProfile, saveAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
 import { saveProfileEnrichment } from "@/lib/workspace/enrichment";
@@ -5,6 +6,7 @@ import type {
   GapAnswerValue,
   GapQuestionField,
   ProfileGapQuestion,
+  AuthorProfile,
 } from "@/types/workspace";
 import {
   formatGapAnswerText,
@@ -17,7 +19,7 @@ import {
   resolveGapAnswerValue,
 } from "./gap-answer-utils";
 
-const AUTHOR_KEYS = new Set(["roleTitle", "positioningLine"]);
+const AUTHOR_KEYS = new Set(["roleTitle", "positioningLine", "contentArchetype"]);
 const AUDIENCE_KEYS = new Set(["targetLabel", "contentFocus", "optionalNotes"]);
 
 function answerToString(
@@ -110,7 +112,9 @@ export async function applyGapAnswers(
   const audience = await getAudienceProfile(userId);
   const enrichmentPatch: Record<string, GapAnswerValue> = {};
 
-  const authorPatch: Record<string, string> = {};
+  const authorPatch: Partial<
+    Pick<AuthorProfile, "roleTitle" | "positioningLine" | "contentArchetype">
+  > = {};
   const audiencePatch: Record<string, string> = {};
 
   for (const q of questions) {
@@ -122,7 +126,8 @@ export async function applyGapAnswers(
       if (ranked.length === 0) continue;
       const text = formatRankedGapAnswer(ranked);
       if (q.field === "author" && AUTHOR_KEYS.has(q.profileKey)) {
-        authorPatch[q.profileKey] = text;
+        if (q.profileKey === "roleTitle") authorPatch.roleTitle = text;
+        else if (q.profileKey === "positioningLine") authorPatch.positioningLine = text;
         continue;
       }
       if (q.field === "audience" && AUDIENCE_KEYS.has(q.profileKey)) {
@@ -139,14 +144,21 @@ export async function applyGapAnswers(
     const text = answerToString(value, otherText);
 
     if (q.field === "author" && AUTHOR_KEYS.has(q.profileKey)) {
-      authorPatch[q.profileKey] = text;
+      if (q.profileKey === "contentArchetype") {
+        authorPatch.contentArchetype = normalizeContentArchetype(text);
+      } else if (q.profileKey === "roleTitle") {
+        authorPatch.roleTitle = text;
+      } else if (q.profileKey === "positioningLine") {
+        authorPatch.positioningLine = text;
+      }
       continue;
     }
     if (q.field === "audience" && AUDIENCE_KEYS.has(q.profileKey)) {
       audiencePatch[q.profileKey] = text;
       continue;
     }
-    enrichmentPatch[q.profileKey] = resolved;
+    enrichmentPatch[q.profileKey] =
+      q.profileKey === "content_archetype" ? normalizeContentArchetype(text) : resolved;
     if (otherText.trim()) {
       enrichmentPatch[gapOtherAnswerKey(q.profileKey)] = otherText.trim();
     }
@@ -167,6 +179,7 @@ export async function applyGapAnswers(
         contentLanguage: author?.contentLanguage ?? "fr",
         roleTitle: authorPatch.roleTitle ?? author?.roleTitle,
         positioningLine: authorPatch.positioningLine ?? author?.positioningLine,
+        contentArchetype: authorPatch.contentArchetype ?? author?.contentArchetype,
         status: author?.status ?? "in_progress",
       }),
     );

@@ -9,6 +9,7 @@ import {
   tierFromSupportPlan,
 } from "@/lib/admin/support-deal-terms";
 import { getSupportQuote, updateSupportQuote } from "@/lib/admin/support-quotes.server";
+import { sendSupportWelcomeEmail } from "@/lib/email/send-support-welcome";
 import { activateTierServer } from "@/lib/subscription/subscription.server";
 import type { SupportContract } from "@/types/subscription";
 
@@ -67,6 +68,13 @@ export async function acceptSupportDeal(
     locale: row.locale,
     supportProposal,
   });
+
+  await sendSupportWelcomeEmail({
+    email: row.email,
+    fullName: row.fullName || row.companyName,
+    locale: row.locale,
+    hasAccount: true,
+  }).catch(() => {});
 
   return {
     quoteId: input.quoteId,

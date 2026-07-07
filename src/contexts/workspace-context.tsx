@@ -4,6 +4,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import {
   bootstrapWorkspaceAccounts,
   createWorkspaceAccount,
+  resolveActiveAccountFromBootstrap,
   switchWorkspaceAccount,
   type WorkspaceAccount,
   type WorkspaceBootstrapResult,
@@ -85,13 +86,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, [reload]);
 
   const activeAccount = useMemo(() => {
-    if (!bootstrap?.scope) return null;
-    return (
-      bootstrap.accounts.find((a) => a.id === bootstrap.scope.accountId) ??
-      bootstrap.accounts[0] ??
-      null
+    if (!bootstrap?.scope || !user) return null;
+    return resolveActiveAccountFromBootstrap(
+      user.uid,
+      bootstrap.accounts,
+      bootstrap.scope,
     );
-  }, [bootstrap]);
+  }, [bootstrap, user]);
 
   const switchAccount = useCallback(
     async (accountId: string) => {

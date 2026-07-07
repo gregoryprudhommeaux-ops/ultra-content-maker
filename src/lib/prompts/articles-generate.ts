@@ -1,8 +1,9 @@
 import { buildContentNichePromptBlock, resolveContentNicheFromSteering } from "@/lib/articles/content-niche";
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
+import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import {
- injectAuthorSteering,
- type AuthorSteeringPayload,
+  injectAuthorSteering,
+  type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
 import type { ArticleScope, ContentLanguage, EmojiLevel, PostBrief } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
@@ -71,14 +72,20 @@ function scopeMixInstruction(
 }
 
 export function buildArticlesSystemPromptWithCount(
- contentLanguage: ContentLanguage,
- count: ArticleGenerateCount,
- emojiLevel: EmojiLevel = "light",
- targetScope?: ArticleScope,
+  contentLanguage: ContentLanguage,
+  count: ArticleGenerateCount,
+  emojiLevel: EmojiLevel = "light",
+  targetScope?: ArticleScope,
+  profileEnrichment?: Record<string, unknown>,
+  authorSteering?: AuthorSteeringPayload | null,
 ): string {
- const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
- const emoji = emojiInstruction(emojiLevel, contentLanguage);
- const mix =
+  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
+  const emoji = emojiInstruction(emojiLevel, contentLanguage);
+  const archetype = resolveContentArchetype({
+    author: authorSteering?.author ?? null,
+    profileEnrichment: profileEnrichment ?? authorSteering?.profileEnrichment ?? null,
+  });
+  const mix =
  count === 1
  ? targetScope
  ? `one post (scope: ${targetScope})`
@@ -90,7 +97,7 @@ export function buildArticlesSystemPromptWithCount(
 
  return `You are a senior LinkedIn B2B content strategist and ghostwriter. Follow the expert Persona system prompt provided by the user.
 
-${buildLinkedIn2026SystemRules(contentLanguage)}
+${buildLinkedIn2026SystemRules(contentLanguage, archetype)}
 
 ${languageOnlyRule(contentLanguage)}
 
@@ -136,11 +143,16 @@ export function buildArticlesUserPromptWithCount(
  const nicheLine = resolveContentNicheFromSteering(personaPromptText, authorSteering);
  const nicheBlock =
  count === 1 ? buildContentNichePromptBlock(nicheLine, targetScope) : undefined;
+ const contentArchetype = resolveContentArchetype({
+ author: authorSteering?.author ?? null,
+ profileEnrichment: profileEnrichment ?? authorSteering?.profileEnrichment ?? null,
+ });
 
  return JSON.stringify(
  injectAuthorSteering(
  {
  contentLanguage,
+ contentArchetype,
  emojiLevel,
  emojiRule,
  personaPromptText,

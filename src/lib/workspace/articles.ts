@@ -66,6 +66,7 @@ import {
 } from "@/lib/linkedin/sanitize-post-link";
 import { toDate } from "./firestore-utils";
 import {
+  activeWorkspaceOwnerId,
   allowsLegacyWorkspaceFallback,
   legacyCollectionRef,
   legacyDocRef,
@@ -86,7 +87,7 @@ async function articlesCollectionWithLegacyFallback(userId: string) {
   const scopedSnap = await getDocs(query(scoped, orderBy("createdAt", "desc")));
   if (!scopedSnap.empty) return scopedSnap;
   if (!allowsLegacyWorkspaceFallback(userId)) return scopedSnap;
-  const legacy = legacyCollectionRef(userId, "articles");
+  const legacy = legacyCollectionRef(activeWorkspaceOwnerId(userId), "articles");
   return getDocs(query(legacy, orderBy("createdAt", "desc")));
 }
 
@@ -140,6 +141,9 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),
     validatedAt: d.validatedAt ? toDate(d.validatedAt) : undefined,
+    productionStatus: d.productionStatus as ArticleDoc["productionStatus"] | undefined,
+    draftReviewToken: d.draftReviewToken as string | undefined,
+    clientReviewFeedback: d.clientReviewFeedback as ArticleDoc["clientReviewFeedback"] | undefined,
   };
 }
 
@@ -234,7 +238,7 @@ export async function getArticle(
 ): Promise<ArticleDoc | null> {
   let snap = await getDoc(articleDocRef(userId, articleId));
   if (!snap.exists() && allowsLegacyWorkspaceFallback(userId)) {
-    snap = await getDoc(legacyDocRef(userId, "articles", articleId));
+    snap = await getDoc(legacyDocRef(activeWorkspaceOwnerId(userId), "articles", articleId));
   }
   if (!snap.exists()) return null;
   return mapArticle(snap.id, snap.data());

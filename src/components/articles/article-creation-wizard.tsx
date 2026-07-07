@@ -15,7 +15,8 @@ import { ArticleEditor } from "@/components/articles/article-editor";
 import { ArticleTopicBriefForm, enrichArticleTopicBriefForGeneration } from "@/components/articles/creation/article-topic-brief-form";
 import { CreationIntentSummary } from "@/components/articles/creation/creation-intent-summary";
 import { CreationModePicker } from "@/components/articles/creation/creation-mode-picker";
-import { InspirationUrlStep } from "@/components/articles/creation/inspiration-url-step";
+import { InspirationDocumentStep } from "@/components/articles/creation/inspiration-document-step";
+import { ProfileBriefVariantToggle, type ProfileBriefVariant } from "@/components/articles/creation/profile-brief-variant-toggle";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
 import {
   buildWizardInspirationReferenceText,
@@ -24,13 +25,16 @@ import {
   type WizardInspirationContext,
 } from "@/lib/inspiration/wizard-context";
 import { joinLinkedInPostParts } from "@/lib/linkedin/fit-linkedin-post";
+import { listBioDocuments } from "@/lib/workspace/bio-documents";
 import { listSourcesByCategory } from "@/lib/workspace/sources";
+import { InspirationUrlStep } from "@/components/articles/creation/inspiration-url-step";
 import { NewsDetailModal } from "@/components/news/news-detail-modal";
 import { NewsPickerPanel } from "@/components/articles/news-picker-panel";
 import { PostBriefForm } from "@/components/articles/post-brief-form";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { useSubscription } from "@/contexts/subscription-context";
 import {
   notifyOnboardingProgressChangedDeferred,
@@ -107,6 +111,7 @@ type Step =
   | "paste"
   | "inspiration-url"
   | "inspiration-library"
+  | "inspiration-document"
   | "brief"
   | "generating"
   | "draft-done";
@@ -118,6 +123,7 @@ function isInspirationFlowStep(mode: CreationMode | null, step: Step): boolean {
     step === "paste" ||
     step === "inspiration-url" ||
     step === "inspiration-library" ||
+    step === "inspiration-document" ||
     step === "brief"
   );
 }
@@ -130,6 +136,7 @@ export function ArticleCreationWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
+  const { scope } = useWorkspace();
   const { access } = useSubscription();
   const { status: onboardingStatus } = useOnboardingProgress();
   const [showSetupReadyBanner, setShowSetupReadyBanner] = useState(false);
@@ -155,6 +162,7 @@ export function ArticleCreationWizard() {
   const [loaded, setLoaded] = useState(false);
 
   const [mode, setMode] = useState<CreationMode | null>(null);
+  const [profileBriefVariant, setProfileBriefVariant] = useState<ProfileBriefVariant>("quick");
   const [step, setStep] = useState<Step>("mode");
 
   const [newsItems, setNewsItems] = useState<NewsSuggestion[]>([]);
@@ -213,12 +221,15 @@ export function ArticleCreationWizard() {
     [postBrief],
   );
 
+  const usesQuickTopicBrief =
+    mode === "profile" && profileBriefVariant === "quick";
+
   const briefForGeneration = useCallback(() => {
     const normalized = normalizePostBrief(postBrief);
-    return mode === "article"
+    return usesQuickTopicBrief || mode === "article"
       ? enrichArticleTopicBriefForGeneration(normalized)
       : normalized;
-  }, [postBrief, mode]);
+  }, [postBrief, mode, usesQuickTopicBrief]);
 
   const progressStep = resolveWizardProgressStep(step, mode);
 
@@ -241,28 +252,35 @@ export function ArticleCreationWizard() {
   useEffect(() => {
     if (!user) return;
     void (async () => {
-      const [persona, learning, audience, author] = await Promise.all([
-        getPersona(user.uid),
-        getLearningProfile(user.uid),
-        getAudienceProfile(user.uid),
-        getAuthorProfile(user.uid),
-      ]);
-      setPersonaText(persona?.promptText ?? "");
-      setEmojiLevel(learning?.emojiLevel ?? "light");
-      setAuthorProfile(author);
-      setAudienceProfile(audience);
-      setContentNiche(
-        audience?.contentNiche?.trim() ||
-          deriveContentNiche(audience, author, persona?.promptText ?? ""),
-      );
-      setNewsInterestQuery(
-        audience?.newsInterestQuery?.trim() ||
-          audience?.contentFocus?.trim() ||
-          "",
-      );
-      setLoaded(true);
+      try {
+        const [persona, learning, audience, author] = await Promise.all([
+          getPersona(user.uid),
+          getLearningProfile(user.uid),
+          getAudienceProfile(user.uid),
+          getAuthorProfile(user.uid),
+        ]);
+        setPersonaText(persona?.promptText ?? "");
+        setEmojiLevel(learning?.emojiLevel ?? "light");
+        setAuthorProfile(author);
+        setAudienceProfile(audience);
+        setContentNiche(
+          audience?.contentNiche?.trim() ||
+            deriveContentNiche(audience, author, persona?.promptText ?? ""),
+        );
+        setNewsInterestQuery(
+          audience?.newsInterestQuery?.trim() ||
+            audience?.contentFocus?.trim() ||
+            "",
+        );
+      } catch {
+        setPersonaText("");
+        setAuthorProfile(null);
+        setAudienceProfile(null);
+      } finally {
+        setLoaded(true);
+      }
     })();
-  }, [user]);
+  }, [user, scope?.ownerId, scope?.accountId]);
 
   useEffect(() => {
     saveStoredPostBrief(postBrief);
@@ -637,7 +655,7 @@ export function ArticleCreationWizard() {
                 ? toArticleInspirationSource(inspirationCtx, selectedLibrarySource)
                 : undefined,
             targetScope,
-            ...(mode === "article"
+            ...(usesQuickTopicBrief || mode === "article"
               ? {
                   creationMode: "article" as const,
                   articleWritingStyle: briefForGeneration().articleWritingStyle,
@@ -779,11 +797,19 @@ export function ArticleCreationWizard() {
   }, []);
 
   function pickMode(next: CreationMode, briefSeed?: Partial<PostBrief>) {
+    let profileVariant: ProfileBriefVariant = "quick";
+    if (next === "article") {
+      next = "profile";
+      profileVariant = "quick";
+    } else if (next === "profile") {
+      profileVariant = briefSeed ? "full" : "quick";
+    }
+    setProfileBriefVariant(profileVariant);
     setMode(next);
     setErrorInfo(null);
     briefSuggestedRef.current = !!briefSeed;
     const briefDefaults =
-      next === "article"
+      profileVariant === "quick"
         ? {
             objectives: [{ objective: "conversation" as const, priority: 1 as const }],
             problem: "",
@@ -793,7 +819,7 @@ export function ArticleCreationWizard() {
         : DEFAULT_POST_BRIEF;
     setPostBrief(normalizePostBrief({ ...briefDefaults, ...briefSeed }));
     setInspirationCtx(null);
-    if (next === "profile" || next === "article") {
+    if (next === "profile") {
       setStep("brief");
     } else if (next === "news") {
       setStep("news");
@@ -816,6 +842,7 @@ export function ArticleCreationWizard() {
     clearCreationWizardSession();
     setStep("mode");
     setMode(null);
+    setProfileBriefVariant("quick");
     setPostBrief({ ...DEFAULT_POST_BRIEF });
     setInspirationCtx(null);
     setSelectedNews(null);
@@ -858,7 +885,30 @@ export function ArticleCreationWizard() {
     setErrorInfo(null);
     if (kind === "paste") setStep("paste");
     else if (kind === "url") setStep("inspiration-url");
+    else if (kind === "document") setStep("inspiration-document");
     else setStep("inspiration-library");
+  }
+
+  async function selectInspirationDocument(doc: {
+    id: string;
+    label: string;
+    textPreview?: string;
+  }) {
+    if (!user) return;
+    let excerpt = doc.textPreview?.trim() ?? "";
+    try {
+      const all = await listBioDocuments(user.uid);
+      const full = all.find((item) => item.id === doc.id);
+      if (full?.extractedText?.trim()) excerpt = full.extractedText.trim();
+    } catch {
+      /* keep preview */
+    }
+    setInspirationCtx({
+      kind: "document",
+      sourceId: doc.id,
+      label: doc.label,
+      excerpt,
+    });
   }
 
   function goToBriefFromInspiration() {
@@ -971,17 +1021,19 @@ export function ArticleCreationWizard() {
   function goBack() {
     setErrorInfo(null);
     if (step === "brief") {
-      if (mode === "profile" || mode === "article") setStep("mode");
+      if (mode === "profile") setStep("mode");
       else if (mode === "news") setStep("news");
       else if (inspirationCtx?.kind === "paste") setStep("paste");
       else if (inspirationCtx?.kind === "url") setStep("inspiration-url");
+      else if (inspirationCtx?.kind === "document") setStep("inspiration-document");
       else if (inspirationCtx?.kind === "library") setStep("inspiration-library");
       else setStep("inspiration-input");
       briefSuggestedRef.current = false;
     } else if (
       step === "paste" ||
       step === "inspiration-url" ||
-      step === "inspiration-library"
+      step === "inspiration-library" ||
+      step === "inspiration-document"
     ) {
       setStep("inspiration-input");
     } else if (step === "inspiration-input" || step === "news") {
@@ -1188,6 +1240,14 @@ export function ArticleCreationWizard() {
         />
       )}
 
+      {step === "inspiration-document" && (
+        <InspirationDocumentStep
+          selectedId={inspirationCtx?.sourceId ?? null}
+          onSelect={(doc) => void selectInspirationDocument(doc)}
+          onContinue={goToBriefFromInspiration}
+        />
+      )}
+
       {step === "brief" && mode && (
         <div className="space-y-4">
           <ContentNichePanel
@@ -1212,7 +1272,9 @@ export function ArticleCreationWizard() {
                   ? t("inspiration.libraryPreviewLabel")
                   : inspirationCtx?.kind === "url"
                     ? t("inspiration.urlPreviewLabel")
-                    : t("pastedPreviewLabel")}
+                    : inspirationCtx?.kind === "document"
+                      ? t("inspiration.documentPreviewLabel")
+                      : t("pastedPreviewLabel")}
               </p>
               {selectedLibrarySource && (
                 <a
@@ -1230,7 +1292,28 @@ export function ArticleCreationWizard() {
               </p>
             </div>
           )}
-          {mode === "article" ? (
+          {mode === "profile" && (
+            <ProfileBriefVariantToggle
+              value={profileBriefVariant}
+              onChange={(variant) => {
+                setProfileBriefVariant(variant);
+                if (variant === "quick") {
+                  setPostBrief((prev) =>
+                    normalizePostBrief({
+                      objectives: [{ objective: "conversation", priority: 1 }],
+                      problem: prev.problem,
+                      pointOfView: prev.pointOfView,
+                      proof: "",
+                      articleWritingStyle: prev.articleWritingStyle,
+                    }),
+                  );
+                }
+              }}
+            />
+          )}
+          {usesQuickTopicBrief ? (
+            <ArticleTopicBriefForm brief={postBrief} onChange={setPostBrief} />
+          ) : mode === "article" ? (
             <ArticleTopicBriefForm brief={postBrief} onChange={setPostBrief} />
           ) : (
             <PostBriefForm

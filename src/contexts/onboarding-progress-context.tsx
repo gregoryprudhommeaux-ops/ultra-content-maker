@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import {
  loadOnboardingProgress,
  type OnboardingProgress,
@@ -56,6 +57,7 @@ export function notifyOnboardingProgressChangedDeferred(
 
 export function OnboardingProgressProvider({ children }: { children: ReactNode }) {
  const { user } = useAuth();
+ const { scope } = useWorkspace();
  const pathname = usePathname();
  const [progress, setProgress] = useState<OnboardingProgress | null>(null);
  const [loading, setLoading] = useState(true);
@@ -84,7 +86,7 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
  setLoading(false);
  }
  }
- }, [user, pathname]);
+ }, [user, pathname, scope?.ownerId, scope?.accountId]);
 
  useEffect(() => {
  void reload({ silent: hasLoadedProgressRef.current });

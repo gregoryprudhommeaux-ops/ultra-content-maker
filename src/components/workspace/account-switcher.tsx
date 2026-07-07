@@ -2,7 +2,6 @@
 
 import { CopyAccountInviteLink } from "@/components/workspace/copy-account-invite-link";
 import { DeleteClientAccountButton } from "@/components/workspace/delete-client-account-button";
-import { AddManagedClientForm } from "@/components/workspace/add-managed-client-form";
 import { UnlinkManagedClientButton } from "@/components/workspace/unlink-managed-client-button";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -14,8 +13,11 @@ import type { ContentLanguage } from "@/types/workspace";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { OPEN_ACCOUNT_SWITCHER_EVENT } from "@/lib/workspace/account-switcher-events";
 
 const LANGUAGES: ContentLanguage[] = ["fr", "en", "es"];
+
+type AccountPanelMode = "list" | "create";
 
 export function AccountSwitcher() {
   const t = useTranslations("workspaceAccounts");
@@ -34,7 +36,7 @@ export function AccountSwitcher() {
   const router = useRouter();
   const isAdminRoute = Boolean(pathname?.includes("/admin"));
   const [open, setOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const [panelMode, setPanelMode] = useState<AccountPanelMode>("list");
   const [newName, setNewName] = useState("");
   const [newLang, setNewLang] = useState<ContentLanguage>("fr");
   const [busy, setBusy] = useState(false);
@@ -50,13 +52,35 @@ export function AccountSwitcher() {
     if (!open) return;
     const onDoc = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setCreating(false);
+        closeDropdown();
       }
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, [open]);
+
+  useEffect(() => {
+    if (!isPlatformAdmin) return;
+    const onOpenRequest = () => {
+      setPanelMode("list");
+      setOpen(true);
+    };
+    window.addEventListener(OPEN_ACCOUNT_SWITCHER_EVENT, onOpenRequest);
+    return () => window.removeEventListener(OPEN_ACCOUNT_SWITCHER_EVENT, onOpenRequest);
+  }, [isPlatformAdmin]);
+
+  const hasManagedClients = accounts.some((account) => account.isManaged);
+  const isManagingClient = Boolean(activeAccount?.isManaged);
+  const sectionLabel = isPlatformAdmin && hasManagedClients ? t("agencyMode") : t("label");
+
+  function closeDropdown() {
+    setOpen(false);
+    setPanelMode("list");
+  }
+
+  function openDropdown() {
+    setOpen(true);
+  }
 
   if (!isPlatformAdmin && !loading && !canManageAccounts && accounts.length <= 1) {
     return null;
@@ -76,22 +100,24 @@ export function AccountSwitcher() {
         setBusy(true);
         try {
           await navigateToAccountHome();
-          setOpen(false);
+          closeDropdown();
         } finally {
           setBusy(false);
         }
       } else {
-        setOpen(false);
+        closeDropdown();
       }
       return;
     }
     setBusy(true);
     try {
       await switchAccount(accountId);
-      setOpen(false);
+      closeDropdown();
       if (isPlatformAdmin) {
         await navigateToAccountHome();
       }
+    } catch {
+      /* switch failed — keep dropdown open so the user can retry */
     } finally {
       setBusy(false);
     }
@@ -105,8 +131,7 @@ export function AccountSwitcher() {
     try {
       await createAccount(name, newLang);
       setNewName("");
-      setCreating(false);
-      setOpen(false);
+      closeDropdown();
       if (isPlatformAdmin) {
         await navigateToAccountHome();
       }
@@ -117,12 +142,46 @@ export function AccountSwitcher() {
 
   function openActiveAccount() {
     void navigateToAccountHome();
-    setOpen(false);
+    closeDropdown();
   }
 
   return (
-    <div ref={rootRef} className="relative border-b border-white/10 px-3 py-3">
-      <p className={`${META_LABEL} mb-2 text-white/45`}>{t("label")}</p>
+    <div
+      ref={rootRef}
+      className={`relative border-b border-white/10 px-3 py-3 ${open ? "z-50" : ""}`}
+    >
+      <p className={`${META_LABEL} mb-2 text-white/45`}>{sectionLabel}</p>
+
+      {isPlatformAdmin && hasManagedClients && activeAccount ? (
+        <div
+          className={`mb-2 rounded-xl border px-3 py-3 shadow-sm ${
+            isManagingClient
+              ? "border-amber-400/50 bg-amber-950/35 shadow-[inset_3px_0_0_0_#fbbf24]"
+              : "border-ns-primary/35 bg-ns-primary/10 shadow-[inset_3px_0_0_0_#9dc41a]"
+          }`}
+        >
+          <p
+            className={`text-[10px] font-black uppercase tracking-[0.16em] ${
+              isManagingClient ? "text-amber-200" : "text-ns-primary"
+            }`}
+          >
+            {isManagingClient ? t("agencyManagedContext") : t("agencyYourAdminAccount")}
+          </p>
+          <p className="mt-1 truncate text-base font-bold leading-snug text-white">
+            {activeAccount.name}
+          </p>
+          {isManagingClient && activeAccount.managedClientEmail ? (
+            <p className="mt-0.5 truncate text-xs font-medium text-amber-100/75">
+              {activeAccount.managedClientEmail}
+            </p>
+          ) : (
+            <p className={`${META_LABEL} mt-0.5 text-white/50`}>
+              {t(`language.${activeAccount.contentLanguage}`)}
+            </p>
+          )}
+        </div>
+      ) : null}
+
       {isAdminRoute ? (
         <div className="flex w-full items-stretch overflow-hidden rounded-lg border border-white/15 bg-white/5">
           <button
@@ -130,14 +189,20 @@ export function AccountSwitcher() {
             disabled={busy || !activeAccount}
             onClick={() => openActiveAccount()}
             title={t("returnToAccount")}
-            className="min-w-0 flex-1 truncate px-3 py-2.5 text-left text-sm font-medium text-white transition-colors hover:bg-white/10 hover:text-ns-primary disabled:opacity-60"
+            className="min-w-0 flex-1 truncate px-3 py-2.5 text-left text-sm font-semibold text-white transition-colors hover:bg-white/10 hover:text-ns-primary disabled:opacity-60"
           >
             {activeAccount?.name ?? t("unnamed")}
           </button>
           <button
             type="button"
             disabled={busy}
-            onClick={() => setOpen((o) => !o)}
+            onClick={() => {
+              if (open) closeDropdown();
+              else {
+                setPanelMode("list");
+                openDropdown();
+              }
+            }}
             aria-expanded={open}
             aria-haspopup="listbox"
             aria-label={t("openAccountList")}
@@ -165,13 +230,34 @@ export function AccountSwitcher() {
         <button
           type="button"
           disabled={busy}
-          onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center justify-between gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-left text-sm font-medium text-white transition-colors hover:border-ns-primary/40 hover:bg-white/10 disabled:opacity-60"
+          onClick={() => {
+            if (open) closeDropdown();
+            else {
+              setPanelMode("list");
+              openDropdown();
+            }
+          }}
+          className="flex w-full items-center justify-between gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-left transition-colors hover:border-ns-primary/40 hover:bg-white/10 disabled:opacity-60"
           aria-expanded={open}
           aria-haspopup="listbox"
         >
-          <span className="min-w-0 truncate">
-            {activeAccount?.name ?? t("unnamed")}
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-white">
+              {activeAccount?.name ?? t("unnamed")}
+            </span>
+            {isPlatformAdmin && hasManagedClients && activeAccount ? (
+              <span
+                className={`${META_LABEL} mt-0.5 block truncate ${
+                  activeAccount.isManaged ? "text-amber-200/80" : "text-white/45"
+                }`}
+              >
+                {activeAccount.isManaged
+                  ? t("managedClientBadge", {
+                      email: activeAccount.managedClientEmail ?? "",
+                    })
+                  : t("agencyYourAdminAccount")}
+              </span>
+            ) : null}
           </span>
           <svg
             width="16"
@@ -195,52 +281,29 @@ export function AccountSwitcher() {
       {!activeAccount?.isManaged ? <CopyAccountInviteLink /> : null}
       {!activeAccount?.isManaged ? <DeleteClientAccountButton /> : null}
       <UnlinkManagedClientButton />
-      {canManageAccounts ? <AddManagedClientForm onLinked={() => setOpen(false)} /> : null}
 
       {open && (
         <div
-          className="absolute left-3 right-3 top-full z-50 mt-1 max-h-[min(70vh,320px)] overflow-y-auto rounded-lg border border-white/15 bg-ns-hero py-1 shadow-xl"
+          className="absolute left-3 right-3 top-full z-[110] mt-1 max-h-[min(85vh,28rem)] overflow-y-auto rounded-lg border border-white/15 bg-ns-hero py-1 shadow-xl"
           role="listbox"
           aria-label={t("label")}
+          onMouseDown={(e) => e.stopPropagation()}
         >
-          {accounts.map((account) => (
-            <button
-              key={account.id}
-              type="button"
-              role="option"
-              aria-selected={account.id === activeAccount?.id}
-              disabled={busy}
-              onClick={() => void handleSwitch(account.id)}
-              className={`flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm transition-colors hover:bg-white/5 disabled:opacity-60 ${
-                account.id === activeAccount?.id
-                  ? "bg-ns-primary/15 text-ns-primary"
-                  : "text-white/90"
-              }`}
-            >
-              <span className="font-medium">{account.name}</span>
-              <span className={`${META_LABEL} text-white/45`}>
-                {account.isManaged
-                  ? t("managedClientBadge", { email: account.managedClientEmail ?? "" })
-                  : t(`language.${account.contentLanguage}`)}
-              </span>
-            </button>
-          ))}
-
-          {canManageAccounts && !creating && (
-            <button
-              type="button"
-              className="mt-1 w-full border-t border-white/10 px-3 py-2.5 text-left text-sm font-semibold text-ns-primary hover:bg-white/5"
-              onClick={() => setCreating(true)}
-            >
-              {t("createAccount")}
-            </button>
-          )}
-
-          {canManageAccounts && creating && (
+          {panelMode === "create" && canManageAccounts ? (
             <form
               onSubmit={(e) => void handleCreate(e)}
-              className="space-y-2 border-t border-white/10 px-3 py-3"
+              className="space-y-2 px-3 py-3"
             >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-white">{t("createAccount")}</p>
+                <button
+                  type="button"
+                  className="text-xs font-semibold text-white/55 hover:text-white"
+                  onClick={() => setPanelMode("list")}
+                >
+                  {t("cancel")}
+                </button>
+              </div>
               <label className={`${META_LABEL} block text-white/50`} htmlFor="new-account-name">
                 {t("newAccountName")}
               </label>
@@ -276,15 +339,49 @@ export function AccountSwitcher() {
                 >
                   {t("createSubmit")}
                 </button>
-                <button
-                  type="button"
-                  className="rounded-md px-3 py-2 text-xs font-semibold text-white/60 hover:text-white"
-                  onClick={() => setCreating(false)}
-                >
-                  {t("cancel")}
-                </button>
               </div>
             </form>
+          ) : (
+            <>
+              {accounts.map((account) => (
+                <button
+                  key={account.id}
+                  type="button"
+                  role="option"
+                  aria-selected={account.id === activeAccount?.id}
+                  disabled={busy}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => void handleSwitch(account.id)}
+                  className={`flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm transition-colors hover:bg-white/5 disabled:opacity-60 ${
+                    account.id === activeAccount?.id
+                      ? "bg-ns-primary/15 text-ns-primary"
+                      : "text-white/90"
+                  }`}
+                >
+                  <span className="font-medium">{account.name}</span>
+                  <span className={`${META_LABEL} text-white/45`}>
+                    {account.isManaged
+                      ? t("managedClientBadge", { email: account.managedClientEmail ?? "" })
+                      : t(`language.${account.contentLanguage}`)}
+                  </span>
+                </button>
+              ))}
+
+              {canManageAccounts ? (
+                <button
+                  type="button"
+                  className="mt-1 w-full border-t border-white/10 px-3 py-2.5 text-left text-sm font-semibold text-ns-primary hover:bg-white/5"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setPanelMode("create");
+                  }}
+                >
+                  {t("createAccount")}
+                </button>
+              ) : null}
+            </>
           )}
         </div>
       )}

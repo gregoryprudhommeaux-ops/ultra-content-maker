@@ -5,7 +5,7 @@ import type {
  SourceLink,
 } from "@/types/workspace";
 
-export type InspirationInputKind = "paste" | "url" | "library";
+export type InspirationInputKind = "paste" | "url" | "library" | "document";
 
 export type WizardInspirationContext = {
  kind: InspirationInputKind;
@@ -58,6 +58,16 @@ export function buildWizardInspirationReferenceText(
  if (ctx.kind === "paste") {
  return ctx.excerpt.trim();
  }
+ if (ctx.kind === "document") {
+ const parts = [
+ "Source type: author document",
+ ctx.label ? `Document: ${ctx.label}` : "",
+ ctx.sourceId ? `Document ID: ${ctx.sourceId}` : "",
+ "",
+ ctx.excerpt.trim(),
+ ];
+ return parts.filter(Boolean).join("\n");
+ }
  if (ctx.kind === "url" && ctx.url) {
  return buildReferenceTextFromUrl(ctx.url, ctx.excerpt);
  }
@@ -83,6 +93,17 @@ export function toArticleInspirationSource(
  ctx: WizardInspirationContext,
  librarySource?: SourceLink | null,
 ): ArticleInspirationSource | undefined {
+ if (ctx.kind === "document") {
+ const id = ctx.sourceId?.trim();
+ if (!id) return undefined;
+ return {
+ kind: "document",
+ sourceId: id,
+ url: `ucm://author-document/${id}`,
+ label: ctx.label,
+ };
+ }
+
  const url =
  ctx.url?.trim() ||
  librarySource?.url?.trim() ||
@@ -111,6 +132,9 @@ export function isWizardInspirationContextReady(
  if (text.trim().length < MIN_REFERENCE_CHARS) return false;
  if (ctx.kind === "url") {
  return Boolean(ctx.url?.trim()) && ctx.excerpt.trim().length >= MIN_REFERENCE_CHARS;
+ }
+ if (ctx.kind === "document") {
+ return Boolean(ctx.sourceId?.trim()) && ctx.excerpt.trim().length >= MIN_REFERENCE_CHARS;
  }
  if (ctx.kind === "library") {
  return Boolean(librarySource || ctx.url);

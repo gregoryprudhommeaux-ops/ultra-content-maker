@@ -35,6 +35,11 @@ export function allowsLegacyWorkspaceFallback(userId: string): boolean {
  return accountId === DEFAULT_ACCOUNT_ID;
 }
 
+/** Workspace owner for legacy root paths (follows active agency scope). */
+export function activeWorkspaceOwnerId(sessionUserId: string): string {
+ return requireWorkspaceScope(sessionUserId).ownerId;
+}
+
 export function workspaceDocPathForAccount(
  ownerId: string,
  accountId: string,
@@ -90,7 +95,9 @@ export async function readScopedOrLegacyDoc(
  const scopedSnap = await getDoc(workspaceDocRef(ownerId, ...segments));
  if (scopedSnap.exists()) return map(scopedSnap.data() as Record<string, unknown>);
  if (!allowsLegacyWorkspaceFallback(ownerId)) return null;
- const legacySnap = await getDoc(legacyDocRef(ownerId, ...segments));
+ const legacySnap = await getDoc(
+  legacyDocRef(activeWorkspaceOwnerId(ownerId), ...segments),
+ );
  if (legacySnap.exists()) return map(legacySnap.data() as Record<string, unknown>);
  return null;
 }

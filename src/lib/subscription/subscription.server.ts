@@ -56,7 +56,7 @@ export async function setSubscriptionProfileServer(
       delete next[field];
       subscriptionWrite[key] = FieldValue.delete();
     } else {
-      next[field] = value as SubscriptionProfile[keyof SubscriptionProfile];
+      (next as Record<string, unknown>)[key] = value;
       subscriptionWrite[key] = value;
     }
   }

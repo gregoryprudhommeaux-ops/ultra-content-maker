@@ -85,6 +85,8 @@ export type AdminUserMetrics = {
   };
   activationMethod?: string | null;
   hasStripeSubscription: boolean;
+  /** Platform admin UID managing this user (agency model). */
+  managedByAdminUid: string | null;
 };
 
 export type SupportAccountRow = {

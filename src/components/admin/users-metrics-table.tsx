@@ -1,11 +1,12 @@
 "use client";
 
 import { AdminUserTierSelect, ADMIN_ASSIGNABLE_TIERS } from "@/components/admin/admin-user-tier-select";
+import { AdminUserControlAction } from "@/components/admin/admin-user-control-action";
 import { AdminProfileCompletionHint } from "@/components/admin/admin-profile-completion-hint";
 import type { AdminUserMetrics } from "@/lib/admin/analytics-types";
 import type { SubscriptionTier } from "@/types/subscription";
 import { getClientAuth } from "@/lib/firebase/client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 
 export type UserSortKey =
  | "usageScore"
@@ -53,6 +54,24 @@ type Props = {
  deleting: string;
  deleteSelf: string;
  deleteFailed: string;
+ control: {
+  control: string;
+  confirmControl: string;
+  controlling: string;
+  controlSuccess: string;
+  release: string;
+  confirmRelease: string;
+  releasing: string;
+  releaseSuccess: string;
+  openWorkspace: string;
+  managedByYou: string;
+  managedByOther: string;
+  cannotControlAdmin: string;
+  cannotControlSelf: string;
+  controlFailed: string;
+  confirm: string;
+  cancel: string;
+ };
  tierLabels: Record<SubscriptionTier, string>;
  blockCodes: Record<string, string>;
  noBlock: string;
@@ -93,6 +112,44 @@ function completionTone(percent: number): string {
  if (percent >= 80) return "bg-emerald-100 text-emerald-900";
  if (percent >= 50) return "bg-amber-100 text-amber-950";
  return "bg-rose-100 text-rose-900";
+}
+
+/** Left offsets for frozen columns through Nom (checkbox, #, name). */
+const FROZEN_COL = [
+ { left: "0px", width: "2.75rem", shadow: false },
+ { left: "2.75rem", width: "3.25rem", shadow: false },
+ { left: "6rem", width: "11rem", shadow: true },
+] as const;
+
+function frozenCellClass(
+ index: 0 | 1 | 2,
+ variant: "head" | "body",
+ extra?: string,
+): string {
+ const col = FROZEN_COL[index];
+ const bg =
+  variant === "head"
+   ? "bg-ns-brand-light"
+   : "bg-ns-surface group-hover:bg-[#f4f6ef] group-[.is-dimmed]:bg-ns-surface/90";
+ const shadow = col.shadow
+  ? "shadow-[4px_0_8px_-2px_rgba(15,23,42,0.12)] after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-ns-alternate/60"
+  : "";
+ return [
+  "sticky relative z-20 box-border",
+  shadow,
+  bg,
+  extra ?? "",
+ ].join(" ");
+}
+
+function frozenCellStyle(index: 0 | 1 | 2): CSSProperties {
+ const col = FROZEN_COL[index];
+ return {
+  left: col.left,
+  minWidth: col.width,
+  maxWidth: col.width,
+  width: col.width,
+ };
 }
 
 function tierTone(
@@ -211,17 +268,30 @@ export function UsersMetricsTable({
  </div>
 
  <div className="overflow-x-auto">
- <table className="min-w-full text-left text-sm">
+ <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
  <thead className="bg-ns-brand-light text-xs uppercase tracking-wider text-ns-secondary">
  <tr>
- <th className="px-4 py-3 font-semibold">
+ <th
+ className={`px-4 py-3 font-semibold ${frozenCellClass(0, "head")}`}
+ style={frozenCellStyle(0)}
+ >
  <span className="sr-only">{labels.includeInStats}</span>
  <span aria-hidden title={labels.includeInStats}>
  ✓
  </span>
  </th>
- <th className="px-4 py-3 font-semibold">{labels.rank}</th>
- <th className="px-4 py-3 font-semibold">{labels.name}</th>
+ <th
+ className={`px-4 py-3 font-semibold ${frozenCellClass(1, "head")}`}
+ style={frozenCellStyle(1)}
+ >
+ {labels.rank}
+ </th>
+ <th
+ className={`px-4 py-3 font-semibold ${frozenCellClass(2, "head", "z-30")}`}
+ style={frozenCellStyle(2)}
+ >
+ {labels.name}
+ </th>
  <th className="px-4 py-3 font-semibold">
  <button type="button" onClick={() => onSort("email")} className="hover:text-ns-hero">
  {labels.email}
@@ -314,9 +384,12 @@ export function UsersMetricsTable({
  return (
  <tr
  key={user.userId}
- className={`hover:bg-ns-brand-light/70 ${includedUserIds.has(user.userId) ? "" : "opacity-55"}`}
+ className={`group hover:bg-ns-brand-light/70 ${includedUserIds.has(user.userId) ? "" : "is-dimmed opacity-55"}`}
  >
- <td className="px-4 py-3">
+ <td
+ className={`px-4 py-3 ${frozenCellClass(0, "body")}`}
+ style={frozenCellStyle(0)}
+ >
  <input
  type="checkbox"
  checked={includedUserIds.has(user.userId)}
@@ -325,8 +398,17 @@ export function UsersMetricsTable({
  className="h-4 w-4 rounded border-ns-alternate text-ns-primary focus:ring-ns-primary"
  />
  </td>
- <td className="px-4 py-3 font-bold tabular-nums text-ns-tertiary">#{index + 1}</td>
- <td className="px-4 py-3 font-medium text-ns-hero">
+ <td
+ className={`px-4 py-3 font-bold tabular-nums text-ns-tertiary ${frozenCellClass(1, "body")}`}
+ style={frozenCellStyle(1)}
+ >
+ #{index + 1}
+ </td>
+ <td
+ className={`px-4 py-3 font-medium text-ns-hero ${frozenCellClass(2, "body", "truncate")}`}
+ style={frozenCellStyle(2)}
+ title={user.displayName ?? undefined}
+ >
  {user.displayName ?? "-"}
  </td>
  <td className="px-4 py-3 text-ns-tertiary">{user.email}</td>
@@ -388,45 +470,53 @@ export function UsersMetricsTable({
  <td className="px-4 py-3 tabular-nums text-ns-secondary">
  {formatDate(user.lastLoginAt)}
  </td>
- <td className="px-4 py-3">
- {isSelf ? (
- <span className="text-xs text-ns-alternate">{labels.deleteSelf}</span>
- ) : confirming ? (
- <div className="flex flex-col gap-1.5">
- <p className="max-w-[12rem] text-xs text-ns-secondary">
- {labels.confirmDelete}
- </p>
- <div className="flex flex-wrap gap-1.5">
- <button
- type="button"
- disabled={deleting}
- onClick={() => void onDeleteUser(user.userId)}
- className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
- >
- {deleting ? labels.deleting : labels.confirm}
- </button>
- <button
- type="button"
- disabled={deleting}
- onClick={() => setConfirmUserId(null)}
- className="rounded-md border border-ns-alternate px-2.5 py-1 text-xs font-semibold text-ns-secondary hover:bg-white"
- >
- {labels.cancel}
- </button>
+ <td className="px-4 py-3 align-top">
+ <div className="flex min-w-[8.5rem] flex-col gap-2">
+  <AdminUserControlAction
+   user={user}
+   currentAdminUserId={currentAdminUserId}
+   labels={labels.control}
+   onChanged={() => onUserUpdated?.()}
+  />
+  {isSelf ? (
+   <span className="text-xs text-ns-alternate">{labels.deleteSelf}</span>
+  ) : confirming ? (
+   <div className="flex flex-col gap-1.5 border-t border-ns-alternate/40 pt-2">
+    <p className="max-w-[12rem] text-xs text-ns-secondary">
+     {labels.confirmDelete}
+    </p>
+    <div className="flex flex-wrap gap-1.5">
+     <button
+      type="button"
+      disabled={deleting}
+      onClick={() => void onDeleteUser(user.userId)}
+      className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+     >
+      {deleting ? labels.deleting : labels.confirm}
+     </button>
+     <button
+      type="button"
+      disabled={deleting}
+      onClick={() => setConfirmUserId(null)}
+      className="rounded-md border border-ns-alternate px-2.5 py-1 text-xs font-semibold text-ns-secondary hover:bg-white"
+     >
+      {labels.cancel}
+     </button>
+    </div>
+   </div>
+  ) : (
+   <button
+    type="button"
+    onClick={() => {
+     setDeleteError(null);
+     setConfirmUserId(user.userId);
+    }}
+    className="text-left text-xs font-semibold text-red-700 hover:text-red-900 hover:underline"
+   >
+    {labels.delete}
+   </button>
+  )}
  </div>
- </div>
- ) : (
- <button
- type="button"
- onClick={() => {
- setDeleteError(null);
- setConfirmUserId(user.userId);
- }}
- className="text-xs font-semibold text-red-700 hover:text-red-900 hover:underline"
- >
- {labels.delete}
- </button>
- )}
  </td>
  </tr>
  );

@@ -13,6 +13,8 @@ import {
   type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
 import { AccountSwitcher } from "@/components/workspace/account-switcher";
+import { AgencyWorkspaceBanner } from "@/components/workspace/agency-workspace-banner";
+import { AgencyHeaderPill, useAgencyManagedContext } from "@/components/workspace/agency-header-pill";
 import { DashboardSidebarNav } from "@/components/navigation/dashboard-sidebar-nav";
 import { resolveHomeHrefFromProgress } from "@/lib/workspace/onboarding-routes";
 import { META_LABEL } from "@/lib/ui/nextstep";
@@ -93,6 +95,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 
   const isAdminRoute = pathname?.includes("/admin");
+  const isAgencyManagedContext = useAgencyManagedContext();
 
   return (
     <div className="flex min-h-screen flex-col bg-ns-background [--dashboard-header-h:57px]">
@@ -109,6 +112,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </span>
           </Link>
           <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2 lg:gap-3">
+            <div className="lg:hidden">
+              <AgencyHeaderPill />
+            </div>
             <nav className="hidden min-w-0 flex-1 justify-end gap-1.5 lg:flex xl:gap-2.5" aria-label="Main">
               {navItems.map((item) => {
                 const active = isNavItemActive(item);
@@ -124,6 +130,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               );
               })}
             </nav>
+            <AgencyHeaderPill />
             <LanguageSwitcher variant="dark" />
             <button
               type="button"
@@ -187,7 +194,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         )}
       </aside>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div
+        className={`flex min-h-0 min-w-0 flex-1 flex-col ${
+          isAgencyManagedContext
+            ? "border-l-4 border-amber-400/80 bg-gradient-to-r from-amber-50/50 via-amber-50/20 to-ns-background"
+            : ""
+        }`}
+      >
 
       {menuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -261,6 +274,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           isAdminRoute ? "max-w-[1400px]" : "max-w-5xl"
         }`}
       >
+        <AgencyWorkspaceBanner />
         {children}
       </main>
       <AppFooter variant="light" showAppLinks />

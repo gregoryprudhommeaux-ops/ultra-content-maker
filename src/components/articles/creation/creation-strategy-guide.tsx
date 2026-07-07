@@ -310,7 +310,7 @@ export function CreationStrategyGuidePanel({
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-[10px] font-black text-ns-secondary">
-                          {i + 1}/4
+                          {i + 1}/3
                         </span>
                         <span
                           className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${RELATION_BADGE[theme.relationToHistory]}`}

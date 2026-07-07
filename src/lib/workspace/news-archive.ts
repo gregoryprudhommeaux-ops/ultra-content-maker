@@ -13,6 +13,7 @@ import { stableNewsId } from "@/lib/news/stable-id";
 import type { NewsSuggestion } from "@/types/workspace";
 import { toDate } from "./firestore-utils";
 import {
+  activeWorkspaceOwnerId,
   allowsLegacyWorkspaceFallback,
   legacyCollectionRef,
   legacyDocRef,
@@ -54,7 +55,10 @@ async function listArchivedNewsSnap(userId: string) {
   if (!scoped.empty) return scoped;
   if (!allowsLegacyWorkspaceFallback(userId)) return scoped;
   return getDocs(
-    query(legacyCollectionRef(userId, "newsArchive"), orderBy("lastFetchedAt", "desc")),
+    query(
+      legacyCollectionRef(activeWorkspaceOwnerId(userId), "newsArchive"),
+      orderBy("lastFetchedAt", "desc"),
+    ),
   );
 }
 
@@ -180,7 +184,7 @@ export async function getArchivedNews(
 ): Promise<ArchivedNewsDoc | null> {
   let snap = await getDoc(workspaceDocRef(userId, "newsArchive", newsId));
   if (!snap.exists() && allowsLegacyWorkspaceFallback(userId)) {
-    snap = await getDoc(legacyDocRef(userId, "newsArchive", newsId));
+    snap = await getDoc(legacyDocRef(activeWorkspaceOwnerId(userId), "newsArchive", newsId));
   }
   if (!snap.exists()) return null;
   return mapArchived(snap.id, snap.data());

@@ -2,6 +2,7 @@ import { serializeSourcesForPersona } from "@/lib/workspace/serialize-sources";
 import type {
  AudienceProfile,
  AuthorProfile,
+ ContentArchetype,
  CreationStrategyCache,
  CreationStrategyGuide,
  GapAnswerValue,
@@ -14,6 +15,7 @@ export type AuthorSteeringPayload = {
  author?: {
  roleTitle?: string;
  positioningLine?: string;
+ contentArchetype?: ContentArchetype;
  linkedinProfileUrl?: string;
  linkedinActivityUrl?: string;
  websiteUrl?: string;
@@ -53,6 +55,7 @@ Author steering (when "authorSteering" is in the user JSON):
 - Honor linkedInPositioning from the last activity analysis (patterns, themes, recommended path) unless steering explicitly requests a pivot.
 - newsInterestQuery and creationStrategySteering override generic Persona defaults when they conflict.
 - contentNiche (when set) is the owned niche anchor: one reader, one problem — honor it unless the brief explicitly pivots.
+- contentArchetype (expert | founder_product | hybrid) steers whether posts lead with expertise vs category/product proof — follow Persona rules for that archetype.
 - Never invent facts not supported by Persona, enrichment, or referenced URLs.`;
 
 function summarizeStrategyCache(
@@ -104,6 +107,7 @@ export function buildAuthorSteeringPayload(input: {
  payload.author = {
  roleTitle: author.roleTitle,
  positioningLine: author.positioningLine,
+ contentArchetype: author.contentArchetype,
  linkedinProfileUrl: author.linkedinProfileUrl,
  linkedinActivityUrl: author.linkedinActivityUrl,
  websiteUrl: author.websiteUrl,
@@ -196,6 +200,7 @@ export function slimAuthorSteeringForRevise(
  slim.author = {
  roleTitle: steering.author.roleTitle,
  positioningLine: steering.author.positioningLine,
+ contentArchetype: steering.author.contentArchetype,
  creationStrategySteering: steering.author.creationStrategySteering,
  };
  }

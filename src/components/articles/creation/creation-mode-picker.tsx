@@ -27,7 +27,6 @@ const MODES: ModeConfig[] = [
   { id: "profile", accent: "lime", featured: true },
   { id: "news", accent: "sky" },
   { id: "inspiration", accent: "violet" },
-  { id: "article", accent: "amber" },
 ];
 
 const ACCENT = {
@@ -97,6 +96,13 @@ function ModeIcon({ mode, className }: { mode: ModeId; className?: string }) {
           strokeWidth="1.75"
           strokeLinecap="round"
         />
+        <path
+          d="M16 4h4v4M20 4l-5 5"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     );
   }
@@ -113,16 +119,16 @@ function ModeIcon({ mode, className }: { mode: ModeId; className?: string }) {
       </svg>
     );
   }
-  if (mode === "article") {
+  if (mode === "inspiration") {
     return (
       <svg className={cn} viewBox="0 0 24 24" fill="none" aria-hidden>
         <path
-          d="M6 4h12a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"
+          d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"
           stroke="currentColor"
           strokeWidth="1.75"
         />
         <path
-          d="M8 8h8M8 12h8M8 16h5"
+          d="M9 8h6M9 12h6M9 16h4"
           stroke="currentColor"
           strokeWidth="1.75"
           strokeLinecap="round"
@@ -207,11 +213,34 @@ export function CreationModePicker({
         </ul>
       </section>
 
+      <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6">
+        <h3 className={SECTION_TITLE}>{t("decisionMatrixTitle")}</h3>
+        <p className="mt-1 text-sm text-ns-secondary">{t("decisionMatrixHint")}</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {(["profile", "news", "inspiration"] as const).map((modeId) => (
+            <div
+              key={modeId}
+              className="rounded-xl border border-gray-100 bg-ns-brand-light/30 px-4 py-3"
+            >
+              <p className="text-xs font-bold uppercase tracking-wide text-ns-secondary">
+                {t(`decisionMatrix.${modeId}.when`)}
+              </p>
+              <p className="mt-2 text-sm font-semibold text-ns-tertiary">
+                {t(`modes.${modeId}.title`)}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-ns-secondary">
+                {t(`decisionMatrix.${modeId}.outcome`)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <div>
         <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ns-secondary">
           {t("modesSectionLabel")}
         </p>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {MODES.map((config) => (
             <ModeCard
               key={config.id}
@@ -336,7 +365,7 @@ function ModeCard({
         aria-hidden
       />
 
-      <div className="relative flex flex-1 flex-col">
+      <div className="relative flex min-h-0 flex-1 flex-col">
         <div className="flex items-start gap-3">
           <div
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${accent.bg} ${accent.icon}`}
@@ -344,10 +373,17 @@ function ModeCard({
             <ModeIcon mode={mode} />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {featured && (
+            <div className="flex min-h-[1.375rem] flex-wrap items-center gap-1.5">
+              {featured ? (
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
+                >
+                  {t("recommended")}
+                </span>
+              ) : (
+                <span
+                  className="invisible rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                  aria-hidden
                 >
                   {t("recommended")}
                 </span>
@@ -357,22 +393,22 @@ function ModeCard({
                 {t(`modes.${mode}.badge`)}
               </span>
             </div>
-            <h3 className="mt-2 text-base font-bold leading-snug text-ns-tertiary md:text-lg">
+            <h3 className="mt-2 min-h-[3.25rem] text-base font-bold leading-snug text-ns-tertiary line-clamp-2 md:text-lg">
               {t(`modes.${mode}.title`)}
             </h3>
           </div>
         </div>
 
-        <p className="relative mt-3 min-h-[2.75rem] text-sm leading-relaxed text-ns-secondary line-clamp-2">
+        <p className="relative mt-3 min-h-[4rem] text-sm leading-relaxed text-ns-secondary line-clamp-3">
           {t(`modes.${mode}.desc`)}
         </p>
 
         {Array.isArray(outputs) && outputs.length > 0 && (
-          <ul className="relative mt-4 flex flex-wrap gap-1.5">
+          <ul className="relative mt-4 flex min-h-[3.5rem] max-h-[3.5rem] flex-wrap content-start gap-1.5 overflow-hidden">
             {outputs.map((item) => (
               <li
                 key={item}
-                className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium text-ns-tertiary ${accent.tag}`}
+                className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium leading-tight text-ns-tertiary ${accent.tag}`}
               >
                 {item}
               </li>
@@ -382,7 +418,7 @@ function ModeCard({
 
         <span
           className={[
-            "relative mt-5 inline-flex w-full items-center justify-center gap-1",
+            "relative mt-auto inline-flex w-full items-center justify-center gap-1 pt-5",
             featured ? BTN_PRIMARY : BTN_SECONDARY,
             "!py-2.5 text-sm",
           ].join(" ")}

@@ -1,5 +1,8 @@
 export type ContentLanguage = "en" | "fr" | "es";
 
+/** Editorial positioning: expert consultant vs founder/CEO talking about a product. */
+export type ContentArchetype = "expert" | "founder_product" | "hybrid";
+
 import type { SubscriptionProfile } from "@/types/subscription";
 
 export type SetupStep = "llm" | "express" | "author" | "audience" | "persona" | "articles" | "ready";
@@ -119,8 +122,10 @@ export interface CreationStrategyCache {
  steering?: string;
 }
 
+export type LinkedInDeliveryMode = "agency_publish" | "client_copy_paste";
+
 export interface AuthorProfile {
- linkedinProfileUrl?: string;
+  linkedinProfileUrl?: string;
  /** Public activity feed URL (recent posts) for AI pattern analysis. */
  linkedinActivityUrl?: string;
  websiteUrl?: string;
@@ -128,11 +133,16 @@ export interface AuthorProfile {
  contentLanguage: ContentLanguage;
  roleTitle?: string;
  positioningLine?: string;
+ /** Steers Persona + post generation: expert vs founder/product vs hybrid. */
+ contentArchetype?: ContentArchetype;
  creationStrategyCache?: CreationStrategyCache;
  /** Optional angle / keywords to steer the next strategy analysis. */
- creationStrategySteering?: string;
- status: AuthorStatus;
- updatedAt: Date;
+  creationStrategySteering?: string;
+  /** Support Total: agency publishes vs client copy-pastes on LinkedIn. */
+  linkedInDeliveryMode?: LinkedInDeliveryMode;
+  linkedInPublishAccessNotes?: string;
+  status: AuthorStatus;
+  updatedAt: Date;
 }
 
 export type AuthorBioDocumentKind = "file" | "link";
@@ -404,12 +414,17 @@ export interface RefinementQuestion {
 export type ToneEdge = "default" | "corrosive";
 
 export interface ArticleRefinement {
- questions: RefinementQuestion[];
- emojiLevel?: EmojiLevel;
- /** Corrosive / contrarian rewrite for this post */
- toneEdge?: ToneEdge;
- globalComment?: string;
- lastRegeneratedAt?: Date;
+  questions: RefinementQuestion[];
+  emojiLevel?: EmojiLevel;
+  /** Corrosive / contrarian rewrite for this post */
+  toneEdge?: ToneEdge;
+  globalComment?: string;
+  lastRegeneratedAt?: Date;
+}
+
+export interface DraftReviewFeedback {
+  answers: Record<string, string>;
+  submittedAt: string;
 }
 
 export type IllustrationFormat =
@@ -441,7 +456,7 @@ export interface ArticleNewsSource {
  sourceName?: string;
 }
 
-export type InspirationInputKind = "paste" | "url" | "library";
+export type InspirationInputKind = "paste" | "url" | "library" | "document";
 
 /** Traceability when a post was generated from the inspiration wizard */
 export interface ArticleInspirationSource {
@@ -499,9 +514,11 @@ export interface ArticleDoc {
  translations?: ArticleTranslations;
  createdAt: Date;
  updatedAt: Date;
- validatedAt?: Date;
- /** Support Total delivery pipeline — defaults to to_produce when unset. */
- productionStatus?: SupportProductionStatus;
+  validatedAt?: Date;
+  /** Support Total delivery pipeline — defaults to to_produce when unset. */
+  productionStatus?: SupportProductionStatus;
+  draftReviewToken?: string;
+  clientReviewFeedback?: DraftReviewFeedback;
 }
 
 export { INPUT_CLASS, LABEL_CLASS } from "@/lib/ui/nextstep";

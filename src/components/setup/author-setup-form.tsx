@@ -22,7 +22,7 @@ import {
 } from "@/lib/workspace/author-enrich";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
-import type { ContentLanguage } from "@/types/workspace";
+import type { ContentArchetype, ContentLanguage } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import {
   DashboardPageHero,
@@ -62,6 +62,7 @@ export function AuthorSetupForm() {
   const [blogUrl, setBlogUrl] = useState("");
   const [roleTitle, setRoleTitle] = useState("");
   const [positioningLine, setPositioningLine] = useState("");
+  const [contentArchetype, setContentArchetype] = useState<ContentArchetype>("expert");
   const [contentLanguage, setContentLanguage] = useState<ContentLanguage>(locale);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -92,6 +93,7 @@ export function AuthorSetupForm() {
         setBlogUrl(profile.blogUrl ?? "");
         setRoleTitle(profile.roleTitle ?? "");
         setPositioningLine(profile.positioningLine ?? "");
+        setContentArchetype(profile.contentArchetype ?? "expert");
         setContentLanguage(profile.contentLanguage);
       } else {
         setSavedProfile(null);
@@ -101,6 +103,7 @@ export function AuthorSetupForm() {
         setBlogUrl("");
         setRoleTitle("");
         setPositioningLine("");
+        setContentArchetype("expert");
         setContentLanguage(activeAccount.contentLanguage ?? locale);
       }
       setLoaded(true);
@@ -150,6 +153,7 @@ export function AuthorSetupForm() {
       blogUrl: blogUrl.trim() || undefined,
       roleTitle: roleTitle.trim() || undefined,
       positioningLine: positioningLine.trim() || undefined,
+      contentArchetype,
       contentLanguage,
     };
 
@@ -285,6 +289,8 @@ export function AuthorSetupForm() {
             setRoleTitle={setRoleTitle}
             positioningLine={positioningLine}
             setPositioningLine={setPositioningLine}
+            contentArchetype={contentArchetype}
+            setContentArchetype={setContentArchetype}
             contentLanguage={contentLanguage}
             setContentLanguage={setContentLanguage}
           />
@@ -548,6 +554,8 @@ function VoiceFields({
   setRoleTitle,
   positioningLine,
   setPositioningLine,
+  contentArchetype,
+  setContentArchetype,
   contentLanguage,
   setContentLanguage,
 }: {
@@ -558,6 +566,8 @@ function VoiceFields({
   setRoleTitle: (v: string) => void;
   positioningLine: string;
   setPositioningLine: (v: string) => void;
+  contentArchetype: ContentArchetype;
+  setContentArchetype: (v: ContentArchetype) => void;
   contentLanguage: ContentLanguage;
   setContentLanguage: (v: ContentLanguage) => void;
 }) {
@@ -599,6 +609,27 @@ function VoiceFields({
     </div>
   );
 
+  const archetypeField = (
+    <div>
+      <OptionalLabel htmlFor="contentArchetype" optional={enrichMode}>
+        {t("contentArchetype")}
+      </OptionalLabel>
+      <p className="mb-2 text-sm leading-relaxed text-ns-secondary">
+        {t("contentArchetypeHint")}
+      </p>
+      <select
+        id="contentArchetype"
+        value={contentArchetype}
+        onChange={(e) => setContentArchetype(e.target.value as ContentArchetype)}
+        className={INPUT_CLASS}
+      >
+        <option value="expert">{t("contentArchetypeExpert")}</option>
+        <option value="founder_product">{t("contentArchetypeFounder")}</option>
+        <option value="hybrid">{t("contentArchetypeHybrid")}</option>
+      </select>
+    </div>
+  );
+
   const languageField = (
     <div>
       <OptionalLabel htmlFor="lang" optional={enrichMode}>
@@ -636,6 +667,7 @@ function VoiceFields({
       ) : (
         positioningField
       )}
+      {archetypeField}
       <AuthorBioDocumentsPanel userId={userId} />
       {enrichMode ? (
         <PrefilledFieldBlock

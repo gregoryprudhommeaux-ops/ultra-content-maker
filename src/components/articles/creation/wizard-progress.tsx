@@ -23,7 +23,8 @@ export function resolveWizardProgressStep(
     step === "paste" ||
     step === "inspiration-input" ||
     step === "inspiration-url" ||
-    step === "inspiration-library"
+    step === "inspiration-library" ||
+    step === "inspiration-document"
   ) {
     return "context";
   }
