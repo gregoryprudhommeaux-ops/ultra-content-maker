@@ -1,6 +1,8 @@
 import { createDraftReviewToken } from "@/lib/draft-review/tokens.server";
 import { requirePlatformAdmin } from "@/lib/admin/require-platform-admin.server";
 import { getAdminFirestore } from "@/lib/firebase/admin";
+import { canWriteWorkspace } from "@/lib/workspace/require-workspace-write.server";
+import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
 import { DEFAULT_ACCOUNT_ID } from "@/lib/workspace/workspace-scope";
 import { NextResponse } from "next/server";
 
@@ -39,10 +41,18 @@ export async function POST(request: Request, context: RouteContext) {
   const ownerId = body.ownerId?.trim() || admin.uid;
   const accountId = body.accountId?.trim() || DEFAULT_ACCOUNT_ID;
 
+  const actorScope = await resolveWorkspaceScopeForUser(db, admin.uid);
+  const resolvedOwnerId = body.ownerId?.trim() ? ownerId : actorScope.ownerId;
+  const resolvedAccountId = body.accountId?.trim() ? accountId : actorScope.accountId;
+
+  if (!(await canWriteWorkspace(db, admin.uid, resolvedOwnerId, resolvedAccountId))) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
   try {
     const result = await createDraftReviewToken(db, {
-      userId: ownerId,
-      accountId,
+      userId: resolvedOwnerId,
+      accountId: resolvedAccountId,
       articleId: articleId.trim(),
       createdBy: admin.uid,
       locale: body.locale,

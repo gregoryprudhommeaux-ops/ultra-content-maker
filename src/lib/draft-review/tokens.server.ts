@@ -1,6 +1,6 @@
 import { FieldValue, Timestamp, type Firestore } from "firebase-admin/firestore";
 import { randomBytes } from "crypto";
-import { DEFAULT_ACCOUNT_ID } from "@/lib/workspace/workspace-scope";
+import { resolveArticleDocument } from "@/lib/workspace/article-doc.server";
 import type { DraftReviewFeedback } from "@/types/workspace";
 
 const COLLECTION = "draftReviewTokens";
@@ -29,13 +29,6 @@ function tokenRef(db: Firestore, token: string) {
   return db.collection(COLLECTION).doc(token);
 }
 
-function articleRef(db: Firestore, ownerId: string, accountId: string, articleId: string) {
-  if (accountId === DEFAULT_ACCOUNT_ID) {
-    return db.doc(`users/${ownerId}/articles/${articleId}`);
-  }
-  return db.doc(`users/${ownerId}/accounts/${accountId}/articles/${articleId}`);
-}
-
 export function generateDraftReviewToken(): string {
   return randomBytes(24).toString("base64url");
 }
@@ -55,8 +48,13 @@ export async function createDraftReviewToken(
     locale?: string;
   },
 ): Promise<{ token: string; url: string; expiresAt: string }> {
-  const articleSnap = await articleRef(db, input.userId, input.accountId, input.articleId).get();
-  if (!articleSnap.exists) throw new Error("article_not_found");
+  const resolved = await resolveArticleDocument(
+    db,
+    input.userId,
+    input.accountId,
+    input.articleId,
+  );
+  if (!resolved) throw new Error("article_not_found");
 
   const token = generateDraftReviewToken();
   const expiresAt = new Date(Date.now() + TOKEN_TTL_MS);
@@ -71,7 +69,7 @@ export async function createDraftReviewToken(
     createdBy: input.createdBy ?? null,
   });
 
-  await articleRef(db, input.userId, input.accountId, input.articleId).set(
+  await resolved.ref.set(
     { draftReviewToken: token, updatedAt: FieldValue.serverTimestamp() },
     { merge: true },
   );
@@ -112,10 +110,15 @@ export async function getDraftReviewByToken(
       ? "submitted"
       : "active";
 
-  const articleSnap = await articleRef(db, data.ownerId, data.accountId, data.articleId).get();
-  if (!articleSnap.exists) return null;
+  const resolved = await resolveArticleDocument(
+    db,
+    data.ownerId,
+    data.accountId,
+    data.articleId,
+  );
+  if (!resolved) return null;
 
-  const articleData = articleSnap.data() ?? {};
+  const articleData = resolved.snap.data() ?? {};
   return {
     token,
     status,
@@ -157,11 +160,15 @@ export async function submitDraftReview(
     submittedAt: new Date().toISOString(),
   };
 
-  const articleRefPath = articleRef(db, data.ownerId, data.accountId, data.articleId);
-  const articleSnap = await articleRefPath.get();
-  if (!articleSnap.exists) return { ok: false, error: "article_not_found" };
+  const resolved = await resolveArticleDocument(
+    db,
+    data.ownerId,
+    data.accountId,
+    data.articleId,
+  );
+  if (!resolved) return { ok: false, error: "article_not_found" };
 
-  const articleData = articleSnap.data() ?? {};
+  const articleData = resolved.snap.data() ?? {};
   const existingComment =
     typeof articleData.refinement === "object" && articleData.refinement !== null
       ? String((articleData.refinement as { globalComment?: string }).globalComment ?? "")
@@ -177,7 +184,7 @@ export async function submitDraftReview(
       ? { ...(articleData.refinement as Record<string, unknown>), globalComment }
       : { questions: [], globalComment };
 
-  await articleRefPath.update({
+  await resolved.ref.update({
     clientReviewFeedback: feedback,
     productionStatus: "client_review",
     refinement,
