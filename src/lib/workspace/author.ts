@@ -1,4 +1,4 @@
-import { serverTimestamp, setDoc } from "firebase/firestore";
+import { serverTimestamp, setDoc, getDoc } from "firebase/firestore";
 import type {
   AuthorProfile,
   AuthorReferenceUrl,
@@ -12,7 +12,7 @@ import {
   normalizeAuthorReferenceUrl,
 } from "@/lib/profile/author-reference-urls";
 import { isValidUrl, toDate } from "./firestore-utils";
-import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
+import { workspaceDocRef, legacyDocRef, allowsLegacyWorkspaceFallback, activeWorkspaceOwnerId } from "./workspace-scope";
 
 /** Minimum fields before the author step counts as complete (onboarding gate). */
 export function isAuthorProfileMinimumComplete(
@@ -52,7 +52,29 @@ function parseReferenceUrls(raw: unknown): AuthorReferenceUrl[] | undefined {
 }
 
 export async function getAuthorProfile(userId: string): Promise<AuthorProfile | null> {
-  const d = await readScopedOrLegacyDoc(userId, (x) => x, "author", DOC_ID);
+  const scopedSnap = await getDoc(workspaceDocRef(userId, "author", DOC_ID));
+  let d: Record<string, unknown> | null = scopedSnap.exists()
+    ? (scopedSnap.data() as Record<string, unknown>)
+    : null;
+
+  if (!d && allowsLegacyWorkspaceFallback(userId)) {
+    const legacySnap = await getDoc(
+      legacyDocRef(activeWorkspaceOwnerId(userId), "author", DOC_ID),
+    );
+    if (legacySnap.exists()) d = legacySnap.data() as Record<string, unknown>;
+  } else if (d && allowsLegacyWorkspaceFallback(userId)) {
+    const linkedin = String(d.linkedinProfileUrl ?? "").trim();
+    if (!linkedin) {
+      const legacySnap = await getDoc(
+        legacyDocRef(activeWorkspaceOwnerId(userId), "author", DOC_ID),
+      );
+      if (legacySnap.exists()) {
+        const legacyLinkedin = String(legacySnap.data()?.linkedinProfileUrl ?? "").trim();
+        if (legacyLinkedin) d = { ...d, linkedinProfileUrl: legacyLinkedin };
+      }
+    }
+  }
+
   if (!d) return null;
 
   const partial = {

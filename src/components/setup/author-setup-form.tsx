@@ -98,9 +98,11 @@ export function AuthorSetupForm() {
     () => linkedinProfileUrl.trim() || savedProfile?.linkedinProfileUrl?.trim() || "",
     [linkedinProfileUrl, savedProfile],
   );
-  const showEnrichLinkedInCaptured =
-    enrichMode &&
-    (fromParam === "express" || linkedinAlreadySaved || Boolean(effectiveLinkedInUrl));
+  const linkedinCaptured =
+    linkedinAlreadySaved || Boolean(effectiveLinkedInUrl.trim());
+  const showEnrichLinkedInCaptured = enrichMode && linkedinCaptured;
+  const showEssentialLinkedInCaptured =
+    linkedinCaptured && activeTab === "essential";
 
   useEffect(() => {
     if (!user || !activeAccount) return;
@@ -214,6 +216,8 @@ export function AuthorSetupForm() {
       ...draft,
       status: markComplete ? "complete" : "in_progress",
     });
+    const refreshed = await getAuthorProfile(user.uid);
+    if (refreshed) setSavedProfile(refreshed);
     if (showsCompanyProfileFields(contentArchetype)) {
       await saveProfileEnrichment(user.uid, companyOffersToEnrichmentPatch(companyOffers));
     }
@@ -283,7 +287,7 @@ export function AuthorSetupForm() {
           {enrichMode ? t("fullProfile.enrichBody") : t("fullProfile.anytimeBody")}
         </p>
       </div>
-      {showEnrichLinkedInCaptured && (
+      {linkedinCaptured && (
         <ExpressCapturedSummary
           t={t}
           linkedinProfileUrl={effectiveLinkedInUrl}
@@ -308,7 +312,7 @@ export function AuthorSetupForm() {
         </p>
 
         <p className="rounded-xl border border-gray-100 bg-ns-brand-light/40 px-4 py-3 text-sm leading-relaxed text-ns-secondary">
-          {showEnrichLinkedInCaptured
+          {showEssentialLinkedInCaptured || showEnrichLinkedInCaptured
             ? t(`tabs.enrichHint.${activeTab}`)
             : t(`tabs.hint.${activeTab}`)}
         </p>
@@ -318,7 +322,7 @@ export function AuthorSetupForm() {
           <EssentialFields
             t={t}
             enrichMode={enrichMode}
-            hideLinkedInProfile={showEnrichLinkedInCaptured}
+            hideLinkedInProfile={linkedinCaptured}
             linkedinProfileUrl={linkedinProfileUrl}
             setLinkedinProfileUrl={setLinkedinProfileUrl}
             linkedinActivitySources={linkedinActivitySources}
@@ -358,7 +362,7 @@ export function AuthorSetupForm() {
         )}
 
         <p className="rounded-lg border border-gray-100 bg-white/60 px-3 py-2 text-xs leading-relaxed text-ns-secondary">
-          {showEnrichLinkedInCaptured
+          {showEssentialLinkedInCaptured || showEnrichLinkedInCaptured
             ? t(`tabs.enrichRequiredNote.${activeTab}`)
             : t(`tabs.requiredNote.${activeTab}`)}
         </p>
