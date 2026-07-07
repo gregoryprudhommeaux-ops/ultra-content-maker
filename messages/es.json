@@ -1161,7 +1161,7 @@
       },
       "sources": {
         "title": "Tus posts (para el tono)",
-        "description": "Enlaces a tus propios posts de LinkedIn o artículos · la IA los usa para calibrar tu voz.",
+        "description": "Pega un enlace a tus posts, artículos o páginas web · la IA los usa para calibrar tu voz (el formato se detecta automáticamente).",
         "type": "Tipo de enlace",
         "url": "URL",
         "labelOptional": "Etiqueta",

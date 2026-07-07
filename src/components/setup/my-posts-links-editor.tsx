@@ -1,8 +1,9 @@
 "use client";
 
+import { inferSourceTypeFromUrl } from "@/lib/inspiration/infer-from-url";
 import { addSource, listSourcesByCategory, removeSource } from "@/lib/workspace/sources";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
-import type { SourceLink, SourceType } from "@/types/workspace";
+import type { SourceLink } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { INPUT_CLASS } from "@/types/workspace";
@@ -10,15 +11,12 @@ import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
-const MY_POST_TYPES: SourceType[] = ["linkedin_post", "blog", "website", "other"];
-
 type Props = { userId: string };
 
 export function MyPostsLinksEditor({ userId }: Props) {
   const t = useTranslations("setup.author.sources");
   const { scope } = useWorkspace();
   const [sources, setSources] = useState<SourceLink[]>([]);
-  const [type, setType] = useState<SourceType>("linkedin_post");
   const [url, setUrl] = useState("");
   const [label, setLabel] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -43,15 +41,16 @@ export function MyPostsLinksEditor({ userId }: Props) {
 
   async function onAdd() {
     setError(null);
-    if (!url.trim()) return;
-    if (!isValidUrl(url.trim())) {
+    const trimmed = url.trim();
+    if (!trimmed) return;
+    if (!isValidUrl(trimmed)) {
       setError(t("invalidUrl"));
       return;
     }
     try {
       await addSource(userId, {
-        type,
-        url: url.trim(),
+        type: inferSourceTypeFromUrl(trimmed),
+        url: trimmed,
         label: label.trim() || undefined,
         category: "my_post",
       });
@@ -95,17 +94,14 @@ export function MyPostsLinksEditor({ userId }: Props) {
               className="flex items-start justify-between gap-2 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm"
             >
               <div className="min-w-0">
-                <span className="font-medium text-ns-tertiary">
-                  {t(`types.${s.type}`)}
-                </span>
-                {s.label && (
-                  <span className="ml-2 text-ns-secondary">{s.label}</span>
-                )}
+                {s.label ? (
+                  <span className="font-medium text-ns-tertiary">{s.label}</span>
+                ) : null}
                 <a
                   href={s.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-0.5 block truncate text-ns-secondary underline"
+                  className={`block truncate text-ns-secondary underline ${s.label ? "mt-0.5" : ""}`}
                 >
                   {s.url}
                 </a>
@@ -125,23 +121,8 @@ export function MyPostsLinksEditor({ userId }: Props) {
         <p className="text-sm text-ns-secondary">{t("empty")}</p>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3">
         <div>
-          <OptionalLabel htmlFor="my-source-type">{t("type")}</OptionalLabel>
-          <select
-            id="my-source-type"
-            value={type}
-            onChange={(e) => setType(e.target.value as SourceType)}
-            className={INPUT_CLASS}
-          >
-            {MY_POST_TYPES.map((st) => (
-              <option key={st} value={st}>
-                {t(`types.${st}`)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="sm:col-span-2">
           <OptionalLabel htmlFor="my-source-url">{t("url")}</OptionalLabel>
           <input
             id="my-source-url"
@@ -153,7 +134,7 @@ export function MyPostsLinksEditor({ userId }: Props) {
             className={INPUT_CLASS}
           />
         </div>
-        <div className="sm:col-span-2">
+        <div>
           <OptionalLabel htmlFor="my-source-label">{t("labelOptional")}</OptionalLabel>
           <ImeSafeInput
             id="my-source-label"
@@ -162,11 +143,11 @@ export function MyPostsLinksEditor({ userId }: Props) {
             className={INPUT_CLASS}
           />
         </div>
-        {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="button"
           onClick={() => void onAdd()}
-          className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light sm:col-span-2"
+          className="rounded-lg border border-ns-alternate bg-white px-4 py-2 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light"
         >
           {t("add")}
         </button>

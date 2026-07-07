@@ -1161,7 +1161,7 @@
       },
       "sources": {
         "title": "Your posts (for tone)",
-        "description": "Links to your own LinkedIn posts or articles · the AI uses them to calibrate your voice.",
+        "description": "Paste a link to your posts, articles, or web pages · the AI uses them to calibrate your voice (format is detected automatically).",
         "type": "Link type",
         "url": "URL",
         "labelOptional": "Label",
