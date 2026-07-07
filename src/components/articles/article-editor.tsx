@@ -147,6 +147,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  );
  const [alternativeHooks, setAlternativeHooks] = useState<string[]>([]);
  const [qualityCritique, setQualityCritique] = useState<string | null>(null);
+ const [showValidationNudge, setShowValidationNudge] = useState(false);
 
  const loadCtaSuggestions = useCallback(async () => {
  if (!user || !article || !personaText) return;
@@ -286,6 +287,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const refinementSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
  const refinementSyncGenRef = useRef(0);
  const refineSectionRef = useRef<HTMLDivElement>(null);
+ const postPreviewRef = useRef<HTMLDivElement>(null);
  const ctaSectionRef = useRef<HTMLDivElement>(null);
  const [refineSectionOpen, setRefineSectionOpen] = useState(true);
  const [ctaSectionOpen, setCtaSectionOpen] = useState(false);
@@ -337,7 +339,16 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  });
  }, []);
 
+ const scrollToPostPreview = useCallback(() => {
+ requestAnimationFrame(() => {
+ requestAnimationFrame(() => {
+ postPreviewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+ });
+ });
+ }, []);
+
  const scrollToCtaSection = useCallback(() => {
+ setShowValidationNudge(false);
  setCtaSectionOpen(true);
  ensureCtaLoaded();
  requestAnimationFrame(() => {
@@ -649,6 +660,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  : prev,
  );
  setPendingAction(null);
+ scrollToPostPreview();
+ setShowValidationNudge(true);
 
  void (async () => {
  try {
@@ -710,11 +723,6 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  async function onValidate() {
  if (!user || !article) return;
- const refinement = getMergedRefinement();
- if (!refinement || !hasReviseInput(refinement)) {
- setValidateError(t("needRefinement"));
- return;
- }
  const chosen = ctaSuggestions.find((s) => s.style === selectedCtaStyle);
  if (!chosen) {
  setValidateError(tCta("pickOne"));
@@ -879,7 +887,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  await recordArticleValidateFeedback(
  user.uid,
  article.id,
- refinement,
+ getMergedRefinement() ?? mergeRefinementWithDefaults(article.refinement),
  article.contentLanguage,
  chosen.style,
  );
@@ -887,6 +895,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  /* La validation LinkedIn ne doit pas échouer si la sync Persona rate */
  }
  clearActionError();
+ setShowValidationNudge(false);
  await load();
  notifyArticlesChanged();
  } catch {
@@ -987,7 +996,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  </p>
  )}
 
- <div className="rounded-2xl border border-gray-100 bg-ns-surface p-5">
+ <div ref={postPreviewRef} className="scroll-mt-6 rounded-2xl border border-gray-100 bg-ns-surface p-5">
  <div className="mb-3 flex justify-end">
  <LinkedInCharCount
  text={joinLinkedInPostParts({
@@ -1025,6 +1034,19 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  <p className="mt-3 text-xs text-ns-secondary">{t("hashtagsHint")}</p>
  )}
  </div>
+
+ {!isValidated && showValidationNudge && (
+ <div className="flex flex-col gap-3 rounded-xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+ <p className="text-sm text-emerald-950">{t("postUpdatedNudge")}</p>
+ <button
+ type="button"
+ onClick={scrollToCtaSection}
+ className="shrink-0 rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-900"
+ >
+ {t("goToValidation")}
+ </button>
+ </div>
+ )}
 
  {isValidated && article.exportText && (
  <div className="space-y-3">
@@ -1223,6 +1245,15 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!canApplyFeedback && !isRevising && (
  <p className="text-xs text-ns-secondary">{t("needRefinement")}</p>
  )}
+ {!isValidated && (
+ <button
+ type="button"
+ onClick={scrollToCtaSection}
+ className="text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary"
+ >
+ {t("goToValidation")}
+ </button>
+ )}
  </div>
  </EditorCollapsibleSection>
  ) : null}
@@ -1365,6 +1396,15 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!canApplyFeedback && !isRevising && (
  <p className="text-xs text-ns-secondary">{t("needRefinement")}</p>
  )}
+ {!isValidated && (
+ <button
+ type="button"
+ onClick={scrollToCtaSection}
+ className="text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary"
+ >
+ {t("goToValidation")}
+ </button>
+ )}
  </div>
  ) : null}
 
@@ -1419,7 +1459,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  {!isValidated && !isWizard ? (
  <EditorCollapsibleSection
- title={tCta("title")}
+ title={t("validationStepTitle")}
  hint={t("sections.cta.hint")}
  open={ctaSectionOpen}
  onOpenChange={(open) => {
@@ -1496,6 +1536,9 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {isValidating && <ButtonSpinner />}
  {isValidating ? t("validating") : t("validate")}
  </button>
+ {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
+ <p className="text-xs text-ns-secondary">{t("validatePickCtaHint")}</p>
+ )}
  {error && errorScope === "cta" && (
  <UserErrorBanner
  surface="article-editor-validate"
@@ -1532,11 +1575,11 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!isValidated && isWizard ? (
  <div
  ref={ctaSectionRef}
- className="rounded-xl border border-gray-100 p-5 space-y-4"
+ className="scroll-mt-6 rounded-xl border-2 border-emerald-200/80 bg-emerald-50/30 p-5 space-y-4"
  >
  <div className="flex flex-wrap items-center justify-between gap-2">
  <div className="flex items-center gap-2">
- <h2 className="text-base font-semibold text-ns-tertiary">{tCta("title")}</h2>
+ <h2 className="text-base font-semibold text-ns-tertiary">{t("validationStepTitle")}</h2>
  <ContextHelp label={tCta("help.label")}>{tCta("help.body")}</ContextHelp>
  </div>
  <button
@@ -1599,6 +1642,9 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {isValidating && <ButtonSpinner />}
  {isValidating ? t("validating") : t("validate")}
  </button>
+ {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
+ <p className="text-xs text-ns-secondary">{t("validatePickCtaHint")}</p>
+ )}
  {error && errorScope === "cta" && (
  <UserErrorBanner
  surface="article-editor-validate"
