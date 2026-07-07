@@ -45,7 +45,7 @@ export function normalizeLinkedInPostsFeedUrl(raw: string): string | null {
       return `https://www.linkedin.com/in/${inMatch[1]}/recent-activity/all/`;
     }
 
-    const companyMatch = path.match(/^\/company\/([^/]+)\/posts/i);
+    const companyMatch = path.match(/^\/company\/([^/]+)(?:\/posts)?/i);
     if (companyMatch) {
       return `https://www.linkedin.com/company/${companyMatch[1]}/posts/?feedView=all`;
     }
@@ -70,6 +70,8 @@ export function validateLinkedInPostsFeedUrl(raw: string): "ok" | "invalid" | "n
     return "invalid";
   }
   if (!isLinkedInUrl(trimmed)) return "invalid";
+  const normalized = normalizeLinkedInPostsFeedUrl(trimmed);
+  if (normalized && isLinkedInPostsFeedUrl(normalized)) return "ok";
   if (!isLinkedInPostsFeedUrl(trimmed)) return "not_activity";
   return "ok";
 }

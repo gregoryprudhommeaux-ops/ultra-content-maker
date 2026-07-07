@@ -4,6 +4,7 @@ import { OptionalLabel } from "@/components/setup/optional-label";
 import {
   MAX_LINKEDIN_ACTIVITY_SOURCES,
   MAX_WEB_SOURCES,
+  normalizeAuthorReferenceUrlForSave,
   validateAuthorReferenceUrl,
 } from "@/lib/profile/author-reference-urls";
 import { INPUT_CLASS } from "@/types/workspace";
@@ -60,11 +61,17 @@ export function AuthorReferenceUrlsEditor({
       setError(tCommon("errors.notActivityUrl"));
       return;
     }
+    const normalizedUrl = normalizeAuthorReferenceUrlForSave(kind, trimmed);
     if (items.length >= maxItems) {
       setError(tCommon("errors.maxReached", { max: maxItems }));
       return;
     }
-    if (items.some((item) => item.url.trim().toLowerCase() === trimmed.toLowerCase())) {
+    if (
+      items.some(
+        (item) =>
+          item.url.trim().toLowerCase() === normalizedUrl.trim().toLowerCase(),
+      )
+    ) {
       setError(tCommon("errors.duplicate"));
       return;
     }
@@ -72,7 +79,7 @@ export function AuthorReferenceUrlsEditor({
     onChange([
       ...items,
       {
-        url: trimmed,
+        url: normalizedUrl,
         kind,
         ...(label.trim() ? { label: label.trim() } : {}),
       },

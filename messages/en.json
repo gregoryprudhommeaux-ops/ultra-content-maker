@@ -1058,7 +1058,7 @@
           "title": "LinkedIn post feeds",
           "hint": "Add one or more feeds: your personal posts and/or your company page. AI analyzes ~2 months of activity to calibrate voice and recommendations.",
           "empty": "No post feeds yet.",
-          "urlPlaceholder": "https://www.linkedin.com/in/…/recent-activity/all/ or …/company/…/posts/"
+          "urlPlaceholder": "https://www.linkedin.com/in/your-profile or …/recent-activity/all/ or …/company/…/posts/"
         },
         "web": {
           "title": "Websites & web pages",

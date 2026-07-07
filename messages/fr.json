@@ -1058,7 +1058,7 @@
           "title": "Fils de posts LinkedIn",
           "hint": "Ajoutez un ou plusieurs flux : vos posts personnels et/ou ceux de votre page entreprise. L'IA analyse ~2 mois d'activité pour calibrer votre voix et vos recommandations.",
           "empty": "Aucun fil de posts pour l'instant.",
-          "urlPlaceholder": "https://www.linkedin.com/in/…/recent-activity/all/ ou …/company/…/posts/"
+          "urlPlaceholder": "https://www.linkedin.com/in/votre-profil ou …/recent-activity/all/ ou …/company/…/posts/"
         },
         "web": {
           "title": "Sites & pages web",
