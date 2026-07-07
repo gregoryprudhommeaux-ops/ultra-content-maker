@@ -98,7 +98,9 @@ export function AuthorSetupForm() {
     () => linkedinProfileUrl.trim() || savedProfile?.linkedinProfileUrl?.trim() || "",
     [linkedinProfileUrl, savedProfile],
   );
-  const showEnrichLinkedInCaptured = enrichMode && linkedinAlreadySaved;
+  const showEnrichLinkedInCaptured =
+    enrichMode &&
+    (fromParam === "express" || linkedinAlreadySaved || Boolean(effectiveLinkedInUrl));
 
   useEffect(() => {
     if (!user || !activeAccount) return;
@@ -524,7 +526,7 @@ function EssentialFields({
 }) {
   const linkedinField = (
     <div>
-      <OptionalLabel htmlFor="linkedin" optional={!enrichMode}>
+      <OptionalLabel htmlFor="linkedin" optional={enrichMode}>
         {t("linkedin")}
       </OptionalLabel>
       <p className="mb-2 text-xs leading-relaxed text-ns-secondary">{t("linkedinHint")}</p>
