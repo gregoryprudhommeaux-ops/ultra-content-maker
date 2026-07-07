@@ -1032,7 +1032,41 @@
       "linkedinHint": "Your public LinkedIn profile · AI reads it to understand your expertise (targeted read, not blind scraping).",
       "linkedinActivity": "LinkedIn activity URL (your posts)",
       "linkedinActivityHint": "Your profile's recent activity page · AI analyzes ~2 months of posts to calibrate your voice and recommendations.",
-      "linkedinActivityNotActivity": "Use your activity feed URL (e.g. …/in/your-name/recent-activity/all/).",
+      "linkedinActivityNotActivity": "Use a LinkedIn posts feed URL: personal recent activity (…/recent-activity/all/) or company page (…/company/…/posts/).",
+      "referenceUrls": {
+        "add": "Add link",
+        "remove": "Remove",
+        "kindLabel": "Source type",
+        "urlLabel": "URL",
+        "labelOptional": "Label (optional)",
+        "labelPlaceholder": "e.g. Smart Vending company page",
+        "maxReached": "Maximum {max} links.",
+        "kinds": {
+          "linkedin_personal": "Personal profile posts",
+          "linkedin_company": "Company page posts",
+          "website": "Website",
+          "blog": "Blog / media",
+          "other": "Other web page"
+        },
+        "errors": {
+          "invalidUrl": "Invalid URL.",
+          "notActivityUrl": "URL is not a recognized LinkedIn posts feed (profile or company page).",
+          "duplicate": "This link is already in the list.",
+          "maxReached": "Limit of {max} links reached."
+        },
+        "linkedinActivity": {
+          "title": "LinkedIn post feeds",
+          "hint": "Add one or more feeds: your personal posts and/or your company page. AI analyzes ~2 months of activity to calibrate voice and recommendations.",
+          "empty": "No post feeds yet.",
+          "urlPlaceholder": "https://www.linkedin.com/in/…/recent-activity/all/ or …/company/…/posts/"
+        },
+        "web": {
+          "title": "Websites & web pages",
+          "hint": "Site, blog, product page, or any page that helps understand your positioning (multiple links allowed).",
+          "empty": "No web sources yet.",
+          "urlPlaceholder": "https://your-site.com or https://blog…"
+        }
+      },
       "website": "Website URL",
       "blog": "Blog URL",
       "role": "Role / title",

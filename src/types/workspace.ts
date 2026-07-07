@@ -135,8 +135,24 @@ export interface CreationStrategyGuide {
  themes: CreationStrategyTheme[];
 }
 
+export type AuthorReferenceUrlKind =
+  | "linkedin_personal"
+  | "linkedin_company"
+  | "website"
+  | "blog"
+  | "other";
+
+export interface AuthorReferenceUrl {
+  url: string;
+  label?: string;
+  kind: AuthorReferenceUrlKind;
+}
+
 export interface CreationStrategyCache {
+ /** Legacy single URL — kept for older caches. */
  activityUrl: string;
+ /** All activity feeds analyzed (personal + company). */
+ activityUrls?: string[];
  analyzedAt: string;
  guide: CreationStrategyGuide;
  /** Steering text used when this cache was built (empty = none). */
@@ -147,10 +163,16 @@ export type LinkedInDeliveryMode = "agency_publish" | "client_copy_paste";
 
 export interface AuthorProfile {
   linkedinProfileUrl?: string;
- /** Public activity feed URL (recent posts) for AI pattern analysis. */
+ /** @deprecated Use linkedinActivitySources — kept for legacy reads. */
  linkedinActivityUrl?: string;
+ /** LinkedIn post feeds: personal activity + company pages. */
+ linkedinActivitySources?: AuthorReferenceUrl[];
+ /** @deprecated Use webSources. */
  websiteUrl?: string;
+ /** @deprecated Use webSources. */
  blogUrl?: string;
+ /** Site, blog, and other web references. */
+ webSources?: AuthorReferenceUrl[];
  contentLanguage: ContentLanguage;
  roleTitle?: string;
  positioningLine?: string;

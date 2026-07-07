@@ -1,7 +1,9 @@
+import { linkedInActivityUrlsFromProfile, migrateWebSources } from "@/lib/profile/author-reference-urls";
 import { serializeSourcesForPersona } from "@/lib/workspace/serialize-sources";
 import type {
  AudienceProfile,
  AuthorProfile,
+ AuthorReferenceUrl,
  ContentArchetype,
  CreationStrategyCache,
  CreationStrategyGuide,
@@ -18,8 +20,10 @@ export type AuthorSteeringPayload = {
  contentArchetype?: ContentArchetype;
  linkedinProfileUrl?: string;
  linkedinActivityUrl?: string;
+ linkedinActivitySources?: AuthorReferenceUrl[];
  websiteUrl?: string;
  blogUrl?: string;
+ webSources?: AuthorReferenceUrl[];
  contentLanguage?: string;
  creationStrategySteering?: string;
  };
@@ -34,6 +38,7 @@ export type AuthorSteeringPayload = {
  profileEnrichment?: Record<string, unknown>;
  linkedInPositioning?: {
  activityUrl?: string;
+ activityUrls?: string[];
  analyzedAt?: string;
  periodLabel?: string;
  patternSummary?: string;
@@ -63,10 +68,14 @@ function summarizeStrategyCache(
  cache?: CreationStrategyCache | null,
 ): AuthorSteeringPayload["linkedInPositioning"] | undefined {
  const guide: CreationStrategyGuide | undefined = cache?.guide;
- if (!guide && !author?.linkedinActivityUrl?.trim()) return undefined;
+ if (!guide && linkedInActivityUrlsFromProfile(author).length === 0) return undefined;
 
  return {
- activityUrl: cache?.activityUrl ?? author?.linkedinActivityUrl,
+ activityUrl: cache?.activityUrl ?? linkedInActivityUrlsFromProfile(author)[0],
+ activityUrls:
+ cache?.activityUrls?.length
+ ? cache.activityUrls
+ : linkedInActivityUrlsFromProfile(author),
  analyzedAt: cache?.analyzedAt,
  periodLabel: guide?.periodLabel,
  patternSummary: guide?.patternSummary,
@@ -110,8 +119,10 @@ export function buildAuthorSteeringPayload(input: {
  contentArchetype: author.contentArchetype,
  linkedinProfileUrl: author.linkedinProfileUrl,
  linkedinActivityUrl: author.linkedinActivityUrl,
+ linkedinActivitySources: author.linkedinActivitySources,
  websiteUrl: author.websiteUrl,
  blogUrl: author.blogUrl,
+ webSources: author.webSources,
  contentLanguage: author.contentLanguage,
  creationStrategySteering: author.creationStrategySteering,
  };

@@ -1032,7 +1032,41 @@
       "linkedinHint": "Votre profil public LinkedIn · l'IA l'analyse pour comprendre votre expertise (lecture ciblée, pas de scraping aveugle).",
       "linkedinActivity": "URL activité LinkedIn (vos posts)",
       "linkedinActivityHint": "Page « activité récente » de votre profil · l'IA analyse vos ~2 derniers mois de posts pour calibrer votre voix et vos recommandations.",
-      "linkedinActivityNotActivity": "Utilisez l'URL de votre fil d'activité (ex. …/in/votre-nom/recent-activity/all/).",
+      "linkedinActivityNotActivity": "Utilisez un fil de posts LinkedIn : activité récente du profil (…/recent-activity/all/) ou page entreprise (…/company/…/posts/).",
+      "referenceUrls": {
+        "add": "Ajouter le lien",
+        "remove": "Retirer",
+        "kindLabel": "Type de source",
+        "urlLabel": "URL",
+        "labelOptional": "Libellé (optionnel)",
+        "labelPlaceholder": "ex. Page entreprise Smart Vending",
+        "maxReached": "Maximum {max} liens.",
+        "kinds": {
+          "linkedin_personal": "Posts du profil personnel",
+          "linkedin_company": "Posts de la page entreprise",
+          "website": "Site web",
+          "blog": "Blog / média",
+          "other": "Autre page web"
+        },
+        "errors": {
+          "invalidUrl": "URL invalide.",
+          "notActivityUrl": "URL LinkedIn non reconnue comme fil de posts (profil ou page entreprise).",
+          "duplicate": "Ce lien est déjà dans la liste.",
+          "maxReached": "Limite de {max} liens atteinte."
+        },
+        "linkedinActivity": {
+          "title": "Fils de posts LinkedIn",
+          "hint": "Ajoutez un ou plusieurs flux : vos posts personnels et/ou ceux de votre page entreprise. L'IA analyse ~2 mois d'activité pour calibrer votre voix et vos recommandations.",
+          "empty": "Aucun fil de posts pour l'instant.",
+          "urlPlaceholder": "https://www.linkedin.com/in/…/recent-activity/all/ ou …/company/…/posts/"
+        },
+        "web": {
+          "title": "Sites & pages web",
+          "hint": "Site, blog, page produit ou toute page utile pour comprendre votre positionnement (plusieurs liens possibles).",
+          "empty": "Aucune source web pour l'instant.",
+          "urlPlaceholder": "https://votre-site.com ou https://blog…"
+        }
+      },
       "website": "URL site web",
       "blog": "URL blog",
       "role": "Rôle / titre",

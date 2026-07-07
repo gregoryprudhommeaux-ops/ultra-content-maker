@@ -13,13 +13,13 @@ import {
   type LinkedInActivityFetchLlmResult,
   type LinkedInActivityPostLlm,
 } from "@/lib/prompts/linkedin-activity-fetch";
-import { normalizeLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
+import { normalizeLinkedInPostsFeedUrl } from "@/lib/linkedin/activity-url";
 import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, CreationStrategyGuide } from "@/types/workspace";
 
 export type AnalyzeCreationStrategyInput = {
-  activityUrl: string;
+  activityUrls: string[];
   contentLanguage: ContentLanguage;
   personaPromptText: string;
   userId?: string;
@@ -49,7 +49,7 @@ export async function fetchLinkedInActivityPosts(
   contentLanguage: ContentLanguage,
   userId?: string,
 ): Promise<LinkedInActivityPostLlm[]> {
-  const normalized = normalizeLinkedInActivityUrl(activityUrl) ?? activityUrl.trim();
+  const normalized = normalizeLinkedInPostsFeedUrl(activityUrl) ?? activityUrl.trim();
 
   const raw = await chatCompletionJson(fetchLlm, [
     {
@@ -66,14 +66,43 @@ export async function fetchLinkedInActivityPosts(
   return normalizeLinkedInActivityPosts(parsed);
 }
 
+export async function fetchLinkedInActivityPostsFromFeeds(
+  activityUrls: string[],
+  fetchLlm: LlmConfig,
+  contentLanguage: ContentLanguage,
+  userId?: string,
+): Promise<LinkedInActivityPostLlm[]> {
+  const uniqueUrls = [...new Set(activityUrls.map((u) => u.trim()).filter(Boolean))];
+  if (uniqueUrls.length === 0) return [];
+
+  const batches = await Promise.all(
+    uniqueUrls.map((url) =>
+      fetchLinkedInActivityPosts(url, fetchLlm, contentLanguage, userId),
+    ),
+  );
+
+  const seen = new Set<string>();
+  const merged: LinkedInActivityPostLlm[] = [];
+  for (const batch of batches) {
+    for (const post of batch) {
+      const key = `${post.publishedAt ?? ""}|${post.excerpt?.slice(0, 120) ?? post.hook?.slice(0, 120) ?? ""}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push(post);
+    }
+  }
+  return merged;
+}
+
 export async function analyzeCreationStrategy(
   input: AnalyzeCreationStrategyInput,
 ): Promise<AnalyzeCreationStrategyResult> {
-  const normalized =
-    normalizeLinkedInActivityUrl(input.activityUrl) ?? input.activityUrl.trim();
+  const activityUrls = input.activityUrls
+    .map((url) => normalizeLinkedInPostsFeedUrl(url) ?? url.trim())
+    .filter(Boolean);
 
-  const posts = await fetchLinkedInActivityPosts(
-    normalized,
+  const posts = await fetchLinkedInActivityPostsFromFeeds(
+    activityUrls,
     input.fetchLlm,
     input.contentLanguage,
     input.userId,
@@ -93,7 +122,7 @@ export async function analyzeCreationStrategy(
       role: "user",
       content: buildCreationStrategyGuideUserPrompt({
         contentLanguage: input.contentLanguage,
-        activityUrl: normalized,
+        activityUrls,
         personaExcerpt: input.personaPromptText,
         authorContext: input.authorContext,
         posts,

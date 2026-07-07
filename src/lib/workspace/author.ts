@@ -1,9 +1,16 @@
 import { serverTimestamp, setDoc } from "firebase/firestore";
 import type {
   AuthorProfile,
+  AuthorReferenceUrl,
   ContentLanguage,
   CreationStrategyCache,
 } from "@/types/workspace";
+import {
+  legacyAuthorUrlFieldsFromSources,
+  migrateLinkedInActivitySources,
+  migrateWebSources,
+  normalizeAuthorReferenceUrl,
+} from "@/lib/profile/author-reference-urls";
 import { isValidUrl, toDate } from "./firestore-utils";
 import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
 
@@ -36,18 +43,44 @@ export function isAuthorProfileExpressComplete(
 
 const DOC_ID = "profile";
 
+function parseReferenceUrls(raw: unknown): AuthorReferenceUrl[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const items = raw
+    .map(normalizeAuthorReferenceUrl)
+    .filter((item): item is AuthorReferenceUrl => item !== null);
+  return items.length > 0 ? items : undefined;
+}
+
 export async function getAuthorProfile(userId: string): Promise<AuthorProfile | null> {
   const d = await readScopedOrLegacyDoc(userId, (x) => x, "author", DOC_ID);
   if (!d) return null;
+
+  const partial = {
+    linkedinActivitySources: parseReferenceUrls(d.linkedinActivitySources),
+    linkedinActivityUrl: d.linkedinActivityUrl as string | undefined,
+    webSources: parseReferenceUrls(d.webSources),
+    websiteUrl: d.websiteUrl as string | undefined,
+    blogUrl: d.blogUrl as string | undefined,
+  };
+
+  const linkedinActivitySources = migrateLinkedInActivitySources(partial);
+  const webSources = migrateWebSources(partial);
+  const legacy = legacyAuthorUrlFieldsFromSources({
+    linkedinActivitySources,
+    webSources,
+  });
+
   return {
     linkedinProfileUrl: d.linkedinProfileUrl as string | undefined,
-    linkedinActivityUrl: d.linkedinActivityUrl as string | undefined,
+    linkedinActivityUrl: legacy.linkedinActivityUrl,
+    linkedinActivitySources,
     creationStrategyCache: d.creationStrategyCache as
       | CreationStrategyCache
       | undefined,
     creationStrategySteering: d.creationStrategySteering as string | undefined,
-    websiteUrl: d.websiteUrl as string | undefined,
-    blogUrl: d.blogUrl as string | undefined,
+    websiteUrl: legacy.websiteUrl,
+    blogUrl: legacy.blogUrl,
+    webSources,
     contentLanguage: (d.contentLanguage as ContentLanguage) ?? "en",
     roleTitle: d.roleTitle as string | undefined,
     positioningLine: d.positioningLine as string | undefined,
@@ -70,18 +103,29 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
   const status =
     input.status ??
     (prev?.status === "complete" ? "complete" : "in_progress");
+
+  const linkedinActivitySources =
+    input.linkedinActivitySources ?? prev?.linkedinActivitySources ?? [];
+  const webSources = input.webSources ?? prev?.webSources ?? [];
+  const legacy = legacyAuthorUrlFieldsFromSources({
+    linkedinActivitySources,
+    webSources,
+  });
+
   await setDoc(
     workspaceDocRef(userId, "author", DOC_ID),
     {
       linkedinProfileUrl: input.linkedinProfileUrl ?? prev?.linkedinProfileUrl ?? null,
-      linkedinActivityUrl:
-        input.linkedinActivityUrl ?? prev?.linkedinActivityUrl ?? null,
+      linkedinActivitySources:
+        linkedinActivitySources.length > 0 ? linkedinActivitySources : null,
+      linkedinActivityUrl: legacy.linkedinActivityUrl ?? null,
       creationStrategyCache:
         input.creationStrategyCache ?? prev?.creationStrategyCache ?? null,
       creationStrategySteering:
         input.creationStrategySteering ?? prev?.creationStrategySteering ?? null,
-      websiteUrl: input.websiteUrl ?? prev?.websiteUrl ?? null,
-      blogUrl: input.blogUrl ?? prev?.blogUrl ?? null,
+      webSources: webSources.length > 0 ? webSources : null,
+      websiteUrl: legacy.websiteUrl ?? null,
+      blogUrl: legacy.blogUrl ?? null,
       contentLanguage: input.contentLanguage ?? prev?.contentLanguage ?? "en",
       roleTitle: input.roleTitle ?? prev?.roleTitle ?? null,
       positioningLine: input.positioningLine ?? prev?.positioningLine ?? null,

@@ -7,6 +7,7 @@ import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import { getClientAuth } from "@/lib/firebase/client";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
+import { linkedInActivityUrlsFromProfile, activityUrlsFingerprint } from "@/lib/profile/author-reference-urls";
 import { getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { META_LABEL, CARD_TITLE } from "@/lib/ui/nextstep";
@@ -52,7 +53,7 @@ export function CreationStrategyGuidePanel({
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
 
-  const [activityUrl, setActivityUrl] = useState<string | null>(null);
+  const [activityUrls, setActivityUrls] = useState<string[]>([]);
   const [guide, setGuide] = useState<CreationStrategyGuide | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorInfo, setErrorInfo] = useState<UserErrorInfo | null>(null);
@@ -62,7 +63,7 @@ export function CreationStrategyGuidePanel({
 
   const runAnalysis = useCallback(
     async (forceRefresh = false, steeringOverride?: string) => {
-      if (!user || !activityUrl?.trim() || !personaText.trim()) return;
+      if (!user || activityUrls.length === 0 || !personaText.trim()) return;
 
       setLoading(true);
       setErrorInfo(null);
@@ -89,7 +90,7 @@ export function CreationStrategyGuidePanel({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            linkedinActivityUrl: activityUrl,
+            linkedinActivityUrls: activityUrls,
             contentLanguage: author?.contentLanguage ?? locale,
             personaPromptText: personaText,
             roleTitle: author?.roleTitle,
@@ -139,7 +140,8 @@ export function CreationStrategyGuidePanel({
         const cachePayload =
           data.cache ??
           ({
-            activityUrl,
+            activityUrl: activityUrls[0] ?? "",
+            activityUrls,
             analyzedAt: new Date().toISOString(),
             guide: data.guide,
             steering: steeringText || undefined,
@@ -156,22 +158,28 @@ export function CreationStrategyGuidePanel({
         setLoading(false);
       }
     },
-    [activityUrl, formatError, locale, onRecommendMode, personaText, steering, t, user],
+    [activityUrls, formatError, locale, onRecommendMode, personaText, steering, t, user],
   );
 
   useEffect(() => {
     if (!user) return;
     void (async () => {
       const author = await getAuthorProfile(user.uid);
-      const url = author?.linkedinActivityUrl?.trim();
-      setActivityUrl(url ?? null);
+      const urls = linkedInActivityUrlsFromProfile(author);
+      setActivityUrls(urls);
       setSteering(author?.creationStrategySteering ?? "");
 
       const cache = author?.creationStrategyCache;
+      const cacheUrls = cache?.activityUrls?.length
+        ? cache.activityUrls
+        : cache?.activityUrl
+          ? [cache.activityUrl]
+          : [];
       if (
         cache?.guide &&
-        cache.activityUrl === url &&
-        url
+        cacheUrls.length > 0 &&
+        activityUrlsFingerprint(cacheUrls) === activityUrlsFingerprint(urls) &&
+        urls.length > 0
       ) {
         setGuide(cache.guide);
         onRecommendMode(cache.guide.recommendedMode);
@@ -180,13 +188,13 @@ export function CreationStrategyGuidePanel({
   }, [user, onRecommendMode]);
 
   useEffect(() => {
-    if (!user || !activityUrl || !personaText.trim() || fetchedRef.current) return;
+    if (!user || activityUrls.length === 0 || !personaText.trim() || fetchedRef.current) return;
     if (guide) return;
     fetchedRef.current = true;
     void runAnalysis(false);
-  }, [user, activityUrl, personaText, guide, runAnalysis]);
+  }, [user, activityUrls, personaText, guide, runAnalysis]);
 
-  if (!activityUrl) {
+  if (activityUrls.length === 0) {
     return (
       <div className="mt-4 rounded-xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-ns-tertiary">
         <p className="font-semibold">{t("missingUrlTitle")}</p>

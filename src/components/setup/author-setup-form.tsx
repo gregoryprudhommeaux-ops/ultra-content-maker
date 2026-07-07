@@ -12,7 +12,13 @@ import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { AuthorBioDocumentsPanel } from "@/components/setup/author-bio-documents-panel";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
+import { AuthorReferenceUrlsEditor } from "@/components/setup/author-reference-urls-editor";
+import {
+  legacyAuthorUrlFieldsFromSources,
+  migrateLinkedInActivitySources,
+  migrateWebSources,
+  validateAuthorReferenceUrl,
+} from "@/lib/profile/author-reference-urls";
 import { resolveInspirationsReturn } from "@/lib/navigation/inspirations-return";
 import { completeAuthorStep, getAuthorProfile, isAuthorProfileMinimumComplete, saveAuthorProfile } from "@/lib/workspace/author";
 import {
@@ -28,7 +34,7 @@ import {
 } from "@/lib/workspace/author-enrich";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
-import type { CompanyOffer, ContentArchetype, ContentLanguage } from "@/types/workspace";
+import type { AuthorReferenceUrl, CompanyOffer, ContentArchetype, ContentLanguage } from "@/types/workspace";
 import { ContentArchetypePicker } from "@/components/setup/content-archetype-picker";
 import { CompanyProfileFields } from "@/components/setup/company-profile-fields";
 import { OptionalLabel } from "@/components/setup/optional-label";
@@ -65,9 +71,8 @@ export function AuthorSetupForm() {
   const tabQuerySuffix = fromParam ? `from=${encodeURIComponent(fromParam)}` : "";
 
   const [linkedinProfileUrl, setLinkedinProfileUrl] = useState("");
-  const [linkedinActivityUrl, setLinkedinActivityUrl] = useState("");
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [blogUrl, setBlogUrl] = useState("");
+  const [linkedinActivitySources, setLinkedinActivitySources] = useState<AuthorReferenceUrl[]>([]);
+  const [webSources, setWebSources] = useState<AuthorReferenceUrl[]>([]);
   const [roleTitle, setRoleTitle] = useState("");
   const [positioningLine, setPositioningLine] = useState("");
   const [contentArchetype, setContentArchetype] = useState<ContentArchetype>("expert");
@@ -100,9 +105,8 @@ export function AuthorSetupForm() {
       if (profile) {
         setSavedProfile(profile);
         setLinkedinProfileUrl(profile.linkedinProfileUrl ?? "");
-        setLinkedinActivityUrl(profile.linkedinActivityUrl ?? "");
-        setWebsiteUrl(profile.websiteUrl ?? "");
-        setBlogUrl(profile.blogUrl ?? "");
+        setLinkedinActivitySources(migrateLinkedInActivitySources(profile));
+        setWebSources(migrateWebSources(profile));
         setRoleTitle(profile.roleTitle ?? "");
         setPositioningLine(profile.positioningLine ?? "");
         setContentArchetype(profile.contentArchetype ?? "expert");
@@ -111,9 +115,8 @@ export function AuthorSetupForm() {
       } else {
         setSavedProfile(null);
         setLinkedinProfileUrl("");
-        setLinkedinActivityUrl("");
-        setWebsiteUrl("");
-        setBlogUrl("");
+        setLinkedinActivitySources([]);
+        setWebSources([]);
         setRoleTitle("");
         setPositioningLine("");
         setContentArchetype("expert");
@@ -141,7 +144,7 @@ export function AuthorSetupForm() {
 
   async function persist(markComplete: boolean) {
     if (!user) return false;
-    const urls = [linkedinProfileUrl, websiteUrl, blogUrl]
+    const urls = [linkedinProfileUrl]
       .map((u) => u.trim())
       .filter((u) => u.length > 0);
     for (const u of urls) {
@@ -150,21 +153,36 @@ export function AuthorSetupForm() {
         return false;
       }
     }
-    const activityCheck = validateLinkedInActivityUrl(linkedinActivityUrl);
-    if (activityCheck === "invalid") {
-      setError(t("invalidUrl"));
-      return false;
+    for (const source of linkedinActivitySources) {
+      const check = validateAuthorReferenceUrl(source.kind, source.url);
+      if (check === "invalid") {
+        setError(t("invalidUrl"));
+        return false;
+      }
+      if (check === "not_activity") {
+        setError(t("linkedinActivityNotActivity"));
+        return false;
+      }
     }
-    if (activityCheck === "not_activity") {
-      setError(t("linkedinActivityNotActivity"));
-      return false;
+    for (const source of webSources) {
+      if (validateAuthorReferenceUrl(source.kind, source.url) === "invalid") {
+        setError(t("invalidUrl"));
+        return false;
+      }
     }
+
+    const legacyUrls = legacyAuthorUrlFieldsFromSources({
+      linkedinActivitySources,
+      webSources,
+    });
 
     const draft = {
       linkedinProfileUrl: linkedinProfileUrl.trim() || undefined,
-      linkedinActivityUrl: linkedinActivityUrl.trim() || undefined,
-      websiteUrl: websiteUrl.trim() || undefined,
-      blogUrl: blogUrl.trim() || undefined,
+      linkedinActivitySources,
+      webSources,
+      linkedinActivityUrl: legacyUrls.linkedinActivityUrl,
+      websiteUrl: legacyUrls.websiteUrl,
+      blogUrl: legacyUrls.blogUrl,
       roleTitle: roleTitle.trim() || undefined,
       positioningLine: positioningLine.trim() || undefined,
       contentArchetype,
@@ -288,12 +306,10 @@ export function AuthorSetupForm() {
             enrichMode={enrichMode}
             linkedinProfileUrl={linkedinProfileUrl}
             setLinkedinProfileUrl={setLinkedinProfileUrl}
-            linkedinActivityUrl={linkedinActivityUrl}
-            setLinkedinActivityUrl={setLinkedinActivityUrl}
-            websiteUrl={websiteUrl}
-            setWebsiteUrl={setWebsiteUrl}
-            blogUrl={blogUrl}
-            setBlogUrl={setBlogUrl}
+            linkedinActivitySources={linkedinActivitySources}
+            setLinkedinActivitySources={setLinkedinActivitySources}
+            webSources={webSources}
+            setWebSources={setWebSources}
           />
         )}
 
@@ -477,23 +493,19 @@ function EssentialFields({
   enrichMode,
   linkedinProfileUrl,
   setLinkedinProfileUrl,
-  linkedinActivityUrl,
-  setLinkedinActivityUrl,
-  websiteUrl,
-  setWebsiteUrl,
-  blogUrl,
-  setBlogUrl,
+  linkedinActivitySources,
+  setLinkedinActivitySources,
+  webSources,
+  setWebSources,
 }: {
   t: ReturnType<typeof useTranslations<"setup.author">>;
   enrichMode: boolean;
   linkedinProfileUrl: string;
   setLinkedinProfileUrl: (v: string) => void;
-  linkedinActivityUrl: string;
-  setLinkedinActivityUrl: (v: string) => void;
-  websiteUrl: string;
-  setWebsiteUrl: (v: string) => void;
-  blogUrl: string;
-  setBlogUrl: (v: string) => void;
+  linkedinActivitySources: AuthorReferenceUrl[];
+  setLinkedinActivitySources: (v: AuthorReferenceUrl[]) => void;
+  webSources: AuthorReferenceUrl[];
+  setWebSources: (v: AuthorReferenceUrl[]) => void;
 }) {
   const linkedinField = (
     <div>
@@ -523,44 +535,16 @@ function EssentialFields({
       ) : (
         linkedinField
       )}
-      <div>
-        <OptionalLabel htmlFor="linkedin-activity">{t("linkedinActivity")}</OptionalLabel>
-        <p className="mb-2 text-xs text-ns-secondary">{t("linkedinActivityHint")}</p>
-        <input
-          id="linkedin-activity"
-          type="text"
-          inputMode="url"
-          autoComplete="url"
-          value={linkedinActivityUrl}
-          onChange={(e) => setLinkedinActivityUrl(e.target.value)}
-          placeholder="https://www.linkedin.com/in/.../recent-activity/all/"
-          className={INPUT_CLASS}
-        />
-      </div>
-      <div>
-        <OptionalLabel htmlFor="website">{t("website")}</OptionalLabel>
-        <input
-          id="website"
-          type="text"
-          inputMode="url"
-          autoComplete="url"
-          value={websiteUrl}
-          onChange={(e) => setWebsiteUrl(e.target.value)}
-          className={INPUT_CLASS}
-        />
-      </div>
-      <div>
-        <OptionalLabel htmlFor="blog">{t("blog")}</OptionalLabel>
-        <input
-          id="blog"
-          type="text"
-          inputMode="url"
-          autoComplete="url"
-          value={blogUrl}
-          onChange={(e) => setBlogUrl(e.target.value)}
-          className={INPUT_CLASS}
-        />
-      </div>
+      <AuthorReferenceUrlsEditor
+        variant="linkedin_activity"
+        items={linkedinActivitySources}
+        onChange={setLinkedinActivitySources}
+      />
+      <AuthorReferenceUrlsEditor
+        variant="web"
+        items={webSources}
+        onChange={setWebSources}
+      />
     </>
   );
 }

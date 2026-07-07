@@ -84,7 +84,7 @@ Rules:
 
 export function buildCreationStrategyGuideUserPrompt(input: {
  contentLanguage: ContentLanguage;
- activityUrl: string;
+ activityUrls: string[];
  personaExcerpt: string;
  authorContext?: {
  roleTitle?: string;
@@ -97,7 +97,8 @@ export function buildCreationStrategyGuideUserPrompt(input: {
 }): string {
  const steering = input.userSteering?.trim().slice(0, 1500);
  const base = {
- activityUrl: input.activityUrl,
+ activityUrls: input.activityUrls,
+ activityUrl: input.activityUrls[0] ?? null,
  personaExcerpt: input.personaExcerpt.slice(0, 6000),
  author: input.authorContext ?? null,
  userSteering: steering || null,

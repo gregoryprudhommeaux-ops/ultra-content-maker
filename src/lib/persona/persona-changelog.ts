@@ -6,6 +6,7 @@ import type {
  GapAnswerValue,
  PersonaUpdateSource,
 } from "@/types/workspace";
+import { linkedInActivityUrlsFromProfile, migrateWebSources } from "@/lib/profile/author-reference-urls";
 
 export function profileFingerprint(
  author: AuthorProfile | null,
@@ -16,8 +17,10 @@ export function profileFingerprint(
  positioningLine: author?.positioningLine?.trim() ?? "",
  linkedinProfileUrl: author?.linkedinProfileUrl?.trim() ?? "",
  linkedinActivityUrl: author?.linkedinActivityUrl?.trim() ?? "",
+ linkedinActivitySources: JSON.stringify(linkedInActivityUrlsFromProfile(author)),
  websiteUrl: author?.websiteUrl?.trim() ?? "",
  blogUrl: author?.blogUrl?.trim() ?? "",
+ webSources: JSON.stringify(migrateWebSources(author).map((s) => s.url)),
  creationStrategySteering: author?.creationStrategySteering?.trim() ?? "",
  targetLabel: audience?.targetLabel?.trim() ?? "",
  contentFocus: audience?.contentFocus?.trim() ?? "",

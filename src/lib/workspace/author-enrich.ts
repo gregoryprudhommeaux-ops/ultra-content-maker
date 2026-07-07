@@ -1,4 +1,5 @@
 import type { AuthorProfile } from "@/types/workspace";
+import { linkedInActivityUrlsFromProfile, migrateWebSources } from "@/lib/profile/author-reference-urls";
 import type { AuthorProfileTab } from "@/components/setup/author-profile-tabs";
 import { isAuthorProfileExpressComplete } from "./author";
 
@@ -15,9 +16,8 @@ export function resolveAuthorEnrichTab(
   profile: AuthorProfile | null | undefined,
 ): AuthorProfileTab {
   const hasEssentialExtras = Boolean(
-    profile?.linkedinActivityUrl?.trim() ||
-      profile?.websiteUrl?.trim() ||
-      profile?.blogUrl?.trim(),
+    linkedInActivityUrlsFromProfile(profile).length > 0 ||
+      migrateWebSources(profile).length > 0,
   );
   const voiceComplete = Boolean(
     profile?.roleTitle?.trim() &&

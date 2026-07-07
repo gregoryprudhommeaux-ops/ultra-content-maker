@@ -1032,7 +1032,41 @@
       "linkedinHint": "Tu perfil público de LinkedIn · la IA lo analiza para entender tu experiencia (lectura dirigida, sin scraping ciego).",
       "linkedinActivity": "URL actividad LinkedIn (tus posts)",
       "linkedinActivityHint": "Página de actividad reciente de tu perfil · la IA analiza ~2 meses de posts para calibrar tu voz y recomendaciones.",
-      "linkedinActivityNotActivity": "Usa la URL del feed de actividad (ej. …/in/tu-nombre/recent-activity/all/).",
+      "linkedinActivityNotActivity": "Usa un feed de posts de LinkedIn: actividad reciente del perfil (…/recent-activity/all/) o página de empresa (…/company/…/posts/).",
+      "referenceUrls": {
+        "add": "Añadir enlace",
+        "remove": "Quitar",
+        "kindLabel": "Tipo de fuente",
+        "urlLabel": "URL",
+        "labelOptional": "Etiqueta (opcional)",
+        "labelPlaceholder": "ej. Página empresa Smart Vending",
+        "maxReached": "Máximo {max} enlaces.",
+        "kinds": {
+          "linkedin_personal": "Posts del perfil personal",
+          "linkedin_company": "Posts de la página empresa",
+          "website": "Sitio web",
+          "blog": "Blog / medio",
+          "other": "Otra página web"
+        },
+        "errors": {
+          "invalidUrl": "URL no válida.",
+          "notActivityUrl": "La URL no es un feed de posts de LinkedIn reconocido (perfil o empresa).",
+          "duplicate": "Este enlace ya está en la lista.",
+          "maxReached": "Límite de {max} enlaces alcanzado."
+        },
+        "linkedinActivity": {
+          "title": "Feeds de posts LinkedIn",
+          "hint": "Añade uno o varios feeds: tus posts personales y/o los de tu página empresa. La IA analiza ~2 meses de actividad para calibrar voz y recomendaciones.",
+          "empty": "Ningún feed de posts por ahora.",
+          "urlPlaceholder": "https://www.linkedin.com/in/…/recent-activity/all/ o …/company/…/posts/"
+        },
+        "web": {
+          "title": "Sitios y páginas web",
+          "hint": "Sitio, blog, página de producto o cualquier página útil para entender tu posicionamiento (varios enlaces posibles).",
+          "empty": "Ninguna fuente web por ahora.",
+          "urlPlaceholder": "https://tu-sitio.com o https://blog…"
+        }
+      },
       "website": "URL sitio web",
       "blog": "URL blog",
       "role": "Rol / título",

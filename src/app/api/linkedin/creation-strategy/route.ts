@@ -1,6 +1,10 @@
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
 import { analyzeCreationStrategy } from "@/lib/linkedin/analyze-creation-strategy";
-import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
+import { validateLinkedInPostsFeedUrl } from "@/lib/linkedin/activity-url";
+import {
+  activityUrlsFingerprint,
+  linkedInActivityUrlsFromProfile,
+} from "@/lib/profile/author-reference-urls";
 import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
 import {
   classifyProviderErrorMessage,
@@ -11,7 +15,7 @@ import {
   resolveAuthorSteering,
   type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
-import type { ContentLanguage, CreationStrategyCache, LlmProvider } from "@/types/workspace";
+import type { AuthorProfile, ContentLanguage, CreationStrategyCache, LlmProvider } from "@/types/workspace";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -20,13 +24,13 @@ export const dynamic = "force-dynamic";
 const CACHE_MAX_AGE_MS = 1000 * 60 * 60 * 24; // 24h
 
 type Body = {
-  linkedinActivityUrl: string;
+  linkedinActivityUrl?: string;
+  linkedinActivityUrls?: string[];
   contentLanguage?: string;
   personaPromptText: string;
   roleTitle?: string;
   positioningLine?: string;
   audienceFocus?: string;
-  /** Angle, keywords, or leads to reorganize recommendations */
   userSteering?: string;
   authorSteering?: AuthorSteeringPayload;
   profileEnrichment?: Record<string, unknown>;
@@ -41,6 +45,15 @@ type Body = {
   };
 };
 
+function resolveActivityUrls(body: Body): string[] {
+  const fromArray = (body.linkedinActivityUrls ?? [])
+    .map((url) => url.trim())
+    .filter(Boolean);
+  if (fromArray.length > 0) return fromArray;
+  const legacy = body.linkedinActivityUrl?.trim();
+  return legacy ? [legacy] : [];
+}
+
 export async function POST(request: Request) {
   const userId = await verifyBearerUserId(request.headers.get("authorization"));
   if (!userId) {
@@ -50,32 +63,44 @@ export async function POST(request: Request) {
   let body: Body;
   try {
     body = (await request.json()) as Body;
-    if (!body.linkedinActivityUrl?.trim() || !body.personaPromptText?.trim()) {
+    const activityUrls = resolveActivityUrls(body);
+    if (activityUrls.length === 0 || !body.personaPromptText?.trim()) {
       throw new Error("invalid");
     }
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const urlCheck = validateLinkedInActivityUrl(body.linkedinActivityUrl);
-  if (urlCheck === "invalid") {
-    return NextResponse.json({ error: "url_invalid" }, { status: 400 });
-  }
-  if (urlCheck === "not_activity") {
-    return NextResponse.json({ error: "not_activity_url" }, { status: 400 });
+  const activityUrls = resolveActivityUrls(body);
+  for (const url of activityUrls) {
+    const urlCheck = validateLinkedInPostsFeedUrl(url);
+    if (urlCheck === "invalid") {
+      return NextResponse.json({ error: "url_invalid" }, { status: 400 });
+    }
+    if (urlCheck === "not_activity") {
+      return NextResponse.json({ error: "not_activity_url" }, { status: 400 });
+    }
   }
 
   const contentLanguage = (body.contentLanguage || "fr") as ContentLanguage;
-  const activityUrl = body.linkedinActivityUrl.trim();
   const steering = body.userSteering?.trim().slice(0, 1500) ?? "";
+  const fingerprint = activityUrlsFingerprint(activityUrls);
 
   const cachedSteering = body.cached?.steering?.trim() ?? "";
+  const cachedFingerprint = activityUrlsFingerprint(
+    body.cached?.activityUrls?.length
+      ? body.cached.activityUrls
+      : body.cached?.activityUrl
+        ? [body.cached.activityUrl]
+        : [],
+  );
+
   if (
     !body.forceRefresh &&
-    body.cached?.activityUrl === activityUrl &&
-    body.cached.guide &&
+    body.cached?.guide &&
     body.cached.analyzedAt &&
-    steering === cachedSteering
+    steering === cachedSteering &&
+    fingerprint === cachedFingerprint
   ) {
     const age = Date.now() - new Date(body.cached.analyzedAt).getTime();
     if (age >= 0 && age < CACHE_MAX_AGE_MS) {
@@ -95,14 +120,14 @@ export async function POST(request: Request) {
 
   const authorSteering = resolveAuthorSteering({
     authorSteering: body.authorSteering,
-    author: body.author,
+    author: body.author as AuthorProfile | undefined,
     audience: body.audience,
     profileEnrichment: body.profileEnrichment,
   });
 
   try {
     const { guide } = await analyzeCreationStrategy({
-      activityUrl,
+      activityUrls,
       contentLanguage,
       personaPromptText: body.personaPromptText,
       userId,
@@ -123,7 +148,8 @@ export async function POST(request: Request) {
       cached: false,
       analyzedAt,
       cache: {
-        activityUrl,
+        activityUrl: activityUrls[0] ?? "",
+        activityUrls,
         analyzedAt,
         guide,
         steering: steering || undefined,
@@ -152,7 +178,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (providerKind === "invalid_key") {
+    if (providerKind === "invalid_key" || isInvalidApiKeyError(message)) {
       return NextResponse.json(
         { error: "invalid_api_key", detail: message, provider: failedProvider },
         { status: 401 },
@@ -164,4 +190,11 @@ export async function POST(request: Request) {
       { status: 502 },
     );
   }
+}
+
+/** Helper for server routes that already loaded AuthorProfile. */
+export function activityUrlsFromAuthorProfile(
+  profile: Pick<AuthorProfile, "linkedinActivitySources" | "linkedinActivityUrl"> | null | undefined,
+): string[] {
+  return linkedInActivityUrlsFromProfile(profile);
 }
