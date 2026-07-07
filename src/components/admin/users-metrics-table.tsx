@@ -264,7 +264,7 @@ export function UsersMetricsTable({
 
  return (
  <section className="rounded-2xl border border-ns-alternate/80 bg-ns-surface shadow-sm">
- <div className="flex flex-wrap items-end justify-between gap-3 border-b border-ns-alternate/60 px-5 py-4">
+ <div className="flex flex-wrap items-end justify-between gap-3 border-b border-ns-alternate/60 px-3 py-3 sm:px-5 sm:py-4">
  <div>
  <h3 className="text-base font-bold text-ns-hero">{labels.title}</h3>
  <p className="mt-1 text-sm text-ns-secondary">{labels.sortBy}</p>

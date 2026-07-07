@@ -13,9 +13,10 @@ const LOCALE_LABELS: Record<AppLocale, string> = {
 
 type Props = {
   variant?: "light" | "dark";
+  className?: string;
 };
 
-export function LanguageSwitcher({ variant = "light" }: Props) {
+export function LanguageSwitcher({ variant = "light", className }: Props) {
   const locale = useLocale() as AppLocale;
   const pathname = usePathname();
   const router = useRouter();
@@ -33,6 +34,7 @@ export function LanguageSwitcher({ variant = "light" }: Props) {
   return (
     <NsLanguageSwitcher
       variant={variant}
+      className={className}
       locales={routing.locales}
       activeLocale={locale}
       localeLabels={LOCALE_LABELS}

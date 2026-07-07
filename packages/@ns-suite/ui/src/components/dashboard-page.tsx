@@ -36,7 +36,7 @@ export function DashboardPageHero({
 }: DashboardPageHeroProps) {
   const shell =
     variant === "gradient"
-      ? "relative overflow-hidden rounded-2xl border border-ns-primary/20 bg-gradient-to-br from-ns-brand-light via-white to-white p-6 shadow-sm md:p-8"
+      ? "relative overflow-hidden rounded-2xl border border-ns-primary/20 bg-gradient-to-br from-ns-brand-light via-white to-white p-4 shadow-sm sm:p-6 md:p-8"
       : "rounded-2xl border border-gray-100 bg-ns-surface shadow-sm";
 
   const titleBlock = (

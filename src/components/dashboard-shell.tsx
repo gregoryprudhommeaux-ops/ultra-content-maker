@@ -98,23 +98,20 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const isAgencyManagedContext = useAgencyManagedContext();
 
   return (
-    <div className="flex min-h-screen flex-col bg-ns-background [--dashboard-header-h:57px]">
-      <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-4 py-3 text-white shadow-sm md:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col bg-ns-background lg:[--dashboard-header-h:57px]">
+      <header className="sticky top-0 z-50 w-full border-b border-ns-hero/20 bg-ns-hero px-3 py-2.5 text-white shadow-sm sm:px-4 sm:py-3 md:px-6 lg:px-8">
         <div className="flex w-full items-center justify-between gap-2 lg:gap-3">
           <Link
             href={logoHref}
-            className="flex min-w-0 shrink-0 items-center gap-2 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary xl:gap-3"
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary sm:flex-none xl:gap-3"
             aria-label={t("nav.home")}
           >
             <NsMark size="sm" />
-            <span className="truncate text-sm font-bold tracking-tight text-white xl:text-base">
+            <span className="hidden truncate text-sm font-bold tracking-tight text-white sm:inline xl:text-base">
               {t("app.name")}
             </span>
           </Link>
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2 lg:gap-3">
-            <div className="lg:hidden">
-              <AgencyHeaderPill />
-            </div>
+          <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-1.5 lg:min-w-0 lg:flex-1 lg:gap-3">
             <nav className="hidden min-w-0 flex-1 justify-end gap-1.5 lg:flex xl:gap-2.5" aria-label="Main">
               {navItems.map((item) => {
                 const active = isNavItemActive(item);
@@ -130,18 +127,20 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               );
               })}
             </nav>
-            <AgencyHeaderPill />
-            <LanguageSwitcher variant="dark" />
+            <div className="hidden md:block">
+              <AgencyHeaderPill />
+            </div>
+            <LanguageSwitcher variant="dark" className="hidden sm:flex" />
             <button
               type="button"
               onClick={() => signOut()}
-              className="hidden shrink-0 whitespace-nowrap text-[10px] font-black uppercase tracking-[0.14em] text-white/60 transition-colors hover:text-ns-primary sm:inline"
+              className="hidden shrink-0 whitespace-nowrap text-[10px] font-black uppercase tracking-[0.14em] text-white/60 transition-colors hover:text-ns-primary md:inline"
             >
               {t("nav.signOut")}
             </button>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 text-white lg:hidden"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/20 text-white sm:h-10 sm:w-10 lg:hidden"
               aria-expanded={menuOpen}
               aria-controls="dashboard-mobile-nav"
               aria-label={menuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
@@ -168,6 +167,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               )}
             </button>
           </div>
+        </div>
+        <div className="mt-2 md:hidden">
+          <AgencyHeaderPill layout="mobile-bar" />
         </div>
       </header>
 
@@ -212,7 +214,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           />
           <nav
             id="dashboard-mobile-nav"
-            className="absolute right-0 top-0 flex h-full w-[min(100%,300px)] flex-col border-l border-white/10 bg-ns-hero pb-8 pt-16 shadow-xl"
+            className="absolute right-0 top-0 flex h-full w-[min(100%,300px)] flex-col border-l border-white/10 bg-ns-hero pb-8 pt-[4.75rem] shadow-xl sm:pt-16"
             aria-label="Main"
           >
             <div className="px-1">
@@ -265,12 +267,18 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             >
               {t("nav.signOut")}
             </button>
+            <div className="mx-4 mt-4 border-t border-white/10 pt-4 sm:hidden">
+              <p className="mb-2 px-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/45">
+                {t("nav.language", { defaultValue: "Language" })}
+              </p>
+              <LanguageSwitcher variant="dark" />
+            </div>
           </nav>
         </div>
       )}
 
       <main
-        className={`mx-auto w-full flex-1 px-4 py-8 md:px-6 ${
+        className={`mx-auto w-full flex-1 px-3 py-4 sm:px-4 sm:py-8 md:px-6 ${
           isAdminRoute ? "max-w-[1400px]" : "max-w-5xl"
         }`}
       >

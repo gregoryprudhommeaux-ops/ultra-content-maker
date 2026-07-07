@@ -19,9 +19,10 @@ type TabBarProps = {
 export function AdminCockpitTabBar({ tabs, active, onChange }: TabBarProps) {
   return (
     <nav
-      className="sticky top-0 z-10 -mx-1 flex flex-wrap gap-2 border-b border-ns-border bg-ns-background/95 px-1 py-3 backdrop-blur-sm"
+      className="sticky top-0 z-10 -mx-1 border-b border-ns-border bg-ns-background/95 px-1 py-2 backdrop-blur-sm sm:py-3"
       aria-label="Sections admin"
     >
+      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:thin] sm:flex-wrap sm:overflow-visible sm:pb-0">
       {tabs.map((tab) => {
         const isActive = tab.id === active;
         return (
@@ -29,7 +30,7 @@ export function AdminCockpitTabBar({ tabs, active, onChange }: TabBarProps) {
             key={tab.id}
             type="button"
             onClick={() => onChange(tab.id)}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors sm:px-4 sm:py-2 sm:text-sm ${
               isActive
                 ? "bg-ns-primary text-black shadow-sm"
                 : "border border-ns-alternate bg-white text-ns-secondary hover:border-ns-primary hover:text-ns-hero"
@@ -48,6 +49,7 @@ export function AdminCockpitTabBar({ tabs, active, onChange }: TabBarProps) {
           </button>
         );
       })}
+      </div>
     </nav>
   );
 }
@@ -113,7 +115,7 @@ export function AdminPanelShell({
 }: PanelShellProps) {
   return (
     <div
-      className={`rounded-2xl border p-6 shadow-sm ${PANEL_TONE[tone]} ${embedded ? "" : "mt-10"}`}
+      className={`rounded-2xl border p-4 shadow-sm sm:p-6 ${PANEL_TONE[tone]} ${embedded ? "" : "mt-6 sm:mt-10"}`}
     >
       {children}
     </div>
