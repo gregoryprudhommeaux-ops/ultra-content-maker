@@ -2483,20 +2483,20 @@
         "reviseEmptyResponse": "The model returned an empty response. Try again.",
         "needRefinement": "Answer at least one question, enable contrarian tone, add a comment, or provide news details if you choose Yes.",
         "validateFailed": "Could not validate the post.",
-        "validateFailedHint": "Pick a CTA, check your API key, then try again. Validation prepares the LinkedIn copy (hashtags + export) without rewriting the whole post.",
+        "validateFailedHint": "Check your API key if needed, then try again. Validation prepares the LinkedIn copy (hashtags + export) without rewriting the whole post.",
         "ctaTitle": "Signature / CTA",
         "ctaOrCreate": "Pick an existing CTA or create one:",
         "ctaLabel": "CTA name",
         "ctaText": "CTA text",
         "validate": "Validate and prepare LinkedIn copy",
-        "validateWithoutCta": "Validate without CTA",
-        "validateWithoutCtaHint": "Prepare LinkedIn copy (hashtags included) with no signature or call to action.",
         "validating": "Validating…",
-        "validatingHint": "CTA integration, global coherence pass, hashtags, and export (20–40 s).",
-        "postUpdatedNudge": "Post updated. Pick a CTA below to get the final version ready to paste on LinkedIn.",
-        "goToValidation": "Pick a CTA and validate →",
-        "validationStepTitle": "Final step — CTA & validation",
-        "validatePickCtaHint": "Select one of the 3 CTA options to enable validation.",
+        "validatingHint": "Hashtags, global coherence pass, and LinkedIn export (20–40 s).",
+        "postUpdatedNudge": "Post updated. Validate at the bottom to get LinkedIn copy — a CTA is optional if you want a custom signature.",
+        "goToValidation": "Validate post →",
+        "validationStepTitle": "Validation",
+        "validationStepHint": "Generates the final copy with hashtags, ready to paste on LinkedIn.",
+        "validateNoCtaReminder": "No CTA selected — that's optional.",
+        "customizeCtaLink": "Customize a signature / CTA",
         "revising": "Revising…",
         "revisingHint": "AI is applying your feedback to the post (usually 10–25 s).",
         "exportPreview": "Final text",
@@ -2529,7 +2529,7 @@
             "hintValidated": "Re-check clichés before republishing a variant."
           },
           "cta": {
-            "hint": "3 CTA options + validate to prepare LinkedIn copy (hashtags included)."
+            "hint": "3 optional signature options — a CTA is not required to validate."
           },
           "enrich": {
             "title": "Format, translation & repurposing",

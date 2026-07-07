@@ -357,6 +357,13 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  });
  }, [ensureCtaLoaded]);
 
+ const scrollToValidation = useCallback(() => {
+ setShowValidationNudge(false);
+ requestAnimationFrame(() => {
+ validationActionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+ });
+ }, []);
+
  useEffect(() => {
  if (!user || !article?.refinement || article.status === "validated") return;
  if (!hasReviseInput(article.refinement)) return;
@@ -546,7 +553,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  setErrorApiCode(meta?.errorCode);
  setErrorApiRawDetail(meta?.detail);
  setErrorScope("cta");
- scrollToCtaSection();
+ scrollToValidation();
  }
 
  function clearActionError() {
@@ -722,16 +729,11 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  setArticle({ ...article, hook });
  }
 
- async function onValidate(opts?: { skipCta?: boolean }) {
+ async function onValidate() {
  if (!user || !article) return;
- const skipCta = opts?.skipCta === true;
- const chosen = skipCta
- ? undefined
- : ctaSuggestions.find((s) => s.style === selectedCtaStyle);
- if (!skipCta && !chosen) {
- setValidateError(tCta("pickOne"));
- return;
- }
+ const chosen = selectedCtaStyle
+  ? ctaSuggestions.find((s) => s.style === selectedCtaStyle)
+  : undefined;
  if (!personaText.trim()) {
  setValidateError(tArticles("needPersona"));
  return;
@@ -1047,7 +1049,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  <p className="text-sm text-emerald-950">{t("postUpdatedNudge")}</p>
  <button
  type="button"
- onClick={scrollToCtaSection}
+ onClick={scrollToValidation}
  className="shrink-0 rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-900"
  >
  {t("goToValidation")}
@@ -1256,7 +1258,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!isValidated && (
  <button
  type="button"
- onClick={scrollToCtaSection}
+ onClick={scrollToValidation}
  className="w-full text-left text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary sm:w-auto"
  >
  {t("goToValidation")}
@@ -1409,7 +1411,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!isValidated && (
  <button
  type="button"
- onClick={scrollToCtaSection}
+ onClick={scrollToValidation}
  className="w-full text-left text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary sm:w-auto"
  >
  {t("goToValidation")}
@@ -1470,7 +1472,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  {!isValidated && !isWizard ? (
  <EditorCollapsibleSection
- title={t("validationStepTitle")}
+ title={tCta("title")}
  hint={t("sections.cta.hint")}
  open={ctaSectionOpen}
  onOpenChange={(open) => {
@@ -1541,7 +1543,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  >
  <div className="flex flex-wrap items-center justify-between gap-2">
  <div className="flex items-center gap-2">
- <h2 className="text-base font-semibold text-ns-tertiary">{t("validationStepTitle")}</h2>
+ <h2 className="text-base font-semibold text-ns-tertiary">{tCta("title")}</h2>
  <ContextHelp label={tCta("help.label")}>{tCta("help.body")}</ContextHelp>
  </div>
  <button
@@ -1652,45 +1654,44 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!isValidated && (
  <div
  ref={validationActionsRef}
- className="scroll-mt-6 mb-6 space-y-4 rounded-2xl border-2 border-emerald-300/70 bg-gradient-to-b from-emerald-50/90 to-white p-4 shadow-sm sm:mb-8 sm:p-5"
+ className="scroll-mt-6 mb-6 rounded-xl border border-ns-alternate/80 bg-ns-surface p-4 sm:mb-8 sm:p-5"
  >
- <h2 className="text-sm font-bold uppercase tracking-wide text-emerald-950">
- {t("validationStepTitle")}
- </h2>
+ <h2 className="text-base font-semibold text-ns-tertiary">{t("validationStepTitle")}</h2>
+ <p className="mt-1 text-sm text-ns-secondary">{t("validationStepHint")}</p>
+
+ {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
+ <p className="mt-3 rounded-lg border border-sky-200/70 bg-sky-50/50 px-3 py-2.5 text-sm leading-relaxed text-sky-950">
+ {t("validateNoCtaReminder")}{" "}
+ <button
+ type="button"
+ onClick={scrollToCtaSection}
+ className="font-semibold text-sky-900 underline hover:text-sky-700"
+ >
+ {t("customizeCtaLink")}
+ </button>
+ </p>
+ )}
 
  {isValidating && (
  <GeneratingIndicator
  label={t("validating")}
  hint={t("validatingHint")}
- className="max-w-xl"
+ className="mt-4 max-w-xl"
  />
  )}
 
- <div className="flex flex-col gap-3">
  <button
  type="button"
- disabled={isBusy || ctaLoading || !selectedCtaStyle}
+ disabled={isBusy || ctaLoading}
  onClick={() => void onValidate()}
- className="inline-flex w-full items-center justify-center gap-2 rounded-sm bg-ns-primary px-4 py-3 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50 sm:w-auto sm:justify-start"
+ className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-ns-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50 sm:w-auto"
  >
  {isValidating && <ButtonSpinner />}
  {isValidating ? t("validating") : t("validate")}
  </button>
- <button
- type="button"
- disabled={isBusy || ctaLoading}
- onClick={() => void onValidate({ skipCta: true })}
- className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-3 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50 sm:w-auto sm:justify-start"
- >
- {isValidating ? t("validating") : t("validateWithoutCta")}
- </button>
- <p className="text-xs leading-relaxed text-ns-secondary">{t("validateWithoutCtaHint")}</p>
- {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
- <p className="text-xs text-ns-secondary">{t("validatePickCtaHint")}</p>
- )}
- </div>
 
  {error && errorScope === "cta" && (
+ <div className="mt-3">
  <UserErrorBanner
  surface="article-editor-validate"
  userMessage={error}
@@ -1718,6 +1719,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  </Link>
  )}
  </UserErrorBanner>
+ </div>
  )}
  </div>
  )}

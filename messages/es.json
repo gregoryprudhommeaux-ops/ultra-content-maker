@@ -2483,20 +2483,20 @@
         "reviseEmptyResponse": "El modelo devolvió una respuesta vacía. Reintenta.",
         "needRefinement": "Responde al menos una pregunta, activa el tono contrario, añade un comentario o indica la noticia si eliges Sí.",
         "validateFailed": "No se pudo validar el post.",
-        "validateFailedHint": "Elige un CTA, comprueba la clave API e inténtalo de nuevo. Validar prepara el texto para LinkedIn sin reescribir todo el post.",
+        "validateFailedHint": "Comprueba la clave API si hace falta e inténtalo de nuevo. Validar prepara el texto para LinkedIn sin reescribir todo el post.",
         "ctaTitle": "Firma / CTA",
         "ctaOrCreate": "Elige un CTA existente o crea uno:",
         "ctaLabel": "Nombre del CTA",
         "ctaText": "Texto del CTA",
         "validate": "Validar y preparar copia para LinkedIn",
-        "validateWithoutCta": "Validar sin CTA",
-        "validateWithoutCtaHint": "Prepara la copia para LinkedIn (hashtags incluidos) sin firma ni llamada a la acción.",
         "validating": "Validando…",
-        "validatingHint": "Integración del CTA, revisión de coherencia global, hashtags y exportación (20–40 s).",
-        "postUpdatedNudge": "Post actualizado. Elige un CTA abajo para obtener la versión final lista para LinkedIn.",
-        "goToValidation": "Elegir un CTA y validar →",
-        "validationStepTitle": "Paso final — CTA y validación",
-        "validatePickCtaHint": "Selecciona una de las 3 propuestas de CTA para activar la validación.",
+        "validatingHint": "Hashtags, revisión de coherencia y exportación LinkedIn (20–40 s).",
+        "postUpdatedNudge": "Post actualizado. Valida abajo para obtener la copia LinkedIn — un CTA es opcional si quieres personalizar la firma.",
+        "goToValidation": "Validar el post →",
+        "validationStepTitle": "Validación",
+        "validationStepHint": "Genera la copia final con hashtags, lista para pegar en LinkedIn.",
+        "validateNoCtaReminder": "Ningún CTA seleccionado — es opcional.",
+        "customizeCtaLink": "Personalizar una firma / CTA",
         "revising": "Revisando…",
         "revisingHint": "La IA aplica tus comentarios al post (por lo general 10–25 s).",
         "exportPreview": "Texto final",
@@ -2529,7 +2529,7 @@
             "hintValidated": "Revisa clichés antes de republicar una variante."
           },
           "cta": {
-            "hint": "3 opciones de CTA + validar para preparar la copia LinkedIn (hashtags incluidos)."
+            "hint": "3 propuestas opcionales para personalizar la firma — el CTA no es obligatorio para validar."
           },
           "enrich": {
             "title": "Formato, traducción y reutilización",
