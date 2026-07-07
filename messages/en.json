@@ -2140,10 +2140,14 @@
         "incomplete": "Enter at least 8 characters for problem, POV, and proof.",
         "postAngle": {
           "title": "Angle for this post",
-          "hint": "Choose whether this draft highlights expertise or your offer.",
+          "hint": "Is this post mainly about your company (vision, category) or a specific product?",
           "angles": {
-            "expertise": "Expertise / point of view",
-            "product": "Product / offer"
+            "expertise": "Company & expertise",
+            "product": "Product & offer"
+          },
+          "angleDescriptions": {
+            "expertise": "Vision, category, company culture, or leadership point of view.",
+            "product": "Offer, customer story, launch, or product proof — not a brochure."
           },
           "productSelect": "Which offer?",
           "productFocus": "Product focus",

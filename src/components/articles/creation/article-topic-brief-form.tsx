@@ -9,8 +9,9 @@ import {
   resolveArticleWritingStyle,
 } from "@/lib/articles/article-writing-style";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
-import type { ArticleWritingStyle, PostBrief } from "@/types/workspace";
+import type { ArticleWritingStyle, ContentArchetype, GapAnswerValue, PostBrief } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { PostAnglePicker } from "@/components/articles/creation/post-angle-picker";
 import { ContextHelp } from "@/components/ui/context-help";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useLocale, useTranslations } from "next-intl";
@@ -20,6 +21,7 @@ type ParsedTopicBrief = ReturnType<typeof parseArticleTopicFields>;
 function buildTopicBrief(
   fields: ParsedTopicBrief,
   articleWritingStyle?: ArticleWritingStyle,
+  prior?: Pick<PostBrief, "postAngle" | "productFocus">,
 ): PostBrief {
   const proofParts: string[] = [];
   if (fields.example) proofParts.push(fields.example);
@@ -33,15 +35,24 @@ function buildTopicBrief(
     pointOfView: fields.message,
     proof: proofParts.join("\n\n"),
     ...(articleWritingStyle ? { articleWritingStyle } : {}),
+    ...(prior?.postAngle ? { postAngle: prior.postAngle } : {}),
+    ...(prior?.productFocus ? { productFocus: prior.productFocus } : {}),
   });
 }
 
 type Props = {
   brief: PostBrief;
   onChange: (brief: PostBrief) => void;
+  contentArchetype?: ContentArchetype;
+  profileEnrichment?: Record<string, GapAnswerValue>;
 };
 
-export function ArticleTopicBriefForm({ brief, onChange }: Props) {
+export function ArticleTopicBriefForm({
+  brief,
+  onChange,
+  contentArchetype = "expert",
+  profileEnrichment,
+}: Props) {
   const t = useTranslations("setup.articles.create.articleTopic");
   const locale = useLocale();
   const normalized = normalizePostBrief(brief);
@@ -50,11 +61,30 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
   const complete = isArticleTopicBriefComplete(normalized);
 
   function update(patch: Partial<ParsedTopicBrief>) {
-    onChange(buildTopicBrief({ ...fields, ...patch }, writingStyle));
+    onChange(
+      buildTopicBrief({ ...fields, ...patch }, writingStyle, {
+        postAngle: normalized.postAngle,
+        productFocus: normalized.productFocus,
+      }),
+    );
   }
 
   function setWritingStyle(style: ArticleWritingStyle) {
-    onChange(buildTopicBrief(fields, style));
+    onChange(
+      buildTopicBrief(fields, style, {
+        postAngle: normalized.postAngle,
+        productFocus: normalized.productFocus,
+      }),
+    );
+  }
+
+  function onAngleChange(next: PostBrief) {
+    onChange(
+      buildTopicBrief(fields, writingStyle, {
+        postAngle: next.postAngle,
+        productFocus: next.productFocus,
+      }),
+    );
   }
 
   return (
@@ -94,6 +124,14 @@ export function ArticleTopicBriefForm({ brief, onChange }: Props) {
           })}
         </div>
       </div>
+
+      <PostAnglePicker
+        brief={normalized}
+        onChange={onAngleChange}
+        contentArchetype={contentArchetype}
+        profileEnrichment={profileEnrichment}
+        layout="cards"
+      />
 
       <div>
         <div className="flex items-center gap-2">

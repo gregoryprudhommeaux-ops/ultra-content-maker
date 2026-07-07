@@ -2141,10 +2141,14 @@
         "incomplete": "Renseignez au moins 8 caractères pour le problème, le POV et la preuve.",
         "postAngle": {
           "title": "Angle de ce post",
-          "hint": "Choisissez si ce brouillon met en avant votre expertise ou votre offre.",
+          "hint": "Ce post met-il plutôt en avant votre société (vision, catégorie) ou un produit précis ?",
           "angles": {
-            "expertise": "Expertise / point de vue",
-            "product": "Produit / offre"
+            "expertise": "Société & expertise",
+            "product": "Produit & offre"
+          },
+          "angleDescriptions": {
+            "expertise": "Vision, catégorie, culture d'entreprise ou point de vue de dirigeant.",
+            "product": "Offre, cas client, lancement ou preuve produit — sans brochure."
           },
           "productSelect": "Quelle offre ?",
           "productFocus": "Focus produit",

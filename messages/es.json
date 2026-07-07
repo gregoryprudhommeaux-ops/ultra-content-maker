@@ -2140,10 +2140,14 @@
         "incomplete": "Introduce al menos 8 caracteres en problema, POV y prueba.",
         "postAngle": {
           "title": "Ángulo de este post",
-          "hint": "Elige si este borrador destaca tu expertise o tu oferta.",
+          "hint": "¿Este post destaca más tu empresa (visión, categoría) o un producto concreto?",
           "angles": {
-            "expertise": "Expertise / punto de vista",
-            "product": "Producto / oferta"
+            "expertise": "Empresa & expertise",
+            "product": "Producto & oferta"
+          },
+          "angleDescriptions": {
+            "expertise": "Visión, categoría, cultura de empresa o punto de vista de liderazgo.",
+            "product": "Oferta, caso cliente, lanzamiento o prueba de producto — sin folleto."
           },
           "productSelect": "¿Qué oferta?",
           "productFocus": "Enfoque producto",

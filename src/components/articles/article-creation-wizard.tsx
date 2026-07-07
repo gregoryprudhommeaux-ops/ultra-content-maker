@@ -1319,9 +1319,19 @@ export function ArticleCreationWizard() {
             />
           )}
           {usesQuickTopicBrief ? (
-            <ArticleTopicBriefForm brief={postBrief} onChange={setPostBrief} />
+            <ArticleTopicBriefForm
+              brief={postBrief}
+              onChange={setPostBrief}
+              contentArchetype={authorProfile?.contentArchetype ?? "expert"}
+              profileEnrichment={profileEnrichment}
+            />
           ) : mode === "article" ? (
-            <ArticleTopicBriefForm brief={postBrief} onChange={setPostBrief} />
+            <ArticleTopicBriefForm
+              brief={postBrief}
+              onChange={setPostBrief}
+              contentArchetype={authorProfile?.contentArchetype ?? "expert"}
+              profileEnrichment={profileEnrichment}
+            />
           ) : (
             <PostBriefForm
               brief={postBrief}
