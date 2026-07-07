@@ -1056,9 +1056,9 @@
         },
         "linkedinActivity": {
           "title": "Fils de posts LinkedIn",
-          "hint": "Ajoutez un ou plusieurs flux : vos posts personnels et/ou ceux de votre page entreprise. L'IA analyse ~2 mois d'activité pour calibrer votre voix et vos recommandations.",
+          "hint": "Collez un lien LinkedIn (profil, activité récente ou page entreprise) — le type est détecté automatiquement. Plusieurs flux possibles.",
           "empty": "Aucun fil de posts pour l'instant.",
-          "urlPlaceholder": "https://www.linkedin.com/in/votre-profil ou …/recent-activity/all/ ou …/company/…/posts/"
+          "urlPlaceholder": "https://www.linkedin.com/in/… ou …/company/…"
         },
         "web": {
           "title": "Sites & pages web",

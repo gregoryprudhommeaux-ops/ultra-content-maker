@@ -100,6 +100,40 @@ export function validateWebReferenceUrl(url: string): "ok" | "invalid" {
   return isValidUrl(trimmed) ? "ok" : "invalid";
 }
 
+export function inferLinkedInReferenceKind(
+  url: string,
+): "linkedin_personal" | "linkedin_company" {
+  const normalized = normalizeLinkedInPostsFeedUrl(url.trim()) ?? url.trim();
+  try {
+    const path = new URL(normalized).pathname.toLowerCase();
+    if (path.includes("/company/")) return "linkedin_company";
+  } catch {
+    /* default personal */
+  }
+  return "linkedin_personal";
+}
+
+export function prepareAuthorReferenceEntry(
+  variant: "linkedin_activity" | "web",
+  rawUrl: string,
+): { url: string; kind: AuthorReferenceUrlKind } | "invalid" | "not_activity" {
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return "invalid";
+
+  if (variant === "web") {
+    return validateWebReferenceUrl(trimmed) === "ok"
+      ? { url: trimmed, kind: "other" }
+      : "invalid";
+  }
+
+  const check = validateLinkedInPostsFeedUrl(trimmed);
+  if (check === "invalid") return "invalid";
+  if (check === "not_activity") return "not_activity";
+
+  const url = normalizeLinkedInPostsFeedUrl(trimmed) ?? trimmed;
+  return { url, kind: inferLinkedInReferenceKind(url) };
+}
+
 export function validateAuthorReferenceUrl(
   kind: AuthorReferenceUrlKind,
   url: string,

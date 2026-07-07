@@ -4,11 +4,10 @@ import { OptionalLabel } from "@/components/setup/optional-label";
 import {
   MAX_LINKEDIN_ACTIVITY_SOURCES,
   MAX_WEB_SOURCES,
-  normalizeAuthorReferenceUrlForSave,
-  validateAuthorReferenceUrl,
+  prepareAuthorReferenceEntry,
 } from "@/lib/profile/author-reference-urls";
 import { INPUT_CLASS } from "@/types/workspace";
-import type { AuthorReferenceUrl, AuthorReferenceUrlKind } from "@/types/workspace";
+import type { AuthorReferenceUrl } from "@/types/workspace";
 import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -21,10 +20,6 @@ type Props = {
   onChange: (items: AuthorReferenceUrl[]) => void;
   optional?: boolean;
 };
-
-const LINKEDIN_KINDS: AuthorReferenceUrlKind[] = ["linkedin_personal", "linkedin_company"];
-/** Web URLs are stored with a neutral kind; the UI does not ask users to categorize them. */
-const IMPLICIT_WEB_KIND: AuthorReferenceUrlKind = "other";
 
 export function AuthorReferenceUrlsEditor({
   variant,
@@ -41,33 +36,26 @@ export function AuthorReferenceUrlsEditor({
 
   const maxItems =
     variant === "linkedin_activity" ? MAX_LINKEDIN_ACTIVITY_SOURCES : MAX_WEB_SOURCES;
-  const isLinkedIn = variant === "linkedin_activity";
 
-  const [kind, setKind] = useState<AuthorReferenceUrlKind>(LINKEDIN_KINDS[0]);
   const [url, setUrl] = useState("");
   const [label, setLabel] = useState("");
   const [error, setError] = useState<string | null>(null);
-
-  function resolveKind(): AuthorReferenceUrlKind {
-    return isLinkedIn ? kind : IMPLICIT_WEB_KIND;
-  }
 
   function onAdd() {
     setError(null);
     const trimmed = url.trim();
     if (!trimmed) return;
 
-    const entryKind = resolveKind();
-    const validation = validateAuthorReferenceUrl(entryKind, trimmed);
-    if (validation === "invalid") {
+    const prepared = prepareAuthorReferenceEntry(variant, trimmed);
+    if (prepared === "invalid") {
       setError(tCommon("errors.invalidUrl"));
       return;
     }
-    if (validation === "not_activity") {
+    if (prepared === "not_activity") {
       setError(tCommon("errors.notActivityUrl"));
       return;
     }
-    const normalizedUrl = normalizeAuthorReferenceUrlForSave(entryKind, trimmed);
+
     if (items.length >= maxItems) {
       setError(tCommon("errors.maxReached", { max: maxItems }));
       return;
@@ -75,7 +63,7 @@ export function AuthorReferenceUrlsEditor({
     if (
       items.some(
         (item) =>
-          item.url.trim().toLowerCase() === normalizedUrl.trim().toLowerCase(),
+          item.url.trim().toLowerCase() === prepared.url.trim().toLowerCase(),
       )
     ) {
       setError(tCommon("errors.duplicate"));
@@ -85,8 +73,8 @@ export function AuthorReferenceUrlsEditor({
     onChange([
       ...items,
       {
-        url: normalizedUrl,
-        kind: entryKind,
+        url: prepared.url,
+        kind: prepared.kind,
         ...(label.trim() ? { label: label.trim() } : {}),
       },
     ]);
@@ -113,27 +101,14 @@ export function AuthorReferenceUrlsEditor({
               className="flex items-start justify-between gap-2 rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm"
             >
               <div className="min-w-0">
-                {isLinkedIn ? (
-                  <span className="font-medium text-ns-tertiary">
-                    {tCommon(`kinds.${item.kind}`)}
-                  </span>
-                ) : null}
                 {item.label ? (
-                  <span
-                    className={
-                      isLinkedIn
-                        ? "ml-2 text-ns-secondary"
-                        : "font-medium text-ns-tertiary"
-                    }
-                  >
-                    {isLinkedIn ? `· ${item.label}` : item.label}
-                  </span>
+                  <span className="font-medium text-ns-tertiary">{item.label}</span>
                 ) : null}
                 <a
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-0.5 block truncate text-ns-secondary underline"
+                  className={`block truncate text-ns-secondary underline ${item.label ? "mt-0.5" : ""}`}
                 >
                   {item.url}
                 </a>
@@ -154,25 +129,6 @@ export function AuthorReferenceUrlsEditor({
 
       {items.length < maxItems ? (
         <div className="space-y-2 rounded-lg border border-dashed border-gray-200 bg-white/80 p-3">
-          {isLinkedIn ? (
-            <div>
-              <label className="text-xs font-medium text-ns-secondary" htmlFor={`ref-kind-${variant}`}>
-                {tCommon("kindLabel")}
-              </label>
-              <select
-                id={`ref-kind-${variant}`}
-                value={kind}
-                onChange={(e) => setKind(e.target.value as AuthorReferenceUrlKind)}
-                className={`${INPUT_CLASS} mt-1`}
-              >
-                {LINKEDIN_KINDS.map((k) => (
-                  <option key={k} value={k}>
-                    {tCommon(`kinds.${k}`)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : null}
           <div>
             <label className="text-xs font-medium text-ns-secondary" htmlFor={`ref-url-${variant}`}>
               {tCommon("urlLabel")}

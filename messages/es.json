@@ -1056,9 +1056,9 @@
         },
         "linkedinActivity": {
           "title": "Feeds de posts LinkedIn",
-          "hint": "Añade uno o varios feeds: tus posts personales y/o los de tu página empresa. La IA analiza ~2 meses de actividad para calibrar voz y recomendaciones.",
+          "hint": "Pega un enlace de LinkedIn (perfil, actividad reciente o página empresa) — el tipo se detecta automáticamente. Varios feeds posibles.",
           "empty": "Ningún feed de posts por ahora.",
-          "urlPlaceholder": "https://www.linkedin.com/in/tu-perfil o …/recent-activity/all/ o …/company/…/posts/"
+          "urlPlaceholder": "https://www.linkedin.com/in/… o …/company/…"
         },
         "web": {
           "title": "Sitios y páginas web",
