@@ -1,10 +1,7 @@
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
 import { analyzeCreationStrategy } from "@/lib/linkedin/analyze-creation-strategy";
 import { validateLinkedInPostsFeedUrl } from "@/lib/linkedin/activity-url";
-import {
-  activityUrlsFingerprint,
-  linkedInActivityUrlsFromProfile,
-} from "@/lib/profile/author-reference-urls";
+import { activityUrlsFingerprint } from "@/lib/profile/author-reference-urls";
 import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
 import {
   classifyProviderErrorMessage,
@@ -190,11 +187,4 @@ export async function POST(request: Request) {
       { status: 502 },
     );
   }
-}
-
-/** Helper for server routes that already loaded AuthorProfile. */
-export function activityUrlsFromAuthorProfile(
-  profile: Pick<AuthorProfile, "linkedinActivitySources" | "linkedinActivityUrl"> | null | undefined,
-): string[] {
-  return linkedInActivityUrlsFromProfile(profile);
 }
