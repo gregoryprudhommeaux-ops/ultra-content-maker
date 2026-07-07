@@ -1025,6 +1025,8 @@ export function AdminAnalyticsDashboard() {
             takeover: t("usersTable.control.takeover"),
             confirmControl: t("usersTable.control.confirmControl"),
             confirmTakeover: t("usersTable.control.confirmTakeover"),
+            confirmAction: t("usersTable.control.confirmAction"),
+            confirmReleaseAction: t("usersTable.control.confirmReleaseAction"),
             controlling: t("usersTable.control.controlling"),
             controlSuccess: t("usersTable.control.controlSuccess"),
             release: t("usersTable.control.release"),
@@ -1048,7 +1050,6 @@ export function AdminAnalyticsDashboard() {
               cannot_link_admin: t("usersTable.control.controlErrors.cannot_link_admin"),
               control_failed: t("usersTable.control.controlErrors.control_failed"),
             },
-            confirm: t("usersTable.confirm"),
             cancel: t("usersTable.cancel"),
           },
           tierLabels: {

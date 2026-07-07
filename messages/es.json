@@ -443,6 +443,8 @@
         "takeover": "Reasumir el control",
         "confirmControl": "¿Vincular esta cuenta a su perfil para gestionarla (cualquier plan)? Aparecerá en Cuenta activa.",
         "confirmTakeover": "Esta cuenta la gestiona otro admin. ¿Reasumir el control y añadirla a su perfil?",
+        "confirmAction": "Vincular cuenta",
+        "confirmReleaseAction": "Sí, soltar",
         "controlling": "Vinculando…",
         "controlSuccess": "Cuenta vinculada — disponible en Cuenta activa.",
         "release": "Soltar",

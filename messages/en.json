@@ -443,6 +443,8 @@
         "takeover": "Take over control",
         "confirmControl": "Link this account to your profile for management (any tier)? It will appear under Active account.",
         "confirmTakeover": "This account is managed by another admin. Take it over and add it to your profile?",
+        "confirmAction": "Link account",
+        "confirmReleaseAction": "Yes, release",
         "controlling": "Linking…",
         "controlSuccess": "Account linked — available under Active account.",
         "release": "Release",

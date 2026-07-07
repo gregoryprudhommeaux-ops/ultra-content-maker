@@ -59,6 +59,8 @@ type Props = {
   takeover: string;
   confirmControl: string;
   confirmTakeover: string;
+  confirmAction: string;
+  confirmReleaseAction: string;
   controlling: string;
   controlSuccess: string;
   release: string;
@@ -72,7 +74,6 @@ type Props = {
   cannotControlSelf: string;
   controlFailed: string;
   controlErrors: Record<string, string>;
-  confirm: string;
   cancel: string;
  };
  tierLabels: Record<SubscriptionTier, string>;

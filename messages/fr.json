@@ -443,6 +443,8 @@
         "takeover": "Reprendre le contrôle",
         "confirmControl": "Lier ce compte à votre profil pour le gérer (toute offre) ? Il apparaîtra dans Compte actif.",
         "confirmTakeover": "Ce compte est géré par un autre admin. Le reprendre et l’ajouter à votre profil ?",
+        "confirmAction": "Lier le compte",
+        "confirmReleaseAction": "Oui, relâcher",
         "controlling": "Liaison…",
         "controlSuccess": "Compte lié — disponible dans Compte actif.",
         "release": "Relâcher",

@@ -12,6 +12,8 @@ type Labels = {
   takeover: string;
   confirmControl: string;
   confirmTakeover: string;
+  confirmAction: string;
+  confirmReleaseAction: string;
   controlling: string;
   controlSuccess: string;
   release: string;
@@ -25,7 +27,6 @@ type Labels = {
   cannotControlSelf: string;
   controlFailed: string;
   controlErrors: Record<string, string>;
-  confirm: string;
   cancel: string;
 };
 
@@ -184,7 +185,7 @@ export function AdminUserControlAction({
             onClick={() => void runControl()}
             className="rounded-md bg-ns-hero px-2 py-1 text-[11px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
           >
-            {busy ? labels.controlling : labels.confirm}
+            {busy ? labels.controlling : labels.confirmAction}
           </button>
           <button
             type="button"
@@ -211,7 +212,7 @@ export function AdminUserControlAction({
             onClick={() => void runRelease()}
             className="rounded-md border border-amber-600 px-2 py-1 text-[11px] font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-50"
           >
-            {busy ? labels.releasing : labels.confirm}
+            {busy ? labels.releasing : labels.confirmReleaseAction}
           </button>
           <button
             type="button"
