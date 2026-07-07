@@ -289,6 +289,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const refineSectionRef = useRef<HTMLDivElement>(null);
  const postPreviewRef = useRef<HTMLDivElement>(null);
  const ctaSectionRef = useRef<HTMLDivElement>(null);
+ const validationActionsRef = useRef<HTMLDivElement>(null);
  const [refineSectionOpen, setRefineSectionOpen] = useState(true);
  const [ctaSectionOpen, setCtaSectionOpen] = useState(false);
 
@@ -1529,68 +1530,6 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  </ul>
  )}
 
- {isValidating && (
- <GeneratingIndicator
- label={t("validating")}
- hint={t("validatingHint")}
- className="max-w-xl"
- />
- )}
-
- <div className="flex flex-col gap-2">
- <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
- <button
- type="button"
- disabled={isBusy || ctaLoading || !selectedCtaStyle}
- onClick={() => void onValidate()}
- className="inline-flex items-center gap-2 rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
- >
- {isValidating && <ButtonSpinner />}
- {isValidating ? t("validating") : t("validate")}
- </button>
- <button
- type="button"
- disabled={isBusy || ctaLoading}
- onClick={() => void onValidate({ skipCta: true })}
- className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
- >
- {isValidating ? t("validating") : t("validateWithoutCta")}
- </button>
- </div>
- <p className="text-xs text-ns-secondary">{t("validateWithoutCtaHint")}</p>
- {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
- <p className="text-xs text-ns-secondary">{t("validatePickCtaHint")}</p>
- )}
- </div>
- {error && errorScope === "cta" && (
- <UserErrorBanner
- surface="article-editor-validate"
- userMessage={error}
- technical={errorApiRawDetail}
- errorCode={errorApiCode}
- detail={errorApiRawDetail}
- >
- {error === t("validateFailed") ? (
- <p className="text-xs">{t("validateFailedHint")}</p>
- ) : null}
- {(error === tArticles("noLlmKey") ||
- error === tArticles("invalidApiKey") ||
- error === tArticles("insufficientCredits") ||
- error === tArticles("needPersona")) && (
- <Link
- href={
- error === tArticles("needPersona") ? "/persona" : "/setup/llm"
- }
- className="text-sm font-semibold underline"
- >
- →{" "}
- {error === tArticles("needPersona")
- ? tArticles("goPersona")
- : tArticles("goLlmSetup")}
- </Link>
- )}
- </UserErrorBanner>
- )}
  </div>
  </EditorCollapsibleSection>
  ) : null}
@@ -1648,68 +1587,6 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  </ul>
  )}
 
- {isValidating && (
- <GeneratingIndicator
- label={t("validating")}
- hint={t("validatingHint")}
- className="max-w-xl"
- />
- )}
-
- <div className="flex flex-col gap-2">
- <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
- <button
- type="button"
- disabled={isBusy || ctaLoading || !selectedCtaStyle}
- onClick={() => void onValidate()}
- className="inline-flex items-center gap-2 rounded-sm bg-ns-primary px-4 py-2.5 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50"
- >
- {isValidating && <ButtonSpinner />}
- {isValidating ? t("validating") : t("validate")}
- </button>
- <button
- type="button"
- disabled={isBusy || ctaLoading}
- onClick={() => void onValidate({ skipCta: true })}
- className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
- >
- {isValidating ? t("validating") : t("validateWithoutCta")}
- </button>
- </div>
- <p className="text-xs text-ns-secondary">{t("validateWithoutCtaHint")}</p>
- {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
- <p className="text-xs text-ns-secondary">{t("validatePickCtaHint")}</p>
- )}
- </div>
- {error && errorScope === "cta" && (
- <UserErrorBanner
- surface="article-editor-validate"
- userMessage={error}
- technical={errorApiRawDetail}
- errorCode={errorApiCode}
- detail={errorApiRawDetail}
- >
- {error === t("validateFailed") ? (
- <p className="text-xs">{t("validateFailedHint")}</p>
- ) : null}
- {(error === tArticles("noLlmKey") ||
- error === tArticles("invalidApiKey") ||
- error === tArticles("insufficientCredits") ||
- error === tArticles("needPersona")) && (
- <Link
- href={
- error === tArticles("needPersona") ? "/persona" : "/setup/llm"
- }
- className="text-sm font-semibold underline"
- >
- →{" "}
- {error === tArticles("needPersona")
- ? tArticles("goPersona")
- : tArticles("goLlmSetup")}
- </Link>
- )}
- </UserErrorBanner>
- )}
  </div>
  ) : null}
 
@@ -1770,6 +1647,79 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  }}
  />
  </EditorCollapsibleSection>
+ )}
+
+ {!isValidated && (
+ <div
+ ref={validationActionsRef}
+ className="scroll-mt-6 mb-6 space-y-4 rounded-2xl border-2 border-emerald-300/70 bg-gradient-to-b from-emerald-50/90 to-white p-4 shadow-sm sm:mb-8 sm:p-5"
+ >
+ <h2 className="text-sm font-bold uppercase tracking-wide text-emerald-950">
+ {t("validationStepTitle")}
+ </h2>
+
+ {isValidating && (
+ <GeneratingIndicator
+ label={t("validating")}
+ hint={t("validatingHint")}
+ className="max-w-xl"
+ />
+ )}
+
+ <div className="flex flex-col gap-3">
+ <button
+ type="button"
+ disabled={isBusy || ctaLoading || !selectedCtaStyle}
+ onClick={() => void onValidate()}
+ className="inline-flex w-full items-center justify-center gap-2 rounded-sm bg-ns-primary px-4 py-3 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50 sm:w-auto sm:justify-start"
+ >
+ {isValidating && <ButtonSpinner />}
+ {isValidating ? t("validating") : t("validate")}
+ </button>
+ <button
+ type="button"
+ disabled={isBusy || ctaLoading}
+ onClick={() => void onValidate({ skipCta: true })}
+ className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-3 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50 sm:w-auto sm:justify-start"
+ >
+ {isValidating ? t("validating") : t("validateWithoutCta")}
+ </button>
+ <p className="text-xs leading-relaxed text-ns-secondary">{t("validateWithoutCtaHint")}</p>
+ {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
+ <p className="text-xs text-ns-secondary">{t("validatePickCtaHint")}</p>
+ )}
+ </div>
+
+ {error && errorScope === "cta" && (
+ <UserErrorBanner
+ surface="article-editor-validate"
+ userMessage={error}
+ technical={errorApiRawDetail}
+ errorCode={errorApiCode}
+ detail={errorApiRawDetail}
+ >
+ {error === t("validateFailed") ? (
+ <p className="text-xs">{t("validateFailedHint")}</p>
+ ) : null}
+ {(error === tArticles("noLlmKey") ||
+ error === tArticles("invalidApiKey") ||
+ error === tArticles("insufficientCredits") ||
+ error === tArticles("needPersona")) && (
+ <Link
+ href={
+ error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+ }
+ className="text-sm font-semibold underline"
+ >
+ →{" "}
+ {error === tArticles("needPersona")
+ ? tArticles("goPersona")
+ : tArticles("goLlmSetup")}
+ </Link>
+ )}
+ </UserErrorBanner>
+ )}
+ </div>
  )}
 
  {error && isValidated && (
