@@ -1062,9 +1062,9 @@
         },
         "web": {
           "title": "Websites & web pages",
-          "hint": "Site, blog, product page, or any page that helps understand your positioning (multiple links allowed).",
+          "hint": "Add one or more pages that help explain your positioning (site, blog, product page…).",
           "empty": "No web sources yet.",
-          "urlPlaceholder": "https://your-site.com or https://blog…"
+          "urlPlaceholder": "https://…"
         }
       },
       "website": "Website URL",

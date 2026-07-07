@@ -1062,9 +1062,9 @@
         },
         "web": {
           "title": "Sitios y páginas web",
-          "hint": "Sitio, blog, página de producto o cualquier página útil para entender tu posicionamiento (varios enlaces posibles).",
+          "hint": "Añade una o varias páginas útiles para entender tu posicionamiento (sitio, blog, página de producto…).",
           "empty": "Ninguna fuente web por ahora.",
-          "urlPlaceholder": "https://tu-sitio.com o https://blog…"
+          "urlPlaceholder": "https://…"
         }
       },
       "website": "URL sitio web",

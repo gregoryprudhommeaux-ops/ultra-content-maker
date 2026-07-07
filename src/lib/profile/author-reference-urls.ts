@@ -128,7 +128,9 @@ export function legacyAuthorUrlFieldsFromSources(input: {
   webSources: AuthorReferenceUrl[];
 }): Pick<AuthorProfile, "linkedinActivityUrl" | "websiteUrl" | "blogUrl"> {
   const firstActivity = input.linkedinActivitySources[0]?.url;
-  const website = input.webSources.find((s) => s.kind === "website")?.url;
+  const website =
+    input.webSources.find((s) => s.kind === "website")?.url ??
+    input.webSources[0]?.url;
   const blog = input.webSources.find((s) => s.kind === "blog")?.url;
   return {
     linkedinActivityUrl: firstActivity,
