@@ -439,10 +439,10 @@
       "onboardingStepsHint": "Étapes d'onboarding",
       "noBlock": "N/D",
       "control": {
-        "action": "Contrôler",
-        "takeover": "Prendre le contrôle",
-        "confirmControl": "Lier ce compte au vôtre pour le gérer en mode agence (toute offre) ?",
-        "confirmTakeover": "Ce compte est géré par un autre admin. Prendre le contrôle et le lier à votre profil ?",
+        "action": "Prendre le contrôle",
+        "takeover": "Reprendre le contrôle",
+        "confirmControl": "Lier ce compte à votre profil pour le gérer (toute offre) ? Il apparaîtra dans Compte actif.",
+        "confirmTakeover": "Ce compte est géré par un autre admin. Le reprendre et l’ajouter à votre profil ?",
         "controlling": "Liaison…",
         "controlSuccess": "Compte lié — disponible dans Compte actif.",
         "release": "Relâcher",
@@ -454,7 +454,18 @@
         "managedByOther": "Autre admin",
         "cannotControlAdmin": "N/D",
         "cannotControlSelf": "N/D",
-        "controlFailed": "Impossible de lier ce compte."
+        "controlFailed": "Impossible de lier ce compte.",
+        "controlErrors": {
+          "auth": "Session expirée — reconnectez-vous.",
+          "forbidden": "Accès admin refusé.",
+          "admin_not_configured": "Admin plateforme non configuré.",
+          "user_not_found": "Utilisateur introuvable.",
+          "client_doc_missing": "Profil utilisateur absent.",
+          "client_account_missing": "Espace client introuvable.",
+          "cannot_link_self": "Impossible sur votre propre compte.",
+          "cannot_link_admin": "Impossible sur un compte admin.",
+          "control_failed": "Liaison impossible — réessayez."
+        }
       }
     },
     "errors": {

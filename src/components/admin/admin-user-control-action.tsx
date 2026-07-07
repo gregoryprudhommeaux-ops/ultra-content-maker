@@ -3,8 +3,9 @@
 import type { AdminUserMetrics } from "@/lib/admin/analytics-types";
 import { getClientAuth } from "@/lib/firebase/client";
 import { managedAccountId } from "@/lib/workspace/managed-clients";
+import { DEFAULT_ACCOUNT_ID } from "@/lib/workspace/workspace-scope";
 import { useWorkspace } from "@/contexts/workspace-context";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type Labels = {
   control: string;
@@ -23,6 +24,7 @@ type Labels = {
   cannotControlAdmin: string;
   cannotControlSelf: string;
   controlFailed: string;
+  controlErrors: Record<string, string>;
   confirm: string;
   cancel: string;
 };
@@ -34,28 +36,50 @@ type Props = {
   onChanged?: () => void;
 };
 
+function resolveManagedSwitcherId(user: AdminUserMetrics): string {
+  const accountId = user.managedClientAccountId?.trim() || DEFAULT_ACCOUNT_ID;
+  return managedAccountId(user.userId, accountId);
+}
+
 export function AdminUserControlAction({
   user,
   currentAdminUserId,
   labels,
   onChanged,
 }: Props) {
-  const { reload, switchAccount } = useWorkspace();
+  const { reload, switchAccount, accounts } = useWorkspace();
   const [mode, setMode] = useState<"idle" | "confirm-control" | "confirm-release">("idle");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [linkedLocally, setLinkedLocally] = useState(false);
+
+  const managedInSwitcher = useMemo(
+    () =>
+      accounts.some(
+        (account) =>
+          account.isManaged && account.managedClientUid === user.userId,
+      ),
+    [accounts, user.userId],
+  );
 
   const isSelf = user.userId === currentAdminUserId;
   const managedBy = user.managedByAdminUid;
-  const managedByYou = managedBy === currentAdminUserId;
-  const managedByOther = Boolean(managedBy && managedBy !== currentAdminUserId);
+  const managedByYou =
+    linkedLocally ||
+    managedInSwitcher ||
+    managedBy === currentAdminUserId;
+  const managedByOther = Boolean(managedBy && managedBy !== currentAdminUserId && !managedByYou);
 
   if (isSelf) {
     return <span className="text-xs text-ns-alternate">{labels.cannotControlSelf}</span>;
   }
   if (user.isPlatformAdmin) {
     return <span className="text-xs text-ns-alternate">{labels.cannotControlAdmin}</span>;
+  }
+
+  function resolveControlError(code: string): string {
+    return labels.controlErrors[code] ?? labels.controlFailed;
   }
 
   async function runControl() {
@@ -78,16 +102,24 @@ export function AdminUserControlAction({
       const data = (await res.json()) as { error?: string; client?: { accountId?: string } };
       if (!res.ok) throw new Error(data.error ?? "control_failed");
 
-      await reload();
-      const accountId = managedAccountId(user.userId, data.client?.accountId);
-      await switchAccount(accountId);
+      setLinkedLocally(true);
       setMode("idle");
       setSuccess(labels.controlSuccess);
       onChanged?.();
+
+      try {
+        await reload();
+        const switcherId = managedAccountId(
+          user.userId,
+          data.client?.accountId?.trim() || user.managedClientAccountId || DEFAULT_ACCOUNT_ID,
+        );
+        await switchAccount(switcherId);
+      } catch {
+        /* link succeeded; workspace switch is best-effort */
+      }
     } catch (err) {
       const code = err instanceof Error ? err.message : "control_failed";
-      setError(labels.controlFailed);
-      void code;
+      setError(resolveControlError(code));
     } finally {
       setBusy(false);
     }
@@ -113,12 +145,14 @@ export function AdminUserControlAction({
       const data = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? "release_failed");
 
+      setLinkedLocally(false);
       await reload();
       setMode("idle");
       setSuccess(labels.releaseSuccess);
       onChanged?.();
-    } catch {
-      setError(labels.controlFailed);
+    } catch (err) {
+      const code = err instanceof Error ? err.message : "release_failed";
+      setError(resolveControlError(code));
     } finally {
       setBusy(false);
     }
@@ -128,7 +162,8 @@ export function AdminUserControlAction({
     setBusy(true);
     setError(null);
     try {
-      await switchAccount(managedAccountId(user.userId));
+      await reload();
+      await switchAccount(resolveManagedSwitcherId(user));
     } catch {
       setError(labels.controlFailed);
     } finally {
@@ -138,7 +173,7 @@ export function AdminUserControlAction({
 
   if (mode === "confirm-control") {
     return (
-      <div className="flex min-w-[11rem] flex-col gap-1.5">
+      <div className="flex min-w-[13rem] max-w-[16rem] flex-col gap-1.5 rounded-md border border-ns-alternate/60 bg-white p-2 shadow-sm">
         <p className="text-[11px] leading-snug text-ns-secondary">
           {managedByOther ? labels.confirmTakeover : labels.confirmControl}
         </p>
@@ -167,7 +202,7 @@ export function AdminUserControlAction({
 
   if (mode === "confirm-release") {
     return (
-      <div className="flex min-w-[11rem] flex-col gap-1.5">
+      <div className="flex min-w-[13rem] max-w-[16rem] flex-col gap-1.5 rounded-md border border-ns-alternate/60 bg-white p-2 shadow-sm">
         <p className="text-[11px] leading-snug text-ns-secondary">{labels.confirmRelease}</p>
         <div className="flex flex-wrap gap-1">
           <button
@@ -193,7 +228,7 @@ export function AdminUserControlAction({
   }
 
   return (
-    <div className="flex min-w-[7rem] flex-col gap-1">
+    <div className="flex min-w-[9rem] max-w-[14rem] flex-col gap-1">
       {managedByYou ? (
         <>
           <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
@@ -235,7 +270,7 @@ export function AdminUserControlAction({
               setSuccess(null);
               setMode("confirm-control");
             }}
-            className="text-left text-xs font-semibold text-ns-primary hover:underline disabled:opacity-50"
+            className="rounded-md border border-ns-hero/40 bg-ns-hero/5 px-2 py-1 text-left text-xs font-semibold text-ns-primary hover:bg-ns-hero/10 disabled:opacity-50"
           >
             {managedByOther ? labels.takeover : labels.control}
           </button>

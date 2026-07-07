@@ -439,8 +439,10 @@
       "onboardingStepsHint": "Pasos de onboarding",
       "noBlock": "N/D",
       "control": {
-        "action": "Controlar",
-        "confirmControl": "¿Vincular esta cuenta a la suya para gestión tipo agencia (Support Total, etc.)?",
+        "action": "Tomar el control",
+        "takeover": "Reasumir el control",
+        "confirmControl": "¿Vincular esta cuenta a su perfil para gestionarla (cualquier plan)? Aparecerá en Cuenta activa.",
+        "confirmTakeover": "Esta cuenta la gestiona otro admin. ¿Reasumir el control y añadirla a su perfil?",
         "controlling": "Vinculando…",
         "controlSuccess": "Cuenta vinculada — disponible en Cuenta activa.",
         "release": "Soltar",
@@ -452,7 +454,18 @@
         "managedByOther": "Otro admin",
         "cannotControlAdmin": "N/D",
         "cannotControlSelf": "N/D",
-        "controlFailed": "No se pudo vincular esta cuenta."
+        "controlFailed": "No se pudo vincular esta cuenta.",
+        "controlErrors": {
+          "auth": "Sesión caducada — vuelva a iniciar sesión.",
+          "forbidden": "Acceso de admin denegado.",
+          "admin_not_configured": "Admin de plataforma no configurado.",
+          "user_not_found": "Usuario no encontrado.",
+          "client_doc_missing": "Perfil de usuario ausente.",
+          "client_account_missing": "Espacio del cliente no encontrado.",
+          "cannot_link_self": "No puede vincular su propia cuenta.",
+          "cannot_link_admin": "No puede vincular una cuenta admin.",
+          "control_failed": "No se pudo vincular — reintente."
+        }
       }
     },
     "errors": {

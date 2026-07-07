@@ -802,8 +802,22 @@ export async function buildAdminAnalyticsCore(
  onboardingSteps: userOnboardingSteps,
  activationMethod: subscription.activationMethod ?? null,
  hasStripeSubscription: Boolean(subscription.stripeSubscriptionId),
- managedByAdminUid:
-  (userData.managedBy as { adminUid?: string } | undefined)?.adminUid?.trim() ?? null,
+ managedByAdminUid: (() => {
+  const managedUid = (userData.managedBy as { adminUid?: string } | undefined)?.adminUid?.trim();
+  if (managedUid) return managedUid;
+  const linkedOwner = linked?.ownerId?.trim();
+  if (linkedOwner && linkedOwner !== userId) return linkedOwner;
+  return null;
+ })(),
+ managedClientAccountId: (() => {
+  const managedUid = (userData.managedBy as { adminUid?: string } | undefined)?.adminUid?.trim();
+  const linkedOwner = linked?.ownerId?.trim();
+  const underAgency =
+   Boolean(managedUid) || (Boolean(linkedOwner) && linkedOwner !== userId);
+  if (!underAgency) return null;
+  const accountId = String(userData.activeAccountId ?? DEFAULT_ACCOUNT_ID).trim();
+  return accountId || DEFAULT_ACCOUNT_ID;
+ })(),
  };
 
  let supportAccount: SupportAccountRow | null = null;

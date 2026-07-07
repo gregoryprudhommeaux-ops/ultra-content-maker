@@ -439,10 +439,10 @@
       "onboardingStepsHint": "Onboarding steps",
       "noBlock": "N/A",
       "control": {
-        "action": "Control",
-        "takeover": "Take control",
-        "confirmControl": "Link this account to yours for agency-style management (any tier)?",
-        "confirmTakeover": "This account is managed by another admin. Take control and link it to your profile?",
+        "action": "Take control",
+        "takeover": "Take over control",
+        "confirmControl": "Link this account to your profile for management (any tier)? It will appear under Active account.",
+        "confirmTakeover": "This account is managed by another admin. Take it over and add it to your profile?",
         "controlling": "Linking…",
         "controlSuccess": "Account linked — available under Active account.",
         "release": "Release",
@@ -454,7 +454,18 @@
         "managedByOther": "Other admin",
         "cannotControlAdmin": "N/A",
         "cannotControlSelf": "N/A",
-        "controlFailed": "Could not link this account."
+        "controlFailed": "Could not link this account.",
+        "controlErrors": {
+          "auth": "Session expired — sign in again.",
+          "forbidden": "Admin access denied.",
+          "admin_not_configured": "Platform admin is not configured.",
+          "user_not_found": "User not found.",
+          "client_doc_missing": "User profile is missing.",
+          "client_account_missing": "Client workspace not found.",
+          "cannot_link_self": "Cannot link your own account.",
+          "cannot_link_admin": "Cannot link an admin account.",
+          "control_failed": "Could not link — try again."
+        }
       }
     },
     "errors": {

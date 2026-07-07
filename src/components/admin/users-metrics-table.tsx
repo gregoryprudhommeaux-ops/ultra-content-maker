@@ -71,6 +71,7 @@ type Props = {
   cannotControlAdmin: string;
   cannotControlSelf: string;
   controlFailed: string;
+  controlErrors: Record<string, string>;
   confirm: string;
   cancel: string;
  };

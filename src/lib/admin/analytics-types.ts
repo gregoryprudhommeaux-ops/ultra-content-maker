@@ -85,8 +85,10 @@ export type AdminUserMetrics = {
   };
   activationMethod?: string | null;
   hasStripeSubscription: boolean;
-  /** Platform admin UID managing this user (agency model). */
+  /** Platform admin UID managing this user (managedBy or legacy invite link). */
   managedByAdminUid: string | null;
+  /** Client workspace account id when under agency control. */
+  managedClientAccountId: string | null;
 };
 
 export type SupportAccountRow = {
