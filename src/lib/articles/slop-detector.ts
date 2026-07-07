@@ -1,4 +1,6 @@
+import { runHumanWritingChecklist } from "@/lib/articles/human-writing";
 import type { SlopAnalysis } from "@/types/workspace";
+import type { ContentLanguage } from "@/types/workspace";
 
 /** Common AI-slop / LinkedIn cliché patterns (multilingual). */
 const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
@@ -18,7 +20,10 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "tapestry", re: /\b(tapestry of|mosaïque de)\b/i, weight: 2 },
 ];
 
-export function detectSlop(text: string): SlopAnalysis {
+export function detectSlop(
+  text: string,
+  options: { contentLanguage?: ContentLanguage } = {},
+): SlopAnalysis {
   const combined = text.trim();
   if (!combined) {
     return {
@@ -38,6 +43,18 @@ export function detectSlop(text: string): SlopAnalysis {
     }
   }
 
+  const humanWriting = runHumanWritingChecklist(combined, {
+    contentLanguage: options.contentLanguage ?? "fr",
+  });
+
+  for (const violation of humanWriting.violations) {
+    if (!flags.includes(violation.id)) {
+      flags.push(violation.id);
+      if (violation.severity === "error") penalty += 2;
+      else if (violation.severity === "warn") penalty += 1;
+    }
+  }
+
   const wordCount = combined.split(/\s+/).filter(Boolean).length;
   if (wordCount > 0 && wordCount < 80) penalty += 0;
   if (combined.match(/\b(I|je|yo)\b/gi)?.length && wordCount > 50) {
@@ -51,9 +68,25 @@ export function detectSlop(text: string): SlopAnalysis {
   const summary =
     flags.length === 0
       ? "clean"
-      : flags.length <= 2
+      : flags.length <= 2 && humanWriting.summary !== "critical"
         ? "mild_slop"
         : "heavy_slop";
 
-  return { humanScore, slopScore, flags, summary };
+  return {
+    humanScore,
+    slopScore,
+    flags,
+    summary,
+    humanWriting: {
+      passed: humanWriting.passed,
+      score: humanWriting.score,
+      summary: humanWriting.summary,
+      violations: humanWriting.violations.map((v) => ({
+        id: v.id,
+        category: v.category,
+        severity: v.severity,
+      })),
+      categories: humanWriting.categories,
+    },
+  };
 }

@@ -21,8 +21,11 @@ function scoreTone(slopScore: number): "good" | "warn" | "bad" {
 export function ArticleSlopPanel({ article, disabled, onSave }: Props) {
   const t = useTranslations("setup.articles.slop");
   const live = useMemo(
-    () => detectSlop(`${article.hook}\n\n${article.body}`),
-    [article.hook, article.body],
+    () =>
+      detectSlop(`${article.hook}\n\n${article.body}`, {
+        contentLanguage: article.contentLanguage,
+      }),
+    [article.hook, article.body, article.contentLanguage],
   );
   const [stored, setStored] = useState<SlopAnalysis | null>(article.slopAnalysis ?? null);
   const [savedFlash, setSavedFlash] = useState(false);
@@ -127,11 +130,48 @@ export function ArticleSlopPanel({ article, disabled, onSave }: Props) {
                 className="rounded-md border border-amber-200/80 bg-amber-50 px-2 py-1 text-xs text-amber-900"
                 title={t(`flagsHelp.${flag}`, { defaultValue: "" })}
               >
-                {t(`flags.${flag}`, { defaultValue: flag })}
+                {t(`flags.${flag}`, { defaultValue: t(`humanWriting.violations.${flag}`, { defaultValue: flag }) })}
               </li>
             ))}
           </ul>
           <p className="text-xs text-ns-secondary">{t("flagsHint")}</p>
+        </div>
+      )}
+
+      {display.humanWriting && display.humanWriting.summary !== "empty" && (
+        <div className="space-y-3 rounded-lg border border-gray-100 bg-white p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ns-secondary">
+              {t("humanWriting.title")}
+            </p>
+            <span
+              className={`text-sm font-bold ${
+                display.humanWriting.passed ? "text-ns-tertiary" : "text-amber-800"
+              }`}
+            >
+              {display.humanWriting.score}/10
+            </span>
+          </div>
+          <p className="text-sm text-ns-secondary">
+            {t(`humanWriting.summary.${display.humanWriting.summary}`)}
+          </p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {Object.entries(display.humanWriting.categories).map(([key, cat]) => (
+              <li
+                key={key}
+                className={`rounded-md border px-2 py-1.5 text-xs ${
+                  cat.status === "pass"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                    : cat.status === "warn"
+                      ? "border-amber-200 bg-amber-50 text-amber-900"
+                      : "border-red-200 bg-red-50 text-red-900"
+                }`}
+              >
+                <span className="font-semibold">{t(`humanWriting.categories.${key}`)}</span>
+                <span className="ml-1">· {t(`humanWriting.status.${cat.status}`)}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

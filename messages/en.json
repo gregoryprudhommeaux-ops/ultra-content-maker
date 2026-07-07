@@ -2289,6 +2289,45 @@
           "generic_inspiration": "Generic inspiration",
           "delve": "Let's delve",
           "tapestry": "Tapestry"
+        },
+        "humanWriting": {
+          "title": "Human writing checklist",
+          "summary": {
+            "clean": "Few AI signals detected · natural tone.",
+            "needs_work": "Some AI signals to fix before publishing.",
+            "critical": "Strong AI signals · rewrite recommended.",
+            "empty": "Nothing to analyze."
+          },
+          "status": {
+            "pass": "OK",
+            "warn": "Refine",
+            "fail": "Fix"
+          },
+          "categories": {
+            "ai_tics": "AI tics",
+            "punctuation": "Punctuation",
+            "emojis": "Emojis",
+            "paragraphs": "Paragraphs",
+            "voice": "Voice & opinion"
+          },
+          "violations": {
+            "banned_lower_friction": "Lower the friction",
+            "banned_game_changer": "Game changer",
+            "banned_in_a_world_where": "In a world where",
+            "banned_spoiler": "Spoiler",
+            "not_x_its_y": "It's not X, it's Y",
+            "triple_adjectives": "Triple adjective",
+            "em_dash_overuse": "Too many em dashes",
+            "uniform_sentence_rhythm": "Uniform sentence rhythm",
+            "emoji_count": "Too many emojis",
+            "emoji_line_start": "Emoji at line start",
+            "emoji_line_density": "Emojis on too many lines",
+            "emoji_sentence_density": "Too many emojis per sentence",
+            "two_sentence_blocks": "Two-sentence blocks",
+            "uniform_paragraph_size": "Uniform paragraphs",
+            "missing_first_person": "No I/we voice",
+            "missing_opinion_marker": "No explicit opinion"
+          }
         }
       },
       "quality": {

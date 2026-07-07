@@ -435,6 +435,21 @@ export interface SlopAnalysis {
  slopScore: number;
  flags: string[];
  summary: "empty" | "clean" | "mild_slop" | "heavy_slop";
+ /** Human-writing checklist (anti-AI detection) */
+ humanWriting?: {
+  passed: boolean;
+  score: number;
+  summary: "empty" | "clean" | "needs_work" | "critical";
+  violations: {
+   id: string;
+   category: string;
+   severity: "error" | "warn" | "info";
+  }[];
+  categories: Record<
+   string,
+   { status: "pass" | "warn" | "fail"; violations: string[] }
+  >;
+ };
 }
 
 export interface PersonaPerformanceInsights {

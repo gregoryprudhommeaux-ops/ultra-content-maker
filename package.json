@@ -12,6 +12,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test src/lib/articles/human-writing/**/*.test.ts",
     "i18n:sync": "tsx scripts/i18n-sync.ts",
     "icons:generate": "node scripts/generate-brand-icons.mjs",
     "admin:set-claim": "tsx scripts/set-platform-admin-claim.ts"

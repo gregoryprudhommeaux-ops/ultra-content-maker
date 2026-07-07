@@ -1,3 +1,4 @@
+import { buildHumanWritingRules } from "@/lib/articles/human-writing";
 import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import {
  injectAuthorSteering,
@@ -22,6 +23,8 @@ export function buildArticleQualitySystemPrompt(
  if (personalVoice) {
  return `You are an empathetic writing coach reviewing a personal LinkedIn post in ${lang} (first-person life update or milestone).
 
+${buildHumanWritingRules(contentLanguage)}
+
 Score the post 1-10 on each dimension (integers only):
 - nicheClarity: how clearly the personal moment lands for the author's network (not generic inspiration)
 - humanPov: authentic first-person voice vs press release / LinkedIn template / invented dramatic anecdotes the author did not provide
@@ -41,6 +44,8 @@ Return JSON only:
  return `You are a senior LinkedIn B2B editor scoring posts for platform-native authority content in ${lang}.
 
 ${buildAntiLinkedInSlopRules(contentLanguage)}
+
+${buildHumanWritingRules(contentLanguage)}
 
 Score the post 1-10 on each dimension (integers only):
 - nicheClarity: specific to a defined ICP vs generic "everyone"

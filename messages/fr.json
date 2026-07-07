@@ -2290,6 +2290,45 @@
           "generic_inspiration": "Inspiration générique",
           "delve": "Plongeons / delve",
           "tapestry": "Tapisserie / tapestry"
+        },
+        "humanWriting": {
+          "title": "Checklist écriture humaine",
+          "summary": {
+            "clean": "Peu de signaux IA détectés · ton naturel.",
+            "needs_work": "Quelques signaux IA à corriger avant publication.",
+            "critical": "Signaux IA forts · réécriture recommandée.",
+            "empty": "Rien à analyser."
+          },
+          "status": {
+            "pass": "OK",
+            "warn": "À affiner",
+            "fail": "À corriger"
+          },
+          "categories": {
+            "ai_tics": "Tics IA",
+            "punctuation": "Ponctuation",
+            "emojis": "Emojis",
+            "paragraphs": "Paragraphes",
+            "voice": "Voix & opinion"
+          },
+          "violations": {
+            "banned_baisser_la_friction": "Baisser la friction",
+            "banned_game_changer": "Game changer",
+            "banned_dans_un_monde_ou": "Dans un monde où",
+            "banned_spoiler": "Spoiler",
+            "not_x_its_y": "Ce n'est pas X, c'est Y",
+            "triple_adjectives": "Triple adjectif",
+            "em_dash_overuse": "Trop de tirets cadratin",
+            "uniform_sentence_rhythm": "Rythme de phrases uniforme",
+            "emoji_count": "Trop d'emojis",
+            "emoji_line_start": "Emoji en début de ligne",
+            "emoji_line_density": "Emojis sur trop de lignes",
+            "emoji_sentence_density": "Trop d'emojis par phrase",
+            "two_sentence_blocks": "Blocs de 2 phrases",
+            "uniform_paragraph_size": "Paragraphes uniformes",
+            "missing_first_person": "Pas de je/nous",
+            "missing_opinion_marker": "Pas d'opinion explicite"
+          }
         }
       },
       "quality": {

@@ -34,9 +34,21 @@ export function llmPayloadForAccess(
   access?: Pick<SubscriptionAccess, "canUsePlatformLlm" | "canUseOwnLlmOnly" | "effectiveTier"> | null,
 ): ReturnType<typeof llmPayloadFromProfile> {
   if (access?.canUsePlatformLlm && !access.canUseOwnLlmOnly) {
-    return profile ? { provider: profile.provider, model: profile.model } : undefined;
+    return {
+      provider: profile?.provider ?? "openai",
+      ...(profile?.model ? { model: profile.model } : {}),
+    };
   }
   return llmPayloadForTier(profile, access?.effectiveTier);
+}
+
+/** Whether the client may call an LLM route (platform key resolved server-side). */
+export function hasClientLlmAccess(
+  access?: Pick<SubscriptionAccess, "canUsePlatformLlm" | "canUseOwnLlmOnly"> | null,
+  payload?: ReturnType<typeof llmPayloadForAccess>,
+): boolean {
+  if (access?.canUsePlatformLlm && !access.canUseOwnLlmOnly) return true;
+  return Boolean(payload?.apiKey?.trim());
 }
 
 /** Server-authoritative LLM payload for authenticated API calls. */

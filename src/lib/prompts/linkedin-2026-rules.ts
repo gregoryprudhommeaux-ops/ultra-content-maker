@@ -1,3 +1,4 @@
+import { buildHumanWritingRules } from "@/lib/articles/human-writing";
 import { LINKEDIN_LENGTH_PROMPT_RULE } from "@/lib/linkedin/fit-linkedin-post";
 import { buildLinkedInArchetypeRules, resolveContentArchetype } from "@/lib/persona/content-archetype";
 import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
@@ -15,6 +16,7 @@ LinkedIn 2026 rules (non-negotiable):
 ${LINKEDIN_LENGTH_PROMPT_RULE}
 ${AUTHOR_STEERING_PROMPT_RULE}
 ${buildAntiLinkedInSlopRules(contentLanguage)}
+${buildHumanWritingRules(contentLanguage)}
 ${buildLinkedInArchetypeRules(resolved)}
 - Niche-specific: write for the defined ICP, not "everyone on LinkedIn".
 - Include at least one concrete proof element per post when available in brief/Persona (case, metric, field observation · no vague inspiration; never invent proof).

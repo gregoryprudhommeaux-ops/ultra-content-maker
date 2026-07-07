@@ -24,6 +24,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { useSubscription } from "@/contexts/subscription-context";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getPersona } from "@/lib/workspace/persona";
+import { hasClientLlmAccess, llmPayloadForAccess } from "@/lib/llm/client-payload";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
  hasReviseInput,
@@ -158,7 +159,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  gatherAuthorSteeringPayload(user.uid),
  getUserLlmProfile(user.uid),
  ]);
- if (!token || !llmProfile?.apiKey) return;
+ const llmPayload = llmPayloadForAccess(llmProfile, subscriptionAccess);
+ if (!token || !hasClientLlmAccess(subscriptionAccess, llmPayload)) return;
 
  const res = await fetch("/api/articles/cta-suggestions", {
  method: "POST",
@@ -176,11 +178,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  postObjective: article.postBrief
  ? primaryPostObjective(article.postBrief)
  : "credibility",
- llm: {
- provider: llmProfile.provider,
- apiKey: llmProfile.apiKey,
- model: llmProfile.model,
- },
+ llm: llmPayload,
  }),
  });
  const data = await res.json();
@@ -203,7 +201,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  } finally {
  setCtaLoading(false);
  }
- }, [user, article, personaText, tCta]);
+ }, [user, article, personaText, subscriptionAccess, tCta]);
 
  const loadIllustrationSuggestions = useCallback(
  async (force = false, opts?: { quiet?: boolean }) => {
@@ -218,7 +216,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const auth = getClientAuth();
  const token = auth ? await auth.currentUser?.getIdToken() : null;
  const llmProfile = await getUserLlmProfile(user.uid);
- if (!token || !llmProfile?.apiKey) return;
+ const llmPayload = llmPayloadForAccess(llmProfile, subscriptionAccess);
+ if (!token || !hasClientLlmAccess(subscriptionAccess, llmPayload)) return;
 
  const res = await fetch("/api/articles/illustration-suggestions", {
  method: "POST",
@@ -232,11 +231,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  body: article.body,
  ps: article.ps,
  scope: article.scope,
- llm: {
- provider: llmProfile.provider,
- apiKey: llmProfile.apiKey,
- model: llmProfile.model,
- },
+ llm: llmPayload,
  }),
  });
  const data = await res.json();
@@ -255,7 +250,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  setIllustrationLoading(false);
  }
  },
- [user, article, tIll],
+ [user, article, subscriptionAccess, tIll],
  );
 
  const load = useCallback(async () => {
@@ -431,7 +426,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  getUserLlmProfile(user.uid),
  gatherAuthorSteeringPayload(user.uid),
  ]);
- if (!token || !llmProfile?.apiKey) {
+ const llmPayload = llmPayloadForAccess(llmProfile, subscriptionAccess);
+ if (!token || !hasClientLlmAccess(subscriptionAccess, llmPayload)) {
  setError(tArticles("noLlmKey"));
  return;
  }
@@ -450,11 +446,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  postBrief: article.postBrief,
  personaPromptText: personaText,
  authorSteering,
- llm: {
- provider: llmProfile.provider,
- apiKey: llmProfile.apiKey,
- model: llmProfile.model,
- },
+ llm: llmPayload,
  }),
  });
  const data = await res.json();
@@ -488,7 +480,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  } finally {
  setQualityLoading(false);
  }
- }, [user, article, personaText, tQuality, tArticles]);
+ }, [user, article, personaText, subscriptionAccess, tQuality, tArticles]);
 
  function resolveReviseErrorMessage(errorCode?: string, detail?: string) {
  const { kind, detail: rawDetail } = classifyLlmApiError(errorCode, detail);
@@ -583,7 +575,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  getUserLlmProfile(user.uid),
  gatherAuthorSteeringPayload(user.uid),
  ]);
- if (!token || !llmProfile?.apiKey) {
+ const llmPayload = llmPayloadForAccess(llmProfile, subscriptionAccess);
+ if (!token || !hasClientLlmAccess(subscriptionAccess, llmPayload)) {
  setReviseError(tArticles("noLlmKey"));
  return;
  }
@@ -608,11 +601,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  refinement,
  postBrief: article.postBrief,
  authorSteering,
- llm: {
- provider: llmProfile.provider,
- apiKey: llmProfile.apiKey,
- model: llmProfile.model,
- },
+ llm: llmPayload,
  }),
  });
  const data = (await res.json()) as {
@@ -750,7 +739,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  }
 
  let hashtags = article.hashtags ?? [];
- if (llmProfile?.apiKey) {
+ const llmPayload = llmPayloadForAccess(llmProfile, subscriptionAccess);
+ if (hasClientLlmAccess(subscriptionAccess, llmPayload)) {
  const tagRes = await fetch("/api/articles/hashtags", {
  method: "POST",
  headers: {
@@ -765,11 +755,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  ps: article.ps,
  ctaText: chosen.text,
  authorSteering,
- llm: {
- provider: llmProfile.provider,
- apiKey: llmProfile.apiKey,
- model: llmProfile.model,
- },
+ llm: llmPayload,
  }),
  });
  const tagData = (await tagRes.json()) as {
@@ -781,7 +767,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  hashtags = tagData.hashtags;
  } else if (!tagRes.ok) {
  const detail = String(tagData.detail ?? tagData.error ?? "");
- if (tagData.error === "no_llm_key" || !llmProfile.apiKey) {
+ if (tagData.error === "no_llm_key" || !hasClientLlmAccess(subscriptionAccess, llmPayload)) {
  setValidateError(tArticles("noLlmKey"));
  return;
  }
@@ -798,13 +784,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  let bodyForExport = article.body;
  let psForExport = article.ps;
 
- if (llmProfile?.apiKey) {
- const llmPayload = {
- provider: llmProfile.provider,
- apiKey: llmProfile.apiKey,
- model: llmProfile.model,
- };
-
+ if (hasClientLlmAccess(subscriptionAccess, llmPayload)) {
  const intRes = await fetch("/api/articles/integrate-cta", {
  method: "POST",
  headers: {
