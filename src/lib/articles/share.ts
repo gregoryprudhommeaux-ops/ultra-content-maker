@@ -42,12 +42,23 @@ export function buildShareEmailSubject(subjectTemplate: string, article: Article
  return subjectTemplate.replace("{hook}", truncated || "…");
 }
 
-export function buildMailtoHref(subject: string, body: string): string {
- const params = new URLSearchParams({
- subject,
- body,
- });
- return `mailto:?${params.toString()}`;
+export function buildMailtoHref(subject: string, body: string, to?: string): string {
+ const maxBody = 1500;
+ let trimmedBody = body;
+ if (trimmedBody.length > maxBody) {
+ trimmedBody = `${trimmedBody.slice(0, maxBody - 100).trim()}…`;
+ }
+ const params = [
+ ...(to?.trim() ? [`to=${encodeURIComponent(to.trim())}`] : []),
+ `subject=${encodeURIComponent(subject)}`,
+ `body=${encodeURIComponent(trimmedBody)}`,
+ ];
+ return `mailto:?${params.join("&")}`;
+}
+
+export function openMailtoHref(href: string): void {
+ if (typeof window === "undefined") return;
+ window.location.assign(href);
 }
 
 export function buildWhatsAppHref(text: string): string {

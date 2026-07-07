@@ -185,6 +185,48 @@ export async function linkManagedClientByEmail(
   return linkManagedClientByUserId(db, adminUid, clientUid, accountId);
 }
 
+/** Removes a client from an admin's list without throwing when partially linked. */
+async function releaseManagedClientFromAdmin(
+  db: Firestore,
+  adminUid: string,
+  clientUid: string,
+): Promise<void> {
+  const adminRef = db.doc(`users/${adminUid}`);
+  const adminSnap = await adminRef.get();
+  if (adminSnap.exists) {
+    const existing = (adminSnap.data()?.managedClients as ManagedClientEntry[] | undefined) ?? [];
+    const next = existing.filter((row) => row.clientUid !== clientUid);
+    if (next.length !== existing.length) {
+      await adminRef.update({
+        managedClients: next,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+    }
+
+    if (adminSnap.data()?.activeAccountId?.startsWith("managed:")) {
+      const active = String(adminSnap.data()?.activeAccountId);
+      if (active.includes(clientUid)) {
+        await adminRef.update({
+          activeAccountId: DEFAULT_ACCOUNT_ID,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
+    }
+  }
+
+  const clientRef = db.doc(`users/${clientUid}`);
+  const clientSnap = await clientRef.get();
+  if (clientSnap.exists) {
+    const managedBy = clientSnap.data()?.managedBy as { adminUid?: string } | undefined;
+    if (managedBy?.adminUid === adminUid) {
+      await clientRef.update({
+        managedBy: FieldValue.delete(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+    }
+  }
+}
+
 export async function linkManagedClientByUserId(
   db: Firestore,
   adminUid: string,
@@ -202,7 +244,7 @@ export async function linkManagedClientByUserId(
   const email = normalizeEmail(String(clientData.email ?? ""));
   const existingManagedBy = clientData.managedBy as { adminUid?: string } | undefined;
   if (existingManagedBy?.adminUid && existingManagedBy.adminUid !== adminUid) {
-    throw new Error("client_already_managed");
+    await releaseManagedClientFromAdmin(db, existingManagedBy.adminUid, clientUid);
   }
 
   const resolvedAccountId = await ensureClientDefaultAccount(db, clientUid, clientData);

@@ -56,7 +56,9 @@ type Props = {
  deleteFailed: string;
  control: {
   control: string;
+  takeover: string;
   confirmControl: string;
+  confirmTakeover: string;
   controlling: string;
   controlSuccess: string;
   release: string;
@@ -338,7 +340,7 @@ export function UsersMetricsTable({
  </th>
  <th className="px-4 py-3 font-semibold">{labels.validated}</th>
  <th className="px-4 py-3 font-semibold">{labels.postsRemaining}</th>
- <th className="px-4 py-3 font-semibold">{labels.blockReason}</th>
+ <th className="min-w-[12rem] max-w-[16rem] px-4 py-3 font-semibold">{labels.blockReason}</th>
  <th className="px-4 py-3 font-semibold">
  <button type="button" onClick={() => onSort("draftArticles")} className="hover:text-ns-hero">
  {labels.drafts}
@@ -452,11 +454,11 @@ export function UsersMetricsTable({
  <td className="px-4 py-3 tabular-nums text-ns-tertiary">
  {user.postsRemaining ?? "-"}
  </td>
- <td className="max-w-[10rem] truncate px-4 py-3 text-xs text-ns-secondary">
- {user.blockReason
- ? labels.blockCodes[user.blockReason] ?? user.blockReason
- : labels.noBlock}
- </td>
+<td className="min-w-[12rem] max-w-[16rem] whitespace-normal break-words px-4 py-3 align-top text-xs leading-snug text-ns-secondary">
+{user.blockReason
+? labels.blockCodes[user.blockReason] ?? user.blockReason
+: labels.noBlock}
+</td>
  <td className="px-4 py-3 tabular-nums font-semibold text-amber-800">
  {user.draftArticles}
  </td>

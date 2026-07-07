@@ -15,12 +15,12 @@ export const dynamic = "force-dynamic";
 type ValidateBody = {
   articleId: string;
   exportText: string;
-  cta: {
+  cta?: {
     ctaId?: string;
-    style: CtaIntensity;
-    text: string;
+    style?: CtaIntensity;
+    text?: string;
     linkUrl?: string;
-  };
+  } | null;
   hashtags?: string[];
   hook?: string;
   body?: string;
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   let body: ValidateBody;
   try {
     body = (await request.json()) as ValidateBody;
-    if (!body.articleId?.trim() || !body.exportText?.trim() || !body.cta?.text?.trim()) {
+    if (!body.articleId?.trim() || !body.exportText?.trim()) {
       throw new Error("invalid");
     }
   } catch {
@@ -69,12 +69,14 @@ export async function POST(request: Request) {
 
   const normalized = body.hashtags?.length ? normalizeHashtags(body.hashtags) : [];
 
+  const ctaText = body.cta?.text?.trim() ?? "";
+
   const patch: Record<string, unknown> = {
     exportText: body.exportText,
     hashtags: normalized.length ? normalized : null,
-    selectedCtaId: body.cta.ctaId ?? null,
-    selectedCtaStyle: body.cta.style,
-    selectedCtaText: body.cta.text,
+    selectedCtaId: body.cta?.ctaId ?? null,
+    selectedCtaStyle: ctaText ? (body.cta?.style ?? null) : null,
+    selectedCtaText: ctaText || null,
     status: "validated",
     validatedAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),

@@ -12,9 +12,9 @@ const ATTRIBUTION_TEMPLATE: Record<ContentLanguage, string> = {
 };
 
 const EMAIL_SUBJECT_TEMPLATE: Record<ContentLanguage, string> = {
- fr: "Relecture · {hook}",
- en: "Review · {hook}",
- es: "Revisión · {hook}",
+ fr: "Votre avis sur ce brouillon · {hook}",
+ en: "Your feedback on this draft · {hook}",
+ es: "Tu opinión sobre este borrador · {hook}",
 };
 
 export function getShareAttributionLine(contentLanguage: ContentLanguage): string {

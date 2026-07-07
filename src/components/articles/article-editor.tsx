@@ -721,10 +721,13 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  setArticle({ ...article, hook });
  }
 
- async function onValidate() {
+ async function onValidate(opts?: { skipCta?: boolean }) {
  if (!user || !article) return;
- const chosen = ctaSuggestions.find((s) => s.style === selectedCtaStyle);
- if (!chosen) {
+ const skipCta = opts?.skipCta === true;
+ const chosen = skipCta
+ ? undefined
+ : ctaSuggestions.find((s) => s.style === selectedCtaStyle);
+ if (!skipCta && !chosen) {
  setValidateError(tCta("pickOne"));
  return;
  }
@@ -761,7 +764,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  hook: article.hook,
  body: article.body,
  ps: article.ps,
- ctaText: chosen.text,
+ ...(chosen?.text ? { ctaText: chosen.text } : {}),
  authorSteering,
  llm: llmPayload,
  }),
@@ -787,12 +790,12 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  }
  }
 
- let closingForExport = chosen.text;
+ let closingForExport = chosen?.text ?? "";
  let hookForExport = article.hook;
  let bodyForExport = article.body;
  let psForExport = article.ps;
 
- if (hasClientLlmAccess(subscriptionAccess, llmPayload)) {
+ if (chosen && hasClientLlmAccess(subscriptionAccess, llmPayload)) {
  const intRes = await fetch("/api/articles/integrate-cta", {
  method: "POST",
  headers: {
@@ -844,7 +847,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  }
  }
 
- const ctaLink = sanitizeCtaLinkUrl(chosen.linkUrl);
+ const ctaLink = chosen ? sanitizeCtaLinkUrl(chosen.linkUrl) : undefined;
  const fitted = fitLinkedInArticleParts(
  {
  hook: hookForExport,
@@ -870,11 +873,13 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  user.uid,
  article.id,
  exportText,
- {
+ chosen
+ ? {
  style: chosen.style,
  text: chosen.text,
  linkUrl: ctaLink,
- },
+ }
+ : null,
  hashtags,
  {
  idToken: token,
@@ -889,7 +894,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  article.id,
  getMergedRefinement() ?? mergeRefinementWithDefaults(article.refinement),
  article.contentLanguage,
- chosen.style,
+ chosen?.style ?? null,
  );
  } catch {
  /* La validation LinkedIn ne doit pas échouer si la sync Persona rate */
@@ -898,6 +903,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  setShowValidationNudge(false);
  await load();
  notifyArticlesChanged();
+ scrollToPostPreview();
  } catch {
  setValidateError(t("validateFailed"));
  } finally {
@@ -1527,6 +1533,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  />
  )}
 
+ <div className="flex flex-col gap-2">
+ <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
  <button
  type="button"
  disabled={isBusy || ctaLoading || !selectedCtaStyle}
@@ -1536,9 +1544,20 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {isValidating && <ButtonSpinner />}
  {isValidating ? t("validating") : t("validate")}
  </button>
+ <button
+ type="button"
+ disabled={isBusy || ctaLoading}
+ onClick={() => void onValidate({ skipCta: true })}
+ className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
+ >
+ {isValidating ? t("validating") : t("validateWithoutCta")}
+ </button>
+ </div>
+ <p className="text-xs text-ns-secondary">{t("validateWithoutCtaHint")}</p>
  {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
  <p className="text-xs text-ns-secondary">{t("validatePickCtaHint")}</p>
  )}
+ </div>
  {error && errorScope === "cta" && (
  <UserErrorBanner
  surface="article-editor-validate"
@@ -1633,6 +1652,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  />
  )}
 
+ <div className="flex flex-col gap-2">
+ <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
  <button
  type="button"
  disabled={isBusy || ctaLoading || !selectedCtaStyle}
@@ -1642,9 +1663,20 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {isValidating && <ButtonSpinner />}
  {isValidating ? t("validating") : t("validate")}
  </button>
+ <button
+ type="button"
+ disabled={isBusy || ctaLoading}
+ onClick={() => void onValidate({ skipCta: true })}
+ className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
+ >
+ {isValidating ? t("validating") : t("validateWithoutCta")}
+ </button>
+ </div>
+ <p className="text-xs text-ns-secondary">{t("validateWithoutCtaHint")}</p>
  {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
  <p className="text-xs text-ns-secondary">{t("validatePickCtaHint")}</p>
  )}
+ </div>
  {error && errorScope === "cta" && (
  <UserErrorBanner
  surface="article-editor-validate"

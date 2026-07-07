@@ -2474,6 +2474,8 @@
         "ctaLabel": "Nombre del CTA",
         "ctaText": "Texto del CTA",
         "validate": "Validar y preparar copia para LinkedIn",
+        "validateWithoutCta": "Validar sin CTA",
+        "validateWithoutCtaHint": "Prepara la copia para LinkedIn (hashtags incluidos) sin firma ni llamada a la acción.",
         "validating": "Validando…",
         "validatingHint": "Integración del CTA, revisión de coherencia global, hashtags y exportación (20–40 s).",
         "postUpdatedNudge": "Post actualizado. Elige un CTA abajo para obtener la versión final lista para LinkedIn.",
@@ -2523,16 +2525,20 @@
             "hint": "Sugerencias visuales y prompts de imagen : se cargan al abrir esta sección."
           },
           "share": {
-            "title": "Compartir",
-            "hint": "Envía el post por correo o WhatsApp (mención Ultra Content Maker, no en la copia LinkedIn)."
+            "title": "Compartir para feedback",
+            "hint": "Envía el post por correo o WhatsApp para recibir comentarios (mención Ultra Content Maker, no en la copia LinkedIn)."
           }
         }
       },
       "share": {
-        "title": "COMPARTIR",
+        "title": "Compartir este post para pedir feedback",
         "hint": "Envía este post a un colega por correo o WhatsApp. La mención Ultra Content Maker solo se añade al compartir (no en la copia para LinkedIn).",
         "email": "Correo",
-        "whatsapp": "WhatsApp"
+        "whatsapp": "WhatsApp",
+        "adminFeedbackLink": "Enviar enlace de revisión por correo",
+        "adminFeedbackLoading": "Preparando…",
+        "adminFeedbackError": "Error — reintenta",
+        "adminFeedbackHint": "Solo admin: abre un borrador de correo (idioma del cliente) con un enlace seguro a una página de revisión estructurada."
       },
       "insufficientCredits": "Cuota mensual alcanzada.",
       "premiumRequired": "Función reservada a planes de pago.",

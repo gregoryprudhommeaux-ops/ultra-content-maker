@@ -186,7 +186,7 @@ export async function recordArticleValidateFeedback(
   articleId: string,
   refinement: ArticleRefinement | undefined,
   contentLanguage: ContentLanguage,
-  ctaStyle: CtaIntensity,
+  ctaStyle?: CtaIntensity | null,
 ) {
   if (refinement) {
     await replaceArticleRefinementLearning(
@@ -197,14 +197,20 @@ export async function recordArticleValidateFeedback(
     );
   }
   const { appendLearningEntries } = await import("@/lib/workspace/learning-profile");
-  await appendLearningEntries(
-    userId,
-    [entryFromCtaChoice(ctaStyle, contentLanguage)],
-    {
-      emojiLevel: refinement?.emojiLevel,
-      preferredCtaStyle: ctaStyle,
-    },
-  );
+  if (ctaStyle) {
+    await appendLearningEntries(
+      userId,
+      [entryFromCtaChoice(ctaStyle, contentLanguage)],
+      {
+        emojiLevel: refinement?.emojiLevel,
+        preferredCtaStyle: ctaStyle,
+      },
+    );
+  } else if (refinement?.emojiLevel) {
+    await appendLearningEntries(userId, [], {
+      emojiLevel: refinement.emojiLevel,
+    });
+  }
   await syncPersonaFromFeedback(userId);
   if (refinement) {
     const comment = buildRefinementComment(refinement);

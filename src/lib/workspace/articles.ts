@@ -530,7 +530,7 @@ export async function validateArticleWithCta(
     style: CtaIntensity;
     text: string;
     linkUrl?: string;
-  },
+  } | null,
   hashtags?: string[],
   opts?: { idToken?: string; hook?: string; body?: string; ps?: string },
 ) {
@@ -568,9 +568,9 @@ export async function validateArticleWithCta(
   await updateDoc(articleDocRef(userId, articleId), {
     exportText,
     hashtags: normalized.length ? normalized : null,
-    selectedCtaId: cta.ctaId ?? null,
-    selectedCtaStyle: cta.style,
-    selectedCtaText: cta.text,
+    selectedCtaId: cta?.ctaId ?? null,
+    selectedCtaStyle: cta?.style ?? null,
+    selectedCtaText: cta?.text?.trim() ? cta.text : null,
     status: "validated",
     validatedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -588,11 +588,12 @@ export function buildExportText(
   const hookClean = stripGenericLinkedInUrlsFromText(hook.trim());
   const bodyClean = stripGenericLinkedInUrlsFromText(body.trim());
   const psClean = ps?.trim() ? stripGenericLinkedInUrlsFromText(ps.trim()) : "";
-  const ctaClean = stripGenericLinkedInUrlsFromText(ctaText.trim());
+  const ctaClean = ctaText.trim() ? stripGenericLinkedInUrlsFromText(ctaText.trim()) : "";
   const link = sanitizeCtaLinkUrl(linkUrl);
   const tagLine = formatHashtagsLine(hashtags ?? []);
 
-  const footerParts: string[] = [ctaClean];
+  const footerParts: string[] = [];
+  if (ctaClean) footerParts.push(ctaClean);
   if (link) footerParts.push(link);
   if (tagLine) footerParts.push(tagLine);
   const footer = footerParts.join("\n\n");

@@ -8,7 +8,9 @@ import { useState } from "react";
 
 type Labels = {
   control: string;
+  takeover: string;
   confirmControl: string;
+  confirmTakeover: string;
   controlling: string;
   controlSuccess: string;
   release: string;
@@ -54,9 +56,6 @@ export function AdminUserControlAction({
   }
   if (user.isPlatformAdmin) {
     return <span className="text-xs text-ns-alternate">{labels.cannotControlAdmin}</span>;
-  }
-  if (managedByOther) {
-    return <span className="text-xs text-ns-alternate">{labels.managedByOther}</span>;
   }
 
   async function runControl() {
@@ -140,7 +139,9 @@ export function AdminUserControlAction({
   if (mode === "confirm-control") {
     return (
       <div className="flex min-w-[11rem] flex-col gap-1.5">
-        <p className="text-[11px] leading-snug text-ns-secondary">{labels.confirmControl}</p>
+        <p className="text-[11px] leading-snug text-ns-secondary">
+          {managedByOther ? labels.confirmTakeover : labels.confirmControl}
+        </p>
         <div className="flex flex-wrap gap-1">
           <button
             type="button"
@@ -220,18 +221,25 @@ export function AdminUserControlAction({
           </button>
         </>
       ) : (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => {
-            setError(null);
-            setSuccess(null);
-            setMode("confirm-control");
-          }}
-          className="text-left text-xs font-semibold text-ns-primary hover:underline disabled:opacity-50"
-        >
-          {labels.control}
-        </button>
+        <>
+          {managedByOther ? (
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+              {labels.managedByOther}
+            </span>
+          ) : null}
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              setError(null);
+              setSuccess(null);
+              setMode("confirm-control");
+            }}
+            className="text-left text-xs font-semibold text-ns-primary hover:underline disabled:opacity-50"
+          >
+            {managedByOther ? labels.takeover : labels.control}
+          </button>
+        </>
       )}
       {success ? <p className="text-[11px] text-emerald-700">{success}</p> : null}
       {error ? <p className="text-[11px] text-red-600">{error}</p> : null}

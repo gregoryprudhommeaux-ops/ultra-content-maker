@@ -440,7 +440,9 @@
       "noBlock": "N/D",
       "control": {
         "action": "Contrôler",
-        "confirmControl": "Lier ce compte au vôtre pour le gérer en mode agence (Support Total, etc.) ?",
+        "takeover": "Prendre le contrôle",
+        "confirmControl": "Lier ce compte au vôtre pour le gérer en mode agence (toute offre) ?",
+        "confirmTakeover": "Ce compte est géré par un autre admin. Prendre le contrôle et le lier à votre profil ?",
         "controlling": "Liaison…",
         "controlSuccess": "Compte lié — disponible dans Compte actif.",
         "release": "Relâcher",
@@ -2475,6 +2477,8 @@
         "ctaLabel": "Nom du CTA",
         "ctaText": "Texte du CTA",
         "validate": "Valider et préparer la copie LinkedIn",
+        "validateWithoutCta": "Valider sans CTA",
+        "validateWithoutCtaHint": "Prépare la copie LinkedIn (hashtags inclus) sans signature ni appel à l’action.",
         "validating": "Validation en cours…",
         "validatingHint": "Intégration du CTA, relecture de cohérence globale, hashtags et export (20–40 s).",
         "postUpdatedNudge": "Post mis à jour. Choisissez un CTA ci-dessous pour obtenir la version finale prête à copier sur LinkedIn.",
@@ -2524,16 +2528,20 @@
             "hint": "Suggestions de visuels et prompts image : chargées à l’ouverture de cette section."
           },
           "share": {
-            "title": "Partager",
-            "hint": "Envoyer le post par e-mail ou WhatsApp (mention Ultra Content Maker, pas dans la copie LinkedIn)."
+            "title": "Partager pour des feedbacks",
+            "hint": "Envoyez le post par e-mail ou WhatsApp pour obtenir des retours (mention Ultra Content Maker, pas dans la copie LinkedIn)."
           }
         }
       },
       "share": {
-        "title": "PARTAGER",
+        "title": "Partager ce post pour demander des feedbacks",
         "hint": "Envoyez ce post à un collègue par e-mail ou WhatsApp. La mention Ultra Content Maker est ajoutée uniquement pour ce partage (pas dans la copie LinkedIn).",
         "email": "E-mail",
-        "whatsapp": "WhatsApp"
+        "whatsapp": "WhatsApp",
+        "adminFeedbackLink": "Envoyer le lien de relecture par e-mail",
+        "adminFeedbackLoading": "Préparation…",
+        "adminFeedbackError": "Échec — réessayez",
+        "adminFeedbackHint": "Réservé à l’admin : ouvre un brouillon d’e-mail (langue du client) avec un lien sécurisé vers une page de relecture structurée."
       },
       "insufficientCredits": "Quota mensuel atteint.",
       "premiumRequired": "Fonction réservée aux offres payantes.",

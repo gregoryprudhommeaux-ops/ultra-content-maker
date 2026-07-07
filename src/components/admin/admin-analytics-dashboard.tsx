@@ -1022,7 +1022,9 @@ export function AdminAnalyticsDashboard() {
           deleteFailed: t("usersTable.deleteFailed"),
           control: {
             control: t("usersTable.control.action"),
+            takeover: t("usersTable.control.takeover"),
             confirmControl: t("usersTable.control.confirmControl"),
+            confirmTakeover: t("usersTable.control.confirmTakeover"),
             controlling: t("usersTable.control.controlling"),
             controlSuccess: t("usersTable.control.controlSuccess"),
             release: t("usersTable.control.release"),
@@ -1056,6 +1058,7 @@ export function AdminAnalyticsDashboard() {
             pro_cap: t("blocked.codes.pro_cap"),
             pro_plus_cap: t("blocked.codes.pro_plus_cap"),
             support_no_generate: t("blocked.codes.support_no_generate"),
+            wire_payment_overdue: t("blocked.codes.wire_payment_overdue"),
           },
           noBlock: t("usersTable.noBlock"),
           onboardingSteps: {

@@ -1,6 +1,7 @@
 "use client";
 
 import { detectSlop } from "@/lib/articles/slop-detector";
+import { resolveSlopFlagLabel } from "@/lib/articles/slop-flag-label";
 import { ContextHelp } from "@/components/ui/context-help";
 import type { ArticleDoc, SlopAnalysis } from "@/types/workspace";
 import { useTranslations } from "next-intl";
@@ -128,9 +129,8 @@ export function ArticleSlopPanel({ article, disabled, onSave }: Props) {
               <li
                 key={flag}
                 className="rounded-md border border-amber-200/80 bg-amber-50 px-2 py-1 text-xs text-amber-900"
-                title={t(`flagsHelp.${flag}`, { defaultValue: "" })}
               >
-                {t(`flags.${flag}`, { defaultValue: t(`humanWriting.violations.${flag}`, { defaultValue: flag }) })}
+                {resolveSlopFlagLabel(t, flag)}
               </li>
             ))}
           </ul>

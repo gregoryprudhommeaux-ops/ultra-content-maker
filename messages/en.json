@@ -440,7 +440,9 @@
       "noBlock": "N/A",
       "control": {
         "action": "Control",
-        "confirmControl": "Link this account to yours for agency-style management (Support Total, etc.)?",
+        "takeover": "Take control",
+        "confirmControl": "Link this account to yours for agency-style management (any tier)?",
+        "confirmTakeover": "This account is managed by another admin. Take control and link it to your profile?",
         "controlling": "Linking…",
         "controlSuccess": "Account linked — available under Active account.",
         "release": "Release",
@@ -2474,6 +2476,8 @@
         "ctaLabel": "CTA name",
         "ctaText": "CTA text",
         "validate": "Validate and prepare LinkedIn copy",
+        "validateWithoutCta": "Validate without CTA",
+        "validateWithoutCtaHint": "Prepare LinkedIn copy (hashtags included) with no signature or call to action.",
         "validating": "Validating…",
         "validatingHint": "CTA integration, global coherence pass, hashtags, and export (20–40 s).",
         "postUpdatedNudge": "Post updated. Pick a CTA below to get the final version ready to paste on LinkedIn.",
@@ -2523,16 +2527,20 @@
             "hint": "Visual suggestions and image prompts : loaded when you open this section."
           },
           "share": {
-            "title": "Share",
-            "hint": "Send the post by email or WhatsApp (Ultra Content Maker mention, not in LinkedIn copy)."
+            "title": "Share for feedback",
+            "hint": "Send the post by email or WhatsApp to collect feedback (Ultra Content Maker mention, not in LinkedIn copy)."
           }
         }
       },
       "share": {
-        "title": "SHARE",
+        "title": "Share this post to ask for feedback",
         "hint": "Send this post to a colleague by email or WhatsApp. The Ultra Content Maker mention is added for sharing only (not in the LinkedIn copy).",
         "email": "Email",
-        "whatsapp": "WhatsApp"
+        "whatsapp": "WhatsApp",
+        "adminFeedbackLink": "Email review link to client",
+        "adminFeedbackLoading": "Preparing…",
+        "adminFeedbackError": "Failed — try again",
+        "adminFeedbackHint": "Admin only: opens an email draft (client language) with a secure link to a structured review page."
       },
       "insufficientCredits": "Monthly quota reached.",
       "premiumRequired": "Feature reserved for paid plans.",
