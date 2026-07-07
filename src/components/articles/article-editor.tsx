@@ -1237,11 +1237,12 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  className="max-w-xl"
  />
  )}
+ <div className="flex flex-col gap-3 border-t border-ns-alternate/40 pt-4">
  <button
  type="button"
  disabled={isBusy || (!canApplyFeedback && !isRevising)}
  onClick={() => void onApplyFeedback()}
- className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:cursor-not-allowed disabled:opacity-50"
+ className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:justify-start"
  >
  {isRevising && (
  <ButtonSpinner className="border-ns-alternate border-t-zinc-800" />
@@ -1255,11 +1256,12 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  <button
  type="button"
  onClick={scrollToCtaSection}
- className="text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary"
+ className="w-full text-left text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary sm:w-auto"
  >
  {t("goToValidation")}
  </button>
  )}
+ </div>
  </div>
  </EditorCollapsibleSection>
  ) : null}
@@ -1388,11 +1390,12 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  className="max-w-xl"
  />
  )}
+ <div className="flex flex-col gap-3 border-t border-ns-alternate/40 pt-4">
  <button
  type="button"
  disabled={isBusy || (!canApplyFeedback && !isRevising)}
  onClick={() => void onApplyFeedback()}
- className="inline-flex items-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:cursor-not-allowed disabled:opacity-50"
+ className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-semibold text-ns-tertiary hover:bg-ns-brand-light disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:justify-start"
  >
  {isRevising && (
  <ButtonSpinner className="border-ns-alternate border-t-zinc-800" />
@@ -1406,11 +1409,12 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  <button
  type="button"
  onClick={scrollToCtaSection}
- className="text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary"
+ className="w-full text-left text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary sm:w-auto"
  >
  {t("goToValidation")}
  </button>
  )}
+ </div>
  </div>
  ) : null}
 
