@@ -73,10 +73,8 @@ El equipo Ultra Content Maker`,
 
 export function contentLanguageToInviteLocale(
   contentLanguage: ContentLanguage,
-): "fr" | "en" | "es" {
-  if (contentLanguage === "en-gb" || contentLanguage === "en-us") return "en";
-  if (contentLanguage === "es" || contentLanguage === "es-mx") return "es";
-  return "fr";
+): keyof typeof INVITE {
+  return contentLanguage;
 }
 
 export function buildFeedbackInviteEmail(
