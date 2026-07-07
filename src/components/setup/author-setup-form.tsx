@@ -16,13 +16,21 @@ import { validateLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
 import { resolveInspirationsReturn } from "@/lib/navigation/inspirations-return";
 import { completeAuthorStep, getAuthorProfile, isAuthorProfileMinimumComplete, saveAuthorProfile } from "@/lib/workspace/author";
 import {
+  companyOffersToEnrichmentPatch,
+  parseCompanyOffersFromEnrichment,
+  showsCompanyProfileFields,
+} from "@/lib/persona/company-enrichment";
+import { getProfileEnrichment, saveProfileEnrichment } from "@/lib/workspace/enrichment";
+import {
   hasExpressVoiceBasics,
   isAuthorEnrichContext,
   resolveAuthorEnrichTab,
 } from "@/lib/workspace/author-enrich";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
-import type { ContentArchetype, ContentLanguage } from "@/types/workspace";
+import type { CompanyOffer, ContentArchetype, ContentLanguage } from "@/types/workspace";
+import { ContentArchetypePicker } from "@/components/setup/content-archetype-picker";
+import { CompanyProfileFields } from "@/components/setup/company-profile-fields";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import {
   DashboardPageHero,
@@ -63,6 +71,7 @@ export function AuthorSetupForm() {
   const [roleTitle, setRoleTitle] = useState("");
   const [positioningLine, setPositioningLine] = useState("");
   const [contentArchetype, setContentArchetype] = useState<ContentArchetype>("expert");
+  const [companyOffers, setCompanyOffers] = useState<CompanyOffer[]>([]);
   const [contentLanguage, setContentLanguage] = useState<ContentLanguage>(locale);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -83,7 +92,10 @@ export function AuthorSetupForm() {
     setError(null);
     (async () => {
       await ensureUserDoc(user.uid, user.email ?? "", user.displayName ?? undefined);
-      const profile = await getAuthorProfile(user.uid);
+      const [profile, enrichment] = await Promise.all([
+        getAuthorProfile(user.uid),
+        getProfileEnrichment(user.uid),
+      ]);
       if (cancelled) return;
       if (profile) {
         setSavedProfile(profile);
@@ -95,6 +107,7 @@ export function AuthorSetupForm() {
         setPositioningLine(profile.positioningLine ?? "");
         setContentArchetype(profile.contentArchetype ?? "expert");
         setContentLanguage(profile.contentLanguage);
+        setCompanyOffers(parseCompanyOffersFromEnrichment(enrichment?.details));
       } else {
         setSavedProfile(null);
         setLinkedinProfileUrl("");
@@ -105,6 +118,7 @@ export function AuthorSetupForm() {
         setPositioningLine("");
         setContentArchetype("expert");
         setContentLanguage(activeAccount.contentLanguage ?? locale);
+        setCompanyOffers([]);
       }
       setLoaded(true);
     })();
@@ -170,6 +184,9 @@ export function AuthorSetupForm() {
       ...draft,
       status: markComplete ? "complete" : "in_progress",
     });
+    if (showsCompanyProfileFields(contentArchetype)) {
+      await saveProfileEnrichment(user.uid, companyOffersToEnrichmentPatch(companyOffers));
+    }
     if (markComplete) await completeAuthorStep(user.uid);
     return true;
   }
@@ -291,6 +308,8 @@ export function AuthorSetupForm() {
             setPositioningLine={setPositioningLine}
             contentArchetype={contentArchetype}
             setContentArchetype={setContentArchetype}
+            companyOffers={companyOffers}
+            setCompanyOffers={setCompanyOffers}
             contentLanguage={contentLanguage}
             setContentLanguage={setContentLanguage}
           />
@@ -556,6 +575,8 @@ function VoiceFields({
   setPositioningLine,
   contentArchetype,
   setContentArchetype,
+  companyOffers,
+  setCompanyOffers,
   contentLanguage,
   setContentLanguage,
 }: {
@@ -568,6 +589,8 @@ function VoiceFields({
   setPositioningLine: (v: string) => void;
   contentArchetype: ContentArchetype;
   setContentArchetype: (v: ContentArchetype) => void;
+  companyOffers: CompanyOffer[];
+  setCompanyOffers: (offers: CompanyOffer[]) => void;
   contentLanguage: ContentLanguage;
   setContentLanguage: (v: ContentLanguage) => void;
 }) {
@@ -610,24 +633,19 @@ function VoiceFields({
   );
 
   const archetypeField = (
-    <div>
-      <OptionalLabel htmlFor="contentArchetype" optional={enrichMode}>
-        {t("contentArchetype")}
-      </OptionalLabel>
-      <p className="mb-2 text-sm leading-relaxed text-ns-secondary">
-        {t("contentArchetypeHint")}
-      </p>
-      <select
-        id="contentArchetype"
-        value={contentArchetype}
-        onChange={(e) => setContentArchetype(e.target.value as ContentArchetype)}
-        className={INPUT_CLASS}
-      >
-        <option value="expert">{t("contentArchetypeExpert")}</option>
-        <option value="founder_product">{t("contentArchetypeFounder")}</option>
-        <option value="hybrid">{t("contentArchetypeHybrid")}</option>
-      </select>
-    </div>
+    <ContentArchetypePicker
+      value={contentArchetype}
+      onChange={setContentArchetype}
+      idPrefix="author"
+    />
+  );
+
+  const companyField = (
+    <CompanyProfileFields
+      archetype={contentArchetype}
+      offers={companyOffers}
+      onChange={setCompanyOffers}
+    />
   );
 
   const languageField = (
@@ -668,6 +686,7 @@ function VoiceFields({
         positioningField
       )}
       {archetypeField}
+      {companyField}
       <AuthorBioDocumentsPanel userId={userId} />
       {enrichMode ? (
         <PrefilledFieldBlock

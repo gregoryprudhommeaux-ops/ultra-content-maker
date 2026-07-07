@@ -1039,10 +1039,47 @@
       "positioning": "Quelques lignes sur vous et votre positionnement",
       "positioningHint": "Décrivez ce que vous faites et ce qui vous distingue. Expert-conseil : expertise et méthode. CEO / fondateur : problème ICP, catégorie et ce que votre produit change concrètement. Vous pouvez coller votre intro LinkedIn.",
       "contentArchetype": "Type de contenu LinkedIn",
-      "contentArchetypeHint": "Calibre le Persona et les posts : expert (savoir-faire), fondateur produit (catégorie + preuves produit), ou les deux.",
+      "contentArchetypeHint": "Calibre le Persona et les posts : expert (savoir-faire), entreprise / produit (catégorie + preuves), ou les deux.",
       "contentArchetypeExpert": "Expert / conseil — partager mon savoir-faire",
-      "contentArchetypeFounder": "CEO / fondateur — parler de mon produit et de ma catégorie",
+      "contentArchetypeFounder": "Entreprise / produit — parler de mon offre et de ma catégorie",
       "contentArchetypeHybrid": "Hybride — expertise + produit",
+      "contentArchetypePicker": {
+        "title": "Qui met-on en avant sur LinkedIn ?",
+        "hint": "Ce choix calibre votre Persona et la ligne éditoriale de vos posts.",
+        "options": {
+          "expert": {
+            "label": "Mon expertise",
+            "hint": "Conseil, méthode, observations terrain — voix personnelle."
+          },
+          "founder_product": {
+            "label": "Mon entreprise / produit",
+            "hint": "Dirigeant, fondateur, commercial : problème ICP, catégorie, preuves produit."
+          },
+          "hybrid": {
+            "label": "Les deux",
+            "hint": "Alterner posts d'expertise et posts ancrés sur l'offre."
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "Votre offre (optionnel mais recommandé)",
+        "subtitle": "Ces infos alimentent le Persona et les posts « produit » — sans ton brochure.",
+        "primaryOffer": "Offre principale",
+        "additionalOffer": "Offre {index}",
+        "removeOffer": "Retirer",
+        "offerName": "Nom du produit ou de l'offre",
+        "offerNamePlaceholder": "ex. Plateforme RH pour PME exportatrices",
+        "categoryThesis": "Catégorie & problème ICP",
+        "categoryThesisHint": "En une phrase : le problème marché que vous adressez et votre positionnement.",
+        "categoryThesisPlaceholder": "ex. Les PME perdent des talents faute de visibilité sur les compétences internes…",
+        "differentiators": "Ce qui vous différencie",
+        "differentiatorsHint": "Résultats clients, preuves, éléments distinctifs — sans liste de features.",
+        "differentiatorsPlaceholder": "ex. Déploiement en 2 semaines · -30 % turnover sur 12 mois (cas anonymisé)",
+        "offerSummary": "En une phrase",
+        "offerSummaryPlaceholder": "Problème résolu et pour qui…",
+        "addOffer": "Ajouter une offre ({current}/{max})",
+        "maxOffers": "Maximum {max} offres."
+      },
       "contentLanguage": "Langue principale des posts LinkedIn générés",
       "contentLanguageHint": "Définit la langue par défaut de vos posts et influence la rédaction de votre Persona. La traduction avec localisation reste disponible à la création.",
       "errors": {
@@ -1751,7 +1788,14 @@
             "themesSelectHint": "1. Cliquez pour sélectionner une thématique · 2. Puis lancez l’ajustement (brief pré-rempli).",
             "themesSelected": "Sélectionnée",
             "themesStartAdjustment": "Démarrer l’ajustement avec cette thématique",
-            "themesStartHint": "« {title} » → parcours {mode}"
+            "themesStartHint": "« {title} » → parcours {mode}",
+            "productTheme": {
+              "category": "Catégorie",
+              "customer_story": "Cas client",
+              "build_story": "Pourquoi on a construit",
+              "use_case": "Cas d'usage",
+              "objection": "Objection ICP"
+            }
           },
           "decisionMatrix": {
             "profile": {
@@ -2061,6 +2105,17 @@
         "proof": "Preuve ou expérience",
         "proofPlaceholder": "Ex. : Cas client, chiffre interne, observation terrain",
         "incomplete": "Renseignez au moins 8 caractères pour le problème, le POV et la preuve.",
+        "postAngle": {
+          "title": "Angle de ce post",
+          "hint": "Choisissez si ce brouillon met en avant votre expertise ou votre offre.",
+          "angles": {
+            "expertise": "Expertise / point de vue",
+            "product": "Produit / offre"
+          },
+          "productSelect": "Quelle offre ?",
+          "productFocus": "Focus produit",
+          "productFocusPlaceholder": "ex. Lancement, cas client SaaS RH, objection prix…"
+        },
         "help": {
           "objective": {
             "label": "Aide : objectif",
@@ -2081,6 +2136,10 @@
           "proof": {
             "label": "Aide : preuve",
             "body": "Exemple vécu, chiffre, cas client ou observation terrain : ce qui rend le post crédible et non générique."
+          },
+          "postAngle": {
+            "label": "Aide : angle du post",
+            "body": "Expertise = point de vue personnel. Produit = problème ICP et preuve d'offre — sans brochure."
           }
         },
         "niche": {

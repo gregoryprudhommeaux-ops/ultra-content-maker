@@ -1039,10 +1039,47 @@
       "positioning": "Unas líneas sobre ti y tu posicionamiento",
       "positioningHint": "Describe qué haces y qué te diferencia. Consultor: expertise y método. CEO/fundador: problema del ICP, categoría y qué cambia tu producto. Puedes pegar tu intro de LinkedIn.",
       "contentArchetype": "Tipo de contenido LinkedIn",
-      "contentArchetypeHint": "Calibra el Persona y los posts: experto (saber hacer), fundador producto (categoría + prueba producto) o ambos.",
+      "contentArchetypeHint": "Calibra el Persona y los posts: experto (saber hacer), empresa/producto (categoría + prueba) o ambos.",
       "contentArchetypeExpert": "Experto / consultor — compartir mi expertise",
-      "contentArchetypeFounder": "CEO / fundador — hablar de mi producto y categoría",
+      "contentArchetypeFounder": "Empresa / producto — hablar de mi oferta y categoría",
       "contentArchetypeHybrid": "Híbrido — expertise + producto",
+      "contentArchetypePicker": {
+        "title": "¿A quién destacamos en LinkedIn?",
+        "hint": "Esta elección calibra tu Persona y tu línea editorial.",
+        "options": {
+          "expert": {
+            "label": "Mi expertise",
+            "hint": "Consultoría, método, observaciones — voz personal."
+          },
+          "founder_product": {
+            "label": "Mi empresa / producto",
+            "hint": "Líder, fundador, ventas: problema ICP, categoría, prueba de producto."
+          },
+          "hybrid": {
+            "label": "Ambos",
+            "hint": "Alternar posts de expertise y posts anclados en la oferta."
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "Tu oferta (opcional pero recomendado)",
+        "subtitle": "Alimenta el Persona y los posts « producto » — sin tono folleto.",
+        "primaryOffer": "Oferta principal",
+        "additionalOffer": "Oferta {index}",
+        "removeOffer": "Quitar",
+        "offerName": "Nombre del producto u oferta",
+        "offerNamePlaceholder": "ej. Plataforma RRHH para PYME exportadoras",
+        "categoryThesis": "Categoría y problema ICP",
+        "categoryThesisHint": "Una frase: problema de mercado y posicionamiento.",
+        "categoryThesisPlaceholder": "ej. Las PYME pierden talento por falta de visibilidad de competencias…",
+        "differentiators": "Qué os diferencia",
+        "differentiatorsHint": "Resultados cliente, pruebas — sin lista de funciones.",
+        "differentiatorsPlaceholder": "ej. Despliegue en 2 semanas · -30 % rotación en 12 meses",
+        "offerSummary": "En una frase",
+        "offerSummaryPlaceholder": "Problema resuelto y para quién…",
+        "addOffer": "Añadir otra oferta ({current}/{max})",
+        "maxOffers": "Máximo {max} ofertas."
+      },
       "contentLanguage": "Idioma principal de los posts de LinkedIn generados",
       "contentLanguageHint": "Define el idioma por defecto de tus posts e influye en cómo se redacta tu Persona. La traducción con localización sigue disponible al crear posts.",
       "errors": {
@@ -1750,7 +1787,14 @@
             "themesSelectHint": "1. Haz clic para elegir un tema · 2. Luego inicia el ajuste (brief prellenado).",
             "themesSelected": "Seleccionado",
             "themesStartAdjustment": "Iniciar ajuste con este tema",
-            "themesStartHint": "«{title}» → recorrido {mode}"
+            "themesStartHint": "«{title}» → recorrido {mode}",
+            "productTheme": {
+              "category": "Categoría",
+              "customer_story": "Caso cliente",
+              "build_story": "Por qué lo construimos",
+              "use_case": "Caso de uso",
+              "objection": "Objeción ICP"
+            }
           },
           "decisionMatrix": {
             "profile": {
@@ -2060,6 +2104,17 @@
         "proof": "Prueba o experiencia",
         "proofPlaceholder": "Ej.: caso cliente, dato interno, observación de campo",
         "incomplete": "Introduce al menos 8 caracteres en problema, POV y prueba.",
+        "postAngle": {
+          "title": "Ángulo de este post",
+          "hint": "Elige si este borrador destaca tu expertise o tu oferta.",
+          "angles": {
+            "expertise": "Expertise / punto de vista",
+            "product": "Producto / oferta"
+          },
+          "productSelect": "¿Qué oferta?",
+          "productFocus": "Enfoque producto",
+          "productFocusPlaceholder": "ej. Lanzamiento, caso cliente SaaS RRHH, objeción precio…"
+        },
         "help": {
           "objective": {
             "label": "Ayuda: objetivo",
@@ -2080,6 +2135,10 @@
           "proof": {
             "label": "Ayuda: prueba",
             "body": "Ejemplo vivido, cifra, caso cliente u observación de campo : lo que hace el post creíble y no genérico."
+          },
+          "postAngle": {
+            "label": "Ayuda: ángulo del post",
+            "body": "Expertise = punto de vista personal. Producto = problema ICP y prueba de oferta — sin folleto."
           }
         },
         "niche": {

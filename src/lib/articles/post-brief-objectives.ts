@@ -1,9 +1,14 @@
 import type {
+  PostAngle,
   PostBrief,
   PostObjective,
   PostObjectivePriority,
   RankedPostObjective,
 } from "@/types/workspace";
+
+function isPostAngle(v: unknown): v is PostAngle {
+  return v === "expertise" || v === "product";
+}
 
 export const POST_OBJECTIVES: PostObjective[] = [
   "credibility",
@@ -85,11 +90,17 @@ export function normalizePostBrief(raw: unknown): PostBrief {
         ? "linkedin"
         : undefined;
 
+  const postAngle = isPostAngle(partial?.postAngle) ? partial.postAngle : undefined;
+  const productFocus =
+    typeof partial?.productFocus === "string" ? partial.productFocus.trim() : "";
+
   return {
     objectives,
     problem,
     pointOfView,
     proof,
+    ...(postAngle ? { postAngle } : {}),
+    ...(productFocus ? { productFocus } : {}),
     ...(articleWritingStyle ? { articleWritingStyle } : {}),
   };
 }

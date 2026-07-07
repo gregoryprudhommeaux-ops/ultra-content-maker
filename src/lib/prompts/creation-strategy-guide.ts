@@ -3,12 +3,16 @@ import {
  injectAuthorSteering,
  type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
+import { resolveContentArchetype } from "@/lib/persona/content-archetype";
+import { buildCompanyContextForPrompt, showsCompanyProfileFields } from "@/lib/persona/company-enrichment";
 import type { LinkedInActivityPostLlm } from "@/lib/prompts/linkedin-activity-fetch";
 import type {
  ArticleCreationMode,
  ContentLanguage,
  CreationStrategyGuide,
  CreationStrategyTheme,
+ PostAngle,
+ ProductThemeType,
 } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -19,11 +23,26 @@ const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
 
 export function buildCreationStrategyGuideSystemPrompt(
  contentLanguage: ContentLanguage,
+ archetype?: ReturnType<typeof resolveContentArchetype>,
 ): string {
  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
+ const productRules =
+ archetype && showsCompanyProfileFields(archetype)
+ ? `
+
+Product / company author rules for themes:
+- When archetype is founder_product or hybrid, at least 1 of the 3 themes must use postAngle "product" with a productThemeType:
+  - category: educate on the market/category thesis
+  - customer_story: anonymized or permission-toned customer outcome
+  - build_story: why we built X / honest shipping lesson
+  - use_case: product-in-the-wild workflow change
+  - objection: address a common ICP objection without hard sell
+- Set productFocus to a specific offer name when company offers are known.
+- Expertise themes (postAngle "expertise") remain valid for hybrid authors — aim for a balanced mix over time.`
+ : "";
 
  return `You are a LinkedIn B2B content strategist for Ultra Content Maker.
-${buildLinkedIn2026SystemRules(contentLanguage)}
+${buildLinkedIn2026SystemRules(contentLanguage)}${productRules}
 
 The product offers three creation paths:
 - profile: publish from Persona + structured brief (expertise, proof, POV)
@@ -44,7 +63,10 @@ Return JSON only (${lang} for all user-facing strings):
  "rationale": "why this theme strategically (coherence, correction, pivot, or news timing)",
  "relationToHistory": "continuity" | "correction" | "pivot" | "news",
  "suggestedMode": "profile" | "news" | "inspiration",
- "newsHook": "optional · only if relationToHistory is news"
+ "newsHook": "optional · only if relationToHistory is news",
+ "postAngle": "expertise" | "product" (optional · for founder_product/hybrid authors),
+ "productThemeType": "category" | "customer_story" | "build_story" | "use_case" | "objection" (optional · when postAngle is product),
+ "productFocus": "optional offer name or angle focus"
  }
  ]
 }
@@ -98,6 +120,14 @@ export function buildCreationStrategyGuideUserPrompt(input: {
 
 const MODES: ArticleCreationMode[] = ["profile", "news", "inspiration"];
 const RELATIONS = ["continuity", "correction", "pivot", "news"] as const;
+const POST_ANGLES: PostAngle[] = ["expertise", "product"];
+const PRODUCT_THEME_TYPES: ProductThemeType[] = [
+ "category",
+ "customer_story",
+ "build_story",
+ "use_case",
+ "objection",
+];
 
 export function normalizeCreationStrategyGuide(raw: {
  postsAnalyzed?: unknown;
@@ -146,6 +176,16 @@ export function normalizeCreationStrategyGuide(raw: {
  relation === "news" && typeof t.newsHook === "string"
  ? t.newsHook.trim() || undefined
  : undefined,
+ postAngle: POST_ANGLES.includes(t.postAngle as PostAngle)
+ ? (t.postAngle as PostAngle)
+ : undefined,
+ productThemeType: PRODUCT_THEME_TYPES.includes(
+ t.productThemeType as ProductThemeType,
+ )
+ ? (t.productThemeType as ProductThemeType)
+ : undefined,
+ productFocus:
+ typeof t.productFocus === "string" ? t.productFocus.trim() || undefined : undefined,
  });
  if (themes.length >= 3) break;
  }

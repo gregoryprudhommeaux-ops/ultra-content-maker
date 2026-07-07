@@ -38,9 +38,16 @@ export function buildPostBriefInstruction(
  const objectivesBlock = formatObjectivesBlock(normalized);
  const primary = sortObjectivesByPriority(normalized.objectives)[0]?.objective;
 
+ const angleBlock =
+ normalized.postAngle === "product"
+ ? `- Post angle: PRODUCT / OFFER — lead with ICP problem and category POV · product is proof, not a brochure.${normalized.productFocus?.trim() ? ` Focus on: ${normalized.productFocus.trim()}.` : ""} Name the offer when it sharpens the lesson · no feature laundry list.`
+ : normalized.postAngle === "expertise"
+ ? "- Post angle: EXPERTISE — people-first expert voice · how the author thinks, not a product pitch."
+ : "";
+
  return `POST BRIEF (mandatory · all ${lang} posts in this batch must follow):
 ${objectivesBlock}
-- Primary objective (priority 1) drives hook, body shape, and closing; secondary objectives may appear subtly but must not dilute the main intent.
+${angleBlock ? `${angleBlock}\n` : ""}- Primary objective (priority 1) drives hook, body shape, and closing; secondary objectives may appear subtly but must not dilute the main intent.
 - Audience problem: ${normalized.problem.trim()}
 - Author point of view: ${normalized.pointOfView.trim()}
 - Proof to weave in (required): ${normalized.proof.trim()}

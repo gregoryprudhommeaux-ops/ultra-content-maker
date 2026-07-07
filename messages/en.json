@@ -1039,10 +1039,47 @@
       "positioning": "A few lines about you and your positioning",
       "positioningHint": "Describe what you do and what sets you apart. Consultant: expertise and method. Founder/CEO: ICP problem, category, and what your product changes. You can paste your LinkedIn intro.",
       "contentArchetype": "LinkedIn content type",
-      "contentArchetypeHint": "Steers your Persona and posts: expert (know-how), product founder (category + product proof), or both.",
+      "contentArchetypeHint": "Steers your Persona and posts: expert (know-how), company/product (category + proof), or both.",
       "contentArchetypeExpert": "Expert / consultant — share my expertise",
-      "contentArchetypeFounder": "CEO / founder — talk about my product and category",
+      "contentArchetypeFounder": "Company / product — talk about my offer and category",
       "contentArchetypeHybrid": "Hybrid — expertise + product",
+      "contentArchetypePicker": {
+        "title": "Who do you highlight on LinkedIn?",
+        "hint": "This choice calibrates your Persona and editorial line.",
+        "options": {
+          "expert": {
+            "label": "My expertise",
+            "hint": "Consulting, method, field insights — personal voice."
+          },
+          "founder_product": {
+            "label": "My company / product",
+            "hint": "Leader, founder, sales: ICP problem, category, product proof."
+          },
+          "hybrid": {
+            "label": "Both",
+            "hint": "Alternate expertise posts and offer-grounded stories."
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "Your offer (optional but recommended)",
+        "subtitle": "Feeds your Persona and product posts — not brochure tone.",
+        "primaryOffer": "Primary offer",
+        "additionalOffer": "Offer {index}",
+        "removeOffer": "Remove",
+        "offerName": "Product or offer name",
+        "offerNamePlaceholder": "e.g. HR platform for exporting SMBs",
+        "categoryThesis": "Category & ICP problem",
+        "categoryThesisHint": "One sentence: market problem you address and positioning.",
+        "categoryThesisPlaceholder": "e.g. SMBs lose talent without internal skills visibility…",
+        "differentiators": "What sets you apart",
+        "differentiatorsHint": "Customer results, proof, differentiators — no feature list.",
+        "differentiatorsPlaceholder": "e.g. Live in 2 weeks · -30% turnover in 12 months (anonymized)",
+        "offerSummary": "One-line summary",
+        "offerSummaryPlaceholder": "Problem solved and for whom…",
+        "addOffer": "Add another offer ({current}/{max})",
+        "maxOffers": "Maximum {max} offers."
+      },
       "contentLanguage": "Primary language for generated LinkedIn posts",
       "contentLanguageHint": "Sets the default language for posts and shapes how your Persona is written. Translation with localization is still available when creating posts.",
       "errors": {
@@ -1750,7 +1787,14 @@
             "themesSelectHint": "1. Click to select a theme · 2. Then start adjustment (brief pre-filled).",
             "themesSelected": "Selected",
             "themesStartAdjustment": "Start adjustment with this theme",
-            "themesStartHint": "“{title}” → {mode} path"
+            "themesStartHint": "“{title}” → {mode} path",
+            "productTheme": {
+              "category": "Category",
+              "customer_story": "Customer story",
+              "build_story": "Why we built",
+              "use_case": "Use case",
+              "objection": "ICP objection"
+            }
           },
           "decisionMatrix": {
             "profile": {
@@ -2060,6 +2104,17 @@
         "proof": "Proof or experience",
         "proofPlaceholder": "E.g. client case, internal metric, field observation",
         "incomplete": "Enter at least 8 characters for problem, POV, and proof.",
+        "postAngle": {
+          "title": "Angle for this post",
+          "hint": "Choose whether this draft highlights expertise or your offer.",
+          "angles": {
+            "expertise": "Expertise / point of view",
+            "product": "Product / offer"
+          },
+          "productSelect": "Which offer?",
+          "productFocus": "Product focus",
+          "productFocusPlaceholder": "e.g. Launch, SaaS HR case study, pricing objection…"
+        },
         "help": {
           "objective": {
             "label": "Help: objective",
@@ -2080,6 +2135,10 @@
           "proof": {
             "label": "Help: proof",
             "body": "Lived example, metric, client case, or field observation : what makes the post credible, not generic."
+          },
+          "postAngle": {
+            "label": "Help: post angle",
+            "body": "Expertise = personal POV. Product = ICP problem and offer proof — not a brochure."
           }
         },
         "niche": {

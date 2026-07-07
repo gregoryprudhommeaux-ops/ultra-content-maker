@@ -12,10 +12,13 @@ import { isPostBriefComplete, type WizardCreationMode } from "@/lib/prompts/post
 import type {
  ArticleScope,
  BriefNicheCheck,
+ ContentArchetype,
+ GapAnswerValue,
  PostBrief,
  PostObjectivePriority,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
+import { PostAnglePicker } from "@/components/articles/creation/post-angle-picker";
 import { ContextHelp } from "@/components/ui/context-help";
 import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useLocale, useTranslations } from "next-intl";
@@ -34,6 +37,8 @@ type Props = {
  targetScope?: ArticleScope;
  onScopeChange?: (scope: ArticleScope) => void;
  briefSuggesting?: boolean;
+ contentArchetype?: ContentArchetype;
+ profileEnrichment?: Record<string, GapAnswerValue>;
 };
 
 export function PostBriefForm({
@@ -47,6 +52,8 @@ export function PostBriefForm({
  targetScope = "generalist",
  onScopeChange,
  briefSuggesting,
+ contentArchetype = "expert",
+ profileEnrichment,
 }: Props) {
  const t = useTranslations("setup.articles.brief");
  const tBriefHelp = useTranslations("setup.articles.brief.help");
@@ -113,6 +120,13 @@ export function PostBriefForm({
  <p className="mt-1 text-xs text-ns-secondary">{tCreate("scopeHint")}</p>
  </div>
  )}
+
+ <PostAnglePicker
+ brief={safeBrief}
+ onChange={onChange}
+ contentArchetype={contentArchetype}
+ profileEnrichment={profileEnrichment}
+ />
 
  <div className="rounded-xl border border-ns-primary/25 bg-gradient-to-br from-ns-brand-light/60 via-white to-white p-4 md:p-5">
  <div className="flex flex-wrap items-start justify-between gap-3">

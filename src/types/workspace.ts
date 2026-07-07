@@ -1,7 +1,24 @@
 export type ContentLanguage = "en" | "fr" | "es";
 
-/** Editorial positioning: expert consultant vs founder/CEO talking about a product. */
+/** Editorial positioning: expert consultant vs leader talking about a company/product. */
 export type ContentArchetype = "expert" | "founder_product" | "hybrid";
+
+/** Per-post editorial angle (profile wizard). */
+export type PostAngle = "expertise" | "product";
+
+/** Product-led theme types for strategy recommendations. */
+export type ProductThemeType =
+  | "category"
+  | "customer_story"
+  | "build_story"
+  | "use_case"
+  | "objection";
+
+export interface CompanyOffer {
+  name: string;
+  categoryThesis?: string;
+  differentiators?: string;
+}
 
 import type { SubscriptionProfile } from "@/types/subscription";
 
@@ -103,6 +120,10 @@ export interface CreationStrategyTheme {
  relationToHistory: CreationStrategyThemeRelation;
  suggestedMode: ArticleCreationMode;
  newsHook?: string;
+ /** When author archetype is founder_product or hybrid. */
+ postAngle?: PostAngle;
+ productThemeType?: ProductThemeType;
+ productFocus?: string;
 }
 
 export interface CreationStrategyGuide {
@@ -294,6 +315,10 @@ export interface PostBrief {
  problem: string;
  pointOfView: string;
  proof: string;
+ /** Profile wizard: expertise vs product angle for this post. */
+ postAngle?: PostAngle;
+ /** Offer name or focus (e.g. launch, use case) when postAngle is product. */
+ productFocus?: string;
  /** Set in article-topic wizard only. */
  articleWritingStyle?: ArticleWritingStyle;
 }

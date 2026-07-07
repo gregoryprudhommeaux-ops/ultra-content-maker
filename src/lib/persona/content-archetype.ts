@@ -1,4 +1,8 @@
-import type { AuthorProfile, ContentArchetype } from "@/types/workspace";
+import type { AuthorProfile, ContentArchetype, GapAnswerValue } from "@/types/workspace";
+import {
+  buildCompanyContextForPrompt,
+  parseCompanyOffersFromEnrichment,
+} from "@/lib/persona/company-enrichment";
 
 const ARCHETYPES: ContentArchetype[] = ["expert", "founder_product", "hybrid"];
 
@@ -58,19 +62,26 @@ function inferContentArchetypeFromText(text: string): ContentArchetype {
 export function buildPersonaArchetypeInstruction(
   archetype: ContentArchetype,
   languageName: string,
+  profileEnrichment?: Record<string, GapAnswerValue> | null,
 ): string {
-  const base = `Content archetype for this author: ${archetype}. Adapt the entire expert prompt (Topic DNA, proof policy, hooks, anti-patterns) to this archetype. All section headings stay in ${languageName}.`;
+  const companyContext = buildCompanyContextForPrompt(profileEnrichment ?? null);
+  const companyBlock = companyContext ? `\n\n${companyContext}` : "";
+  const base = `Content archetype for this author: ${archetype}. Adapt the entire expert prompt (Topic DNA, proof policy, hooks, anti-patterns) to this archetype. All section headings stay in ${languageName}.${companyBlock}`;
 
   if (archetype === "founder_product") {
     return `${base}
 
-Founder / product CEO rules (encode in promptText):
+Founder / product / company leader rules (encode in promptText):
 - Lead with the ICP problem and category POV · product is proof, not the opening pitch.
-- Topic DNA pillars: category education, customer outcomes, build/why-we-built story, product-in-the-wild (use cases), founder lessons · avoid generic leadership fluff.
+- Topic DNA pillars: category education, customer outcomes, build/why-we-built story, product-in-the-wild (use cases), leader lessons · avoid generic corporate fluff.
 - Beliefs: market/category thesis the company defends · how the product changes workflow for the ICP.
 - Proof policy: real customer results, product metrics, demos-as-story, team/build notes · never invent clients or numbers.
 - Product mention policy: name the product when it clarifies the lesson (roughly 1 in 3 posts may reference it explicitly) · no feature laundry lists, no "book a demo" in post body.
-- Still people-first LinkedIn: insight before inventory · no hard sell, no external links in body.`;
+- Still people-first LinkedIn: insight before inventory · no hard sell, no external links in body.${
+      parseCompanyOffersFromEnrichment(profileEnrichment ?? null).length > 1
+        ? "\n- Multiple offers: rotate posts across offers when postAngle is product · never blend unrelated products in one post."
+        : ""
+    }`;
   }
 
   if (archetype === "hybrid") {

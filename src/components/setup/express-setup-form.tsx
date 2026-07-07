@@ -8,6 +8,14 @@ import {
   LinkedInDeliveryPreference,
   type LinkedInDeliveryMode,
 } from "@/components/setup/linkedin-delivery-preference";
+import { ContentArchetypePicker } from "@/components/setup/content-archetype-picker";
+import { CompanyProfileFields } from "@/components/setup/company-profile-fields";
+import {
+  companyOffersToEnrichmentPatch,
+  parseCompanyOffersFromEnrichment,
+  showsCompanyProfileFields,
+} from "@/lib/persona/company-enrichment";
+import { getProfileEnrichment, saveProfileEnrichment } from "@/lib/workspace/enrichment";
 import { useSubscription } from "@/contexts/subscription-context";
 import {
   DashboardPageHero,
@@ -25,14 +33,13 @@ import {
 } from "@/lib/workspace/author";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import { listSources } from "@/lib/workspace/sources";
-import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { getAudienceProfile } from "@/lib/workspace/audience";
 import { savePersonaDraft } from "@/lib/workspace/persona";
 import { serializeForApi } from "@/lib/workspace/serialize-profile";
 import { updateSetupStep } from "@/lib/workspace/user";
 import { BTN_PRIMARY, BTN_SECONDARY, CARD_SOFT } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
-import type { ContentLanguage } from "@/types/workspace";
+import type { CompanyOffer, ContentArchetype, ContentLanguage } from "@/types/workspace";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -64,6 +71,8 @@ export function ExpressSetupForm() {
   const [linkedInPublishAccessNotes, setLinkedInPublishAccessNotes] = useState("");
   const [roleTitle, setRoleTitle] = useState("");
   const [positioningLine, setPositioningLine] = useState("");
+  const [contentArchetype, setContentArchetype] = useState<ContentArchetype>("expert");
+  const [companyOffers, setCompanyOffers] = useState<CompanyOffer[]>([]);
   const [prefill, setPrefill] = useState<PrefillState | null>(null);
   const [prefillLoading, setPrefillLoading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -76,10 +85,13 @@ export function ExpressSetupForm() {
     if (!user) return;
     void (async () => {
       const profile = await getAuthorProfile(user.uid);
+      const enrichment = await getProfileEnrichment(user.uid);
       if (profile?.linkedinProfileUrl) setLinkedinProfileUrl(profile.linkedinProfileUrl);
       if (profile?.contentLanguage) setContentLanguage(profile.contentLanguage);
       if (profile?.roleTitle) setRoleTitle(profile.roleTitle);
       if (profile?.positioningLine) setPositioningLine(profile.positioningLine);
+      if (profile?.contentArchetype) setContentArchetype(profile.contentArchetype);
+      setCompanyOffers(parseCompanyOffersFromEnrichment(enrichment?.details));
       if (profile?.linkedInDeliveryMode) {
         setLinkedInDeliveryMode(profile.linkedInDeliveryMode);
       }
@@ -221,6 +233,7 @@ export function ExpressSetupForm() {
         contentLanguage,
         roleTitle: roleTitle.trim() || undefined,
         positioningLine: positioningLine.trim() || undefined,
+        contentArchetype,
         ...(access?.isSupportClient
           ? {
               linkedInDeliveryMode,
@@ -232,6 +245,9 @@ export function ExpressSetupForm() {
           : {}),
         status: "in_progress",
       });
+      if (showsCompanyProfileFields(contentArchetype)) {
+        await saveProfileEnrichment(user.uid, companyOffersToEnrichmentPatch(companyOffers));
+      }
       await skipAudienceStep(user.uid);
       await updateSetupStep(user.uid, "persona");
       notifyOnboardingProgressChanged();
@@ -431,6 +447,18 @@ export function ExpressSetupForm() {
           ) : (
             <p className="text-sm text-ns-secondary">{t("scanProfileHint")}</p>
           )}
+
+          <ContentArchetypePicker
+            value={contentArchetype}
+            onChange={setContentArchetype}
+            idPrefix="express"
+          />
+
+          <CompanyProfileFields
+            archetype={contentArchetype}
+            offers={companyOffers}
+            onChange={setCompanyOffers}
+          />
 
           {access?.isSupportClient ? (
             <LinkedInDeliveryPreference

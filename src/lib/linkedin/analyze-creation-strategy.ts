@@ -14,6 +14,7 @@ import {
   type LinkedInActivityPostLlm,
 } from "@/lib/prompts/linkedin-activity-fetch";
 import { normalizeLinkedInActivityUrl } from "@/lib/linkedin/activity-url";
+import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, CreationStrategyGuide } from "@/types/workspace";
 
@@ -78,10 +79,15 @@ export async function analyzeCreationStrategy(
     input.userId,
   );
 
+  const archetype = resolveContentArchetype({
+    author: input.authorSteering?.author ?? null,
+    profileEnrichment: input.authorSteering?.profileEnrichment ?? null,
+  });
+
   const raw = await chatCompletionJson(input.strategyLlm, [
     {
       role: "system",
-      content: buildCreationStrategyGuideSystemPrompt(input.contentLanguage),
+      content: buildCreationStrategyGuideSystemPrompt(input.contentLanguage, archetype),
     },
     {
       role: "user",

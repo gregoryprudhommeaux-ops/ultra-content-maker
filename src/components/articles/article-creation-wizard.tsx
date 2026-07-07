@@ -63,6 +63,7 @@ import {
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getAudienceProfile, saveAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
+import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import {
   getLearningProfile,
   saveDefaultEmojiLevel,
@@ -93,6 +94,7 @@ import type {
   ContentLanguage,
   CreationStrategyTheme,
   EmojiLevel,
+  GapAnswerValue,
   InspirationInputKind,
   NewsSuggestion,
   PostBrief,
@@ -178,6 +180,7 @@ export function ArticleCreationWizard() {
   const [inspirationLibrary, setInspirationLibrary] = useState<SourceLink[]>([]);
   const [targetScope, setTargetScope] = useState<ArticleScope>("niche");
   const [authorProfile, setAuthorProfile] = useState<AuthorProfile | null>(null);
+  const [profileEnrichment, setProfileEnrichment] = useState<Record<string, GapAnswerValue>>({});
   const [audienceProfile, setAudienceProfile] = useState<AudienceProfile | null>(null);
   const [contentNiche, setContentNiche] = useState("");
   const [nicheSaving, setNicheSaving] = useState(false);
@@ -253,15 +256,17 @@ export function ArticleCreationWizard() {
     if (!user) return;
     void (async () => {
       try {
-        const [persona, learning, audience, author] = await Promise.all([
+        const [persona, learning, audience, author, enrichment] = await Promise.all([
           getPersona(user.uid),
           getLearningProfile(user.uid),
           getAudienceProfile(user.uid),
           getAuthorProfile(user.uid),
+          getProfileEnrichment(user.uid),
         ]);
         setPersonaText(persona?.promptText ?? "");
         setEmojiLevel(learning?.emojiLevel ?? "light");
         setAuthorProfile(author);
+        setProfileEnrichment(enrichment?.details ?? {});
         setAudienceProfile(audience);
         setContentNiche(
           audience?.contentNiche?.trim() ||
@@ -835,6 +840,8 @@ export function ArticleCreationWizard() {
       problem: theme.title,
       pointOfView: theme.angle,
       proof: theme.rationale.slice(0, 500),
+      ...(theme.postAngle ? { postAngle: theme.postAngle } : {}),
+      ...(theme.productFocus ? { productFocus: theme.productFocus } : {}),
     });
   }
 
@@ -1324,6 +1331,8 @@ export function ArticleCreationWizard() {
               nicheCheck={nicheCheck}
               onAnalyzeNiche={onAnalyzeNiche}
               nicheLoading={nicheLoading}
+              contentArchetype={authorProfile?.contentArchetype ?? "expert"}
+              profileEnrichment={profileEnrichment}
             />
           )}
           <section className="rounded-xl border border-gray-100 bg-white p-4">

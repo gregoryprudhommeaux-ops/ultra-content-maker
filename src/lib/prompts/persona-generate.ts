@@ -99,7 +99,11 @@ export function buildPersonaUserPrompt(
       personaLanguage: contentLanguage,
       personaLanguageName: labels.name,
       contentArchetype: archetype,
-      contentArchetypeInstruction: buildPersonaArchetypeInstruction(archetype, labels.name),
+      contentArchetypeInstruction: buildPersonaArchetypeInstruction(
+        archetype,
+        labels.name,
+        enrichment?.details,
+      ),
       author: author ?? {},
  audience: audience?.skipped ? { skipped: true } : (audience ?? {}),
  profileEnrichment: enrichment?.details ?? {},

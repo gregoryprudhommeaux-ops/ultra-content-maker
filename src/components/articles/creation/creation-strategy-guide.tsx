@@ -317,6 +317,11 @@ export function CreationStrategyGuidePanel({
                         >
                           {t(`relation.${theme.relationToHistory}`)}
                         </span>
+                        {theme.postAngle === "product" && theme.productThemeType ? (
+                          <span className="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-violet-900">
+                            {t(`productTheme.${theme.productThemeType}`)}
+                          </span>
+                        ) : null}
                         {selected && (
                           <span className="rounded-full bg-ns-primary px-2 py-0.5 text-[10px] font-black uppercase text-black">
                             {t("themesSelected")}
