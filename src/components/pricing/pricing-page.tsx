@@ -10,7 +10,10 @@ import { PricingPriceCard } from "@/components/pricing/pricing-price-card";
 import { SupportTotalSection } from "@/components/pricing/support-total-section";
 import { useAuth } from "@/components/auth/auth-provider";
 import { PRICING, TRIAL_DAYS, TRIAL_MAX_POSTS } from "@/lib/subscription/constants";
+import { APP_HOME_PATH } from "@/lib/workspace/onboarding-routes";
 import type { AppLocale } from "@/i18n/routing";
+import { Link } from "@/i18n/navigation";
+import { BTN_PRIMARY_LG } from "@/lib/ui/nextstep";
 import { useLocale, useTranslations } from "next-intl";
 
 export function PricingPageContent() {
@@ -28,6 +31,18 @@ export function PricingPageContent() {
           <MarketingIntroParagraph>{t("subtitle")}</MarketingIntroParagraph>
           <MarketingIntroParagraph>{t("subtitleNote")}</MarketingIntroParagraph>
         </MarketingPageIntro>
+
+        <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center text-center">
+          <Link
+            href={user ? APP_HOME_PATH : "/signup"}
+            className={`${BTN_PRIMARY_LG} w-full sm:w-auto sm:min-w-[14rem]`}
+          >
+            {user ? t("topCtaSignedIn") : t("topCta")}
+          </Link>
+          <p className="mt-4 text-sm font-medium text-ns-secondary">
+            {t("topCtaMicro", { days: TRIAL_DAYS, posts: TRIAL_MAX_POSTS })}
+          </p>
+        </div>
 
         <div className="mt-12 grid grid-cols-1 items-start gap-6 md:grid-cols-3">
           <PricingPriceCard

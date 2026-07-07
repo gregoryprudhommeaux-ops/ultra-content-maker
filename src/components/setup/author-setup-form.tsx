@@ -28,6 +28,7 @@ import {
 } from "@/lib/persona/company-enrichment";
 import { getProfileEnrichment, saveProfileEnrichment } from "@/lib/workspace/enrichment";
 import {
+  hasCapturedLinkedIn,
   hasExpressVoiceBasics,
   isAuthorEnrichContext,
   resolveAuthorEnrichTab,
@@ -89,6 +90,15 @@ export function AuthorSetupForm() {
     () => isAuthorEnrichContext(savedProfile, fromParam),
     [savedProfile, fromParam],
   );
+  const linkedinAlreadySaved = useMemo(
+    () => hasCapturedLinkedIn(savedProfile),
+    [savedProfile],
+  );
+  const effectiveLinkedInUrl = useMemo(
+    () => linkedinProfileUrl.trim() || savedProfile?.linkedinProfileUrl?.trim() || "",
+    [linkedinProfileUrl, savedProfile],
+  );
+  const showEnrichLinkedInCaptured = enrichMode && linkedinAlreadySaved;
 
   useEffect(() => {
     if (!user || !activeAccount) return;
@@ -144,9 +154,9 @@ export function AuthorSetupForm() {
 
   async function persist(markComplete: boolean) {
     if (!user) return false;
-    const urls = [linkedinProfileUrl]
-      .map((u) => u.trim())
-      .filter((u) => u.length > 0);
+    const effectiveLinkedIn =
+      linkedinProfileUrl.trim() || savedProfile?.linkedinProfileUrl?.trim() || "";
+    const urls = [effectiveLinkedIn].filter((u) => u.length > 0);
     for (const u of urls) {
       if (!isValidUrl(u.trim())) {
         setError(t("invalidUrl"));
@@ -177,7 +187,7 @@ export function AuthorSetupForm() {
     });
 
     const draft = {
-      linkedinProfileUrl: linkedinProfileUrl.trim() || undefined,
+      linkedinProfileUrl: effectiveLinkedIn || undefined,
       linkedinActivitySources,
       webSources,
       linkedinActivityUrl: legacyUrls.linkedinActivityUrl,
@@ -271,10 +281,10 @@ export function AuthorSetupForm() {
           {enrichMode ? t("fullProfile.enrichBody") : t("fullProfile.anytimeBody")}
         </p>
       </div>
-      {enrichMode && savedProfile && (
+      {showEnrichLinkedInCaptured && (
         <ExpressCapturedSummary
           t={t}
-          linkedinProfileUrl={linkedinProfileUrl}
+          linkedinProfileUrl={effectiveLinkedInUrl}
           roleTitle={roleTitle}
           positioningLine={positioningLine}
           contentLanguage={contentLanguage}
@@ -296,7 +306,9 @@ export function AuthorSetupForm() {
         </p>
 
         <p className="rounded-xl border border-gray-100 bg-ns-brand-light/40 px-4 py-3 text-sm leading-relaxed text-ns-secondary">
-          {enrichMode ? t(`tabs.enrichHint.${activeTab}`) : t(`tabs.hint.${activeTab}`)}
+          {showEnrichLinkedInCaptured
+            ? t(`tabs.enrichHint.${activeTab}`)
+            : t(`tabs.hint.${activeTab}`)}
         </p>
 
         <form onSubmit={enrichMode ? onSave : onContinue} className={DASHBOARD_FORM}>
@@ -304,6 +316,7 @@ export function AuthorSetupForm() {
           <EssentialFields
             t={t}
             enrichMode={enrichMode}
+            hideLinkedInProfile={showEnrichLinkedInCaptured}
             linkedinProfileUrl={linkedinProfileUrl}
             setLinkedinProfileUrl={setLinkedinProfileUrl}
             linkedinActivitySources={linkedinActivitySources}
@@ -343,7 +356,7 @@ export function AuthorSetupForm() {
         )}
 
         <p className="rounded-lg border border-gray-100 bg-white/60 px-3 py-2 text-xs leading-relaxed text-ns-secondary">
-          {enrichMode
+          {showEnrichLinkedInCaptured
             ? t(`tabs.enrichRequiredNote.${activeTab}`)
             : t(`tabs.requiredNote.${activeTab}`)}
         </p>
@@ -491,6 +504,7 @@ function PrefilledFieldBlock({
 function EssentialFields({
   t,
   enrichMode,
+  hideLinkedInProfile,
   linkedinProfileUrl,
   setLinkedinProfileUrl,
   linkedinActivitySources,
@@ -500,6 +514,7 @@ function EssentialFields({
 }: {
   t: ReturnType<typeof useTranslations<"setup.author">>;
   enrichMode: boolean;
+  hideLinkedInProfile: boolean;
   linkedinProfileUrl: string;
   setLinkedinProfileUrl: (v: string) => void;
   linkedinActivitySources: AuthorReferenceUrl[];
@@ -528,13 +543,14 @@ function EssentialFields({
 
   return (
     <>
-      {enrichMode ? (
-        <PrefilledFieldBlock t={t} label={t("linkedin")} value={linkedinProfileUrl}>
-          {linkedinField}
-        </PrefilledFieldBlock>
-      ) : (
-        linkedinField
-      )}
+      {!hideLinkedInProfile &&
+        (enrichMode ? (
+          <PrefilledFieldBlock t={t} label={t("linkedin")} value={linkedinProfileUrl}>
+            {linkedinField}
+          </PrefilledFieldBlock>
+        ) : (
+          linkedinField
+        ))}
       <AuthorReferenceUrlsEditor
         variant="linkedin_activity"
         items={linkedinActivitySources}

@@ -1,7 +1,15 @@
 import type { AuthorProfile } from "@/types/workspace";
 import { linkedInActivityUrlsFromProfile, migrateWebSources } from "@/lib/profile/author-reference-urls";
 import type { AuthorProfileTab } from "@/components/setup/author-profile-tabs";
+import { isValidUrl } from "./firestore-utils";
 import { isAuthorProfileExpressComplete } from "./author";
+
+export function hasCapturedLinkedIn(
+  profile: Pick<AuthorProfile, "linkedinProfileUrl"> | null | undefined,
+): boolean {
+  const linkedin = profile?.linkedinProfileUrl?.trim() ?? "";
+  return linkedin.length > 0 && isValidUrl(linkedin);
+}
 
 export function isAuthorEnrichContext(
   profile: AuthorProfile | null | undefined,
