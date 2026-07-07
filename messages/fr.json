@@ -2493,7 +2493,9 @@
         "whatsapp": "WhatsApp"
       },
       "insufficientCredits": "Quota mensuel atteint.",
-      "premiumRequired": "Fonction réservée aux offres payantes."
+      "premiumRequired": "Fonction réservée aux offres payantes.",
+      "articleFeedbackLimit": "Vous avez utilisé vos 3 retours gratuits sur cet essai. Passez à une offre payante pour continuer à affiner vos posts.",
+      "freeFeedbackRemaining": "{count, plural, one {# retour gratuit restant sur cet essai} other {# retours gratuits restants sur cet essai}}"
     },
     "news": {
       "title": "News précédentes",

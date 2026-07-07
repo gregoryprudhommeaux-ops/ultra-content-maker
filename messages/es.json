@@ -2492,7 +2492,9 @@
         "whatsapp": "WhatsApp"
       },
       "insufficientCredits": "Cuota mensual alcanzada.",
-      "premiumRequired": "Función reservada a planes de pago."
+      "premiumRequired": "Función reservada a planes de pago.",
+      "articleFeedbackLimit": "Has usado tus 3 retornos gratuitos en esta prueba. Pasa a un plan de pago para seguir afinando tus publicaciones.",
+      "freeFeedbackRemaining": "{count, plural, one {# retorno gratuito restante en esta prueba} other {# retornos gratuitos restantes en esta prueba}}"
     },
     "news": {
       "title": "Noticias anteriores",

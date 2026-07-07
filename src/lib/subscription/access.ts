@@ -1,6 +1,7 @@
 import { isWireSubscriptionSuspended } from "@/lib/billing/wire-billing";
 import { normalizeSupportContract } from "@/lib/admin/support-deal-terms";
 import {
+  FREE_MAX_ARTICLE_FEEDBACK,
   PRICING,
   TRIAL_DAYS,
   TRIAL_MAX_POSTS,
@@ -71,6 +72,7 @@ export function defaultSubscriptionProfile(): SubscriptionProfile {
   return {
     tier: "free_test",
     trialPostsUsed: 0,
+    freeArticleFeedbackUsed: 0,
     proPostsUsedThisMonth: 0,
     proPlusPostsUsedThisMonth: 0,
     proPlusBonusPosts: 0,
@@ -119,6 +121,8 @@ export function normalizeSubscriptionProfile(raw: unknown): SubscriptionProfile 
       : "free_test",
     trialStartedAt: typeof r.trialStartedAt === "string" ? r.trialStartedAt : undefined,
     trialPostsUsed: typeof r.trialPostsUsed === "number" ? r.trialPostsUsed : 0,
+    freeArticleFeedbackUsed:
+      typeof r.freeArticleFeedbackUsed === "number" ? r.freeArticleFeedbackUsed : 0,
     trialExpiresAt: typeof r.trialExpiresAt === "string" ? r.trialExpiresAt : undefined,
     proPostsUsedThisMonth: typeof r.proPostsUsedThisMonth === "number" ? r.proPostsUsedThisMonth : 0,
     proPeriodStart: typeof r.proPeriodStart === "string" ? r.proPeriodStart : undefined,
@@ -179,6 +183,8 @@ export function resolveSubscriptionAccess(
       canViewFullPersona: true,
       canViewPersonaSummary: true,
       canUseRework: true,
+      canApplyArticleFeedback: true,
+      articleFeedbackRemaining: null,
       canUseNews: true,
       trialPostsRemaining: TRIAL_MAX_POSTS,
       trialDaysRemaining: null,
@@ -289,6 +295,14 @@ export function resolveSubscriptionAccess(
   const canUseRework = premium;
   const canUseNews = premium;
 
+  const articleFeedbackUsed = p.freeArticleFeedbackUsed ?? 0;
+  const freeFeedbackRemaining =
+    isTrialActive && !finalExpired
+      ? Math.max(0, FREE_MAX_ARTICLE_FEEDBACK - articleFeedbackUsed)
+      : 0;
+  const canApplyArticleFeedback = canUseRework || freeFeedbackRemaining > 0;
+  const articleFeedbackRemaining: number | null = canUseRework ? null : freeFeedbackRemaining;
+
   const trialPostsRemaining = isTrialActive
     ? Math.max(0, TRIAL_MAX_POSTS - p.trialPostsUsed)
     : 0;
@@ -317,6 +331,8 @@ export function resolveSubscriptionAccess(
     canViewFullPersona,
     canViewPersonaSummary,
     canUseRework,
+    canApplyArticleFeedback,
+    articleFeedbackRemaining,
     canUseNews,
     trialPostsRemaining,
     trialDaysRemaining,

@@ -110,6 +110,7 @@ export async function activateTierServer(
   }
   if (tier === "free_test") {
     patch.trialPostsUsed = 0;
+    patch.freeArticleFeedbackUsed = 0;
     patch.trialStartedAt = undefined;
     patch.trialExpiresAt = undefined;
   }
@@ -158,6 +159,29 @@ export async function recordRetainedPostServer(uid: string): Promise<Subscriptio
 
   await userRef(uid).set(
     { subscription: next, updatedAt: FieldValue.serverTimestamp() },
+    { merge: true },
+  );
+  return next;
+}
+
+/** Consumes one free-trial article feedback credit after a successful revise. */
+export async function recordArticleFeedbackServer(uid: string): Promise<SubscriptionProfile> {
+  const current = await getSubscriptionProfileServer(uid);
+  const access = resolveSubscriptionAccess(current);
+  if (access.canUseRework || !access.canApplyArticleFeedback) {
+    return current;
+  }
+
+  const next = {
+    ...current,
+    freeArticleFeedbackUsed: (current.freeArticleFeedbackUsed ?? 0) + 1,
+  };
+
+  await userRef(uid).set(
+    {
+      subscription: { freeArticleFeedbackUsed: next.freeArticleFeedbackUsed },
+      updatedAt: FieldValue.serverTimestamp(),
+    },
     { merge: true },
   );
   return next;

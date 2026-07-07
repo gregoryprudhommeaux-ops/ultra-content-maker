@@ -2492,7 +2492,9 @@
         "whatsapp": "WhatsApp"
       },
       "insufficientCredits": "Monthly quota reached.",
-      "premiumRequired": "Feature reserved for paid plans."
+      "premiumRequired": "Feature reserved for paid plans.",
+      "articleFeedbackLimit": "You've used all 3 free feedback runs on this trial. Upgrade to keep refining posts.",
+      "freeFeedbackRemaining": "{count, plural, one {# free feedback run left on this trial} other {# free feedback runs left on this trial}}"
     },
     "news": {
       "title": "Previous news",

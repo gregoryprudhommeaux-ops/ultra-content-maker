@@ -1,7 +1,8 @@
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
 import { chatCompletionJson, mergeUsageLog, REVISE_CHAT_OPTIONS } from "@/lib/llm/chat";
 import { resolveRequestLlm } from "@/lib/llm/resolve-request-llm";
-import { requireActiveSubscriptionLlm } from "@/lib/subscription/llm-gate.server";
+import { requireArticleFeedbackLlm } from "@/lib/subscription/llm-gate.server";
+import { recordArticleFeedbackServer } from "@/lib/subscription/subscription.server";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import { normalizeArticleScope } from "@/lib/articles/scope";
 import { normalizeHashtags } from "@/lib/linkedin/hashtags";
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const subGate = await requireActiveSubscriptionLlm(userId, { premium: true });
+  const subGate = await requireArticleFeedbackLlm(userId);
   if (!subGate.ok) {
     return NextResponse.json(
       { error: subGate.code, subscription: subGate.access },
@@ -171,6 +172,8 @@ export async function POST(request: Request) {
       { hook, body: revisedBody, ps },
       maxDraftCharsForArticle(tags),
     );
+
+    await recordArticleFeedbackServer(userId);
 
     return NextResponse.json({
       hook: fitted.hook,

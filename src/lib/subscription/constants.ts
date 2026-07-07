@@ -14,6 +14,8 @@ export const PRICING = {
 
 export const TRIAL_MAX_POSTS = 4;
 export const TRIAL_DAYS = 15;
+/** Free trial: max article feedback applications (tone questions + regenerate). */
+export const FREE_MAX_ARTICLE_FEEDBACK = 3;
 
 export const ALL_SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   "free_test",

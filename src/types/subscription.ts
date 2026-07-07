@@ -51,8 +51,10 @@ export type SubscriptionProfile = {
  tier: SubscriptionTier;
  /** Set when the first post is generated (starts 15-day window). */
  trialStartedAt?: string;
- trialPostsUsed: number;
- trialExpiresAt?: string;
+  trialPostsUsed: number;
+  /** Free trial: article feedback applications consumed (max 3). */
+  freeArticleFeedbackUsed?: number;
+  trialExpiresAt?: string;
  /** Retained posts this month (Pro). */
  proPostsUsedThisMonth: number;
  proPeriodStart?: string;
@@ -92,8 +94,12 @@ export type SubscriptionAccess = {
  canExportLinkedIn: boolean;
  canViewFullPersona: boolean;
  canViewPersonaSummary: boolean;
- canUseRework: boolean;
- canUseNews: boolean;
+  canUseRework: boolean;
+  /** Tone/refinement regenerate — premium unlimited, or free trial up to 3×. */
+  canApplyArticleFeedback: boolean;
+  /** Remaining free-trial feedbacks; null = unlimited (paid/admin). */
+  articleFeedbackRemaining: number | null;
+  canUseNews: boolean;
  trialPostsRemaining: number;
  trialDaysRemaining: number | null;
  proPostsRemaining: number | null;

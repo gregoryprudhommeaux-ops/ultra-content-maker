@@ -120,7 +120,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const tIll = useTranslations("setup.articles.illustration");
  const tQuality = useTranslations("setup.articles.quality");
  const { user, loading: authLoading } = useAuth();
- const { access: subscriptionAccess } = useSubscription();
+ const { access: subscriptionAccess, refresh: refreshSubscription } = useSubscription();
  const [article, setArticle] = useState<ArticleDoc | null>(null);
  const [personaText, setPersonaText] = useState("");
  const [ctaSuggestions, setCtaSuggestions] = useState<CtaSuggestion[]>([]);
@@ -493,6 +493,13 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  function resolveReviseErrorMessage(errorCode?: string, detail?: string) {
  const { kind, detail: rawDetail } = classifyLlmApiError(errorCode, detail);
  const technical = rawDetail ? truncateApiDetail(rawDetail) : undefined;
+ const code = (errorCode ?? "").toLowerCase();
+ if (code === "premium_required") {
+ return { message: tArticles("premiumRequired"), technical: undefined };
+ }
+ if (code === "article_feedback_limit") {
+ return { message: tArticles("articleFeedbackLimit"), technical: undefined };
+ }
  switch (kind) {
  case "no_key":
  return { message: tArticles("noLlmKey"), technical: undefined };
@@ -548,8 +555,13 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  async function runRevise(refinement: ArticleRefinement) {
  if (!user || !article) return;
- if (!subscriptionAccess?.canUseRework) {
- setReviseError(tArticles("premiumRequired"));
+ if (!subscriptionAccess?.canApplyArticleFeedback) {
+ setReviseError(
+ subscriptionAccess?.isTrialActive &&
+ subscriptionAccess.articleFeedbackRemaining === 0
+ ? tArticles("articleFeedbackLimit")
+ : tArticles("premiumRequired"),
+ );
  return;
  }
  if (!hasReviseInput(refinement)) {
@@ -662,6 +674,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  if (p?.promptText) setPersonaText(p.promptText);
  illustrationFetchedRef.current = null;
  await load();
+ void refreshSubscription();
  void loadIllustrationSuggestions(true, { quiet: true });
  } catch {
  /* revision already applied in UI */
@@ -1127,6 +1140,14 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  )}
  </UserErrorBanner>
  )}
+ {subscriptionAccess?.articleFeedbackRemaining != null &&
+ subscriptionAccess.articleFeedbackRemaining > 0 && (
+ <p className="text-xs text-ns-secondary">
+ {tArticles("freeFeedbackRemaining", {
+ count: subscriptionAccess.articleFeedbackRemaining,
+ })}
+ </p>
+ )}
  {article.refinement.questions.map((q) => {
  const answerOptions: RefinementAnswer[] = ["yes", "no", "partial"];
  const questionLabel =
@@ -1260,6 +1281,14 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  </Link>
  )}
  </UserErrorBanner>
+ )}
+ {subscriptionAccess?.articleFeedbackRemaining != null &&
+ subscriptionAccess.articleFeedbackRemaining > 0 && (
+ <p className="text-xs text-ns-secondary">
+ {tArticles("freeFeedbackRemaining", {
+ count: subscriptionAccess.articleFeedbackRemaining,
+ })}
+ </p>
  )}
  {article.refinement.questions.map((q) => {
  const answerOptions: RefinementAnswer[] = ["yes", "no", "partial"];
