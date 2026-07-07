@@ -2485,6 +2485,8 @@
         "needRefinement": "Répondez à au moins une question, activez le ton à contre-pied, ajoutez un commentaire, ou précisez une actu si vous choisissez Oui.",
         "validateFailed": "Impossible de valider le post.",
         "validateFailedHint": "Vérifiez la clé API si besoin, puis réessayez. La validation prépare le texte LinkedIn (hashtags + export) sans régénérer tout le post.",
+        "validateNotFound": "Post introuvable dans cet espace de travail. Rechargez la page ou vérifiez le compte actif.",
+        "validateForbidden": "Vous n’avez pas l’accès pour valider ce post dans cet espace.",
         "ctaTitle": "Signature / CTA",
         "ctaOrCreate": "Choisissez un CTA existant ou créez-en un :",
         "ctaLabel": "Nom du CTA",

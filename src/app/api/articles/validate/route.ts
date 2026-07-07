@@ -1,10 +1,15 @@
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import {
-  recordRetainedPostServer,
-  requireRetainedPostAccess,
-} from "@/lib/subscription/subscription.server";
 import { normalizeHashtags } from "@/lib/linkedin/hashtags";
+import { resolveSubscriptionAccess } from "@/lib/subscription/access";
+import {
+  getSubscriptionAccessServer,
+  recordRetainedPostServer,
+} from "@/lib/subscription/subscription.server";
+import { resolveArticleDocument } from "@/lib/workspace/article-doc.server";
+import { isPlatformAdminUid } from "@/lib/workspace/platform-admin";
+import { canWriteWorkspace } from "@/lib/workspace/require-workspace-write.server";
+import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
 import type { CtaIntensity } from "@/types/workspace";
 import { FieldValue } from "firebase-admin/firestore";
 import { NextResponse } from "next/server";
@@ -28,8 +33,8 @@ type ValidateBody = {
 };
 
 export async function POST(request: Request) {
-  const userId = await verifyBearerUserId(request.headers.get("authorization"));
-  if (!userId) {
+  const actorUid = await verifyBearerUserId(request.headers.get("authorization"));
+  if (!actorUid) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -48,27 +53,45 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "admin_firestore_unavailable" }, { status: 503 });
   }
 
-  const articleRef = db.doc(`users/${userId}/articles/${body.articleId}`);
-  const snap = await articleRef.get();
-  if (!snap.exists) {
+  const scope = await resolveWorkspaceScopeForUser(db, actorUid);
+  if (!(await canWriteWorkspace(db, actorUid, scope.ownerId, scope.accountId))) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  const resolved = await resolveArticleDocument(
+    db,
+    scope.ownerId,
+    scope.accountId,
+    body.articleId.trim(),
+  );
+  if (!resolved) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const data = snap.data() ?? {};
+  const data = resolved.snap.data() ?? {};
   const alreadyValidated = data.status === "validated";
+  const ownerId = scope.ownerId;
 
   if (!alreadyValidated) {
-    const gate = await requireRetainedPostAccess(userId);
-    if (!gate.ok) {
-      return NextResponse.json(
-        { error: gate.code, subscription: gate.access },
-        { status: gate.status },
-      );
+    const gateOpts = { isPlatformAdmin: isPlatformAdminUid(actorUid) };
+    const access = await getSubscriptionAccessServer(ownerId, gateOpts);
+    const canValidate = access.canGenerate || access.canExportLinkedIn;
+    if (!canValidate) {
+      const code =
+        access.blockReason === "pro_plus_cap"
+          ? "pro_plus_cap"
+          : access.blockReason === "pro_cap"
+            ? "pro_cap"
+            : access.blockReason === "support_no_generate"
+              ? "support_no_generate"
+              : access.isExpired
+                ? "subscription_expired"
+                : "subscription_required";
+      return NextResponse.json({ error: code, subscription: access }, { status: 402 });
     }
   }
 
   const normalized = body.hashtags?.length ? normalizeHashtags(body.hashtags) : [];
-
   const ctaText = body.cta?.text?.trim() ?? "";
 
   const patch: Record<string, unknown> = {
@@ -86,13 +109,13 @@ export async function POST(request: Request) {
   if (body.body?.trim()) patch.body = body.body.trim();
   if (body.ps !== undefined) patch.ps = body.ps?.trim() || null;
 
-  await articleRef.update(patch);
+  await resolved.ref.update(patch);
 
   if (!alreadyValidated) {
-    const profile = await recordRetainedPostServer(userId);
-    const access = await import("@/lib/subscription/access").then((m) =>
-      m.resolveSubscriptionAccess(profile),
-    );
+    const profile = await recordRetainedPostServer(ownerId);
+    const access = resolveSubscriptionAccess(profile, {
+      isPlatformAdmin: isPlatformAdminUid(actorUid),
+    });
     return NextResponse.json({ ok: true, subscription: access });
   }
 

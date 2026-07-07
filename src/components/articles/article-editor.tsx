@@ -907,8 +907,27 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  await load();
  notifyArticlesChanged();
  scrollToPostPreview();
- } catch {
- setValidateError(t("validateFailed"));
+ } catch (err) {
+ const code = err instanceof Error ? err.message : "validate_failed";
+ if (code === "not_found") {
+ setValidateError(t("validateNotFound"));
+ } else if (code === "forbidden") {
+ setValidateError(t("validateForbidden"));
+ } else if (
+ code === "no_llm_key" ||
+ code === "own_llm_required" ||
+ code === "subscription_required"
+ ) {
+ setValidateError(tArticles("noLlmKey"));
+ } else if (code === "invalid_api_key") {
+ setValidateError(tArticles("invalidApiKey"));
+ } else if (code === "pro_cap" || code === "pro_plus_cap") {
+ setValidateError(tArticles("insufficientCredits"));
+ } else if (code === "subscription_expired" || code === "trial_posts_exhausted") {
+ setValidateError(tArticles("insufficientCredits"));
+ } else {
+ setValidateError(t("validateFailed"), { errorCode: code });
+ }
  } finally {
  setPendingAction(null);
  }

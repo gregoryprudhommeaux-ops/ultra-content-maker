@@ -2484,6 +2484,8 @@
         "needRefinement": "Answer at least one question, enable contrarian tone, add a comment, or provide news details if you choose Yes.",
         "validateFailed": "Could not validate the post.",
         "validateFailedHint": "Check your API key if needed, then try again. Validation prepares the LinkedIn copy (hashtags + export) without rewriting the whole post.",
+        "validateNotFound": "Post not found in this workspace. Reload the page or check the active account.",
+        "validateForbidden": "You do not have access to validate this post in this workspace.",
         "ctaTitle": "Signature / CTA",
         "ctaOrCreate": "Pick an existing CTA or create one:",
         "ctaLabel": "CTA name",
