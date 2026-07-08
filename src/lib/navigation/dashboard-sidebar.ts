@@ -1,4 +1,8 @@
-import { CREATE_FRESH_HREF, CREATE_HUB_PATH } from "@/lib/navigation/dashboard-nav";
+import {
+  CREATE_FRESH_HREF,
+  CREATE_HUB_PATH,
+  DASHBOARD_HUB_PATH,
+} from "@/lib/navigation/dashboard-nav";
 import { normalizeDashboardPathname } from "@/lib/navigation/dashboard-nav";
 
 export const LIBRARY_DRAFTS_HREF = "/dashboard?status=pending";
@@ -6,6 +10,7 @@ export const UPDATE_VOICE_HREF = "/setup/author";
 
 export type SidebarQuickLinkKey =
   | "createNewPost"
+  | "dashboard"
   | "libraryDrafts"
   | "updateVoice";
 
@@ -22,6 +27,15 @@ export const SIDEBAR_QUICK_LINKS: readonly SidebarQuickLink[] = [
     isActive: (pathname) => {
       const path = normalizeDashboardPathname(pathname);
       return path === CREATE_HUB_PATH || path?.startsWith(`${CREATE_HUB_PATH}/`) === true;
+    },
+  },
+  {
+    key: "dashboard",
+    href: DASHBOARD_HUB_PATH,
+    isActive: (pathname, searchStatus) => {
+      const path = normalizeDashboardPathname(pathname);
+      if (path !== DASHBOARD_HUB_PATH && path !== "/articles") return false;
+      return searchStatus !== "pending";
     },
   },
   {

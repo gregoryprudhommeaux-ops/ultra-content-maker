@@ -690,6 +690,8 @@
       "title": "Accesos rápidos",
       "createNewPost": "Crear un nuevo post",
       "createHint": "Perfil · Noticias · Inspiración · Tu tema",
+      "dashboard": "Panel",
+      "dashboardHint": "Resumen · cuota · validados",
       "libraryDrafts": "Borradores",
       "libraryHint": "Borradores y en curso",
       "updateVoice": "Afinar mi voz",

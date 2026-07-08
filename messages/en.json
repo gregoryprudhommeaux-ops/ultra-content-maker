@@ -690,6 +690,8 @@
       "title": "Shortcuts",
       "createNewPost": "Create a new post",
       "createHint": "Profile · News · Inspiration · Your topic",
+      "dashboard": "Dashboard",
+      "dashboardHint": "Overview · quota · validated",
       "libraryDrafts": "Drafts",
       "libraryHint": "Drafts & in progress",
       "updateVoice": "Update my voice",

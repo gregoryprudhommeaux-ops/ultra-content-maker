@@ -690,6 +690,8 @@
       "title": "Raccourcis",
       "createNewPost": "Créer un nouveau post",
       "createHint": "Profil · Actu · Inspiration · Votre sujet",
+      "dashboard": "Tableau de bord",
+      "dashboardHint": "Vue d’ensemble · quota · validés",
       "libraryDrafts": "Brouillons",
       "libraryHint": "Brouillons & en cours",
       "updateVoice": "Affiner ma voix",

@@ -157,6 +157,11 @@ export function DashboardSidebarNav({ onNavigate, className = "" }: Props) {
                 {t("createHint")}
               </span>
             )}
+            {link.key === "dashboard" && (
+              <span className="mt-0.5 block text-[10px] font-medium leading-snug text-white/50">
+                {t("dashboardHint")}
+              </span>
+            )}
             {link.key === "libraryDrafts" && (
               <span className="mt-0.5 block text-[10px] font-medium leading-snug text-white/50">
                 {t("libraryHint")}
