@@ -344,7 +344,6 @@ function ModeCard({
   const featured = config.featured === true;
   const title = t(`modes.${mode}.title`);
   const desc = t(`modes.${mode}.desc`);
-  const badge = t(`modes.${mode}.badge`);
 
   const cardShell = [
     "group relative w-full overflow-hidden rounded-xl border bg-white text-left shadow-sm transition-all duration-200",
@@ -360,15 +359,6 @@ function ModeCard({
       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg md:h-11 md:w-11 md:rounded-xl ${accent.bg} ${accent.icon}`}
     >
       <ModeIcon mode={mode} className="h-4 w-4 md:h-5 md:w-5" />
-    </div>
-  );
-
-  const categoryLabel = (
-    <div className="flex items-center justify-end gap-1.5">
-      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${accent.dot}`} aria-hidden />
-      <span className="text-[10px] font-bold uppercase tracking-widest text-ns-secondary">
-        {badge}
-      </span>
     </div>
   );
 
@@ -388,17 +378,7 @@ function ModeCard({
       <div className="relative flex items-start gap-3 p-3.5 md:hidden">
         {iconBox}
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pr-6">
-            <h3 className="text-sm font-bold leading-snug text-ns-hero">{title}</h3>
-            {featured ? (
-              <span
-                className={`rounded-full px-1.5 py-px text-[9px] font-bold uppercase tracking-wide ${accent.badge}`}
-              >
-                {t("recommended")}
-              </span>
-            ) : null}
-          </div>
-          <div className="mt-1">{categoryLabel}</div>
+          <h3 className="pr-6 text-sm font-bold leading-snug text-ns-hero">{title}</h3>
           <p className="mt-1.5 text-xs leading-relaxed text-ns-secondary line-clamp-2">{desc}</p>
         </div>
         <span
@@ -411,19 +391,10 @@ function ModeCard({
 
       {/* Desktop — card */}
       <div className="relative hidden h-full flex-col gap-3 p-5 md:flex">
-        {featured ? (
-          <span
-            className={`absolute right-4 top-4 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
-          >
-            {t("recommended")}
-          </span>
-        ) : null}
-
         <div className="flex items-start gap-3">
           {iconBox}
           <div className="min-w-0 flex-1">
-            <h3 className={`pr-16 ${FORM_SECTION_TITLE} line-clamp-2`}>{title}</h3>
-            <div className="mt-1.5">{categoryLabel}</div>
+            <h3 className={`${FORM_SECTION_TITLE} line-clamp-2`}>{title}</h3>
           </div>
         </div>
 
