@@ -236,7 +236,7 @@ export function CreationModePicker({
 
       <div>
         <p className={`mb-3 ${META_LABEL}`}>{t("modesSectionLabel")}</p>
-        <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {MODES.map((config) => (
             <ModeCard
               key={config.id}
@@ -361,55 +361,55 @@ function ModeCard({
         aria-hidden
       />
 
-      <div className="relative flex min-h-0 flex-1 flex-col">
-        <div className="flex min-h-6 items-center justify-between gap-2">
-          <div className="min-h-[1.25rem] min-w-[5.75rem]">
-            {featured ? (
-              <span
-                className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
-              >
-                {t("recommended")}
-              </span>
-            ) : null}
+      <div className="relative grid h-full min-h-[22rem] grid-rows-[2.75rem_3.5rem_4.75rem_4.5rem_1fr_auto] gap-y-3">
+        <div className="flex h-11 items-center gap-2">
+          <div
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${accent.bg} ${accent.icon}`}
+          >
+            <ModeIcon mode={mode} className="h-5 w-5" />
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${accent.dot}`} aria-hidden />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-ns-secondary">
+          {featured ? (
+            <span
+              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
+            >
+              {t("recommended")}
+            </span>
+          ) : null}
+          <span className="min-w-0 flex-1" aria-hidden />
+          <span className="flex shrink-0 items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${accent.dot}`} aria-hidden />
+            <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-ns-secondary">
               {t(`modes.${mode}.badge`)}
             </span>
-          </div>
+          </span>
         </div>
 
-        <div
-          className={`mt-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${accent.bg} ${accent.icon}`}
-        >
-          <ModeIcon mode={mode} />
-        </div>
-
-        <h3 className={`mt-4 min-h-[3.25rem] ${FORM_SECTION_TITLE} line-clamp-2`}>
+        <h3 className={`${FORM_SECTION_TITLE} line-clamp-2 leading-snug`}>
           {t(`modes.${mode}.title`)}
         </h3>
 
-        <p className="relative mt-3 min-h-[4.5rem] flex-1 text-sm leading-relaxed text-ns-secondary line-clamp-3">
+        <p className="text-sm leading-relaxed text-ns-secondary line-clamp-3">
           {t(`modes.${mode}.desc`)}
         </p>
 
-        {Array.isArray(outputs) && outputs.length > 0 && (
-          <ul className="relative mt-4 grid min-h-[3.75rem] grid-cols-1 content-start gap-1.5">
+        {Array.isArray(outputs) && outputs.length > 0 ? (
+          <ul className="flex max-h-[4.5rem] flex-wrap content-start gap-1.5 overflow-hidden">
             {outputs.map((item) => (
               <li
                 key={item}
-                className={`w-fit max-w-full rounded-full border px-2.5 py-1 text-[11px] font-medium leading-snug text-ns-tertiary ${accent.tag}`}
+                className={`rounded-md border px-2 py-0.5 text-[11px] font-medium leading-snug text-ns-tertiary ${accent.tag}`}
               >
                 {item}
               </li>
             ))}
           </ul>
+        ) : (
+          <span aria-hidden />
         )}
 
         <span
           className={[
-            "relative mt-auto inline-flex w-full items-center justify-center gap-1 pt-6",
+            "inline-flex w-full items-center justify-center gap-1 self-end",
             featured ? BTN_PRIMARY : BTN_SECONDARY,
             "!py-2.5 text-sm",
           ].join(" ")}
