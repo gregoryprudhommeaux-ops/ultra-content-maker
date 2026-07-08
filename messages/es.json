@@ -763,6 +763,34 @@
         "expertise": "Experiencia",
         "product": "Producto"
       }
+    },
+    "clients": {
+      "title": "Personas de cliente",
+      "empty": {
+        "title": "Crea tu primera persona de cliente",
+        "description": "Define un tipo de audiencia general para la que publicas en LinkedIn y otras plataformas. Completa el onboarding, valida el Content Brain y genera ideas y borradores.",
+        "cta": "Crear persona"
+      },
+      "create": {
+        "title": "Nueva persona de cliente",
+        "name": "Nombre de la persona",
+        "typeLabel": "Tipo de persona (texto libre)",
+        "typeLabelHint": "ej. PYME francesa en expansión a México, fundador SaaS B2B",
+        "contentLanguage": "Idioma del contenido (publicaciones generadas)",
+        "sector": "Sector (opcional)",
+        "notes": "Notas (opcional)",
+        "submit": "Crear persona",
+        "errors": {
+          "permissionDenied": "Acceso a Firestore denegado. Despliegue firestore.rules en el proyecto ultra-content-maker.",
+          "generic": "No se pudo crear la persona. Compruebe la conexión a Firestore.",
+          "withCode": "No se pudo crear la persona ({code})."
+        }
+      },
+      "card": {
+        "onboarding": "Onboarding",
+        "brain": "Content Brain",
+        "generations": "Generaciones"
+      }
     }
   },
   "settings": {
@@ -2764,36 +2792,6 @@
     "copied": "Enlace copiado",
     "error": "Error — reintente",
     "open": "Abrir página"
-  },
-  "dashboard": {
-    "clients": {
-      "title": "Personas de cliente",
-      "empty": {
-        "title": "Crea tu primera persona de cliente",
-        "description": "Define un tipo de audiencia general para la que publicas en LinkedIn y otras plataformas. Completa el onboarding, valida el Content Brain y genera ideas y borradores.",
-        "cta": "Crear persona"
-      },
-      "create": {
-        "title": "Nueva persona de cliente",
-        "name": "Nombre de la persona",
-        "typeLabel": "Tipo de persona (texto libre)",
-        "typeLabelHint": "ej. PYME francesa en expansión a México, fundador SaaS B2B",
-        "contentLanguage": "Idioma del contenido (publicaciones generadas)",
-        "sector": "Sector (opcional)",
-        "notes": "Notas (opcional)",
-        "submit": "Crear persona",
-        "errors": {
-          "permissionDenied": "Acceso a Firestore denegado. Despliegue firestore.rules en el proyecto ultra-content-maker.",
-          "generic": "No se pudo crear la persona. Compruebe la conexión a Firestore.",
-          "withCode": "No se pudo crear la persona ({code})."
-        }
-      },
-      "card": {
-        "onboarding": "Onboarding",
-        "brain": "Content Brain",
-        "generations": "Generaciones"
-      }
-    }
   },
   "client": {
     "hub": {

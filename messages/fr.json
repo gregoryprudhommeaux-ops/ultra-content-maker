@@ -763,6 +763,34 @@
         "expertise": "Expertise",
         "product": "Produit"
       }
+    },
+    "clients": {
+      "title": "Personas clients",
+      "empty": {
+        "title": "Créez votre premier persona client",
+        "description": "Définissez un type de cible général pour lequel vous publiez sur LinkedIn et les autres plateformes. Complétez l'onboarding, validez le Content Brain, puis générez idées et brouillons.",
+        "cta": "Créer un persona"
+      },
+      "create": {
+        "title": "Nouveau persona client",
+        "name": "Nom du persona",
+        "typeLabel": "Type de persona (texte libre)",
+        "typeLabelHint": "ex. PME française en expansion au Mexique, fondateur SaaS B2B, coach export",
+        "contentLanguage": "Langue du contenu (posts générés)",
+        "sector": "Secteur (optionnel)",
+        "notes": "Notes (optionnel)",
+        "submit": "Créer le persona",
+        "errors": {
+          "permissionDenied": "Accès Firestore refusé. Déployez firestore.rules sur le projet ultra-content-maker.",
+          "generic": "Impossible de créer le persona. Vérifiez la connexion Firestore.",
+          "withCode": "Impossible de créer le persona ({code})."
+        }
+      },
+      "card": {
+        "onboarding": "Onboarding",
+        "brain": "Content Brain",
+        "generations": "Générations"
+      }
     }
   },
   "settings": {
@@ -2763,36 +2791,6 @@
     "copied": "Lien copié",
     "error": "Échec — réessayez",
     "open": "Ouvrir la page"
-  },
-  "dashboard": {
-    "clients": {
-      "title": "Personas clients",
-      "empty": {
-        "title": "Créez votre premier persona client",
-        "description": "Définissez un type de cible général pour lequel vous publiez sur LinkedIn et les autres plateformes. Complétez l'onboarding, validez le Content Brain, puis générez idées et brouillons.",
-        "cta": "Créer un persona"
-      },
-      "create": {
-        "title": "Nouveau persona client",
-        "name": "Nom du persona",
-        "typeLabel": "Type de persona (texte libre)",
-        "typeLabelHint": "ex. PME française en expansion au Mexique, fondateur SaaS B2B, coach export",
-        "contentLanguage": "Langue du contenu (posts générés)",
-        "sector": "Secteur (optionnel)",
-        "notes": "Notes (optionnel)",
-        "submit": "Créer le persona",
-        "errors": {
-          "permissionDenied": "Accès Firestore refusé. Déployez firestore.rules sur le projet ultra-content-maker.",
-          "generic": "Impossible de créer le persona. Vérifiez la connexion Firestore.",
-          "withCode": "Impossible de créer le persona ({code})."
-        }
-      },
-      "card": {
-        "onboarding": "Onboarding",
-        "brain": "Content Brain",
-        "generations": "Générations"
-      }
-    }
   },
   "client": {
     "hub": {

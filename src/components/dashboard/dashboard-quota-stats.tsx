@@ -33,9 +33,11 @@ export function DashboardQuotaStats({
         : "—"
       : t("remainingCount", { count: postsRemaining });
 
-  const tierLabel = access
-    ? t(`tier.${access.effectiveTier}` as Parameters<typeof t>[0])
-    : "—";
+  const tierLabel = (() => {
+    if (!access) return "—";
+    const tierKey = `tier.${access.effectiveTier}` as Parameters<typeof t>[0];
+    return t.has(tierKey) ? t(tierKey) : access.effectiveTier;
+  })();
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -60,7 +62,9 @@ export function DashboardQuotaStats({
       </div>
       <div className={`${CARD_SOFT} p-4`}>
         <p className={META_LABEL}>{t("plan")}</p>
-        <p className="mt-1 text-lg font-bold text-ns-tertiary">{loading ? "…" : tierLabel}</p>
+        <p className="mt-1 text-lg font-bold leading-snug text-ns-tertiary break-words">
+          {loading ? "…" : tierLabel}
+        </p>
         <p className="mt-1 text-xs text-ns-secondary">{t("planHint")}</p>
       </div>
     </div>

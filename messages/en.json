@@ -763,6 +763,34 @@
         "expertise": "Expertise",
         "product": "Product"
       }
+    },
+    "clients": {
+      "title": "Client personas",
+      "empty": {
+        "title": "Create your first client persona",
+        "description": "Define a general audience type you publish for on LinkedIn and other platforms. Complete onboarding, validate the Content Brain, then generate ideas and drafts.",
+        "cta": "Create persona"
+      },
+      "create": {
+        "title": "New client persona",
+        "name": "Persona name",
+        "typeLabel": "Persona type (free text)",
+        "typeLabelHint": "e.g. French SMB expanding to Mexico, B2B SaaS founder, export coach",
+        "contentLanguage": "Content language (generated posts)",
+        "sector": "Sector (optional)",
+        "notes": "Notes (optional)",
+        "submit": "Create persona",
+        "errors": {
+          "permissionDenied": "Firestore access denied. Deploy firestore.rules to the ultra-content-maker project.",
+          "generic": "Could not create persona. Check your Firestore connection.",
+          "withCode": "Could not create persona ({code})."
+        }
+      },
+      "card": {
+        "onboarding": "Onboarding",
+        "brain": "Content Brain",
+        "generations": "Generations"
+      }
     }
   },
   "settings": {
@@ -2762,36 +2790,6 @@
     "copied": "Link copied",
     "error": "Failed — try again",
     "open": "Open review page"
-  },
-  "dashboard": {
-    "clients": {
-      "title": "Client personas",
-      "empty": {
-        "title": "Create your first client persona",
-        "description": "Define a general audience type you publish for on LinkedIn and other platforms. Complete onboarding, validate the Content Brain, then generate ideas and drafts.",
-        "cta": "Create persona"
-      },
-      "create": {
-        "title": "New client persona",
-        "name": "Persona name",
-        "typeLabel": "Persona type (free text)",
-        "typeLabelHint": "e.g. French SMB expanding to Mexico, B2B SaaS founder, export coach",
-        "contentLanguage": "Content language (generated posts)",
-        "sector": "Sector (optional)",
-        "notes": "Notes (optional)",
-        "submit": "Create persona",
-        "errors": {
-          "permissionDenied": "Firestore access denied. Deploy firestore.rules to the ultra-content-maker project.",
-          "generic": "Could not create persona. Check your Firestore connection.",
-          "withCode": "Could not create persona ({code})."
-        }
-      },
-      "card": {
-        "onboarding": "Onboarding",
-        "brain": "Content Brain",
-        "generations": "Generations"
-      }
-    }
   },
   "client": {
     "hub": {
