@@ -1,9 +1,11 @@
+import {
+  extractTextFromImage,
+  isImageUpload,
+} from "./extract-image-text.server";
+
 const MAX_EXTRACTED_CHARS = 80_000;
 
 export const BIO_DOC_MAX_BYTES = 10 * 1024 * 1024;
-
-export const BIO_DOC_ACCEPT =
-  ".pdf,.txt,.md,.markdown,.doc,.docx,application/pdf,text/plain,text/markdown";
 
 function clampText(text: string): string {
   const normalized = text.replace(/\u0000/g, "").trim();
@@ -50,6 +52,10 @@ export async function extractTextFromUpload(
 
   if (type === "application/pdf" || lower.endsWith(".pdf")) {
     return clampText(await extractPdfText(buffer));
+  }
+
+  if (isImageUpload(type, lower)) {
+    return clampText(await extractTextFromImage(buffer, mimeType, fileName));
   }
 
   throw new Error("unsupported_file_type");

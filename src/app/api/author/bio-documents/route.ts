@@ -21,6 +21,7 @@ function errorStatus(code: string): number {
     code === "invalid_link" ||
     code === "file_too_large" ||
     code === "empty_extracted_text" ||
+    code === "image_ocr_unavailable" ||
     code === "google_doc_not_accessible" ||
     code === "link_not_accessible"
   ) {

@@ -1,7 +1,7 @@
 import type { AuthorBioDocument } from "@/types/workspace";
 
 export const BIO_DOC_ACCEPT =
-  ".pdf,.txt,.md,.markdown,.doc,.docx,application/pdf,text/plain,text/markdown";
+  ".pdf,.txt,.md,.markdown,.jpg,.jpeg,.png,application/pdf,text/plain,text/markdown,image/jpeg,image/png";
 
 export const BIO_DOC_MAX_MB = 10;
 
