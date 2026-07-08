@@ -70,6 +70,7 @@ export function AccountSwitcher() {
 
   const hasManagedClients = accounts.some((account) => account.isManaged);
   const isManagingClient = Boolean(activeAccount?.isManaged);
+  const isAgencyPanel = isPlatformAdmin && hasManagedClients;
   const sectionLabel = isPlatformAdmin && hasManagedClients ? t("agencyMode") : t("label");
 
   function closeDropdown() {
@@ -263,7 +264,11 @@ export function AccountSwitcher() {
 
       {open && (
         <div
-          className="absolute left-3 right-3 top-full z-[110] mt-1 max-h-[min(85vh,28rem)] overflow-y-auto rounded-lg border border-white/15 bg-ns-hero py-1 shadow-xl"
+          className={`absolute left-3 right-3 top-full z-[110] mt-1 max-h-[min(85vh,28rem)] overflow-y-auto rounded-lg py-1 shadow-xl ${
+            isAgencyPanel
+              ? "border border-ns-primary/50 bg-[#243018] shadow-[0_14px_36px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(157,196,26,0.12)] ring-1 ring-ns-primary/25"
+              : "border border-white/15 bg-ns-hero"
+          }`}
           role="listbox"
           aria-label={t("label")}
           onMouseDown={(e) => e.stopPropagation()}
@@ -331,14 +336,22 @@ export function AccountSwitcher() {
                   disabled={busy}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => void handleSwitch(account.id)}
-                  className={`flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm transition-colors hover:bg-white/5 disabled:opacity-60 ${
+                  className={`flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-60 ${
                     account.id === activeAccount?.id
-                      ? "bg-ns-primary/15 text-ns-primary"
-                      : "text-white/90"
+                      ? isAgencyPanel
+                        ? "bg-ns-primary/25 text-ns-primary"
+                        : "bg-ns-primary/15 text-ns-primary"
+                      : isAgencyPanel
+                        ? "text-white/95 hover:bg-ns-primary/12"
+                        : "text-white/90 hover:bg-white/5"
                   }`}
                 >
                   <span className="font-medium">{account.name}</span>
-                  <span className={`${META_LABEL} text-white/45`}>
+                  <span
+                    className={`${META_LABEL} ${
+                      isAgencyPanel ? "text-ns-primary/65" : "text-white/45"
+                    }`}
+                  >
                     {account.isManaged
                       ? t("managedClientBadge", { email: account.managedClientEmail ?? "" })
                       : t(`language.${account.contentLanguage}`)}
@@ -349,7 +362,11 @@ export function AccountSwitcher() {
               {canManageAccounts ? (
                 <button
                   type="button"
-                  className="mt-1 w-full border-t border-white/10 px-3 py-2.5 text-left text-sm font-semibold text-ns-primary hover:bg-white/5"
+                  className={`mt-1 w-full px-3 py-2.5 text-left text-sm font-semibold text-ns-primary ${
+                    isAgencyPanel
+                      ? "border-t border-ns-primary/30 hover:bg-ns-primary/12"
+                      : "border-t border-white/10 hover:bg-white/5"
+                  }`}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={(e) => {
                     e.preventDefault();
