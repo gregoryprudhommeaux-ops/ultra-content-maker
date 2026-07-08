@@ -8,7 +8,8 @@ import {
   SIDEBAR_QUICK_LINKS,
   type SidebarQuickLinkKey,
 } from "@/lib/navigation/dashboard-sidebar";
-import { dashboardNavNeedsAttention } from "@/lib/navigation/dashboard-nav";
+import { dashboardNavNeedsAttention, isCreationHubPath } from "@/lib/navigation/dashboard-nav";
+import { dispatchCreationFreshStart } from "@/lib/articles/creation-wizard-session";
 import { ARTICLES_CHANGED_EVENT } from "@/lib/workspace/articles-events";
 import {
   listRecentDraftArticles,
@@ -20,7 +21,7 @@ import type { ArticleDoc } from "@/types/workspace";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type MouseEvent } from "react";
 
 const ONBOARDING_PROGRESS_CHANGED = "onboarding-progress-changed";
 
@@ -113,6 +114,17 @@ export function DashboardSidebarNav({ onNavigate, className = "" }: Props) {
     return article.hook?.trim() || t("lastPostUntitled");
   }
 
+  function handleQuickLinkClick(
+    e: MouseEvent<HTMLAnchorElement>,
+    key: SidebarQuickLinkKey,
+  ) {
+    if (key === "createNewPost" && isCreationHubPath(pathname)) {
+      e.preventDefault();
+      dispatchCreationFreshStart();
+    }
+    onNavigate?.();
+  }
+
   return (
     <nav
       className={`flex flex-col gap-1 px-3 py-4 ${className}`}
@@ -129,7 +141,7 @@ export function DashboardSidebarNav({ onNavigate, className = "" }: Props) {
             href={hrefFor(link.key)}
             className={sidebarLinkClass(active, isPrimary ? "primary" : "default")}
             aria-current={active ? "page" : undefined}
-            onClick={onNavigate}
+            onClick={(e) => handleQuickLinkClick(e, link.key)}
           >
             <span className="block">
               {renderLinkLabel(link.key)}

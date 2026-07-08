@@ -2,7 +2,6 @@
 
 import { CopyAccountInviteLink } from "@/components/workspace/copy-account-invite-link";
 import { DeleteClientAccountButton } from "@/components/workspace/delete-client-account-button";
-import { UnlinkManagedClientButton } from "@/components/workspace/unlink-managed-client-button";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
@@ -152,36 +151,6 @@ export function AccountSwitcher() {
     >
       <p className={`${META_LABEL} mb-2 text-white/45`}>{sectionLabel}</p>
 
-      {isPlatformAdmin && hasManagedClients && activeAccount ? (
-        <div
-          className={`mb-2 rounded-xl border px-3 py-3 shadow-sm ${
-            isManagingClient
-              ? "border-amber-400/50 bg-amber-950/35 shadow-[inset_3px_0_0_0_#fbbf24]"
-              : "border-ns-primary/35 bg-ns-primary/10 shadow-[inset_3px_0_0_0_#9dc41a]"
-          }`}
-        >
-          <p
-            className={`text-[10px] font-black uppercase tracking-[0.16em] ${
-              isManagingClient ? "text-amber-200" : "text-ns-primary"
-            }`}
-          >
-            {isManagingClient ? t("agencyManagedContext") : t("agencyYourAdminAccount")}
-          </p>
-          <p className="mt-1 truncate text-base font-bold leading-snug text-white">
-            {activeAccount.name}
-          </p>
-          {isManagingClient && activeAccount.managedClientEmail ? (
-            <p className="mt-0.5 truncate text-xs font-medium text-amber-100/75">
-              {activeAccount.managedClientEmail}
-            </p>
-          ) : (
-            <p className={`${META_LABEL} mt-0.5 text-white/50`}>
-              {t(`language.${activeAccount.contentLanguage}`)}
-            </p>
-          )}
-        </div>
-      ) : null}
-
       {isAdminRoute ? (
         <div className="flex w-full items-stretch overflow-hidden rounded-lg border border-white/15 bg-white/5">
           <button
@@ -237,25 +206,36 @@ export function AccountSwitcher() {
               openDropdown();
             }
           }}
-          className="flex w-full items-center justify-between gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-left transition-colors hover:border-ns-primary/40 hover:bg-white/10 disabled:opacity-60"
+          className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2.5 text-left transition-colors disabled:opacity-60 ${
+            isManagingClient
+              ? "border-amber-400/50 bg-amber-950/35 shadow-[inset_3px_0_0_0_#fbbf24] hover:border-amber-400/70 hover:bg-amber-950/45"
+              : isPlatformAdmin && hasManagedClients
+                ? "border-ns-primary/35 bg-ns-primary/10 shadow-[inset_3px_0_0_0_#9dc41a] hover:border-ns-primary/50 hover:bg-ns-primary/15"
+                : "border-white/15 bg-white/5 hover:border-ns-primary/40 hover:bg-white/10"
+          }`}
           aria-expanded={open}
           aria-haspopup="listbox"
         >
           <span className="min-w-0 flex-1">
+            {isPlatformAdmin && hasManagedClients && activeAccount ? (
+              <span
+                className={`${META_LABEL} block truncate ${
+                  isManagingClient ? "text-amber-200" : "text-ns-primary"
+                }`}
+              >
+                {isManagingClient ? t("agencyManagedContext") : t("agencyYourAdminAccount")}
+              </span>
+            ) : null}
             <span className="block truncate text-sm font-semibold text-white">
               {activeAccount?.name ?? t("unnamed")}
             </span>
-            {isPlatformAdmin && hasManagedClients && activeAccount ? (
-              <span
-                className={`${META_LABEL} mt-0.5 block truncate ${
-                  activeAccount.isManaged ? "text-amber-200/80" : "text-white/45"
-                }`}
-              >
-                {activeAccount.isManaged
-                  ? t("managedClientBadge", {
-                      email: activeAccount.managedClientEmail ?? "",
-                    })
-                  : t("agencyYourAdminAccount")}
+            {isManagingClient && activeAccount?.managedClientEmail ? (
+              <span className="mt-0.5 block truncate text-xs font-medium text-amber-100/75">
+                {activeAccount.managedClientEmail}
+              </span>
+            ) : isPlatformAdmin && hasManagedClients && activeAccount ? (
+              <span className={`${META_LABEL} mt-0.5 block text-white/50`}>
+                {t(`language.${activeAccount.contentLanguage}`)}
               </span>
             ) : null}
           </span>
@@ -280,7 +260,6 @@ export function AccountSwitcher() {
 
       {!activeAccount?.isManaged ? <CopyAccountInviteLink /> : null}
       {!activeAccount?.isManaged ? <DeleteClientAccountButton /> : null}
-      <UnlinkManagedClientButton />
 
       {open && (
         <div

@@ -6,18 +6,30 @@ import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { listBioDocuments } from "@/lib/workspace/bio-documents";
 import { serializeBioDocumentsForPrompt } from "@/lib/workspace/bio-documents-utils";
 import { listSources } from "@/lib/workspace/sources";
+import {
+  getActiveWorkspaceScope,
+  requireWorkspaceScope,
+  type WorkspaceScope,
+} from "@/lib/workspace/workspace-scope";
+
+function resolveScope(userId: string, scope?: WorkspaceScope | null): WorkspaceScope {
+  return scope ?? getActiveWorkspaceScope() ?? requireWorkspaceScope(userId);
+}
 
 /** Load full author steering context from Firestore (client-side). */
 export async function gatherAuthorSteeringPayload(
   userId: string,
-  options?: { newsInterestQuery?: string },
+  options?: { newsInterestQuery?: string; scope?: WorkspaceScope | null },
 ): Promise<AuthorSteeringPayload> {
+  const scope = resolveScope(userId, options?.scope);
+  const ownerId = scope.ownerId;
+
   const [author, audience, enrichment, sources, bioDocs] = await Promise.all([
-    getAuthorProfile(userId),
-    getAudienceProfile(userId),
-    getProfileEnrichment(userId),
-    listSources(userId),
-    listBioDocuments(userId).catch(() => []),
+    getAuthorProfile(ownerId),
+    getAudienceProfile(ownerId),
+    getProfileEnrichment(ownerId),
+    listSources(ownerId),
+    listBioDocuments(ownerId).catch(() => []),
   ]);
 
   return buildAuthorSteeringPayload({

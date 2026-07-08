@@ -1738,6 +1738,7 @@
         "backToList": "Volver a posts",
         "viewLibrary": "Ver mi biblioteca",
         "back": "← Paso anterior",
+        "backShort": "Volver",
         "setupReadyBanner": {
           "eyebrow": "Configuración lista",
           "title": "Tu Content Brain está listo",
@@ -1934,13 +1935,25 @@
           "topicLabel": "Tema del post",
           "topicHelpLabel": "Tema",
           "topicHelp": "Un tema claro en una línea: de qué trata el post.",
-          "topicPlaceholder": "Ej. Acabo de terminar mi Executive Master en HEC Paris",
+          "topicPlaceholder": {
+            "default": "Ej. Acabo de terminar mi Executive Master en HEC Paris",
+            "company": "Ej. Por qué reposicionamos nuestra oferta en la cadena de suministro exportadora",
+            "product": "Ej. Lanzamiento de nuestro módulo de visibilidad supply chain para PYMES exportadoras"
+          },
           "messageLabel": "Lo que quieres decir",
           "messageHelpLabel": "Mensaje",
           "messageHelp": "Tu relato con tus palabras : emociones, contexto, lo que importa para ti. La IA reformula sin borrar tu sentido.",
-          "messagePlaceholder": "Ej. Este recorrido llevó tres años en paralelo a mi puesto de director de planta. Lo más duro no fueron los exámenes : fue aprender a liderar el cambio sin dejar el terreno…",
+          "messagePlaceholder": {
+            "default": "Ej. Este recorrido llevó tres años en paralelo a mi puesto de director de planta. Lo más duro no fueron los exámenes : fue aprender a liderar el cambio sin dejar el terreno…",
+            "company": "Ej. En [Nombre empresa], defendemos una tesis simple: la visibilidad de extremo a extremo vale más que arbitrar solo por precio. Esto es lo que aprendimos acompañando PYMES exportadoras…",
+            "product": "Ej. Nuestro módulo [Nombre oferta] resuelve un problema concreto: los equipos pierden semanas consolidando datos dispersos. Resultado cliente: decisiones más rápidas sin contratar…"
+          },
           "exampleLabel": "Detalle o prueba (opcional)",
-          "examplePlaceholder": "Ej. Proyecto final sobre excelencia operativa en supply chain automotriz, nota 18/20…",
+          "examplePlaceholder": {
+            "default": "Ej. Proyecto final sobre excelencia operativa en supply chain automotriz, nota 18/20…",
+            "company": "Ej. Caso cliente anonimizado, cifra interna u observación de campo en su mercado…",
+            "product": "Ej. Despliegue en 2 semanas · -30 % de roturas en 12 meses (caso cliente anonimizado)…"
+          },
           "ctaLabel": "Intención de cierre (opcional)",
           "ctaPlaceholder": "Ej. Agradecer a los equipos que me apoyaron; invitar a colegas a compartir su propio camino",
           "ctaHint": "Opcional, el Quality Panel podrá sugerir mejoras basadas en tu perfil tras generar.",
@@ -2045,6 +2058,8 @@
         "pastePlaceholder": "Pega aquí el post o artículo fuente…",
         "pasteRequired": "Pega al menos unas líneas de referencia.",
         "continueToBrief": "Continuar al brief",
+        "personaRequired": "Valida tu Persona antes de generar.",
+        "personaRequiredHint": "Ir al Persona →",
         "generateDraft": "Generar borrador",
         "draftDoneTitle": "Tu borrador",
         "draftDoneHint": "Revisa título y texto, reorienta el ángulo si hace falta, elige un CTA y valida : como en el editor completo.",
@@ -2191,7 +2206,7 @@
           },
           "postAngle": {
             "label": "Ayuda: ángulo del post",
-            "body": "Expertise = punto de vista personal. Producto = problema ICP y prueba de oferta — sin folleto."
+            "body": "Empresa y expertise = visión y categoría de la empresa (nombre de empresa requerido en el post). Producto = problema ICP y prueba de oferta — nombre de la oferta requerido si está seleccionada · sin folleto."
           }
         },
         "niche": {
@@ -2554,10 +2569,21 @@
         "hint": "Envía este post a un colega por correo o WhatsApp. La mención Ultra Content Maker solo se añade al compartir (no en la copia para LinkedIn).",
         "email": "Correo",
         "whatsapp": "WhatsApp",
+        "adminFeedbackGenerate": "Generar enlace de revisión",
+        "adminFeedbackRegenerate": "Regenerar enlace",
+        "adminFeedbackEmail": "Abrir correo al cliente",
         "adminFeedbackLink": "Enviar enlace de revisión por correo",
-        "adminFeedbackLoading": "Preparando…",
+        "adminFeedbackLoading": "Generando…",
         "adminFeedbackError": "Error — reintenta",
-        "adminFeedbackHint": "Solo admin: abre un borrador de correo (idioma del cliente) con un enlace seguro a una página de revisión estructurada."
+        "adminFeedbackErrorNotFound": "Artículo no encontrado para esta cuenta.",
+        "adminFeedbackErrorAuth": "Sesión caducada — vuelve a iniciar sesión.",
+        "adminFeedbackErrorForbidden": "Acceso denegado para esta cuenta.",
+        "adminFeedbackErrorServer": "Servicio admin no disponible (Firebase Admin).",
+        "adminFeedbackLinkReady": "Enlace de revisión listo",
+        "adminFeedbackCopyLink": "Copiar enlace",
+        "adminFeedbackCopied": "Enlace copiado",
+        "adminFeedbackOpenPage": "Abrir página",
+        "adminFeedbackHint": "Solo admin: 1) genera el enlace, 2) compruébalo abajo, 3) abre el correo al cliente con el enlace."
       },
       "insufficientCredits": "Cuota mensual alcanzada.",
       "premiumRequired": "Función reservada a planes de pago.",
@@ -2665,10 +2691,11 @@
     }
   },
   "adminDraftReview": {
-    "button": "Enviar enlace de revisión al cliente",
+    "button": "Generar enlace de revisión",
     "loading": "Generando…",
     "copied": "Enlace copiado",
-    "error": "Error — reintente"
+    "error": "Error — reintente",
+    "open": "Abrir página"
   },
   "dashboard": {
     "clients": {

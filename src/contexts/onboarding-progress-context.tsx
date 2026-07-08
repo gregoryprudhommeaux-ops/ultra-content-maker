@@ -74,7 +74,7 @@ export function OnboardingProgressProvider({ children }: { children: ReactNode }
  setLoading(true);
  }
  try {
- const data = await loadOnboardingProgress(user.uid, pathname);
+    const data = await loadOnboardingProgress(scope?.ownerId ?? user.uid, pathname);
  setProgress(data);
  hasLoadedProgressRef.current = true;
  } catch {

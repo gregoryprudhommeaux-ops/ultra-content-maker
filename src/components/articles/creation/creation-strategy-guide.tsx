@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useFormatUserError } from "@/hooks/use-format-user-error";
 import type { UserErrorInfo } from "@/lib/errors/format-user-error";
@@ -52,6 +53,8 @@ export function CreationStrategyGuidePanel({
   const formatError = useFormatUserError();
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
+  const { scope } = useWorkspace();
+  const workspaceOwnerId = scope?.ownerId ?? user?.uid ?? "";
 
   const [activityUrls, setActivityUrls] = useState<string[]>([]);
   const [guide, setGuide] = useState<CreationStrategyGuide | null>(null);
@@ -63,7 +66,9 @@ export function CreationStrategyGuidePanel({
 
   const runAnalysis = useCallback(
     async (forceRefresh = false, steeringOverride?: string) => {
-      if (!user || activityUrls.length === 0 || !personaText.trim()) return;
+      if (!user || !workspaceOwnerId || !scope || activityUrls.length === 0 || !personaText.trim()) {
+        return;
+      }
 
       setLoading(true);
       setErrorInfo(null);
@@ -72,8 +77,8 @@ export function CreationStrategyGuidePanel({
         const token = auth ? await auth.currentUser?.getIdToken() : null;
         const [llmProfile, author, authorSteering] = await Promise.all([
           getUserLlmProfile(user.uid),
-          getAuthorProfile(user.uid),
-          gatherAuthorSteeringPayload(user.uid),
+          getAuthorProfile(workspaceOwnerId),
+          gatherAuthorSteeringPayload(user.uid, { scope }),
         ]);
 
         if (!token || !llmProfile?.apiKey) {
@@ -146,7 +151,7 @@ export function CreationStrategyGuidePanel({
             guide: data.guide,
             steering: steeringText || undefined,
           } as const);
-        await saveAuthorProfile(user.uid, {
+        await saveAuthorProfile(workspaceOwnerId, {
           creationStrategyCache: cachePayload,
           creationStrategySteering: steeringText || undefined,
         });
@@ -158,13 +163,13 @@ export function CreationStrategyGuidePanel({
         setLoading(false);
       }
     },
-    [activityUrls, formatError, locale, onRecommendMode, personaText, steering, t, user],
+    [activityUrls, formatError, locale, onRecommendMode, personaText, steering, t, user, workspaceOwnerId, scope],
   );
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !workspaceOwnerId) return;
     void (async () => {
-      const author = await getAuthorProfile(user.uid);
+      const author = await getAuthorProfile(workspaceOwnerId);
       const urls = linkedInActivityUrlsFromProfile(author);
       setActivityUrls(urls);
       setSteering(author?.creationStrategySteering ?? "");
@@ -185,7 +190,7 @@ export function CreationStrategyGuidePanel({
         onRecommendMode(cache.guide.recommendedMode);
       }
     })();
-  }, [user, onRecommendMode]);
+  }, [user, workspaceOwnerId, onRecommendMode]);
 
   useEffect(() => {
     if (!user || activityUrls.length === 0 || !personaText.trim() || fetchedRef.current) return;

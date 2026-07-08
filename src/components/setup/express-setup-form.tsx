@@ -3,6 +3,7 @@
 import { OnboardingStepBanner } from "@/components/onboarding/onboarding-step-banner";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import {
   LinkedInDeliveryPreference,
@@ -27,6 +28,10 @@ import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import { getClientAuth } from "@/lib/firebase/client";
 import { isInvalidApiKeyError } from "@/lib/llm/provider-errors";
 import { skipAudienceStep } from "@/lib/workspace/audience";
+import {
+  getResolvedAuthorProfile,
+  syncAuthorProfileFromCollectedData,
+} from "@/lib/profile/resolve-author-profile";
 import {
   getAuthorProfile,
   saveAuthorProfile,
@@ -59,6 +64,7 @@ export function ExpressSetupForm() {
   const tPersona = useTranslations("setup.persona");
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
+  const { activeAccount, scope } = useWorkspace();
   const { access } = useSubscription();
   const router = useRouter();
 
@@ -82,12 +88,19 @@ export function ExpressSetupForm() {
   const prefillRequestRef = useRef(0);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeAccount) return;
+    let cancelled = false;
+    setLoading(true);
     void (async () => {
-      const profile = await getAuthorProfile(user.uid);
-      const enrichment = await getProfileEnrichment(user.uid);
+      await syncAuthorProfileFromCollectedData(user.uid).catch(() => {});
+      const [profile, enrichment] = await Promise.all([
+        getResolvedAuthorProfile(user.uid),
+        getProfileEnrichment(user.uid),
+      ]);
+      if (cancelled) return;
       if (profile?.linkedinProfileUrl) setLinkedinProfileUrl(profile.linkedinProfileUrl);
       if (profile?.contentLanguage) setContentLanguage(profile.contentLanguage);
+      else if (activeAccount.contentLanguage) setContentLanguage(activeAccount.contentLanguage);
       if (profile?.roleTitle) setRoleTitle(profile.roleTitle);
       if (profile?.positioningLine) setPositioningLine(profile.positioningLine);
       if (profile?.contentArchetype) setContentArchetype(profile.contentArchetype);
@@ -100,7 +113,10 @@ export function ExpressSetupForm() {
       }
       setLoading(false);
     })();
-  }, [user]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, activeAccount?.id, activeAccount?.contentLanguage, scope?.ownerId, scope?.accountId]);
 
   const runPrefill = useCallback(async () => {
     const url = linkedinProfileUrl.trim();

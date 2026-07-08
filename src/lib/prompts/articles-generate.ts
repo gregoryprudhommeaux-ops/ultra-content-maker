@@ -9,6 +9,7 @@ import type { ArticleScope, ContentLanguage, EmojiLevel, PostBrief } from "@/typ
 import { emojiInstruction } from "./emoji-instruction";
 import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
 import { languageLabel, languageOnlyRule } from "./language-consistency";
+import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
 import { buildPostBriefInstruction } from "./post-brief";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -136,8 +137,13 @@ export function buildArticlesUserPromptWithCount(
  ? " No emojis."
  : " Every post MUST include visible Unicode emojis per emojiRule. Verify scope mix before responding.";
 
+ const briefContext = buildPostBriefPromptContext({
+ author: authorSteering?.author ?? null,
+ profileEnrichment: profileEnrichment ?? authorSteering?.profileEnrichment ?? null,
+ authorSteering,
+ });
  const briefBlock = postBrief
- ? buildPostBriefInstruction(postBrief, contentLanguage)
+ ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
  : undefined;
 
  const nicheLine = resolveContentNicheFromSteering(personaPromptText, authorSteering);

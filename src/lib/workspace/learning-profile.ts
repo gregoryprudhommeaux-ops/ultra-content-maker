@@ -27,7 +27,10 @@ export type LearningSource =
  | "gaps"
  | "article_refinement"
  | "article_validate"
- | "emoji";
+ | "emoji"
+ | "client_review"
+ | "strategy_steering"
+ | "validated_post";
 
 export interface LearningEntry {
  source: LearningSource;
@@ -358,6 +361,19 @@ export function buildLearnedSectionMarkdown(
  if (author?.positioningLine?.trim()) {
  authorLines.push(`${H.positioning}: ${author.positioningLine.trim()}`);
  }
+ if (author?.contentArchetype) {
+ const archetypeLabels: Record<ContentLanguage, Record<string, string>> = {
+ fr: { expert: "Expert", founder_product: "Fondateur / produit", hybrid: "Hybride" },
+ en: { expert: "Expert", founder_product: "Founder / product", hybrid: "Hybrid" },
+ es: { expert: "Experto", founder_product: "Fundador / producto", hybrid: "Híbrido" },
+ };
+ const archetype =
+ archetypeLabels[lang]?.[author.contentArchetype] ?? author.contentArchetype;
+ authorLines.push(`Archétype: ${archetype}`);
+ }
+ if (author?.creationStrategySteering?.trim()) {
+ lines.push(`- **Pilotage éditorial:** ${author.creationStrategySteering.trim().slice(0, 500)}`);
+ }
  if (authorLines.length > 0) {
  lines.push(`- ${H.author}`);
  for (const l of authorLines) lines.push(` - ${l}`);
@@ -367,6 +383,12 @@ export function buildLearnedSectionMarkdown(
  const audLines: string[] = [];
  if (audience.targetLabel?.trim()) audLines.push(`${H.target}: ${audience.targetLabel.trim()}`);
  if (audience.contentFocus?.trim()) audLines.push(`${H.focus}: ${audience.contentFocus.trim()}`);
+ if (audience.contentNiche?.trim()) {
+ lines.push(`- **Niche éditoriale:** ${audience.contentNiche.trim()}`);
+ }
+ if (audience.newsInterestQuery?.trim()) {
+ lines.push(`- **Veille / actualité:** ${audience.newsInterestQuery.trim()}`);
+ }
  if (audience.optionalNotes?.trim()) audLines.push(`${H.notes}: ${audience.optionalNotes.trim()}`);
  if (audLines.length > 0) {
  lines.push(`- ${H.audience}`);

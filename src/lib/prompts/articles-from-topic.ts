@@ -10,6 +10,8 @@ import type { ContentLanguage, EmojiLevel, PostBrief } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
 import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
 import { languageOnlyRule } from "./language-consistency";
+import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
+import { buildPostBriefInstruction } from "./post-brief";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
  fr: "French",
@@ -92,6 +94,20 @@ export function buildTopicArticleUserPayload(
  ? `Rephrase and structure the author's personal message in ${lang}. Stay in first person. Keep their story and facts; improve flow, clarity, and emotional honesty. Use the Persona only to align voice and suggest subtle enhancements grounded in their real profile · never turn this into a B2B thought-leadership post.`
  : `Write one LinkedIn post in ${lang} from the topic brief below. Stay faithful to the author's intent; use the Persona for voice and credibility.`;
 
+ const briefContext = buildPostBriefPromptContext({
+ author: authorSteering?.author ?? null,
+ profileEnrichment: authorSteering?.profileEnrichment ?? null,
+ authorSteering,
+ });
+ const postBriefInstruction =
+ !personal && postBrief.postAngle
+ ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
+ : null;
+
+ const instructionWithBrief = postBriefInstruction
+ ? `${instruction}\n\n${postBriefInstruction}`
+ : instruction;
+
  return JSON.stringify(
  injectAuthorSteering(
  {
@@ -104,7 +120,8 @@ export function buildTopicArticleUserPayload(
  coreMessage: fields.message.trim(),
  optionalExample: fields.example.trim() || null,
  optionalClosingIntention: fields.ctaHint.trim() || null,
- instruction,
+ postBriefInstruction,
+ instruction: instructionWithBrief,
  },
  authorSteering,
  ),

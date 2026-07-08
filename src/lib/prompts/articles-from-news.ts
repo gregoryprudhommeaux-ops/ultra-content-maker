@@ -1,6 +1,8 @@
+import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
 import { buildPostBriefInstruction } from "@/lib/prompts/post-brief";
 import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
-import type { ContentLanguage, NewsSuggestion, PostBrief } from "@/types/workspace";
+import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
+import type { ContentLanguage, GapAnswerValue, NewsSuggestion, PostBrief } from "@/types/workspace";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
  fr: "French",
@@ -57,10 +59,20 @@ export function buildArticlesFromNewsUserPayload(
  contentLanguage: ContentLanguage,
  postCount: ArticlesFromNewsPostCount = 4,
  postBrief?: PostBrief,
+ authorSteering?: AuthorSteeringPayload | null,
+ profileEnrichment?: Record<string, unknown>,
 ): string {
  const extra = buildArticlesFromNewsExtraInstruction(contentLanguage, news, postCount);
+ const briefContext = buildPostBriefPromptContext({
+ author: authorSteering?.author ?? null,
+ profileEnrichment:
+ (profileEnrichment ?? authorSteering?.profileEnrichment ?? null) as
+ | Record<string, GapAnswerValue>
+ | null,
+ authorSteering,
+ });
  const brief = postBrief
- ? `\n\n---\n\n${buildPostBriefInstruction(postBrief, contentLanguage)}`
+ ? `\n\n---\n\n${buildPostBriefInstruction(postBrief, contentLanguage, briefContext)}`
  : "";
  return `${baseUserPrompt}\n\n---\n\n${extra}${brief}`;
 }

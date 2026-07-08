@@ -3,12 +3,19 @@ import { classifyProviderErrorMessage } from "@/lib/llm/provider-errors";
 import { assessCreatorRadarContext } from "@/lib/creator-radar/readiness";
 import { getOrCreateDailyCreatorRadar } from "@/lib/creator-radar/creator-radar.server";
 import {
+  gatherAuthorSteeringPayloadServer,
+  readWorkspacePersonaExcerptServer,
+} from "@/lib/profile/gather-author-steering.server";
+import { getAdminFirestore } from "@/lib/firebase/admin";
+import {
   isPlatformManagedLlmUser,
   resolveContentRouteByokFallback,
   resolveContentRouteLlm,
 } from "@/lib/llm/resolve-content-route-llm";
 import { isPlatformApiKey } from "@/lib/llm/platform-key.server";
 import { requireActiveSubscriptionLlm } from "@/lib/subscription/llm-gate.server";
+import { canWriteWorkspace } from "@/lib/workspace/require-workspace-write.server";
+import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
 import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, LlmProvider } from "@/types/workspace";
 import { NextResponse } from "next/server";
@@ -52,10 +59,29 @@ export async function POST(request: Request) {
   }
 
   const contentLanguage = body.contentLanguage as ContentLanguage;
-  const personaExcerpt =
-    body.personaExcerpt?.trim() || body.personaPromptText?.trim() || "";
 
-  const readiness = assessCreatorRadarContext(personaExcerpt, body.authorSteering);
+  const db = getAdminFirestore();
+  if (!db) {
+    return NextResponse.json({ error: "server_unavailable" }, { status: 503 });
+  }
+
+  const workspace = await resolveWorkspaceScopeForUser(db, userId);
+  if (!(await canWriteWorkspace(db, userId, workspace.ownerId, workspace.accountId))) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  const authorSteering = await gatherAuthorSteeringPayloadServer(db, workspace, {
+    newsInterestQuery: body.newsInterestQuery?.trim() || undefined,
+  });
+
+  const personaFromWorkspace = await readWorkspacePersonaExcerptServer(db, workspace);
+  const personaExcerpt =
+    personaFromWorkspace ||
+    body.personaExcerpt?.trim() ||
+    body.personaPromptText?.trim() ||
+    "";
+
+  const readiness = assessCreatorRadarContext(personaExcerpt, authorSteering);
   if (!readiness.ok) {
     return NextResponse.json({ error: readiness.code }, { status: 422 });
   }
@@ -79,10 +105,11 @@ export async function POST(request: Request) {
       subGate.access,
     );
     const result = await getOrCreateDailyCreatorRadar({
-      userId,
+      actorUserId: userId,
+      workspace,
       contentLanguage,
       personaExcerpt,
-      authorSteering: body.authorSteering,
+      authorSteering,
       newsInterestQuery: body.newsInterestQuery?.trim(),
       llmConfig: llm,
       llmByokFallback: byokFallback,

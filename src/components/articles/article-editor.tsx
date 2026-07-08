@@ -2,6 +2,7 @@
 
 import { ArticleFormatPanel } from "@/components/articles/article-format-panel";
 import { ArticleDraftReviewLinkButton } from "@/components/admin/article-draft-review-link-button";
+import { EditorBlockHeader } from "@/components/articles/editor-block-header";
 import { EditorCollapsibleSection } from "@/components/articles/editor-collapsible-section";
 import { EditorPanelPlaceholder } from "@/components/articles/editor-panel-placeholder";
 import dynamic from "next/dynamic";
@@ -1134,13 +1135,14 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  {!isValidated && article.refinement && !isWizard ? (
  <EditorCollapsibleSection
+ icon="refine"
  title={tRef("title")}
  hint={t("sections.refine.hint")}
  open={refineSectionOpen}
  onOpenChange={setRefineSectionOpen}
  sectionRef={refineSectionRef}
  >
- <div className="space-y-5 rounded-xl bg-ns-brand-light p-4 md:p-5">
+ <div className="space-y-5">
  {error && errorScope === "refine" && (
  <UserErrorBanner
  surface="article-editor-refine"
@@ -1291,9 +1293,14 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!isValidated && article.refinement && isWizard ? (
  <div
  ref={refineSectionRef}
- className="rounded-xl border border-gray-100 bg-ns-brand-light p-5 space-y-5"
+ className="scroll-mt-6 rounded-xl border border-ns-alternate/70 bg-white p-4 shadow-sm sm:p-5"
  >
- <h2 className="text-base font-semibold text-ns-tertiary">{tRef("title")}</h2>
+ <EditorBlockHeader
+ icon="refine"
+ title={tRef("title")}
+ hint={t("sections.refine.hint")}
+ />
+ <div className="mt-5 space-y-5">
  {error && errorScope === "refine" && (
  <UserErrorBanner
  surface="article-editor-refine"
@@ -1438,16 +1445,19 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  )}
  </div>
  </div>
+ </div>
  ) : null}
 
  {!isWizard && !isValidated && (
  <EditorCollapsibleSection
+ icon="analysis"
  title={t("sections.analysis.title")}
  hint={t("sections.analysis.hint")}
  defaultOpen={false}
  lazyMount
  >
  <ArticleQualityPanelLazy
+ embedded
  article={article}
  scores={qualityScores}
  alternativeHooks={alternativeHooks}
@@ -1459,6 +1469,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  revising={isRevising}
  />
  <ArticleSlopPanelLazy
+ embedded
  article={article}
  disabled={isBusy}
  onSave={async (slop) => {
@@ -1472,12 +1483,14 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  {!isWizard && isValidated && (
  <EditorCollapsibleSection
+ icon="analysis"
  title={t("sections.analysis.title")}
  hint={t("sections.analysis.hintValidated")}
  defaultOpen={false}
  lazyMount
  >
  <ArticleSlopPanelLazy
+ embedded
  article={article}
  disabled={isBusy}
  onSave={async (slop) => {
@@ -1491,8 +1504,24 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  {!isValidated && !isWizard ? (
  <EditorCollapsibleSection
+ icon="cta"
  title={tCta("title")}
  hint={t("sections.cta.hint")}
+ titleExtra={
+ <span onClick={(event) => event.stopPropagation()}>
+ <ContextHelp label={tCta("help.label")}>{tCta("help.body")}</ContextHelp>
+ </span>
+ }
+ actions={
+ <button
+ type="button"
+ disabled={ctaLoading || isBusy}
+ onClick={loadCtaSuggestions}
+ className="text-xs font-medium text-ns-secondary underline hover:text-ns-tertiary disabled:opacity-50"
+ >
+ {ctaLoading ? "…" : tCta("regenerate")}
+ </button>
+ }
  open={ctaSectionOpen}
  onOpenChange={(open) => {
  setCtaSectionOpen(open);
@@ -1503,20 +1532,6 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  sectionRef={ctaSectionRef}
  >
  <div className="space-y-4">
- <div className="flex flex-wrap items-center justify-between gap-2">
- <div className="flex items-center gap-2">
- <h3 className="text-base font-semibold text-ns-tertiary">{tCta("title")}</h3>
- <ContextHelp label={tCta("help.label")}>{tCta("help.body")}</ContextHelp>
- </div>
- <button
- type="button"
- disabled={ctaLoading || isBusy}
- onClick={loadCtaSuggestions}
- className="text-sm text-ns-secondary underline hover:text-ns-tertiary"
- >
- {ctaLoading ? "…" : tCta("regenerate")}
- </button>
- </div>
  <p className="text-sm text-ns-secondary">{tCta("subtitle")}</p>
 
  {ctaLoading && (
@@ -1558,23 +1573,24 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!isValidated && isWizard ? (
  <div
  ref={ctaSectionRef}
- className="scroll-mt-6 rounded-xl border-2 border-emerald-200/80 bg-emerald-50/30 p-5 space-y-4"
+ className="scroll-mt-6 rounded-xl border border-ns-alternate/70 bg-white p-4 shadow-sm sm:p-5 space-y-4"
  >
- <div className="flex flex-wrap items-center justify-between gap-2">
- <div className="flex items-center gap-2">
- <h2 className="text-base font-semibold text-ns-tertiary">{tCta("title")}</h2>
- <ContextHelp label={tCta("help.label")}>{tCta("help.body")}</ContextHelp>
- </div>
+ <EditorBlockHeader
+ icon="cta"
+ title={tCta("title")}
+ hint={tCta("subtitle")}
+ titleExtra={<ContextHelp label={tCta("help.label")}>{tCta("help.body")}</ContextHelp>}
+ actions={
  <button
  type="button"
  disabled={ctaLoading || isBusy}
  onClick={loadCtaSuggestions}
- className="text-sm text-ns-secondary underline hover:text-ns-tertiary"
+ className="text-xs font-medium text-ns-secondary underline hover:text-ns-tertiary disabled:opacity-50"
  >
  {ctaLoading ? "…" : tCta("regenerate")}
  </button>
- </div>
- <p className="text-sm text-ns-secondary">{tCta("subtitle")}</p>
+ }
+ />
 
  {ctaLoading && (
  <GeneratingIndicator label={tCta("loading")} className="max-w-md" />
@@ -1613,12 +1629,14 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  {!isWizard ? (
  <EditorCollapsibleSection
+ icon="enrich"
  title={t("sections.enrich.title")}
  hint={t("sections.enrich.hint")}
  defaultOpen={false}
  lazyMount
  >
  <ArticleFormatPanelLazy
+ embedded
  article={article}
  personaText={personaText}
  disabled={isBusy}
@@ -1638,6 +1656,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  {!isWizard && (
  <EditorCollapsibleSection
+ icon="share"
  title={t("sections.share.title")}
  hint={t("sections.share.hint")}
  defaultOpen={false}
@@ -1649,6 +1668,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  {!isWizard && !isValidated && (
  <EditorCollapsibleSection
+ icon="illustration"
  title={t("sections.illustration.title")}
  hint={t("sections.illustration.hint")}
  defaultOpen={false}
@@ -1659,6 +1679,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  }}
  >
  <ArticleIllustrationPanelLazy
+ embedded
  illustration={illustration}
  loading={illustrationLoading}
  regenerateDisabled={isBusy}
@@ -1673,13 +1694,17 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {!isValidated && (
  <div
  ref={validationActionsRef}
- className="scroll-mt-6 mb-6 rounded-xl border border-ns-alternate/80 bg-ns-surface p-4 sm:mb-8 sm:p-5"
+ className="scroll-mt-6 mb-6 rounded-xl border border-ns-alternate/70 bg-white p-4 shadow-sm sm:mb-8 sm:p-5"
  >
- <h2 className="text-base font-semibold text-ns-tertiary">{t("validationStepTitle")}</h2>
- <p className="mt-1 text-sm text-ns-secondary">{t("validationStepHint")}</p>
+ <EditorBlockHeader
+ icon="validate"
+ title={t("validationStepTitle")}
+ hint={t("validationStepHint")}
+ />
 
+ <div className="mt-4 space-y-4">
  {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
- <p className="mt-3 rounded-lg border border-sky-200/70 bg-sky-50/50 px-3 py-2.5 text-sm leading-relaxed text-sky-950">
+ <p className="rounded-lg border border-sky-200/70 bg-sky-50/50 px-3 py-2.5 text-sm leading-relaxed text-sky-950">
  {t("validateNoCtaReminder")}{" "}
  <button
  type="button"
@@ -1695,7 +1720,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  <GeneratingIndicator
  label={t("validating")}
  hint={t("validatingHint")}
- className="mt-4 max-w-xl"
+ className="max-w-xl"
  />
  )}
 
@@ -1703,14 +1728,14 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  type="button"
  disabled={isBusy || ctaLoading}
  onClick={() => void onValidate()}
- className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-ns-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50 sm:w-auto"
+ className="inline-flex w-full items-center justify-center gap-2 rounded-sm bg-ns-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50 sm:w-auto"
  >
  {isValidating && <ButtonSpinner />}
  {isValidating ? t("validating") : t("validate")}
  </button>
 
  {error && errorScope === "cta" && (
- <div className="mt-3">
+ <div>
  <UserErrorBanner
  surface="article-editor-validate"
  userMessage={error}
@@ -1740,6 +1765,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  </UserErrorBanner>
  </div>
  )}
+ </div>
  </div>
  )}
 

@@ -1,4 +1,6 @@
 import { getAuthorProfile } from "@/lib/workspace/author";
+import { getResolvedAuthorProfile } from "@/lib/profile/resolve-author-profile";
+import { ingestWorkspaceLearningSignals } from "@/lib/persona/ingest-workspace-learning";
 import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import {
@@ -53,10 +55,12 @@ function buildRefinementComment(refinement: ArticleRefinement): string | undefin
 
 /** Persist feedback signals and merge them into the Persona prompt. */
 export async function syncPersonaFromFeedback(userId: string) {
+  await ingestWorkspaceLearningSignals(userId).catch(() => {});
+
   const [persona, enrichment, author, audience, learning] = await Promise.all([
     getPersona(userId),
     getProfileEnrichment(userId),
-    getAuthorProfile(userId),
+    getResolvedAuthorProfile(userId),
     getAudienceProfile(userId),
     getLearningProfile(userId),
   ]);
@@ -158,7 +162,7 @@ export async function recordArticleRefinementFeedback(
   await syncPersonaFromFeedback(userId);
 
   const comment = buildRefinementComment(refinement);
-  if (comment && comment.length >= 40) {
+  if (comment && comment.length >= 20) {
     await tryRefreshPersonaBaseFromProfile(userId, contentLanguage, comment);
   }
 }

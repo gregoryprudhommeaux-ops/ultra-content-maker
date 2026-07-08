@@ -19,6 +19,7 @@ type Props = {
   onApplyHook: (hook: string) => void;
   onReviseIntent: (intent: ReviseIntent) => void;
   revising: boolean;
+  embedded?: boolean;
 };
 
 const SCORE_KEYS: (keyof ArticleQualityScores)[] = [
@@ -38,18 +39,19 @@ export function ArticleQualityPanel({
   onApplyHook,
   onReviseIntent,
   revising,
+  embedded = false,
 }: Props) {
   const t = useTranslations("setup.articles.quality");
 
   return (
-    <section className="rounded-xl border border-gray-100 bg-ns-brand-light/30 p-4 md:p-5 space-y-4">
+    <section className={embedded ? "space-y-4" : "rounded-xl border border-gray-100 bg-ns-brand-light/30 p-4 md:p-5 space-y-4"}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+            <h3 className="text-sm font-semibold text-ns-tertiary">{t("title")}</h3>
             <ContextHelp label={t("help.label")}>{t("help.body")}</ContextHelp>
           </div>
-          <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
+          <p className="mt-1 text-xs text-ns-secondary">{t("subtitle")}</p>
         </div>
         <button
           type="button"

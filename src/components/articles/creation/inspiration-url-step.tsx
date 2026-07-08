@@ -4,6 +4,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { getClientAuth } from "@/lib/firebase/client";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
+import { WizardStepActions, WizardStepCard } from "@/components/articles/creation/wizard-step-card";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
@@ -21,6 +22,7 @@ type Props = {
   onUrlChange: (url: string) => void;
   onExcerptChange: (excerpt: string) => void;
   onContinue: () => void;
+  onBack: () => void;
 };
 
 export function InspirationUrlStep({
@@ -30,6 +32,7 @@ export function InspirationUrlStep({
   onUrlChange,
   onExcerptChange,
   onContinue,
+  onBack,
 }: Props) {
   const t = useTranslations("setup.articles.create.inspiration");
   const tArticles = useTranslations("setup.articles");
@@ -117,11 +120,8 @@ export function InspirationUrlStep({
   }
 
   return (
-    <section className="space-y-4 rounded-xl border border-gray-100 bg-white p-5">
-      <div>
-        <h2 className="text-base font-semibold text-ns-tertiary">{t("urlTitle")}</h2>
-        <p className="mt-1 text-sm text-ns-secondary">{t("urlHint")}</p>
-      </div>
+    <WizardStepCard title={t("urlTitle")} hint={t("urlHint")} onBack={onBack}>
+      <div className="space-y-4">
       <div>
         <label className={LABEL_CLASS} htmlFor="inspiration-url">
           {t("urlLabel")}
@@ -174,14 +174,17 @@ export function InspirationUrlStep({
         />
         <p className="mt-1 text-xs text-ns-secondary">{t("excerptHelp")}</p>
       </div>
-      <button
-        type="button"
-        disabled={!urlOk || !excerptOk}
-        onClick={onContinue}
-        className={`${BTN_PRIMARY} disabled:opacity-50`}
-      >
-        {t("continueToBrief")}
-      </button>
-    </section>
+      <WizardStepActions onBack={onBack}>
+        <button
+          type="button"
+          disabled={!urlOk || !excerptOk}
+          onClick={onContinue}
+          className={`${BTN_PRIMARY} disabled:opacity-50`}
+        >
+          {t("continueToBrief")}
+        </button>
+      </WizardStepActions>
+      </div>
+    </WizardStepCard>
   );
 }

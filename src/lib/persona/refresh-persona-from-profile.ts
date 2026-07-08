@@ -1,5 +1,7 @@
 import { getAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
+import { getResolvedAuthorProfile } from "@/lib/profile/resolve-author-profile";
+import { ingestWorkspaceLearningSignals } from "@/lib/persona/ingest-workspace-learning";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
@@ -47,8 +49,10 @@ export async function refreshPersonaFromProfile(
     return { ok: false, error: "no_token" };
   }
 
+  await ingestWorkspaceLearningSignals(userId).catch(() => {});
+
   const [author, audience, sources, enrichment, learning] = await Promise.all([
-    getAuthorProfile(userId),
+    getResolvedAuthorProfile(userId),
     getAudienceProfile(userId),
     listSources(userId),
     getProfileEnrichment(userId),

@@ -1,5 +1,6 @@
 import { FieldValue, Timestamp, type Firestore } from "firebase-admin/firestore";
 import { randomBytes } from "crypto";
+import { getSiteUrl } from "@/lib/brand/site-url";
 import { resolveArticleDocument } from "@/lib/workspace/article-doc.server";
 import type { DraftReviewFeedback } from "@/types/workspace";
 
@@ -56,13 +57,38 @@ export async function createDraftReviewToken(
   );
   if (!resolved) throw new Error("article_not_found");
 
+  const locale = input.locale === "en" || input.locale === "es" ? input.locale : "fr";
+  const origin = getSiteUrl().replace(/\/$/, "");
+
+  const articleData = resolved.snap.data() ?? {};
+  const existingToken =
+    typeof articleData.draftReviewToken === "string"
+      ? articleData.draftReviewToken.trim()
+      : "";
+  if (existingToken) {
+    const existingSnap = await tokenRef(db, existingToken).get();
+    if (existingSnap.exists) {
+      const existing = existingSnap.data() as DraftReviewTokenRecord;
+      const stillValid =
+        existing.status === "active" &&
+        existing.expiresAt.toDate().getTime() > Date.now();
+      if (stillValid) {
+        return {
+          token: existingToken,
+          url: buildDraftReviewUrl(origin, locale, existingToken),
+          expiresAt: existing.expiresAt.toDate().toISOString(),
+        };
+      }
+    }
+  }
+
   const token = generateDraftReviewToken();
   const expiresAt = new Date(Date.now() + TOKEN_TTL_MS);
 
   await tokenRef(db, token).set({
     articleId: input.articleId,
-    ownerId: input.userId,
-    accountId: input.accountId,
+    ownerId: resolved.ownerId,
+    accountId: resolved.accountId,
     expiresAt,
     status: "active",
     createdAt: FieldValue.serverTimestamp(),
@@ -73,14 +99,6 @@ export async function createDraftReviewToken(
     { draftReviewToken: token, updatedAt: FieldValue.serverTimestamp() },
     { merge: true },
   );
-
-  const origin = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-    ? process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")
-    : process.env.VERCEL_URL?.trim()
-      ? `https://${process.env.VERCEL_URL.replace(/^https?:\/\//, "")}`
-      : "http://127.0.0.1:3000";
-
-  const locale = input.locale === "en" || input.locale === "es" ? input.locale : "fr";
 
   return {
     token,
@@ -190,6 +208,20 @@ export async function submitDraftReview(
     refinement,
     updatedAt: FieldValue.serverTimestamp(),
   });
+
+  try {
+    const { ingestClientReviewAndSyncPersonaServer } = await import(
+      "@/lib/persona/sync-persona-learned.server"
+    );
+    await ingestClientReviewAndSyncPersonaServer(
+      db,
+      { ownerId: data.ownerId, accountId: data.accountId },
+      data.articleId,
+      feedback,
+    );
+  } catch {
+    /* Persona sync must not block client review submission */
+  }
 
   await tokenRef(db, token).update({
     status: "submitted",

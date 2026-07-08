@@ -1,6 +1,7 @@
 "use client";
 
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
+import { WizardStepActions, WizardStepCard } from "@/components/articles/creation/wizard-step-card";
 import type { SourceLink } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
@@ -13,6 +14,7 @@ type Props = {
   excerpt: string;
   onExcerptChange: (excerpt: string) => void;
   onContinue: () => void;
+  onBack: () => void;
 };
 
 export function InspirationLibraryStep({
@@ -22,6 +24,7 @@ export function InspirationLibraryStep({
   excerpt,
   onExcerptChange,
   onContinue,
+  onBack,
 }: Props) {
   const t = useTranslations("setup.articles.create.inspiration");
   const tInsp = useTranslations("setup.inspirations");
@@ -29,12 +32,8 @@ export function InspirationLibraryStep({
   const selected = sources.find((s) => s.id === selectedId) ?? null;
 
   return (
-    <section className="space-y-4 rounded-xl border border-gray-100 bg-white p-5">
-      <div>
-        <h2 className="text-base font-semibold text-ns-tertiary">{t("libraryTitle")}</h2>
-        <p className="mt-1 text-sm text-ns-secondary">{t("libraryHint")}</p>
-      </div>
-
+    <WizardStepCard title={t("libraryTitle")} hint={t("libraryHint")} onBack={onBack}>
+      <div className="space-y-4">
       <ul className="max-h-64 space-y-2 overflow-y-auto">
         {sources.map((s) => (
           <li key={s.id}>
@@ -96,14 +95,17 @@ export function InspirationLibraryStep({
         <p className="mt-1 text-xs text-ns-secondary">{t("optionalExcerptHelp")}</p>
       </div>
 
-      <button
-        type="button"
-        disabled={!selected}
-        onClick={onContinue}
-        className={`${BTN_PRIMARY} disabled:opacity-50`}
-      >
-        {t("continueToBrief")}
-      </button>
-    </section>
+      <WizardStepActions onBack={onBack}>
+        <button
+          type="button"
+          disabled={!selected}
+          onClick={onContinue}
+          className={`${BTN_PRIMARY} disabled:opacity-50`}
+        >
+          {t("continueToBrief")}
+        </button>
+      </WizardStepActions>
+      </div>
+    </WizardStepCard>
   );
 }

@@ -87,6 +87,13 @@ export function ArticleTopicBriefForm({
     );
   }
 
+  const angleKey =
+    normalized.postAngle === "product"
+      ? "product"
+      : normalized.postAngle === "expertise"
+        ? "company"
+        : "default";
+
   return (
     <section
       className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4"
@@ -145,7 +152,7 @@ export function ArticleTopicBriefForm({
           type="text"
           value={fields.topic}
           onValueChange={(topic) => update({ topic })}
-          placeholder={t("topicPlaceholder")}
+          placeholder={t(`topicPlaceholder.${angleKey}` as "topicPlaceholder.default")}
           className={`${INPUT_CLASS} mt-1`}
           lang={locale}
         />
@@ -163,7 +170,7 @@ export function ArticleTopicBriefForm({
           rows={4}
           value={fields.message}
           onValueChange={(message) => update({ message })}
-          placeholder={t("messagePlaceholder")}
+          placeholder={t(`messagePlaceholder.${angleKey}` as "messagePlaceholder.default")}
           className={`${INPUT_CLASS} mt-1`}
           lang={locale}
         />
@@ -178,7 +185,7 @@ export function ArticleTopicBriefForm({
           rows={2}
           value={fields.example}
           onValueChange={(example) => update({ example })}
-          placeholder={t("examplePlaceholder")}
+          placeholder={t(`examplePlaceholder.${angleKey}` as "examplePlaceholder.default")}
           className={`${INPUT_CLASS} mt-1`}
           lang={locale}
         />

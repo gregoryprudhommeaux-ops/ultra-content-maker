@@ -57,7 +57,17 @@ export function PostAnglePicker({
               <button
                 key={angle}
                 type="button"
-                onClick={() => onChange({ ...brief, postAngle: angle })}
+                onClick={() =>
+                  onChange({
+                    ...brief,
+                    postAngle: angle,
+                    ...(angle === "product" &&
+                    offerNames.length > 0 &&
+                    !brief.productFocus
+                      ? { productFocus: offerNames[0] }
+                      : {}),
+                  })
+                }
                 className={`rounded-lg border px-3 py-3 text-left transition-colors ${
                   selected
                     ? "border-ns-primary bg-ns-brand-light text-ns-tertiary shadow-[inset_0_0_0_1px_rgba(157,196,26,0.35)]"
@@ -79,7 +89,17 @@ export function PostAnglePicker({
             <button
               key={angle}
               type="button"
-              onClick={() => onChange({ ...brief, postAngle: angle })}
+              onClick={() =>
+                onChange({
+                  ...brief,
+                  postAngle: angle,
+                  ...(angle === "product" &&
+                  offerNames.length > 0 &&
+                  !brief.productFocus
+                    ? { productFocus: offerNames[0] }
+                    : {}),
+                })
+              }
               className={[
                 "rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
                 postAngle === angle

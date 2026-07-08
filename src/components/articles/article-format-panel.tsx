@@ -19,6 +19,7 @@ type Props = {
   personaText: string;
   disabled?: boolean;
   onUpdated: (patch: Partial<ArticleDoc>) => void;
+  embedded?: boolean;
 };
 
 export function ArticleFormatPanel({
@@ -26,6 +27,7 @@ export function ArticleFormatPanel({
   personaText,
   disabled,
   onUpdated,
+  embedded = false,
 }: Props) {
   const t = useTranslations("setup.articles.format");
   const { user } = useAuth();
@@ -220,11 +222,13 @@ export function ArticleFormatPanel({
   }
 
   return (
-    <section className="rounded-xl border border-gray-100 bg-white p-5 space-y-6">
-      <div>
-        <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
-        <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
-      </div>
+    <section className={embedded ? "space-y-6" : "rounded-xl border border-gray-100 bg-white p-5 space-y-6"}>
+      {!embedded && (
+        <div>
+          <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+          <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
+        </div>
+      )}
 
       <div className="space-y-3 border-b border-gray-100 pb-5">
         <div className="flex flex-wrap items-center justify-between gap-2">

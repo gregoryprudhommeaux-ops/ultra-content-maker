@@ -3,21 +3,24 @@ import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
 import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
 import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
+import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
+import { buildPostBriefInstruction } from "@/lib/prompts/post-brief";
 import {
  injectAuthorSteering,
  slimAuthorSteeringForRevise,
  type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
-
-const REVISE_PERSONA_MAX_CHARS = 3_500;
 import type {
  ArticleNewsSource,
  ArticleRefinement,
  ContentLanguage,
  EmojiLevel,
+ PostBrief,
 } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
 import { languageOnlyRule } from "./language-consistency";
+
+const REVISE_PERSONA_MAX_CHARS = 3_500;
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
  fr: "French",
@@ -64,11 +67,22 @@ export function buildReviseUserPrompt(
  contentLanguage: ContentLanguage,
  newsSource?: ArticleNewsSource,
  authorSteering?: AuthorSteeringPayload | null,
+ postBrief?: PostBrief,
 ): string {
  const toneEdgeInstruction = buildToneEdgeInstruction(
  contentLanguage,
  refinement.toneEdge,
  );
+
+ const briefContext = buildPostBriefPromptContext({
+ author: authorSteering?.author ?? null,
+ profileEnrichment: authorSteering?.profileEnrichment ?? null,
+ authorSteering,
+ });
+ const postBriefInstruction =
+ postBrief?.postAngle
+ ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
+ : null;
 
  const payload: Record<string, unknown> = {
  personaPromptText: personaPromptText.slice(0, REVISE_PERSONA_MAX_CHARS),
@@ -77,6 +91,7 @@ export function buildReviseUserPrompt(
  toneEdge: refinement.toneEdge ?? "default",
  toneEdgeInstruction,
  corrosiveToneRequested: isCorrosiveToneEdge(refinement),
+ ...(postBriefInstruction ? { postBriefInstruction } : {}),
  };
  if (newsSource?.url) {
  payload.newsSourceCitation = buildNewsSourceInPostInstruction(

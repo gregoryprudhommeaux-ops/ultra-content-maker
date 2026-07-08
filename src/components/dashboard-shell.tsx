@@ -9,9 +9,11 @@ import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import {
   DASHBOARD_NAV,
   dashboardNavNeedsAttention,
+  isCreationHubPath,
   resolveDashboardNavActive,
   type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
+import { dispatchCreationFreshStart } from "@/lib/articles/creation-wizard-session";
 import { AccountSwitcher } from "@/components/workspace/account-switcher";
 import { AgencyWorkspaceBanner } from "@/components/workspace/agency-workspace-banner";
 import { AgencyHeaderPill, useAgencyManagedContext } from "@/components/workspace/agency-header-pill";
@@ -88,6 +90,18 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     return resolveDashboardNavActive(item, pathname, progress);
   }
 
+  function handleNavItemClick(
+    e: React.MouseEvent<HTMLAnchorElement>,
+    item: DashboardNavItem,
+    onAfter?: () => void,
+  ) {
+    if (item.key === "create" && isCreationHubPath(pathname)) {
+      e.preventDefault();
+      dispatchCreationFreshStart();
+    }
+    onAfter?.();
+  }
+
   const logoHref = resolveHomeHrefFromProgress(progress);
 
   const navItems = DASHBOARD_NAV.filter(
@@ -121,6 +135,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   href={navItemHref(item)}
                   className={navLinkClass(active)}
                   aria-current={active ? "page" : undefined}
+                  onClick={(e) => handleNavItemClick(e, item)}
                 >
                   {renderNavLabel(item.labelKey, active)}
                 </Link>
@@ -250,7 +265,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     : "text-white/85 hover:bg-white/5 hover:text-ns-primary"
                 }`}
                 aria-current={active ? "page" : undefined}
-                onClick={() => setMenuOpen(false)}
+                onClick={(e) => handleNavItemClick(e, item, () => setMenuOpen(false))}
               >
                 {renderNavLabel(item.labelKey, active)}
               </Link>

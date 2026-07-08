@@ -1,5 +1,6 @@
 import { getAudienceProfile } from "./audience";
 import { getAuthorProfile, isAuthorProfileExpressComplete } from "./author";
+import { getResolvedAuthorProfile, syncAuthorProfileFromCollectedData } from "@/lib/profile/resolve-author-profile";
 import { listArticleBatches } from "./articles";
 import { getUserLlmProfile } from "./llm-settings";
 import { getPersona } from "./persona";
@@ -73,7 +74,7 @@ export async function loadOnboardingProgress(
  userId: string,
  pathname: string | null,
 ): Promise<OnboardingProgress> {
- const [userDoc, llm, author, audience, persona, batches] = await Promise.all([
+ const [userDoc, llm, authorRaw, audience, persona, batches] = await Promise.all([
  getUserDoc(userId),
  getUserLlmProfile(userId),
  getAuthorProfile(userId),
@@ -81,6 +82,10 @@ export async function loadOnboardingProgress(
  getPersona(userId),
  listArticleBatches(userId),
  ]);
+
+ await syncAuthorProfileFromCollectedData(userId).catch(() => {});
+ const author =
+ (await getResolvedAuthorProfile(userId)) ?? authorRaw;
 
  const hasOwnApiKey = Boolean(llm?.userProvided && llm?.apiKey?.trim());
  const usesOwnerLlm = Boolean(userDoc?.linkedWorkspace?.ownerId);

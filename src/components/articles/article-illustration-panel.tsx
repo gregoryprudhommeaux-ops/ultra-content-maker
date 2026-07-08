@@ -11,6 +11,8 @@ type Props = {
  regenerateDisabled?: boolean;
  /** Compact block below validated post text (prompts only). */
  variant?: "panel" | "inline";
+ /** Hide outer title when nested in EditorCollapsibleSection. */
+ embedded?: boolean;
 };
 
 export function ArticleIllustrationPanel({
@@ -19,6 +21,7 @@ export function ArticleIllustrationPanel({
  onRegenerate,
  regenerateDisabled,
  variant = "panel",
+ embedded = false,
 }: Props) {
  const t = useTranslations("setup.articles.illustration");
  const [copiedIndex, setCopiedIndex] = useState<number | "keywords" | null>(null);
@@ -116,22 +119,30 @@ export function ArticleIllustrationPanel({
  );
  }
 
+ const regenerateButton = (
+ <button
+ type="button"
+ disabled={loading || regenerateDisabled}
+ onClick={onRegenerate}
+ className="shrink-0 text-xs font-medium text-ns-secondary underline hover:text-ns-tertiary disabled:opacity-50"
+ >
+ {loading ? "…" : t("regenerate")}
+ </button>
+ );
+
  return (
- <section className="rounded-xl border border-gray-100 bg-ns-brand-light/50 p-5 space-y-4">
+ <section className={embedded ? "space-y-4" : "rounded-xl border border-gray-100 bg-ns-brand-light/50 p-5 space-y-4"}>
+ {!embedded ? (
  <div className="flex flex-wrap items-start justify-between gap-3">
  <div>
  <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
  <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
  </div>
- <button
- type="button"
- disabled={loading || regenerateDisabled}
- onClick={onRegenerate}
- className="shrink-0 text-sm font-medium text-ns-tertiary underline hover:text-ns-primary disabled:opacity-50"
- >
- {loading ? "…" : t("regenerate")}
- </button>
+ {regenerateButton}
  </div>
+ ) : (
+ <div className="flex flex-wrap items-center justify-end gap-2">{regenerateButton}</div>
+ )}
 
  {loading && !illustration && (
  <p className="text-sm text-ns-secondary">{t("loading")}</p>

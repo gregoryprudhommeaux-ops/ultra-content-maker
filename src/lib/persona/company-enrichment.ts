@@ -1,6 +1,17 @@
-import type { ContentArchetype, CompanyOffer, GapAnswerValue } from "@/types/workspace";
+import {
+  migrateLinkedInActivitySources,
+  migrateWebSources,
+} from "@/lib/profile/author-reference-urls";
+import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
+import type {
+  AuthorProfile,
+  ContentArchetype,
+  CompanyOffer,
+  GapAnswerValue,
+} from "@/types/workspace";
 
 export const COMPANY_ENRICHMENT_KEYS = {
+  companyName: "company_name",
   productOrOfferName: "product_or_offer_name",
   categoryThesis: "category_thesis",
   productProofPoints: "product_proof_points",
@@ -105,11 +116,123 @@ export function buildCompanyContextForPrompt(
     return parts.join(" · ");
   });
 
-  return `Company / product context (use when postAngle is product or archetype is founder_product/hybrid):\n${lines.join("\n")}`;
+  return `Company / product context (use when postAngle is product or company expertise · company name MUST appear in generated posts):\n${lines.join("\n")}`;
 }
 
 export function offerNamesFromEnrichment(
   details: Record<string, GapAnswerValue> | null | undefined,
 ): string[] {
   return parseCompanyOffersFromEnrichment(details).map((o) => o.name).filter(Boolean);
+}
+
+const ROLE_TITLE_COMPANY_RE =
+  /\b(?:chez|at|@|de la société|de l['’]entreprise|for|pour)\s+([A-ZÀ-ÖØ-Þ0-9][^|,·\n]{1,80})/i;
+
+function titleCaseFromSlug(slug: string): string {
+  return slug
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function companyNameFromLinkedInUrl(url: string): string | undefined {
+  try {
+    const path = new URL(url).pathname;
+    const match = path.match(/\/company\/([^/?#]+)/i);
+    if (!match?.[1]) return undefined;
+    const slug = decodeURIComponent(match[1]).trim();
+    if (!slug || slug.length < 2) return undefined;
+    return titleCaseFromSlug(slug);
+  } catch {
+    return undefined;
+  }
+}
+
+function companyNameFromRoleTitle(roleTitle: string): string | undefined {
+  const trimmed = roleTitle.trim();
+  if (!trimmed) return undefined;
+
+  const match = ROLE_TITLE_COMPANY_RE.exec(trimmed);
+  if (match?.[1]) {
+    return match[1].replace(/\s+(?:CEO|PDG|founder|fondateur).*$/i, "").trim();
+  }
+
+  const separatorMatch = trimmed.match(/\s[|·]\s([^|·]+)$/);
+  if (separatorMatch?.[1]) {
+    const candidate = separatorMatch[1].trim();
+    if (candidate.length >= 2 && candidate.length <= 80) return candidate;
+  }
+
+  return undefined;
+}
+
+/** Best-effort company name for company/product post angles (Persona fallback when empty). */
+export function resolveCompanyNameForPrompt(input: {
+  author?: Pick<
+    AuthorProfile,
+    | "roleTitle"
+    | "positioningLine"
+    | "linkedinActivitySources"
+    | "webSources"
+    | "linkedinActivityUrl"
+  > | null;
+  profileEnrichment?: Record<string, GapAnswerValue> | null;
+  authorSteering?: AuthorSteeringPayload | null;
+}): string | undefined {
+  const author = input.author ?? input.authorSteering?.author ?? null;
+  const enrichment =
+    input.profileEnrichment ?? input.authorSteering?.profileEnrichment ?? null;
+
+  const fromEnrichment = readString(
+    (enrichment ?? {}) as Record<string, GapAnswerValue>,
+    COMPANY_ENRICHMENT_KEYS.companyName,
+  );
+  if (fromEnrichment) return fromEnrichment;
+
+  for (const source of migrateLinkedInActivitySources(author)) {
+    if (source.kind !== "linkedin_company") continue;
+    if (source.label?.trim()) return source.label.trim();
+    const fromUrl = companyNameFromLinkedInUrl(source.url);
+    if (fromUrl) return fromUrl;
+  }
+
+  for (const source of migrateWebSources(author)) {
+    if (source.kind === "website" && source.label?.trim()) {
+      return source.label.trim();
+    }
+  }
+
+  const fromRole = companyNameFromRoleTitle(author?.roleTitle ?? "");
+  if (fromRole) return fromRole;
+
+  return undefined;
+}
+
+export function buildPostBriefPromptContext(input: {
+  author?: Pick<
+    AuthorProfile,
+    | "roleTitle"
+    | "positioningLine"
+    | "linkedinActivitySources"
+    | "webSources"
+    | "linkedinActivityUrl"
+  > | null;
+  profileEnrichment?: Record<string, GapAnswerValue> | Record<string, unknown> | null;
+  authorSteering?: AuthorSteeringPayload | null;
+}): { companyName?: string } {
+  const enrichment = (input.profileEnrichment ??
+    input.authorSteering?.profileEnrichment ??
+    null) as Record<string, GapAnswerValue> | null;
+
+  const companyName = resolveCompanyNameForPrompt({
+    author: input.author ?? input.authorSteering?.author ?? null,
+    profileEnrichment: enrichment,
+    authorSteering: input.authorSteering,
+  });
+  const offers = offerNamesFromEnrichment(enrichment);
+  return {
+    ...(companyName ? { companyName } : {}),
+    ...(offers[0] ? { defaultProductFocus: offers[0] } : {}),
+  };
 }

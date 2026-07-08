@@ -11,6 +11,7 @@ type Props = {
   article: ArticleDoc;
   disabled?: boolean;
   onSave?: (slop: SlopAnalysis) => void;
+  embedded?: boolean;
 };
 
 function scoreTone(slopScore: number): "good" | "warn" | "bad" {
@@ -19,7 +20,7 @@ function scoreTone(slopScore: number): "good" | "warn" | "bad" {
   return "good";
 }
 
-export function ArticleSlopPanel({ article, disabled, onSave }: Props) {
+export function ArticleSlopPanel({ article, disabled, onSave, embedded = false }: Props) {
   const t = useTranslations("setup.articles.slop");
   const live = useMemo(
     () =>
@@ -56,14 +57,14 @@ export function ArticleSlopPanel({ article, disabled, onSave }: Props) {
         : "guidanceClean";
 
   return (
-    <section className="rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4">
+    <section className={embedded ? "space-y-4 border-t border-ns-alternate/50 pt-4" : "rounded-xl border border-gray-100 bg-white p-4 md:p-5 space-y-4"}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+            <h3 className="text-sm font-semibold text-ns-tertiary">{t("title")}</h3>
             <ContextHelp label={t("help.label")}>{t("help.body")}</ContextHelp>
           </div>
-          <p className="text-sm leading-relaxed text-ns-secondary">{t("intro")}</p>
+          <p className="text-xs leading-relaxed text-ns-secondary">{t("intro")}</p>
         </div>
         {onSave && (
           <span className="flex shrink-0 items-center gap-2">

@@ -17,6 +17,11 @@ import {
 } from "@/lib/creator-radar/normalize";
 import { normalizeLinkedInProfileUrl } from "@/lib/creator-radar/urls";
 import type { CreatorRadarSuggestion } from "@/types/creator-radar";
+import type { ResolvedWorkspaceScope } from "@/lib/workspace/resolve-workspace-scope.server";
+import {
+  listWorkspaceCollectionDocs,
+  workspaceScopedDocPath,
+} from "@/lib/workspace/workspace-read.server";
 import type { ContentLanguage } from "@/types/workspace";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -38,10 +43,12 @@ function isDismissActive(entry: DismissEntry, now = new Date()): boolean {
   return ageMs >= 0 && ageMs <= DISMISS_DAYS * 24 * 60 * 60 * 1000;
 }
 
-export async function getDismissedLinkedInUrls(userId: string): Promise<string[]> {
+export async function getDismissedLinkedInUrls(
+  scope: ResolvedWorkspaceScope,
+): Promise<string[]> {
   const db = getAdminFirestore();
   if (!db) return [];
-  const snap = await db.doc(`users/${userId}/creatorRadarPrefs/prefs`).get();
+  const snap = await db.doc(workspaceScopedDocPath(scope, "creatorRadarPrefs", "prefs")).get();
   if (!snap.exists) return [];
   const raw = snap.data()?.dismissed;
   if (!Array.isArray(raw)) return [];
@@ -52,11 +59,14 @@ export async function getDismissedLinkedInUrls(userId: string): Promise<string[]
     .map((e) => normalizeLinkedInProfileUrl(e.url));
 }
 
-export async function dismissCreatorRadarUrl(userId: string, linkedinUrl: string): Promise<void> {
+export async function dismissCreatorRadarUrl(
+  scope: ResolvedWorkspaceScope,
+  linkedinUrl: string,
+): Promise<void> {
   const db = getAdminFirestore();
   if (!db) return;
   const normalized = normalizeLinkedInProfileUrl(linkedinUrl);
-  const ref = db.doc(`users/${userId}/creatorRadarPrefs/prefs`);
+  const ref = db.doc(workspaceScopedDocPath(scope, "creatorRadarPrefs", "prefs"));
   const snap = await ref.get();
   const existing = snap.exists ? (snap.data()?.dismissed as DismissEntry[] | undefined) : [];
   const list = Array.isArray(existing) ? existing : [];
@@ -71,23 +81,25 @@ export async function dismissCreatorRadarUrl(userId: string, linkedinUrl: string
   );
 }
 
-async function listSavedInspirationProfileUrls(userId: string): Promise<string[]> {
+async function listSavedInspirationProfileUrls(
+  scope: ResolvedWorkspaceScope,
+): Promise<string[]> {
   const db = getAdminFirestore();
   if (!db) return [];
-  const snap = await db.collection(`users/${userId}/sources`).get();
-  return snap.docs
-    .map((d) => d.data())
+  const docs = await listWorkspaceCollectionDocs(db, scope, "sources");
+  return docs
+    .map((d) => d.data)
     .filter((d) => d.category === "inspiration_profile" && typeof d.url === "string")
     .map((d) => normalizeLinkedInProfileUrl(d.url as string));
 }
 
 async function loadDailyRadar(
-  userId: string,
+  scope: ResolvedWorkspaceScope,
   dateKey: string,
 ): Promise<CreatorRadarSuggestion[] | null> {
   const db = getAdminFirestore();
   if (!db) return null;
-  const snap = await db.doc(`users/${userId}/creatorRadarDaily/${dateKey}`).get();
+  const snap = await db.doc(workspaceScopedDocPath(scope, "creatorRadarDaily", dateKey)).get();
   if (!snap.exists) return null;
   const creators = snap.data()?.creators;
   if (!Array.isArray(creators)) return null;
@@ -95,13 +107,13 @@ async function loadDailyRadar(
 }
 
 async function saveDailyRadar(
-  userId: string,
+  scope: ResolvedWorkspaceScope,
   dateKey: string,
   creators: CreatorRadarSuggestion[],
 ): Promise<void> {
   const db = getAdminFirestore();
   if (!db) return;
-  await db.doc(`users/${userId}/creatorRadarDaily/${dateKey}`).set({
+  await db.doc(workspaceScopedDocPath(scope, "creatorRadarDaily", dateKey)).set({
     dateKey,
     creators,
     generatedAt: FieldValue.serverTimestamp(),
@@ -116,7 +128,8 @@ function filterCreators(
 }
 
 export type CreatorRadarFetchInput = {
-  userId: string;
+  actorUserId: string;
+  workspace: ResolvedWorkspaceScope;
   contentLanguage: ContentLanguage;
   personaExcerpt?: string;
   authorSteering?: AuthorSteeringPayload | null;
@@ -136,9 +149,9 @@ export async function getOrCreateDailyCreatorRadar(
 ): Promise<CreatorRadarResult> {
   const dateKey = creatorRadarDateKeyUtc();
   const [cached, dismissed, savedProfiles] = await Promise.all([
-    loadDailyRadar(input.userId, dateKey),
-    getDismissedLinkedInUrls(input.userId),
-    listSavedInspirationProfileUrls(input.userId),
+    loadDailyRadar(input.workspace, dateKey),
+    getDismissedLinkedInUrls(input.workspace),
+    listSavedInspirationProfileUrls(input.workspace),
   ]);
 
   const exclude = new Set([...dismissed, ...savedProfiles]);
@@ -170,7 +183,11 @@ export async function getOrCreateDailyCreatorRadar(
       content: buildCreatorRadarUserPrompt(profileContext, contentNiche, [...exclude]),
     },
   ];
-  const chatOptions = mergeUsageLog(input.userId, "creator-radar/suggestions", CREATOR_RADAR_CHAT_OPTIONS);
+  const chatOptions = mergeUsageLog(
+    input.actorUserId,
+    "creator-radar/suggestions",
+    CREATOR_RADAR_CHAT_OPTIONS,
+  );
 
   const raw = await chatCreatorRadarWithPlatformFallback(
     llm,
@@ -187,7 +204,7 @@ export async function getOrCreateDailyCreatorRadar(
   }
 
   const toStore = creators.slice(0, CREATOR_RADAR_COUNT);
-  await saveDailyRadar(input.userId, dateKey, toStore);
+  await saveDailyRadar(input.workspace, dateKey, toStore);
 
   return {
     creators: filterCreators(toStore, exclude),

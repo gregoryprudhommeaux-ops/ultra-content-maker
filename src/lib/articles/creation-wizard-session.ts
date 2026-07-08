@@ -9,6 +9,14 @@ const MAX_AGE_MS = 30 * 60 * 1000;
 /** Query flag on `/articles/new` · skip session restore and show the mode picker. */
 export const CREATION_FRESH_PARAM = "fresh";
 
+/** Sidebar / nav reuse while already on `/articles/new` (no URL change). */
+export const CREATION_FRESH_START_EVENT = "ucm:creation-fresh-start";
+
+export function dispatchCreationFreshStart(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(CREATION_FRESH_START_EVENT));
+}
+
 export function isFreshCreationRequest(
  params: Pick<URLSearchParams, "get">,
 ): boolean {

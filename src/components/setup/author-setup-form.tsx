@@ -22,6 +22,11 @@ import {
 import { resolveInspirationsReturn } from "@/lib/navigation/inspirations-return";
 import { completeAuthorStep, getAuthorProfile, isAuthorProfileMinimumComplete, saveAuthorProfile } from "@/lib/workspace/author";
 import {
+  getResolvedAuthorProfile,
+  syncAuthorProfileFromCollectedData,
+} from "@/lib/profile/resolve-author-profile";
+import { listSources } from "@/lib/workspace/sources";
+import {
   companyOffersToEnrichmentPatch,
   parseCompanyOffersFromEnrichment,
   showsCompanyProfileFields,
@@ -60,7 +65,7 @@ export function AuthorSetupForm() {
   const tInspirations = useTranslations("setup.inspirations");
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
-  const { activeAccount } = useWorkspace();
+  const { activeAccount, scope } = useWorkspace();
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = parseAuthorTab(searchParams.get("tab"));
@@ -84,6 +89,7 @@ export function AuthorSetupForm() {
   const [loaded, setLoaded] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
   const [savedProfile, setSavedProfile] = useState<Awaited<ReturnType<typeof getAuthorProfile>>>(null);
+  const [inspirationSources, setInspirationSources] = useState<Awaited<ReturnType<typeof listSources>>>([]);
   const autoTabAppliedRef = useRef(false);
 
   const enrichMode = useMemo(
@@ -91,8 +97,8 @@ export function AuthorSetupForm() {
     [savedProfile, fromParam],
   );
   const linkedinAlreadySaved = useMemo(
-    () => hasCapturedLinkedIn(savedProfile),
-    [savedProfile],
+    () => hasCapturedLinkedIn(savedProfile, inspirationSources),
+    [savedProfile, inspirationSources],
   );
   const effectiveLinkedInUrl = useMemo(
     () => linkedinProfileUrl.trim() || savedProfile?.linkedinProfileUrl?.trim() || "",
@@ -111,11 +117,14 @@ export function AuthorSetupForm() {
     setError(null);
     (async () => {
       await ensureUserDoc(user.uid, user.email ?? "", user.displayName ?? undefined);
-      const [profile, enrichment] = await Promise.all([
-        getAuthorProfile(user.uid),
+      await syncAuthorProfileFromCollectedData(user.uid).catch(() => {});
+      const [profile, enrichment, sources] = await Promise.all([
+        getResolvedAuthorProfile(user.uid),
         getProfileEnrichment(user.uid),
+        listSources(user.uid).catch(() => []),
       ]);
       if (cancelled) return;
+      setInspirationSources(sources);
       if (profile) {
         setSavedProfile(profile);
         setLinkedinProfileUrl(profile.linkedinProfileUrl ?? "");
@@ -128,6 +137,7 @@ export function AuthorSetupForm() {
         setCompanyOffers(parseCompanyOffersFromEnrichment(enrichment?.details));
       } else {
         setSavedProfile(null);
+        setInspirationSources(sources);
         setLinkedinProfileUrl("");
         setLinkedinActivitySources([]);
         setWebSources([]);
@@ -142,7 +152,7 @@ export function AuthorSetupForm() {
     return () => {
       cancelled = true;
     };
-  }, [user, activeAccount?.id, activeAccount?.contentLanguage, locale]);
+  }, [user, activeAccount?.id, activeAccount?.contentLanguage, scope?.ownerId, scope?.accountId, locale]);
 
   useEffect(() => {
     if (!loaded || autoTabAppliedRef.current) return;

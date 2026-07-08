@@ -1738,6 +1738,7 @@
         "backToList": "Back to posts",
         "viewLibrary": "View my library",
         "back": "← Previous step",
+        "backShort": "Back",
         "setupReadyBanner": {
           "eyebrow": "Setup complete",
           "title": "Your Content Brain is ready",
@@ -1934,13 +1935,25 @@
           "topicLabel": "Post topic",
           "topicHelpLabel": "Topic",
           "topicHelp": "A clear subject in one line: what the post is about.",
-          "topicPlaceholder": "E.g. I just completed my Executive Master at HEC Paris",
+          "topicPlaceholder": {
+            "default": "E.g. I just completed my Executive Master at HEC Paris",
+            "company": "E.g. Why we repositioned our offer around export supply chain visibility",
+            "product": "E.g. Launching our supply chain visibility module for exporting SMBs"
+          },
           "messageLabel": "What you want to say",
           "messageHelpLabel": "Message",
           "messageHelp": "Your story in your own words : feelings, context, what matters to you. The AI will rephrase, not replace your meaning.",
-          "messagePlaceholder": "E.g. This journey took three years alongside my role as plant director. The hardest part wasn't the exams, it was learning to lead change while still being in the field…",
+          "messagePlaceholder": {
+            "default": "E.g. This journey took three years alongside my role as plant director. The hardest part wasn't the exams, it was learning to lead change while still being in the field…",
+            "company": "E.g. At [Company name], we defend a simple thesis: end-to-end visibility beats price-only arbitrage. Here's what we learned supporting exporting SMBs…",
+            "product": "E.g. Our [Offer name] module solves a concrete problem: teams lose weeks consolidating scattered data. Client outcome: faster decisions without extra headcount…"
+          },
           "exampleLabel": "Detail or proof (optional)",
-          "examplePlaceholder": "E.g. Final project on operational excellence in automotive supply chain, grade 18/20…",
+          "examplePlaceholder": {
+            "default": "E.g. Final project on operational excellence in automotive supply chain, grade 18/20…",
+            "company": "E.g. Anonymized client case, internal metric, or field observation from your market…",
+            "product": "E.g. Two-week rollout · 30% fewer stockouts in 12 months (anonymized client case)…"
+          },
           "ctaLabel": "Closing intention (optional)",
           "ctaPlaceholder": "E.g. Thank the teams who supported me; invite peers to share their own learning path",
           "ctaHint": "Optional, the Quality Panel can suggest improvements based on your profile after generation.",
@@ -2045,6 +2058,8 @@
         "pastePlaceholder": "Paste the source post or article here…",
         "pasteRequired": "Paste at least a few lines of reference text.",
         "continueToBrief": "Continue to brief",
+        "personaRequired": "Validate your Persona before generating.",
+        "personaRequiredHint": "Go to Persona →",
         "generateDraft": "Generate draft",
         "draftDoneTitle": "Your draft",
         "draftDoneHint": "Review the title and body, adjust the angle if needed, pick a CTA, then validate, same as the full editor.",
@@ -2191,7 +2206,7 @@
           },
           "postAngle": {
             "label": "Help: post angle",
-            "body": "Expertise = personal POV. Product = ICP problem and offer proof — not a brochure."
+            "body": "Company & expertise = company vision and category (company name required in the post). Product = ICP problem and offer proof — offer name required when selected · not a brochure."
           }
         },
         "niche": {
@@ -2552,10 +2567,21 @@
         "hint": "Send this post to a colleague by email or WhatsApp. The Ultra Content Maker mention is added for sharing only (not in the LinkedIn copy).",
         "email": "Email",
         "whatsapp": "WhatsApp",
+        "adminFeedbackGenerate": "Generate review link",
+        "adminFeedbackRegenerate": "Regenerate link",
+        "adminFeedbackEmail": "Open client email",
         "adminFeedbackLink": "Email review link to client",
-        "adminFeedbackLoading": "Preparing…",
+        "adminFeedbackLoading": "Generating…",
         "adminFeedbackError": "Failed — try again",
-        "adminFeedbackHint": "Admin only: opens an email draft (client language) with a secure link to a structured review page."
+        "adminFeedbackErrorNotFound": "Article not found for this workspace account.",
+        "adminFeedbackErrorAuth": "Session expired — sign in again.",
+        "adminFeedbackErrorForbidden": "Access denied for this account.",
+        "adminFeedbackErrorServer": "Admin service unavailable (Firebase Admin).",
+        "adminFeedbackLinkReady": "Review link ready",
+        "adminFeedbackCopyLink": "Copy link",
+        "adminFeedbackCopied": "Link copied",
+        "adminFeedbackOpenPage": "Open page",
+        "adminFeedbackHint": "Admin only: 1) generate the link, 2) verify it below, 3) open the client email with the link included."
       },
       "insufficientCredits": "Monthly quota reached.",
       "premiumRequired": "Feature reserved for paid plans.",
@@ -2663,10 +2689,11 @@
     }
   },
   "adminDraftReview": {
-    "button": "Send review link to client",
+    "button": "Generate review link",
     "loading": "Generating…",
     "copied": "Link copied",
-    "error": "Failed — try again"
+    "error": "Failed — try again",
+    "open": "Open review page"
   },
   "dashboard": {
     "clients": {

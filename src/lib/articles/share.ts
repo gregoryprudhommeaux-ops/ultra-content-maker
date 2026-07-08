@@ -57,8 +57,13 @@ export function buildMailtoHref(subject: string, body: string, to?: string): str
 }
 
 export function openMailtoHref(href: string): void {
- if (typeof window === "undefined") return;
- window.location.assign(href);
+  if (typeof window === "undefined") return;
+  const anchor = document.createElement("a");
+  anchor.href = href;
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
 }
 
 export function buildWhatsAppHref(text: string): string {

@@ -8,6 +8,16 @@ export type ResolvedArticleDocument = {
   accountId: string;
 };
 
+async function readArticleRef(
+  ref: DocumentReference,
+  ownerId: string,
+  accountId: string,
+): Promise<ResolvedArticleDocument | null> {
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  return { ref, snap, ownerId, accountId };
+}
+
 /** Resolves an article doc under scoped or legacy workspace paths. */
 export async function resolveArticleDocument(
   db: Firestore,
@@ -16,20 +26,32 @@ export async function resolveArticleDocument(
   articleId: string,
 ): Promise<ResolvedArticleDocument | null> {
   const trimmedId = articleId.trim();
-  if (!ownerId.trim() || !trimmedId) return null;
+  const trimmedOwner = ownerId.trim();
+  if (!trimmedOwner || !trimmedId) return null;
 
-  const candidates: DocumentReference[] = [
-    db.doc(`users/${ownerId}/accounts/${accountId}/articles/${trimmedId}`),
-  ];
-  if (accountId === DEFAULT_ACCOUNT_ID) {
-    candidates.push(db.doc(`users/${ownerId}/articles/${trimmedId}`));
-  }
+  const scoped = await readArticleRef(
+    db.doc(`users/${trimmedOwner}/accounts/${accountId}/articles/${trimmedId}`),
+    trimmedOwner,
+    accountId,
+  );
+  if (scoped) return scoped;
 
-  for (const ref of candidates) {
-    const snap = await ref.get();
-    if (snap.exists) {
-      return { ref, snap, ownerId, accountId };
-    }
+  const legacy = await readArticleRef(
+    db.doc(`users/${trimmedOwner}/articles/${trimmedId}`),
+    trimmedOwner,
+    DEFAULT_ACCOUNT_ID,
+  );
+  if (legacy) return legacy;
+
+  const accountsSnap = await db.collection(`users/${trimmedOwner}/accounts`).get();
+  for (const accountDoc of accountsSnap.docs) {
+    if (accountDoc.id === accountId) continue;
+    const found = await readArticleRef(
+      db.doc(`users/${trimmedOwner}/accounts/${accountDoc.id}/articles/${trimmedId}`),
+      trimmedOwner,
+      accountDoc.id,
+    );
+    if (found) return found;
   }
 
   return null;

@@ -17,6 +17,41 @@ const OBJECTIVE_LABELS: Record<PostObjective, string> = {
  leads: "inbound interest (DMs, calls)",
 };
 
+export type PostBriefPromptContext = {
+ /** Resolved company name when available; Persona/profile is fallback in prompts. */
+ companyName?: string;
+ /** First configured offer when brief.productFocus is empty. */
+ defaultProductFocus?: string;
+};
+
+function companyNameRule(companyName?: string): string {
+ if (companyName?.trim()) {
+ return ` Company name "${companyName.trim()}" MUST appear naturally in hook and/or body (at least once, ideally in the first third).`;
+ }
+ return " Company name from Persona, authorSteering, or profile MUST appear naturally in hook and/or body (at least once, ideally early).";
+}
+
+function buildPostAngleBlock(
+ brief: PostBrief,
+ context?: PostBriefPromptContext,
+): string {
+ const productFocus = brief.productFocus?.trim() || context?.defaultProductFocus?.trim();
+ const companyName = context?.companyName;
+
+ if (brief.postAngle === "product") {
+ const offerRule = productFocus
+ ? ` Focus offer: "${productFocus}" — this product/offer name MUST appear at least once in hook and/or body.`
+ : " Name the selected offer/product at least once when known from profile or brief.";
+ return `- Post angle: PRODUCT / OFFER — lead with ICP problem and category POV · product is proof, not a brochure.${offerRule}${companyNameRule(companyName)} Do not center the post on the author's personal career or generic individual expertise · promote the company and its offer. No feature laundry list.`;
+ }
+
+ if (brief.postAngle === "expertise") {
+ return `- Post angle: COMPANY & EXPERTISE — promote the company's category vision, culture, or leadership POV · NOT a personal career memoir or generic thought-leadership about the author alone.${companyNameRule(companyName)} The company is the subject; the author speaks as its leader/representative. Do not frame the post as pure personal expertise unless the brief explicitly requires it.`;
+ }
+
+ return "";
+}
+
 function formatObjectivesBlock(brief: PostBrief): string {
  const ranked = sortObjectivesByPriority(brief.objectives ?? []);
  if (ranked.length === 0) return "- Objectives: (none)";
@@ -32,18 +67,14 @@ function formatObjectivesBlock(brief: PostBrief): string {
 export function buildPostBriefInstruction(
  brief: PostBrief,
  contentLanguage: ContentLanguage,
+ context?: PostBriefPromptContext,
 ): string {
  const normalized = normalizePostBrief(brief);
  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
  const objectivesBlock = formatObjectivesBlock(normalized);
  const primary = sortObjectivesByPriority(normalized.objectives)[0]?.objective;
 
- const angleBlock =
- normalized.postAngle === "product"
- ? `- Post angle: PRODUCT / OFFER — lead with ICP problem and category POV · product is proof, not a brochure.${normalized.productFocus?.trim() ? ` Focus on: ${normalized.productFocus.trim()}.` : ""} Name the offer when it sharpens the lesson · no feature laundry list.`
- : normalized.postAngle === "expertise"
- ? "- Post angle: EXPERTISE — people-first expert voice · how the author thinks, not a product pitch."
- : "";
+ const angleBlock = buildPostAngleBlock(normalized, context);
 
  return `POST BRIEF (mandatory · all ${lang} posts in this batch must follow):
 ${objectivesBlock}

@@ -4,6 +4,7 @@ import { getClientAuth } from "@/lib/firebase/client";
 import { BIO_DOC_ACCEPT, BIO_DOC_MAX_MB } from "@/lib/workspace/bio-documents-utils";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
+import { WizardStepActions, WizardStepCard } from "@/components/articles/creation/wizard-step-card";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -19,6 +20,7 @@ type Props = {
   selectedId: string | null;
   onSelect: (doc: BioDocListItem) => void;
   onContinue: () => void;
+  onBack: () => void;
 };
 
 async function authHeaders(): Promise<HeadersInit | null> {
@@ -28,7 +30,7 @@ async function authHeaders(): Promise<HeadersInit | null> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export function InspirationDocumentStep({ selectedId, onSelect, onContinue }: Props) {
+export function InspirationDocumentStep({ selectedId, onSelect, onContinue, onBack }: Props) {
   const t = useTranslations("setup.articles.create.inspiration");
   const tBio = useTranslations("setup.author.bioDocuments");
   const { scope } = useWorkspace();
@@ -100,12 +102,8 @@ export function InspirationDocumentStep({ selectedId, onSelect, onContinue }: Pr
   const canContinue = Boolean(selected && (selected.textPreview?.trim().length ?? 0) >= 40);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-base font-semibold text-ns-tertiary">{t("documentTitle")}</h2>
-        <p className="mt-1 text-sm text-ns-secondary">{t("documentSubtitle")}</p>
-      </div>
-
+    <WizardStepCard title={t("documentTitle")} hint={t("documentSubtitle")} onBack={onBack}>
+      <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -166,14 +164,17 @@ export function InspirationDocumentStep({ selectedId, onSelect, onContinue }: Pr
         </ul>
       )}
 
-      <button
-        type="button"
-        disabled={!canContinue}
-        onClick={onContinue}
-        className={`${BTN_PRIMARY} disabled:opacity-50`}
-      >
-        {t("continueToBrief")}
-      </button>
-    </div>
+      <WizardStepActions onBack={onBack}>
+        <button
+          type="button"
+          disabled={!canContinue}
+          onClick={onContinue}
+          className={`${BTN_PRIMARY} disabled:opacity-50`}
+        >
+          {t("continueToBrief")}
+        </button>
+      </WizardStepActions>
+      </div>
+    </WizardStepCard>
   );
 }

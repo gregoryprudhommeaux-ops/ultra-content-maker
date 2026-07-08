@@ -9,6 +9,13 @@ import {
  buildNewsSuggestionsSystemPrompt,
  buildNewsSuggestionsUserPrompt,
 } from "@/lib/prompts/news-suggestions";
+import {
+  gatherAuthorSteeringPayloadServer,
+  readWorkspacePersonaExcerptServer,
+} from "@/lib/profile/gather-author-steering.server";
+import { getAdminFirestore } from "@/lib/firebase/admin";
+import { canWriteWorkspace } from "@/lib/workspace/require-workspace-write.server";
+import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
 import type { AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type { ContentLanguage, LlmProvider } from "@/types/workspace";
 import { NextResponse } from "next/server";
@@ -62,21 +69,41 @@ export async function POST(request: Request) {
  return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
  }
 
+ const db = getAdminFirestore();
+ if (!db) {
+   return NextResponse.json({ error: "server_unavailable" }, { status: 503 });
+ }
+
+ const workspace = await resolveWorkspaceScopeForUser(db, userId);
+ if (!(await canWriteWorkspace(db, userId, workspace.ownerId, workspace.accountId))) {
+   return NextResponse.json({ error: "forbidden" }, { status: 403 });
+ }
+
+ const authorSteering = await gatherAuthorSteeringPayloadServer(db, workspace, {
+   newsInterestQuery: body.newsInterestQuery?.trim() || undefined,
+ });
+
+ const personaFromWorkspace = await readWorkspacePersonaExcerptServer(db, workspace);
  const personaExcerpt =
- body.personaExcerpt?.trim() || body.personaPromptText?.trim() || "";
+   personaFromWorkspace ||
+   body.personaExcerpt?.trim() ||
+   body.personaPromptText?.trim() ||
+   "";
+
  const newsInterestQuery =
  body.newsInterestQuery?.trim() ||
+ authorSteering.audience?.newsInterestQuery?.trim() ||
  (typeof body.audience?.newsInterestQuery === "string"
  ? body.audience.newsInterestQuery.trim()
  : "");
 
  const profileContext = buildNewsProfileContext({
- author: body.author ?? null,
- audience: body.audience ?? null,
- profileEnrichment: body.profileEnrichment,
+ author: (authorSteering.author ?? null) as Parameters<typeof buildNewsProfileContext>[0]["author"],
+ audience: authorSteering.audience ?? null,
+ profileEnrichment: authorSteering.profileEnrichment,
  personaExcerpt,
  newsInterestQuery,
- authorSteering: body.authorSteering,
+ authorSteering,
  });
 
  try {

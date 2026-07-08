@@ -269,6 +269,8 @@ export async function POST(request: Request) {
  contentLanguage,
  articleCount === 1 ? 1 : articleCount === 2 ? 2 : 4,
  postBrief,
+ authorSteering,
+ body.profileEnrichment,
  )
  : baseUserPrompt;
 

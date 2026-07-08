@@ -1739,6 +1739,7 @@
         "backToList": "Retour aux posts",
         "viewLibrary": "Voir ma bibliothèque",
         "back": "← Étape précédente",
+        "backShort": "Retour",
         "setupReadyBanner": {
           "eyebrow": "Setup terminé",
           "title": "Votre Content Brain est prêt",
@@ -1935,13 +1936,25 @@
           "topicLabel": "Sujet du post",
           "topicHelpLabel": "Sujet",
           "topicHelp": "Un sujet clair en une ligne : de quoi parle le post.",
-          "topicPlaceholder": "Ex. Je viens de terminer mon Executive Master au HEC Paris",
+          "topicPlaceholder": {
+            "default": "Ex. Je viens de terminer mon Executive Master au HEC Paris",
+            "company": "Ex. Pourquoi nous avons repositionné notre offre sur la supply chain export",
+            "product": "Ex. Lancement de notre module de visibilité supply chain pour PME exportatrices"
+          },
           "messageLabel": "Ce que vous voulez dire",
           "messageHelpLabel": "Message",
           "messageHelp": "Votre récit avec vos mots : émotions, contexte, ce qui compte pour vous. L’IA reformule sans effacer votre sens.",
-          "messagePlaceholder": "Ex. Ce parcours a pris trois ans en parallèle de mon poste de directeur d’usine. Le plus dur n’était pas les examens : c’était d’apprendre à conduire le changement tout en restant sur le terrain…",
+          "messagePlaceholder": {
+            "default": "Ex. Ce parcours a pris trois ans en parallèle de mon poste de directeur d’usine. Le plus dur n’était pas les examens : c’était d’apprendre à conduire le changement tout en restant sur le terrain…",
+            "company": "Ex. Chez [Nom société], on défend une vision simple : la visibilité bout en bout vaut plus qu’un arbitrage prix sur le papier. Voici ce qu’on a appris en accompagnant des PME exportatrices…",
+            "product": "Ex. Notre module [Nom offre] répond à un problème concret : les équipes perdent des semaines à consolider des données éparpillées. Résultat client : décisions plus rapides sans recruter…"
+          },
           "exampleLabel": "Détail ou preuve (optionnel)",
-          "examplePlaceholder": "Ex. Mémoire final sur l’excellence opérationnelle en supply chain auto, mention 18/20…",
+          "examplePlaceholder": {
+            "default": "Ex. Mémoire final sur l’excellence opérationnelle en supply chain auto, mention 18/20…",
+            "company": "Ex. Cas client anonymisé, chiffre interne, ou observation terrain sur votre marché…",
+            "product": "Ex. Déploiement en 2 semaines · -30 % de ruptures sur 12 mois (cas client anonymisé)…"
+          },
           "ctaLabel": "Intention de clôture (optionnel)",
           "ctaPlaceholder": "Ex. Remercier les équipes qui m’ont soutenu ; inviter des pairs à partager leur propre parcours",
           "ctaHint": "Optionnel, le Quality Panel pourra suggérer des améliorations basées sur votre profil après génération.",
@@ -2046,6 +2059,8 @@
         "pastePlaceholder": "Collez ici le post ou l’article source…",
         "pasteRequired": "Collez au moins quelques lignes de référence.",
         "continueToBrief": "Continuer vers le brief",
+        "personaRequired": "Validez votre Persona avant de générer.",
+        "personaRequiredHint": "Aller au Persona →",
         "generateDraft": "Générer le brouillon",
         "draftDoneTitle": "Votre brouillon",
         "draftDoneHint": "Relisez le titre et le texte, réorientez l’angle si besoin, choisissez un CTA puis validez : comme dans l’éditeur complet.",
@@ -2155,7 +2170,7 @@
         "proofPlaceholder": "Ex. : Cas client, chiffre interne, observation terrain",
         "incomplete": "Renseignez au moins 8 caractères pour le problème, le POV et la preuve.",
         "postAngle": {
-          "title": "Angle de ce post",
+          "title": "Pour qui écrivez-vous ?",
           "hint": "Ce post met-il plutôt en avant votre société (vision, catégorie) ou un produit précis ?",
           "angles": {
             "expertise": "Société & expertise",
@@ -2192,7 +2207,7 @@
           },
           "postAngle": {
             "label": "Aide : angle du post",
-            "body": "Expertise = point de vue personnel. Produit = problème ICP et preuve d'offre — sans brochure."
+            "body": "Société & expertise = vision et catégorie de l'entreprise (nom de société requis dans le post). Produit = problème ICP et preuve d'offre — nom de l'offre requis si sélectionnée · sans brochure."
           }
         },
         "niche": {
@@ -2553,10 +2568,21 @@
         "hint": "Envoyez ce post à un collègue par e-mail ou WhatsApp. La mention Ultra Content Maker est ajoutée uniquement pour ce partage (pas dans la copie LinkedIn).",
         "email": "E-mail",
         "whatsapp": "WhatsApp",
+        "adminFeedbackGenerate": "Générer le lien de relecture",
+        "adminFeedbackRegenerate": "Régénérer le lien",
+        "adminFeedbackEmail": "Ouvrir l’e-mail client",
         "adminFeedbackLink": "Envoyer le lien de relecture par e-mail",
-        "adminFeedbackLoading": "Préparation…",
+        "adminFeedbackLoading": "Génération…",
         "adminFeedbackError": "Échec — réessayez",
-        "adminFeedbackHint": "Réservé à l’admin : ouvre un brouillon d’e-mail (langue du client) avec un lien sécurisé vers une page de relecture structurée."
+        "adminFeedbackErrorNotFound": "Article introuvable pour ce compte workspace.",
+        "adminFeedbackErrorAuth": "Session expirée — reconnectez-vous.",
+        "adminFeedbackErrorForbidden": "Accès refusé pour ce compte.",
+        "adminFeedbackErrorServer": "Service admin indisponible (Firebase Admin).",
+        "adminFeedbackLinkReady": "Lien de relecture prêt",
+        "adminFeedbackCopyLink": "Copier le lien",
+        "adminFeedbackCopied": "Lien copié",
+        "adminFeedbackOpenPage": "Ouvrir la page",
+        "adminFeedbackHint": "Réservé à l’admin : 1) générez le lien, 2) vérifiez-le ci-dessous, 3) ouvrez l’e-mail client avec le lien inclus."
       },
       "insufficientCredits": "Quota mensuel atteint.",
       "premiumRequired": "Fonction réservée aux offres payantes.",
@@ -2664,10 +2690,11 @@
     }
   },
   "adminDraftReview": {
-    "button": "Envoyer le lien de relecture",
+    "button": "Générer le lien de relecture",
     "loading": "Génération…",
     "copied": "Lien copié",
-    "error": "Échec — réessayez"
+    "error": "Échec — réessayez",
+    "open": "Ouvrir la page"
   },
   "dashboard": {
     "clients": {

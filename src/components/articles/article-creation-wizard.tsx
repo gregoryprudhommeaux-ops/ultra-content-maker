@@ -9,6 +9,7 @@ import {
   WizardProgress,
   resolveWizardProgressStep,
 } from "@/components/articles/creation/wizard-progress";
+import { WizardStepActions, WizardStepCard } from "@/components/articles/creation/wizard-step-card";
 import { InspirationLibraryStep } from "@/components/articles/creation/inspiration-library-step";
 import { InspirationSourceChoice } from "@/components/articles/creation/inspiration-source-choice";
 import { ArticleEditor } from "@/components/articles/article-editor";
@@ -44,6 +45,7 @@ import { notifyArticlesChangedDeferred } from "@/lib/workspace/articles-events";
 import { heuristicBriefNicheCheck } from "@/lib/articles/brief-niche-check";
 import {
   clearCreationWizardSession,
+  CREATION_FRESH_START_EVENT,
   isFreshCreationRequest,
   loadCreationWizardSession,
   saveCreationWizardSession,
@@ -141,6 +143,7 @@ export function ArticleCreationWizard() {
   const { scope } = useWorkspace();
   const { access } = useSubscription();
   const { status: onboardingStatus } = useOnboardingProgress();
+  const workspaceOwnerId = scope?.ownerId ?? user?.uid ?? "";
   const [showSetupReadyBanner, setShowSetupReadyBanner] = useState(false);
   const [showBriefReminder, setShowBriefReminder] = useState(false);
   const initialModeFromUrl = useRef(false);
@@ -202,13 +205,13 @@ export function ArticleCreationWizard() {
   );
 
   const saveContentNiche = useCallback(async () => {
-    if (!user) return;
+    if (!user || !workspaceOwnerId) return;
     const trimmed = contentNiche.trim();
     const saved = audienceProfile?.contentNiche?.trim() ?? "";
     if (trimmed === saved) return;
     setNicheSaving(true);
     try {
-      await saveAudienceProfile(user.uid, { contentNiche: trimmed || undefined });
+      await saveAudienceProfile(workspaceOwnerId, { contentNiche: trimmed || undefined });
       setAudienceProfile((prev) =>
         prev
           ? { ...prev, contentNiche: trimmed || undefined, updatedAt: new Date() }
@@ -217,7 +220,7 @@ export function ArticleCreationWizard() {
     } finally {
       setNicheSaving(false);
     }
-  }, [user, contentNiche, audienceProfile?.contentNiche]);
+  }, [user, workspaceOwnerId, contentNiche, audienceProfile?.contentNiche]);
 
   const heuristicNiche = useMemo(
     () => heuristicBriefNicheCheck(postBrief),
@@ -253,15 +256,15 @@ export function ArticleCreationWizard() {
   );
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !workspaceOwnerId) return;
     void (async () => {
       try {
         const [persona, learning, audience, author, enrichment] = await Promise.all([
-          getPersona(user.uid),
-          getLearningProfile(user.uid),
-          getAudienceProfile(user.uid),
-          getAuthorProfile(user.uid),
-          getProfileEnrichment(user.uid),
+          getPersona(workspaceOwnerId),
+          getLearningProfile(workspaceOwnerId),
+          getAudienceProfile(workspaceOwnerId),
+          getAuthorProfile(workspaceOwnerId),
+          getProfileEnrichment(workspaceOwnerId),
         ]);
         setPersonaText(persona?.promptText ?? "");
         setEmojiLevel(learning?.emojiLevel ?? "light");
@@ -285,7 +288,7 @@ export function ArticleCreationWizard() {
         setLoaded(true);
       }
     })();
-  }, [user, scope?.ownerId, scope?.accountId]);
+  }, [user, workspaceOwnerId, scope?.ownerId, scope?.accountId]);
 
   useEffect(() => {
     saveStoredPostBrief(postBrief);
@@ -355,9 +358,10 @@ export function ArticleCreationWizard() {
       if (!token) return;
 
       const [author, authorSteering] = await Promise.all([
-        getAuthorProfile(user.uid),
+        getAuthorProfile(workspaceOwnerId),
         gatherAuthorSteeringPayload(user.uid, {
           newsInterestQuery: newsInterestQuery.trim() || undefined,
+          scope,
         }),
       ]);
       const res = await fetch("/api/articles/brief-check", {
@@ -380,13 +384,13 @@ export function ArticleCreationWizard() {
     } finally {
       setNicheLoading(false);
     }
-  }, [user, mode, postBrief, personaText, locale, newsInterestQuery]);
+  }, [user, workspaceOwnerId, scope, mode, postBrief, personaText, locale, newsInterestQuery]);
 
   async function onEmojiLevelChange(level: EmojiLevel) {
     setEmojiLevel(level);
     if (user) {
       try {
-        await saveDefaultEmojiLevel(user.uid, level);
+        await saveDefaultEmojiLevel(workspaceOwnerId, level);
       } catch {
         /* preference save is best-effort */
       }
@@ -429,13 +433,14 @@ export function ArticleCreationWizard() {
         }
         const interest = newsInterestQuery.trim();
         if (options?.persistInterest && interest) {
-          await saveAudienceProfile(user.uid, { newsInterestQuery: interest });
+          await saveAudienceProfile(workspaceOwnerId, { newsInterestQuery: interest });
         }
 
         const [author, authorSteering] = await Promise.all([
-          getAuthorProfile(user.uid),
+          getAuthorProfile(workspaceOwnerId),
           gatherAuthorSteeringPayload(user.uid, {
             newsInterestQuery: interest || undefined,
+            scope,
           }),
         ]);
 
@@ -472,7 +477,7 @@ export function ArticleCreationWizard() {
         setNewsErrorCode(null);
         if (data.news?.length) {
           const scanBatchKey = new Date().toISOString();
-          await upsertNewsArchiveBatch(user.uid, data.news, scanBatchKey);
+          await upsertNewsArchiveBatch(workspaceOwnerId, data.news, scanBatchKey);
         }
       } catch {
         setNewsErrorCode("llm_request_failed");
@@ -486,7 +491,7 @@ export function ArticleCreationWizard() {
         setNewsLoading(false);
       }
     },
-    [user, personaText, locale, newsInterestQuery, tArticles, tNews, mapNewsLoadError, formatError],
+    [user, workspaceOwnerId, scope, personaText, locale, newsInterestQuery, tArticles, tNews, mapNewsLoadError, formatError],
   );
 
   const suggestBrief = useCallback(async () => {
@@ -503,9 +508,10 @@ export function ArticleCreationWizard() {
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       const llmProfile = await getUserLlmProfile(user.uid);
       const [author, authorSteering] = await Promise.all([
-        getAuthorProfile(user.uid),
+        getAuthorProfile(workspaceOwnerId),
         gatherAuthorSteeringPayload(user.uid, {
           newsInterestQuery: newsInterestQuery.trim() || undefined,
+          scope,
         }),
       ]);
       if (!token) {
@@ -584,7 +590,23 @@ export function ArticleCreationWizard() {
   }, [step, mode, suggestBrief]);
 
   async function runGenerate(replaceArticleId?: string) {
-    if (!user || !personaText || !mode) return;
+    if (!user) {
+      setErrorInfo(
+        formatError({ errorCode: "Unauthorized", fallbackMessage: tArticles("generateFailed") }),
+      );
+      return;
+    }
+    if (!personaText.trim()) {
+      setErrorInfo({
+        message: t("personaRequired"),
+        hint: t("personaRequiredHint"),
+      });
+      return;
+    }
+    if (!mode) {
+      setErrorInfo({ message: tArticles("generateFailed") });
+      return;
+    }
     if (!isWizardBriefComplete(postBrief, mode)) {
       setErrorInfo({ message: tArticles("briefIncomplete") });
       return;
@@ -614,10 +636,11 @@ export function ArticleCreationWizard() {
       if (!token) throw new Error("no token");
 
       const [author, llmProfile, authorSteeringBase] = await Promise.all([
-        getAuthorProfile(user.uid),
+        getAuthorProfile(workspaceOwnerId),
         getUserLlmProfile(user.uid),
         gatherAuthorSteeringPayload(user.uid, {
           newsInterestQuery: newsInterestQuery.trim() || undefined,
+          scope,
         }),
       ]);
 
@@ -713,7 +736,7 @@ export function ArticleCreationWizard() {
 
       if (replaceArticleId) {
         await replaceArticleDraft(
-          user.uid,
+          workspaceOwnerId,
           replaceArticleId,
           draftPayload,
           normalizePostBrief(briefForGeneration()),
@@ -727,7 +750,7 @@ export function ArticleCreationWizard() {
             ? toArticleInspirationSource(inspirationCtx, selectedLibrarySource)
             : undefined;
         const ids = await createArticleBatch(
-          user.uid,
+          workspaceOwnerId,
           batchId,
           [draftPayload],
           contentLang,
@@ -766,13 +789,13 @@ export function ArticleCreationWizard() {
   }
 
   const loadInspirationLibrary = useCallback(async () => {
-    if (!user) return;
+    if (!user || !workspaceOwnerId) return;
     const [posts, profiles] = await Promise.all([
-      listSourcesByCategory(user.uid, "inspiration_post"),
-      listSourcesByCategory(user.uid, "inspiration_profile"),
+      listSourcesByCategory(workspaceOwnerId, "inspiration_post"),
+      listSourcesByCategory(workspaceOwnerId, "inspiration_profile"),
     ]);
     setInspirationLibrary([...posts, ...profiles]);
-  }, [user]);
+  }, [user, workspaceOwnerId]);
 
   const applyRadarInspire = useCallback((creator: CreatorRadarSuggestion) => {
     const excerpt = [
@@ -865,6 +888,12 @@ export function ArticleCreationWizard() {
     resetWizardForFreshStart();
   }
 
+  function applyFreshCreationStart() {
+    resetWizardForFreshStart();
+    initialModeFromUrl.current = true;
+    router.replace("/articles/new", { scroll: false });
+  }
+
   function reworkFromArticle(article: ArticleDoc) {
     const excerpt = joinLinkedInPostParts({
       hook: article.hook,
@@ -904,7 +933,7 @@ export function ArticleCreationWizard() {
     if (!user) return;
     let excerpt = doc.textPreview?.trim() ?? "";
     try {
-      const all = await listBioDocuments(user.uid);
+      const all = await listBioDocuments(workspaceOwnerId);
       const full = all.find((item) => item.id === doc.id);
       if (full?.extractedText?.trim()) excerpt = full.extractedText.trim();
     } catch {
@@ -941,12 +970,20 @@ export function ArticleCreationWizard() {
   }
 
   useEffect(() => {
+    function onCreationFreshStart() {
+      applyFreshCreationStart();
+    }
+
+    window.addEventListener(CREATION_FRESH_START_EVENT, onCreationFreshStart);
+    return () => window.removeEventListener(CREATION_FRESH_START_EVENT, onCreationFreshStart);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stable reset handler
+  }, [router]);
+
+  useEffect(() => {
     if (!loaded || !user) return;
 
     if (isFreshCreationRequest(searchParams)) {
-      resetWizardForFreshStart();
-      initialModeFromUrl.current = true;
-      router.replace("/articles/new", { scroll: false });
+      applyFreshCreationStart();
       return;
     }
 
@@ -969,7 +1006,7 @@ export function ArticleCreationWizard() {
       }
 
       if (session.mode === "news" && session.selectedNewsId) {
-        void getArchivedNews(user.uid, session.selectedNewsId).then((item) => {
+        void getArchivedNews(workspaceOwnerId, session.selectedNewsId).then((item) => {
           if (item) setSelectedNews(item);
         });
       }
@@ -993,7 +1030,7 @@ export function ArticleCreationWizard() {
     if (modeParam === "news" && newsId) {
       initialModeFromUrl.current = true;
       void (async () => {
-        const archived = await getArchivedNews(user.uid, newsId);
+        const archived = await getArchivedNews(workspaceOwnerId, newsId);
         setMode("news");
         setErrorInfo(null);
         if (archived) {
@@ -1018,7 +1055,7 @@ export function ArticleCreationWizard() {
     const reworkId = searchParams.get("rework")?.trim();
     if (reworkId) {
       initialModeFromUrl.current = true;
-      void getArticle(user.uid, reworkId).then((article) => {
+      void getArticle(workspaceOwnerId, reworkId).then((article) => {
         if (article) reworkFromArticle(article);
       });
     }
@@ -1090,13 +1127,15 @@ export function ArticleCreationWizard() {
       {step !== "mode" &&
         step !== "generating" &&
         step !== "draft-done" && (
-          <button
-            type="button"
-            onClick={goBack}
-            className="text-sm font-medium text-ns-secondary underline hover:text-ns-tertiary"
-          >
-            {t("back")}
-          </button>
+          <div className="sticky top-0 z-10 -mx-1 border-b border-ns-alternate/30 bg-[var(--ns-surface,#f8f9fa)]/95 py-2 backdrop-blur-sm">
+            <button
+              type="button"
+              onClick={goBack}
+              className="text-sm font-medium text-ns-secondary underline hover:text-ns-tertiary"
+            >
+              {t("back")}
+            </button>
+          </div>
         )}
 
       {step === "mode" && showSetupReadyBanner && (
@@ -1171,13 +1210,7 @@ export function ArticleCreationWizard() {
       )}
 
       {step === "paste" && (
-        <section className="space-y-4 rounded-xl border border-gray-100 bg-white p-5">
-          <div>
-            <h2 className="text-base font-semibold text-ns-tertiary">
-              {t("pasteTitle")}
-            </h2>
-            <p className="mt-1 text-sm text-ns-secondary">{t("pasteHint")}</p>
-          </div>
+        <WizardStepCard title={t("pasteTitle")} hint={t("pasteHint")} onBack={goBack}>
           <div>
             <label className={LABEL_CLASS} htmlFor="inspiration-paste">
               {t("pasteLabel")}
@@ -1197,21 +1230,24 @@ export function ArticleCreationWizard() {
               lang={locale}
             />
           </div>
-          <button
-            type="button"
-            disabled={(inspirationCtx?.excerpt.trim().length ?? 0) < 40}
-            onClick={goToBriefFromInspiration}
-            className={`${BTN_PRIMARY} disabled:opacity-50`}
-          >
-            {t("continueToBrief")}
-          </button>
-        </section>
+          <WizardStepActions onBack={goBack}>
+            <button
+              type="button"
+              disabled={(inspirationCtx?.excerpt.trim().length ?? 0) < 40}
+              onClick={goToBriefFromInspiration}
+              className={`${BTN_PRIMARY} disabled:opacity-50`}
+            >
+              {t("continueToBrief")}
+            </button>
+          </WizardStepActions>
+        </WizardStepCard>
       )}
 
       {step === "inspiration-url" && (
         <InspirationUrlStep
           url={inspirationCtx?.url ?? ""}
           excerpt={inspirationCtx?.excerpt ?? ""}
+          onBack={goBack}
           onUrlChange={(url) =>
             setInspirationCtx((prev) => ({
               kind: "url",
@@ -1233,6 +1269,7 @@ export function ArticleCreationWizard() {
       {step === "inspiration-library" && (
         <InspirationLibraryStep
           sources={inspirationLibrary}
+          onBack={goBack}
           selectedId={inspirationCtx?.sourceId ?? null}
           onSelect={selectLibrarySource}
           excerpt={inspirationCtx?.excerpt ?? ""}
@@ -1250,6 +1287,7 @@ export function ArticleCreationWizard() {
       {step === "inspiration-document" && (
         <InspirationDocumentStep
           selectedId={inspirationCtx?.sourceId ?? null}
+          onBack={goBack}
           onSelect={(doc) => void selectInspirationDocument(doc)}
           onContinue={goToBriefFromInspiration}
         />
@@ -1345,6 +1383,16 @@ export function ArticleCreationWizard() {
               profileEnrichment={profileEnrichment}
             />
           )}
+          {loaded && !personaText.trim() && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <p>{t("personaRequired")}</p>
+              <p className="mt-1">
+                <Link href="/persona" className="font-semibold underline">
+                  {t("personaRequiredHint")}
+                </Link>
+              </p>
+            </div>
+          )}
           <section className="rounded-xl border border-gray-100 bg-white p-4">
             <EmojiLevelPicker
               value={emojiLevel}
@@ -1354,7 +1402,12 @@ export function ArticleCreationWizard() {
           </section>
           <button
             type="button"
-            disabled={!isWizardBriefComplete(postBrief, mode) || briefSuggesting}
+            disabled={
+              !loaded ||
+              !personaText.trim() ||
+              briefSuggesting ||
+              !isWizardBriefComplete(postBrief, mode)
+            }
             onClick={() => void runGenerate()}
             className={`${BTN_PRIMARY} disabled:opacity-50`}
           >
@@ -1383,7 +1436,7 @@ export function ArticleCreationWizard() {
             <button
               type="button"
               onClick={() => void runGenerate(draftArticleId)}
-              disabled={isRegenerating}
+              disabled={isRegenerating || !personaText.trim()}
               className="shrink-0 rounded-lg border border-ns-alternate bg-white px-4 py-2.5 text-sm font-medium text-ns-tertiary hover:bg-ns-brand-light disabled:opacity-50"
             >
               {isRegenerating ? t("regeneratingDraft") : t("regenerateDraft")}
@@ -1422,7 +1475,13 @@ export function ArticleCreationWizard() {
           technical={errorInfo.technical}
           errorCode={errorInfo.errorCode}
           detail={errorInfo.detail}
-        />
+        >
+          {errorInfo.message === t("personaRequired") && (
+            <Link href="/persona" className="text-sm font-semibold underline">
+              → {t("personaRequiredHint")}
+            </Link>
+          )}
+        </UserErrorBanner>
       )}
     </div>
   );

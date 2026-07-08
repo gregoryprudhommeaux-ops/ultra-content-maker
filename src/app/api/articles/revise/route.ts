@@ -118,6 +118,7 @@ export async function POST(request: Request) {
             contentLanguage,
             body.newsSource,
             authorSteering,
+            body.postBrief,
           ),
         },
       ],

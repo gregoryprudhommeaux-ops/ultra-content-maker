@@ -9,6 +9,7 @@ import type { ArticleScope, ContentLanguage, EmojiLevel, PostBrief } from "@/typ
 import { emojiInstruction } from "./emoji-instruction";
 import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
 import { languageLabel, languageOnlyRule } from "./language-consistency";
+import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
 import { buildPostBriefInstruction } from "./post-brief";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -74,8 +75,13 @@ export function buildInspirationArticleUserPayload(
  },
  authorSteering?: AuthorSteeringPayload | null,
 ): string {
+ const briefContext = buildPostBriefPromptContext({
+ author: authorSteering?.author ?? null,
+ profileEnrichment: profileEnrichment ?? authorSteering?.profileEnrichment ?? null,
+ authorSteering,
+ });
  const briefBlock = postBrief
- ? buildPostBriefInstruction(postBrief, contentLanguage)
+ ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
  : null;
 
  const nicheBlock = buildContentNichePromptBlock(

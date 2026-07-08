@@ -2,6 +2,7 @@
 
 import { CreatorRadarPanel } from "@/components/articles/creation/creator-radar-panel";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { useSubscription } from "@/contexts/subscription-context";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getAuthorProfile } from "@/lib/workspace/author";
@@ -37,9 +38,12 @@ export function CreatorRadarBlock({
   onKeepSuccess,
 }: Props) {
   const { user } = useAuth();
+  const { scope } = useWorkspace();
   const { access } = useSubscription();
   const locale = useLocale() as ContentLanguage;
   const tCreatorRadar = useTranslations("setup.articles.creatorRadar");
+
+  const workspaceOwnerId = scope?.ownerId ?? user?.uid ?? "";
 
   const [personaText, setPersonaText] = useState(personaTextProp?.trim() ?? "");
   const [creators, setCreators] = useState<CreatorRadarSuggestion[]>([]);
@@ -54,16 +58,24 @@ export function CreatorRadarBlock({
       setPersonaText(personaTextProp.trim());
       return;
     }
-    if (!user) return;
-    void getPersona(user.uid).then((p) => {
+    if (!user || !workspaceOwnerId) return;
+    void getPersona(workspaceOwnerId).then((p) => {
       setPersonaText(p?.promptText?.trim() ?? "");
     });
-  }, [user, personaTextProp]);
+  }, [user, workspaceOwnerId, personaTextProp]);
+
+  useEffect(() => {
+    dateRef.current = null;
+    setCreators([]);
+    setAttempted(false);
+    setError(null);
+  }, [scope?.ownerId, scope?.accountId]);
 
   const loadRadar = useCallback(async (force = false) => {
-    if (!user || !personaText.trim()) return;
+    if (!user || !workspaceOwnerId || !personaText.trim() || !scope) return;
     const today = new Date().toISOString().slice(0, 10);
-    if (!force && dateRef.current === today) return;
+    const cacheKey = `${scope.ownerId}:${scope.accountId}:${today}`;
+    if (!force && dateRef.current === cacheKey) return;
 
     setLoading(true);
     setError(null);
@@ -76,9 +88,10 @@ export function CreatorRadarBlock({
       const llmPayload = llmPayloadForAccess(llmProfile, access);
 
       const [author, authorSteering] = await Promise.all([
-        getAuthorProfile(user.uid),
+        getAuthorProfile(workspaceOwnerId),
         gatherAuthorSteeringPayload(user.uid, {
           newsInterestQuery: newsInterestQuery.trim() || undefined,
+          scope,
         }),
       ]);
 
@@ -101,6 +114,8 @@ export function CreatorRadarBlock({
           contentLanguage: author?.contentLanguage ?? locale,
           authorSteering,
           newsInterestQuery: newsInterestQuery.trim() || undefined,
+          ownerId: scope.ownerId,
+          accountId: scope.accountId,
           llm: llmPayload,
         }),
       });
@@ -124,7 +139,7 @@ export function CreatorRadarBlock({
         }
         return;
       }
-      dateRef.current = today;
+      dateRef.current = cacheKey;
       setAttempted(true);
       setError(null);
       setCreators(data.creators ?? []);
@@ -135,19 +150,19 @@ export function CreatorRadarBlock({
     } finally {
       setLoading(false);
     }
-  }, [user, personaText, locale, newsInterestQuery, access?.effectiveTier]);
+  }, [user, workspaceOwnerId, scope, personaText, locale, newsInterestQuery, access?.effectiveTier]);
 
   useEffect(() => {
-    if (!enabled || !user || !personaText.trim()) return;
+    if (!enabled || !user || !workspaceOwnerId || !personaText.trim() || !scope) return;
     void loadRadar();
-  }, [enabled, user, personaText, loadRadar]);
+  }, [enabled, user, workspaceOwnerId, scope, personaText, loadRadar]);
 
   const onKeep = useCallback(
     async (creator: CreatorRadarSuggestion) => {
       if (!user) return;
       setKeepingId(creator.id);
       try {
-        await addSource(user.uid, {
+        await addSource(workspaceOwnerId, {
           type: "linkedin_profile",
           url: creator.linkedinUrl,
           label: creator.name,
@@ -163,7 +178,7 @@ export function CreatorRadarBlock({
         setKeepingId(null);
       }
     },
-    [user, onKeepSuccess],
+    [user, workspaceOwnerId, onKeepSuccess],
   );
 
   const onDismiss = useCallback(
