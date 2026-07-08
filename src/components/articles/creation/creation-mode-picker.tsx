@@ -2,7 +2,7 @@
 
 import { CreationStrategyGuidePanel } from "@/components/articles/creation/creation-strategy-guide";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
-import { BTN_PRIMARY, BTN_SECONDARY, META_LABEL, PAGE_TITLE, SECTION_TITLE } from "@/lib/ui/nextstep";
+import { BTN_PRIMARY, BTN_SECONDARY, FORM_SECTION_TITLE, FORM_SUBSECTION_TITLE, META_LABEL, PAGE_TITLE, SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { CreationStrategyTheme } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useCallback, useRef, useState } from "react";
@@ -220,15 +220,13 @@ export function CreationModePicker({
           {(["profile", "news", "inspiration"] as const).map((modeId) => (
             <div
               key={modeId}
-              className="rounded-xl border border-gray-100 bg-ns-brand-light/30 px-4 py-3"
+              className="flex min-h-[8.5rem] flex-col rounded-xl border border-gray-100 bg-ns-brand-light/30 px-4 py-3"
             >
-              <p className="text-xs font-bold uppercase tracking-wide text-ns-secondary">
-                {t(`decisionMatrix.${modeId}.when`)}
-              </p>
-              <p className="mt-2 text-sm font-semibold text-ns-tertiary">
+              <p className={META_LABEL}>{t(`decisionMatrix.${modeId}.when`)}</p>
+              <p className={`mt-2 min-h-[2.75rem] ${FORM_SUBSECTION_TITLE} line-clamp-2`}>
                 {t(`modes.${modeId}.title`)}
               </p>
-              <p className="mt-1 text-xs leading-relaxed text-ns-secondary">
+              <p className="mt-auto pt-2 text-xs leading-relaxed text-ns-secondary">
                 {t(`decisionMatrix.${modeId}.outcome`)}
               </p>
             </div>
@@ -237,9 +235,7 @@ export function CreationModePicker({
       </section>
 
       <div>
-        <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ns-secondary">
-          {t("modesSectionLabel")}
-        </p>
+        <p className={`mb-3 ${META_LABEL}`}>{t("modesSectionLabel")}</p>
         <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {MODES.map((config) => (
             <ModeCard
@@ -366,49 +362,44 @@ function ModeCard({
       />
 
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <div className="flex items-start gap-3">
-          <div
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${accent.bg} ${accent.icon}`}
-          >
-            <ModeIcon mode={mode} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex min-h-[1.375rem] flex-wrap items-center gap-1.5">
-              {featured ? (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
-                >
-                  {t("recommended")}
-                </span>
-              ) : (
-                <span
-                  className="invisible rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-                  aria-hidden
-                >
-                  {t("recommended")}
-                </span>
-              )}
-              <span className={`h-1.5 w-1.5 rounded-full ${accent.dot}`} aria-hidden />
-              <span className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
-                {t(`modes.${mode}.badge`)}
+        <div className="flex min-h-6 items-center justify-between gap-2">
+          <div className="min-h-[1.25rem] min-w-[5.75rem]">
+            {featured ? (
+              <span
+                className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
+              >
+                {t("recommended")}
               </span>
-            </div>
-            <h3 className="mt-2 min-h-[3.25rem] text-base font-bold leading-snug text-ns-tertiary line-clamp-2 md:text-lg">
-              {t(`modes.${mode}.title`)}
-            </h3>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${accent.dot}`} aria-hidden />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-ns-secondary">
+              {t(`modes.${mode}.badge`)}
+            </span>
           </div>
         </div>
 
-        <p className="relative mt-3 min-h-[4rem] text-sm leading-relaxed text-ns-secondary line-clamp-3">
+        <div
+          className={`mt-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${accent.bg} ${accent.icon}`}
+        >
+          <ModeIcon mode={mode} />
+        </div>
+
+        <h3 className={`mt-4 min-h-[3.25rem] ${FORM_SECTION_TITLE} line-clamp-2`}>
+          {t(`modes.${mode}.title`)}
+        </h3>
+
+        <p className="relative mt-3 min-h-[4.5rem] flex-1 text-sm leading-relaxed text-ns-secondary line-clamp-3">
           {t(`modes.${mode}.desc`)}
         </p>
 
         {Array.isArray(outputs) && outputs.length > 0 && (
-          <ul className="relative mt-4 flex min-h-[3.5rem] max-h-[3.5rem] flex-wrap content-start gap-1.5 overflow-hidden">
+          <ul className="relative mt-4 grid min-h-[3.75rem] grid-cols-1 content-start gap-1.5">
             {outputs.map((item) => (
               <li
                 key={item}
-                className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium leading-tight text-ns-tertiary ${accent.tag}`}
+                className={`w-fit max-w-full rounded-full border px-2.5 py-1 text-[11px] font-medium leading-snug text-ns-tertiary ${accent.tag}`}
               >
                 {item}
               </li>
@@ -418,7 +409,7 @@ function ModeCard({
 
         <span
           className={[
-            "relative mt-auto inline-flex w-full items-center justify-center gap-1 pt-5",
+            "relative mt-auto inline-flex w-full items-center justify-center gap-1 pt-6",
             featured ? BTN_PRIMARY : BTN_SECONDARY,
             "!py-2.5 text-sm",
           ].join(" ")}

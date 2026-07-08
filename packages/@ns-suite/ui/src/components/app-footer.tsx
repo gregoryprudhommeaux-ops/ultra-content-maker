@@ -98,29 +98,41 @@ export function NsAppFooter({
             className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold md:max-w-xs md:justify-end md:pt-1"
             aria-label={navAria}
           >
-            {showAppLinks && labels.library && labels.pricing && (
-              <>
-                <Link
-                  href="/articles"
-                  className={
-                    isDark
-                      ? "text-white/80 hover:text-white"
-                      : "text-ns-secondary hover:text-ns-tertiary"
-                  }
-                >
-                  {labels.library}
-                </Link>
-                <Link
-                  href="/pricing"
-                  className={
-                    isDark
-                      ? "text-white/80 hover:text-white"
-                      : "text-ns-secondary hover:text-ns-tertiary"
-                  }
-                >
-                  {labels.pricing}
-                </Link>
-              </>
+            {showAppLinks && labels.home && (
+              <Link
+                href="/"
+                className={
+                  isDark
+                    ? "text-white/80 hover:text-white"
+                    : "text-ns-secondary hover:text-ns-tertiary"
+                }
+              >
+                {labels.home}
+              </Link>
+            )}
+            {showAppLinks && labels.library && (
+              <Link
+                href="/dashboard"
+                className={
+                  isDark
+                    ? "text-white/80 hover:text-white"
+                    : "text-ns-secondary hover:text-ns-tertiary"
+                }
+              >
+                {labels.library}
+              </Link>
+            )}
+            {showAppLinks && labels.pricing && (
+              <Link
+                href="/pricing"
+                className={
+                  isDark
+                    ? "text-white/80 hover:text-white"
+                    : "text-ns-secondary hover:text-ns-tertiary"
+                }
+              >
+                {labels.pricing}
+              </Link>
             )}
             {showAuthLinks && labels.signup && labels.login && (
               <>
