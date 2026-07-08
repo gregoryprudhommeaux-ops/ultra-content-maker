@@ -27,7 +27,7 @@ export async function redirectAfterSignInForUser(
   const signupPending = consumeSignupPending();
   const event = notify?.event ?? (isNewUser ? "signup" : "login");
   const method = notify?.method ?? (signupPending ? "google" : "email");
-  notifyAdminLogin(userId, { method, event, locale });
+  await notifyAdminLogin(userId, { method, event, locale });
   if (inviteToken?.trim()) {
     redirectAfterSignIn(locale, `/invite/${inviteToken.trim()}`);
     return;

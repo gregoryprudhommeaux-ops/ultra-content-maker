@@ -13,17 +13,30 @@ import {
 } from "@/lib/email/send-signup-notification";
 import { formatDisplayNameFromEmail } from "@/lib/workspace/display-name";
 import { isPlatformAdminIdentity } from "@/lib/workspace/platform-admin";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const RECENT_SIGNUP_MS = 15 * 60 * 1000;
 
 type Body = {
   method?: "email" | "google";
   event?: "login" | "signup";
   locale?: string;
 };
+
+function parseCreatedAt(raw: unknown): Date | null {
+  if (!raw) return null;
+  if (raw instanceof Date) return raw;
+  if (raw instanceof Timestamp) return raw.toDate();
+  if (typeof raw === "object" && raw !== null && "toDate" in raw) {
+    const toDate = (raw as { toDate?: () => Date }).toDate;
+    if (typeof toDate === "function") return toDate();
+  }
+  return null;
+}
 
 export async function POST(request: Request) {
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
@@ -94,12 +107,21 @@ export async function POST(request: Request) {
     );
 
     const userDocRef = db?.doc(`users/${decoded.uid}`);
-    const alreadyNotifiedSignup = Boolean(
-      userDocRef && (await userDocRef.get()).data()?.adminSignupNotifiedAt,
-    );
+    const userDocData = userDocRef ? (await userDocRef.get()).data() : undefined;
+    const alreadyNotifiedSignup = Boolean(userDocData?.adminSignupNotifiedAt);
+    const createdAt = parseCreatedAt(userDocData?.createdAt);
+    const isRecentSignup =
+      createdAt != null && Date.now() - createdAt.getTime() < RECENT_SIGNUP_MS;
+    const shouldNotifySignup =
+      !alreadyNotifiedSignup &&
+      (payload.event === "signup" || isRecentSignup);
 
-    if (payload.event === "signup") {
-      if (isSignupNotifyConfigured() && !alreadyNotifiedSignup) {
+    if (shouldNotifySignup) {
+      if (!isSignupNotifyConfigured()) {
+        console.warn(
+          "[login-notification] signup detected but RESEND_API_KEY is not configured",
+        );
+      } else {
         await sendSignupNotificationEmail({
           userId: payload.userId,
           userEmail: payload.userEmail,
@@ -114,7 +136,7 @@ export async function POST(request: Request) {
           );
         }
       }
-    } else if (isLoginNotifyConfigured()) {
+    } else if (payload.event === "login" && isLoginNotifyConfigured()) {
       await sendLoginNotificationEmail(payload);
     }
 
