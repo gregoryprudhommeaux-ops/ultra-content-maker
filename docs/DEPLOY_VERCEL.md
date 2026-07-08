@@ -18,13 +18,17 @@ FIREBASE_PRIVATE_KEY=
 
 `FIREBASE_PRIVATE_KEY` : collez la clé du JSON service account (Vercel accepte les `\n` littéraux).
 
-**Notifications de connexion (optionnel) :**
+**Notifications de connexion et d'inscription (optionnel) :**
 
 ```
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=Ultra Content Maker <notifications@votredomaine.com>
 ADMIN_LOGIN_NOTIFY_EMAIL=gregory.prudhommeaux@gmail.com
+# Optionnel — inbox dédiée aux nouveaux comptes (sinon ADMIN_LOGIN_NOTIFY_EMAIL)
+ADMIN_SIGNUP_NOTIFY_EMAIL=gregory.prudhommeaux@gmail.com
 ```
+
+Chaque **nouveau compte** déclenche un e-mail `[UCM] Nouveau compte · user@email.com` (e-mail/mot de passe, Google popup ou redirect). Les **connexions** existantes utilisent `[UCM] Connexion · …`.
 
 **Digest hebdomadaire admin (lundi 08:00 Paris / 07:00 UTC) :**
 

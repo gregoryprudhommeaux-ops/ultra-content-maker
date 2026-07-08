@@ -36,13 +36,18 @@ export async function getUserDoc(userId: string): Promise<UserDoc | null> {
   };
 }
 
+export type EnsureUserDocResult = {
+  doc: UserDoc;
+  isNewUser: boolean;
+};
+
 export async function ensureUserDoc(
   userId: string,
   email: string,
   displayName?: string,
-): Promise<UserDoc> {
+): Promise<EnsureUserDocResult> {
   const existing = await getUserDoc(userId);
-  if (existing) return existing;
+  if (existing) return { doc: existing, isNewUser: false };
   const now = serverTimestamp();
   const isPlatformAdmin = isPlatformAdminIdentity({ uid: userId, email });
   const subscription = defaultSubscriptionProfile();
@@ -56,13 +61,16 @@ export async function ensureUserDoc(
     updatedAt: now,
   });
   return {
-    email,
-    displayName,
-    setupStep: "llm",
-    isPlatformAdmin,
-    subscription,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    doc: {
+      email,
+      displayName,
+      setupStep: "llm",
+      isPlatformAdmin,
+      subscription,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    isNewUser: true,
   };
 }
 

@@ -7,6 +7,10 @@ import {
   sendLoginNotificationEmail,
   type LoginNotifyPayload,
 } from "@/lib/email/send-login-notification";
+import {
+  isSignupNotifyConfigured,
+  sendSignupNotificationEmail,
+} from "@/lib/email/send-signup-notification";
 import { formatDisplayNameFromEmail } from "@/lib/workspace/display-name";
 import { isPlatformAdminIdentity } from "@/lib/workspace/platform-admin";
 import { FieldValue } from "firebase-admin/firestore";
@@ -89,7 +93,28 @@ export async function POST(request: Request) {
       () => {},
     );
 
-    if (isLoginNotifyConfigured()) {
+    const userDocRef = db?.doc(`users/${decoded.uid}`);
+    const alreadyNotifiedSignup = Boolean(
+      userDocRef && (await userDocRef.get()).data()?.adminSignupNotifiedAt,
+    );
+
+    if (payload.event === "signup") {
+      if (isSignupNotifyConfigured() && !alreadyNotifiedSignup) {
+        await sendSignupNotificationEmail({
+          userId: payload.userId,
+          userEmail: payload.userEmail,
+          displayName: payload.displayName,
+          method: payload.method,
+          locale: payload.locale,
+        });
+        if (userDocRef) {
+          await userDocRef.set(
+            { adminSignupNotifiedAt: FieldValue.serverTimestamp() },
+            { merge: true },
+          );
+        }
+      }
+    } else if (isLoginNotifyConfigured()) {
       await sendLoginNotificationEmail(payload);
     }
 

@@ -3,6 +3,7 @@ import {
   notifyAdminLogin,
   type AdminLoginNotifyMeta,
 } from "@/lib/firebase/notify-admin-login";
+import { consumeSignupPending } from "@/lib/firebase/signup-pending";
 import { resolveLandingPath } from "@/lib/workspace/landing-path";
 import { ensureUserDoc } from "@/lib/workspace/user";
 import { clearGoogleRedirectPending } from "./google-redirect";
@@ -22,10 +23,11 @@ export async function redirectAfterSignInForUser(
   notify?: AdminLoginNotifyMeta,
   inviteToken?: string | null,
 ) {
-  await ensureUserDoc(userId, email, displayName);
-  if (notify) {
-    notifyAdminLogin(userId, { ...notify, locale });
-  }
+  const { isNewUser } = await ensureUserDoc(userId, email, displayName);
+  const signupPending = consumeSignupPending();
+  const event = notify?.event ?? (isNewUser ? "signup" : "login");
+  const method = notify?.method ?? (signupPending ? "google" : "email");
+  notifyAdminLogin(userId, { method, event, locale });
   if (inviteToken?.trim()) {
     redirectAfterSignIn(locale, `/invite/${inviteToken.trim()}`);
     return;
