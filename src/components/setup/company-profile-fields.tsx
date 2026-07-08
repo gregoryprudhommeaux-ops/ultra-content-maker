@@ -6,6 +6,7 @@ import {
   MAX_COMPANY_OFFERS,
   showsCompanyProfileFields,
 } from "@/lib/persona/company-enrichment";
+import { FORM_SUBSECTION_TITLE } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import type { CompanyOffer, ContentArchetype } from "@/types/workspace";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
@@ -47,7 +48,7 @@ export function CompanyProfileFields({ archetype, offers, onChange }: Props) {
   return (
     <div className="space-y-4 rounded-xl border border-violet-200/80 bg-violet-50/40 p-4">
       <div>
-        <p className="text-sm font-semibold text-ns-tertiary">{t("title")}</p>
+        <h3 className={FORM_SUBSECTION_TITLE}>{t("title")}</h3>
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
 

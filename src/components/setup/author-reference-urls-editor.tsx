@@ -6,6 +6,7 @@ import {
   MAX_WEB_SOURCES,
   prepareAuthorReferenceEntry,
 } from "@/lib/profile/author-reference-urls";
+import { FORM_SECTION_TITLE } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import type { AuthorReferenceUrl } from "@/types/workspace";
 import { ImeSafeInput } from "@/components/ui/ime-safe-field";
@@ -89,7 +90,7 @@ export function AuthorReferenceUrlsEditor({
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-sm font-semibold text-ns-tertiary">{t("title")}</p>
+        <h3 className={FORM_SECTION_TITLE}>{t("title")}</h3>
         <p className="mt-1 text-xs leading-relaxed text-ns-secondary">{t("hint")}</p>
       </div>
 

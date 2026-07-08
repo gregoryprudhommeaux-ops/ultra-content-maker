@@ -1,4 +1,4 @@
-"use client";
+import { FORM_SUBSECTION_TITLE } from "@/lib/ui/nextstep";
 
 import { useTranslations } from "next-intl";
 
@@ -14,7 +14,7 @@ export function ProfileBriefVariantToggle({ value, onChange }: Props) {
 
   return (
     <div className="rounded-xl border border-gray-100 bg-ns-brand-light/40 p-4">
-      <p className="text-sm font-semibold text-ns-tertiary">{t("toggleTitle")}</p>
+      <p className={FORM_SUBSECTION_TITLE}>{t("toggleTitle")}</p>
       <p className="mt-1 text-xs text-ns-secondary">{t("toggleHint")}</p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {(["quick", "full"] as const).map((variant) => {

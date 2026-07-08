@@ -9,6 +9,7 @@ import {
   resolveArticleWritingStyle,
 } from "@/lib/articles/article-writing-style";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
+import { FORM_SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { ArticleWritingStyle, ContentArchetype, GapAnswerValue, PostBrief } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { PostAnglePicker } from "@/components/articles/creation/post-angle-picker";
@@ -100,7 +101,7 @@ export function ArticleTopicBriefForm({
       lang={locale}
     >
       <div>
-        <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+        <h2 className={FORM_SECTION_TITLE}>{t("title")}</h2>
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
 

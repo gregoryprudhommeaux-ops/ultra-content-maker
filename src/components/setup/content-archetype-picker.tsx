@@ -1,5 +1,6 @@
 "use client";
 
+import { FORM_SUBSECTION_TITLE } from "@/lib/ui/nextstep";
 import type { ContentArchetype } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 
@@ -17,7 +18,7 @@ export function ContentArchetypePicker({ value, onChange, idPrefix = "archetype"
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-sm font-semibold text-ns-tertiary">{t("title")}</p>
+        <h3 className={FORM_SUBSECTION_TITLE}>{t("title")}</h3>
         <p className="mt-1 text-sm text-ns-secondary">{t("hint")}</p>
       </div>
       <fieldset className="grid gap-2 sm:grid-cols-1">

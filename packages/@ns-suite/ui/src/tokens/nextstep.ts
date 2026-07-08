@@ -36,6 +36,12 @@ export const HEADING_TITLE =
   `text-xl font-black uppercase ${DISPLAY_TRACKING} ${DISPLAY_WORD} leading-snug text-ns-tertiary md:text-2xl`;
 export const SECTION_TITLE =
   `text-base font-black uppercase tracking-[0.05em] leading-snug text-ns-tertiary`;
+/** Sentence-case headings in profile & wizard forms — stronger size + contrast (WCAG). */
+export const FORM_SECTION_TITLE =
+  "text-lg font-bold leading-snug tracking-tight text-ns-hero";
+/** Nested title inside a form block (e.g. brief depth, URL groups). */
+export const FORM_SUBSECTION_TITLE =
+  "text-base font-semibold leading-snug text-ns-hero";
 export const CARD_TITLE =
   `font-black uppercase tracking-[0.05em] leading-snug text-ns-tertiary`;
 export const PAGE_DESC = "mt-2 max-w-xl text-sm font-medium leading-relaxed text-ns-secondary";

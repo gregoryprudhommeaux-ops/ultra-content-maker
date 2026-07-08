@@ -1,5 +1,6 @@
 "use client";
 
+import { FORM_SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { ArticleScope } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { ContextHelp } from "@/components/ui/context-help";
@@ -37,7 +38,7 @@ export function ContentNichePanel({
         <p className="text-[11px] font-bold uppercase tracking-wider text-ns-primary">
           {t("eyebrow")}
         </p>
-        <h2 className="mt-1 text-base font-semibold text-ns-tertiary text-balance">
+        <h2 className={`mt-1 ${FORM_SECTION_TITLE} text-balance`}>
           {t("title")}
         </h2>
         <p className="mt-1 text-sm text-ns-secondary text-pretty">{t("subtitle")}</p>

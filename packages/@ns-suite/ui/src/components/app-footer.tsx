@@ -98,18 +98,8 @@ export function NsAppFooter({
             className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold md:max-w-xs md:justify-end md:pt-1"
             aria-label={navAria}
           >
-            {showAppLinks && labels.home && labels.library && labels.pricing && (
+            {showAppLinks && labels.library && labels.pricing && (
               <>
-                <Link
-                  href="/start"
-                  className={
-                    isDark
-                      ? "text-ns-primary hover:text-ns-primary/90"
-                      : "text-ns-tertiary hover:text-ns-primary"
-                  }
-                >
-                  {labels.home}
-                </Link>
                 <Link
                   href="/articles"
                   className={

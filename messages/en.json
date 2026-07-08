@@ -673,7 +673,7 @@
   "nav": {
     "home": "Home",
     "create": "Create",
-    "library": "Library",
+    "library": "Dashboard",
     "content": "Content",
     "postCreation": "Post creation",
     "profile": "Profile",
@@ -690,7 +690,7 @@
       "title": "Shortcuts",
       "createNewPost": "Create a new post",
       "createHint": "Profile · News · Inspiration · Your topic",
-      "libraryDrafts": "Library",
+      "libraryDrafts": "Drafts",
       "libraryHint": "Drafts & in progress",
       "updateVoice": "Update my voice",
       "lastPost": "Last post created",
@@ -698,6 +698,69 @@
       "lastPostUntitled": "Untitled",
       "lastDrafts": "Last drafts",
       "lastDraftsEmpty": "No drafts yet"
+    }
+  },
+  "dashboard": {
+    "eyebrow": "Overview",
+    "title": "Dashboard",
+    "subtitle": "Track validated posts, your quota, and find drafts and in-progress sessions.",
+    "subtitlePending": "Draft and refining posts ready to finalize for LinkedIn.",
+    "librarySection": {
+      "title": "Drafts & sessions",
+      "description": "Search, filter by status or scope, and rework posts by batch.",
+      "descriptionPending": "Draft and refining posts ready to finalize for LinkedIn."
+    },
+    "stats": {
+      "validated": "Validated posts",
+      "lastValidated": "Last validated: {date}",
+      "pending": "In progress",
+      "pendingHint": "Drafts and refining posts",
+      "quota": "Posts remaining",
+      "remainingCount": "{count, plural, one {# post} other {# posts}}",
+      "remainingUnlimited": "Unlimited",
+      "quotaHint": "Based on your plan for the current period",
+      "plan": "Current plan",
+      "planHint": "Quota and included features",
+      "tier": {
+        "free_test": "Free trial",
+        "pro": "Pro",
+        "pro_plus": "Pro Plus",
+        "support_starter": "Support Starter",
+        "support_regular": "Support Regular",
+        "support_total": "Support Total",
+        "full_free": "Full access",
+        "free_without_api": "No API key",
+        "expired": "Expired"
+      }
+    },
+    "recommendation": {
+      "eyebrow": "Recommendation",
+      "title": "Suggested next post type",
+      "cta": "Create post · {mode}",
+      "reason": {
+        "strategyCache": "Based on your LinkedIn activity analysis, a « {mode} » post is a strong fit.",
+        "inspirations": "You have saved inspirations — a « {mode} » post could work well.",
+        "diversifyNews": "Mix in news: try a « {mode} » post to balance your editorial line.",
+        "topicIdea": "You already have profile posts — try a « {mode} » post on a specific topic.",
+        "profileDefault": "To keep building authority, a « {mode} » post is a solid choice."
+      }
+    },
+    "validatedTable": {
+      "title": "Validated posts",
+      "description": "All posts ready for LinkedIn, with creation type and key attributes.",
+      "empty": "No validated posts yet. Validate a draft to see it here.",
+      "columns": {
+        "hook": "Hook",
+        "type": "Type",
+        "scope": "Scope",
+        "angle": "Angle",
+        "language": "Language",
+        "validatedAt": "Validated on"
+      },
+      "angle": {
+        "expertise": "Expertise",
+        "product": "Product"
+      }
     }
   },
   "settings": {

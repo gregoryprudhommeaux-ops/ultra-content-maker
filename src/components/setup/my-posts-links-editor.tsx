@@ -6,6 +6,7 @@ import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import type { SourceLink } from "@/types/workspace";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { FORM_SUBSECTION_TITLE } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import { useTranslations } from "next-intl";
@@ -81,7 +82,7 @@ export function MyPostsLinksEditor({ userId }: Props) {
 
   return (
     <div className="space-y-4 rounded-xl border border-gray-100 bg-ns-brand-light/50 p-4">
-      <h3 className="text-sm font-semibold text-ns-tertiary">{t("title")}</h3>
+      <h3 className={FORM_SUBSECTION_TITLE}>{t("title")}</h3>
       <p className="text-sm text-ns-secondary">{t("description")}</p>
 
       {loading ? (

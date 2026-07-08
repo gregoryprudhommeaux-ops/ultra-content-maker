@@ -17,6 +17,7 @@ import { isValidUrl } from "@/lib/workspace/firestore-utils";
 import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { FORM_SECTION_TITLE, FORM_SUBSECTION_TITLE } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import type { SourceLink } from "@/types/workspace";
 import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
@@ -165,7 +166,7 @@ function UnifiedInspirationSection({
       <div className="border-b border-gray-100 bg-ns-brand-light/40 px-5 py-4 md:px-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-2xl">
-            <h3 className="text-base font-semibold text-ns-tertiary">{t("unifiedTitle")}</h3>
+            <h3 className={FORM_SECTION_TITLE}>{t("unifiedTitle")}</h3>
             <p className="mt-1.5 text-sm leading-relaxed text-ns-secondary">
               {t("unifiedDescription")}
             </p>
@@ -249,7 +250,7 @@ function UnifiedInspirationSection({
         )}
 
         <div className="rounded-xl border border-gray-100 bg-ns-brand-light/20 p-4 md:p-5">
-          <p className="text-sm font-semibold text-ns-tertiary">
+          <p className={FORM_SUBSECTION_TITLE}>
             {count > 0 ? t("addAnotherTitle") : t("addFirstTitle")}
           </p>
           <p className="mt-1 text-xs text-ns-secondary">{t("addFormHint")}</p>
@@ -390,7 +391,7 @@ export function InspirationsEditor({
         </div>
       ) : (
         <div>
-          <h3 className="text-sm font-semibold text-ns-tertiary">{t("embeddedTitle")}</h3>
+          <h3 className={FORM_SUBSECTION_TITLE}>{t("embeddedTitle")}</h3>
           <p className="mt-1 text-sm text-ns-secondary">{t("embeddedSubtitle")}</p>
         </div>
       )}

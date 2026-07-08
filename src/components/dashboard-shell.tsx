@@ -11,6 +11,7 @@ import {
   dashboardNavNeedsAttention,
   isCreationHubPath,
   resolveDashboardNavActive,
+  SIDEBAR_ONLY_NAV_KEYS,
   type DashboardNavItem,
 } from "@/lib/navigation/dashboard-nav";
 import { dispatchCreationFreshStart } from "@/lib/articles/creation-wizard-session";
@@ -80,9 +81,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }
 
   function navItemHref(item: DashboardNavItem) {
-    if (item.key === "home") {
-      return resolveHomeHrefFromProgress(progress);
-    }
     return item.href;
   }
 
@@ -105,7 +103,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const logoHref = resolveHomeHrefFromProgress(progress);
 
   const navItems = DASHBOARD_NAV.filter(
-    (item) => item.key !== "admin" || isPlatformAdmin,
+    (item) =>
+      !SIDEBAR_ONLY_NAV_KEYS.includes(item.key) &&
+      (item.key !== "admin" || isPlatformAdmin),
   );
 
   const isAdminRoute = pathname?.includes("/admin");
@@ -118,7 +118,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <Link
             href={logoHref}
             className="flex min-w-0 flex-1 items-center gap-2 rounded-lg transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ns-primary sm:flex-none xl:gap-3"
-            aria-label={t("nav.home")}
+            aria-label={t("app.name")}
           >
             <NsMark size="sm" />
             <span className="hidden truncate text-sm font-bold tracking-tight text-white sm:inline xl:text-base">
@@ -126,6 +126,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </span>
           </Link>
           <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-1.5 lg:min-w-0 lg:flex-1 lg:gap-3">
+            {navItems.length > 0 ? (
             <nav className="hidden min-w-0 flex-1 justify-end gap-1.5 lg:flex xl:gap-2.5" aria-label="Main">
               {navItems.map((item) => {
                 const active = isNavItemActive(item);
@@ -142,6 +143,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               );
               })}
             </nav>
+            ) : null}
             <div className="hidden md:block">
               <AgencyHeaderPill />
             </div>
@@ -252,6 +254,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 {t("adminAnalytics.shortNav")}
               </Link>
             )}
+            {navItems.length > 0 ? (
             <nav className="flex flex-col gap-1 px-4">
             {navItems.map((item) => {
               const active = isNavItemActive(item);
@@ -272,6 +275,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             );
             })}
             </nav>
+            ) : null}
             <button
               type="button"
               className="mx-4 mt-4 rounded-lg px-3 py-3 text-left text-sm font-semibold text-white/60 transition-colors hover:bg-white/5 hover:text-ns-primary"

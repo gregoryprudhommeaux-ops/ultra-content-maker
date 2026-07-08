@@ -673,7 +673,7 @@
   "nav": {
     "home": "Accueil",
     "create": "Créer",
-    "library": "Bibliothèque",
+    "library": "Tableau de bord",
     "content": "Contenu",
     "postCreation": "Création des posts",
     "profile": "Profil",
@@ -690,7 +690,7 @@
       "title": "Raccourcis",
       "createNewPost": "Créer un nouveau post",
       "createHint": "Profil · Actu · Inspiration · Votre sujet",
-      "libraryDrafts": "Bibliothèque",
+      "libraryDrafts": "Brouillons",
       "libraryHint": "Brouillons & en cours",
       "updateVoice": "Affiner ma voix",
       "lastPost": "Dernier post créé",
@@ -698,6 +698,69 @@
       "lastPostUntitled": "Sans titre",
       "lastDrafts": "Derniers brouillons",
       "lastDraftsEmpty": "Aucun brouillon"
+    }
+  },
+  "dashboard": {
+    "eyebrow": "Vue d’ensemble",
+    "title": "Tableau de bord",
+    "subtitle": "Suivez vos posts validés, votre quota et retrouvez brouillons et sessions en cours.",
+    "subtitlePending": "Posts en brouillon ou en affinage : prêts à finaliser pour LinkedIn.",
+    "librarySection": {
+      "title": "Brouillons & sessions",
+      "description": "Recherchez, filtrez par statut ou portée, et retravaillez vos posts par lot.",
+      "descriptionPending": "Posts en brouillon ou en affinage : prêts à finaliser pour LinkedIn."
+    },
+    "stats": {
+      "validated": "Posts validés",
+      "lastValidated": "Dernier validé : {date}",
+      "pending": "En cours",
+      "pendingHint": "Brouillons et posts en affinage",
+      "quota": "Posts restants",
+      "remainingCount": "{count, plural, one {# post} other {# posts}}",
+      "remainingUnlimited": "Illimité",
+      "quotaHint": "Selon votre plan sur la période en cours",
+      "plan": "Plan actuel",
+      "planHint": "Quota et fonctionnalités associées",
+      "tier": {
+        "free_test": "Essai gratuit",
+        "pro": "Pro",
+        "pro_plus": "Pro Plus",
+        "support_starter": "Support Starter",
+        "support_regular": "Support Régulier",
+        "support_total": "Support Total",
+        "full_free": "Accès complet",
+        "free_without_api": "Sans clé API",
+        "expired": "Expiré"
+      }
+    },
+    "recommendation": {
+      "eyebrow": "Recommandation",
+      "title": "Prochain type de post suggéré",
+      "cta": "Créer un post · {mode}",
+      "reason": {
+        "strategyCache": "D’après l’analyse de votre activité LinkedIn, privilégiez un post « {mode} ».",
+        "inspirations": "Vous avez des inspirations enregistrées : un post « {mode} » pourrait bien fonctionner.",
+        "diversifyNews": "Variez avec l’actualité : essayez un post « {mode} » pour équilibrer votre ligne éditoriale.",
+        "topicIdea": "Vous avez déjà validé des posts profil : testez un post « {mode} » sur un sujet précis.",
+        "profileDefault": "Pour continuer à asseoir votre expertise, un post « {mode} » est un bon choix."
+      }
+    },
+    "validatedTable": {
+      "title": "Posts validés",
+      "description": "Tous les posts prêts pour LinkedIn, avec leur type de création et leurs caractéristiques.",
+      "empty": "Aucun post validé pour l’instant. Validez un brouillon pour le voir ici.",
+      "columns": {
+        "hook": "Accroche",
+        "type": "Type",
+        "scope": "Portée",
+        "angle": "Angle",
+        "language": "Langue",
+        "validatedAt": "Validé le"
+      },
+      "angle": {
+        "expertise": "Expertise",
+        "product": "Produit"
+      }
     }
   },
   "settings": {

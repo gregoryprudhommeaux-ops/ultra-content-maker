@@ -1,5 +1,6 @@
 "use client";
 
+import { FORM_SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { InspirationInputKind } from "@/types/workspace";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -47,7 +48,7 @@ export function InspirationSourceChoice({ onSelect, libraryCount }: Props) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-ns-tertiary">{t("inputTitle")}</h2>
+        <h2 className={FORM_SECTION_TITLE}>{t("inputTitle")}</h2>
         <p className="mt-1 text-sm text-ns-secondary">{t("inputSubtitle")}</p>
       </div>
       <div className="grid gap-3">

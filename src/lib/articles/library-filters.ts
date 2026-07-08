@@ -107,5 +107,5 @@ export function buildLibraryFilterHref(
   if (status !== "all") params.set("status", status);
   if (scope !== "all") params.set("scope", scope);
   const qs = params.toString();
-  return qs ? `/articles?${qs}` : "/articles";
+  return qs ? `/dashboard?${qs}` : "/dashboard";
 }

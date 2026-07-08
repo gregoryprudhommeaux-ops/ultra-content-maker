@@ -1,17 +1,24 @@
-import { CREATION_FRESH_PARAM } from "@/lib/articles/creation-wizard-session";
 import type { OnboardingProgress } from "@/lib/workspace/onboarding-progress";
-import { APP_HOME_PATH } from "@/lib/workspace/onboarding-routes";
+import { CREATION_FRESH_PARAM } from "@/lib/articles/creation-wizard-session";
+
+export const DASHBOARD_HUB_PATH = "/dashboard";
 
 export const CREATE_HUB_PATH = "/articles/new";
 export const CREATE_FRESH_HREF = `${CREATE_HUB_PATH}?${CREATION_FRESH_PARAM}=1`;
 
 export type DashboardNavKey =
- | "home"
  | "create"
  | "library"
  | "profile"
  | "settings"
  | "admin";
+
+/** Hidden from the top header — available in the left sidebar shortcuts. */
+export const SIDEBAR_ONLY_NAV_KEYS: readonly DashboardNavKey[] = [
+  "create",
+  "library",
+  "profile",
+];
 
 export type DashboardNavItem = {
  key: DashboardNavKey;
@@ -23,7 +30,6 @@ export type DashboardNavItem = {
 };
 
 export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
- { key: "home", href: APP_HOME_PATH, labelKey: "home", match: [APP_HOME_PATH, "/start"] },
  {
  key: "create",
  href: CREATE_FRESH_HREF,
@@ -32,9 +38,9 @@ export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
  },
  {
  key: "library",
- href: "/articles",
+ href: DASHBOARD_HUB_PATH,
  labelKey: "library",
- match: ["/articles"],
+ match: [DASHBOARD_HUB_PATH, "/articles"],
  exclude: ["/articles/new"],
  },
  {
@@ -103,14 +109,6 @@ export function resolveDashboardNavActive(
  const path = normalizeDashboardPathname(pathname);
  if (!path) return false;
 
- if (item.key === "home") {
- return (
- path === APP_HOME_PATH ||
- path === "/start" ||
- path.startsWith("/start/")
- );
- }
-
  if (item.key === "create") {
  return isCreationHubPath(path);
  }
@@ -126,8 +124,6 @@ export function dashboardNavNeedsAttention(
  if (!progress || progress.completion.isOnboardingComplete) return false;
 
  switch (key) {
- case "home":
- return progress.percent < 100;
  case "profile":
  return (
  !progress.completion.hasProfileMinimum ||

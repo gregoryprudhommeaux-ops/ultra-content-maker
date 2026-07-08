@@ -9,6 +9,7 @@ import {
  toggleRankedObjective,
 } from "@/lib/articles/post-brief-objectives";
 import { isPostBriefComplete, type WizardCreationMode } from "@/lib/prompts/post-brief";
+import { FORM_SECTION_TITLE } from "@/lib/ui/nextstep";
 import type {
  ArticleScope,
  BriefNicheCheck,
@@ -85,7 +86,7 @@ export function PostBriefForm({
  lang={locale}
  >
  <div>
- <h2 className="text-base font-semibold text-ns-tertiary">{t("title")}</h2>
+ <h2 className={FORM_SECTION_TITLE}>{t("title")}</h2>
  <p className="mt-1 text-sm text-ns-secondary">
  {wizardMode === "profile" ? t("subtitle") : tCreate("briefSubtitleShort")}
  </p>

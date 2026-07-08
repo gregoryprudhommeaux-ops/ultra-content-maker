@@ -1,6 +1,6 @@
 "use client";
 
-import { BTN_SECONDARY } from "@/lib/ui/nextstep";
+import { BTN_SECONDARY, FORM_SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
@@ -18,7 +18,7 @@ export function WizardStepCard({ title, hint, onBack, children }: CardProps) {
     <section className="space-y-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex items-start justify-between gap-3 border-b border-ns-alternate/40 pb-4">
         <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold text-ns-tertiary">{title}</h2>
+          <h2 className={FORM_SECTION_TITLE}>{title}</h2>
           {hint ? <p className="mt-1 text-sm text-ns-secondary">{hint}</p> : null}
         </div>
         <button

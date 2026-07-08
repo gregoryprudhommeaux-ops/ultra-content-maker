@@ -4,6 +4,7 @@ import { getClientAuth } from "@/lib/firebase/client";
 import { BIO_DOC_ACCEPT, BIO_DOC_MAX_MB } from "@/lib/workspace/bio-documents-utils";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { OptionalLabel } from "@/components/setup/optional-label";
+import { FORM_SUBSECTION_TITLE } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import { useTranslations } from "next-intl";
@@ -189,7 +190,7 @@ export function AuthorBioDocumentsPanel({ userId }: Props) {
   return (
     <div className="space-y-4 rounded-xl border border-gray-100 bg-ns-brand-light/50 p-4">
       <div>
-        <h3 className="text-sm font-semibold text-ns-tertiary">{t("title")}</h3>
+        <h3 className={FORM_SUBSECTION_TITLE}>{t("title")}</h3>
         <p className="mt-1 text-sm leading-relaxed text-ns-secondary">{t("description")}</p>
         <p className="mt-2 text-xs leading-relaxed text-ns-secondary/90">{t("trustNote")}</p>
       </div>

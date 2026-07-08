@@ -673,7 +673,7 @@
   "nav": {
     "home": "Inicio",
     "create": "Crear",
-    "library": "Biblioteca",
+    "library": "Panel",
     "content": "Contenido",
     "postCreation": "Creación de posts",
     "profile": "Perfil",
@@ -690,7 +690,7 @@
       "title": "Accesos rápidos",
       "createNewPost": "Crear un nuevo post",
       "createHint": "Perfil · Noticias · Inspiración · Tu tema",
-      "libraryDrafts": "Biblioteca",
+      "libraryDrafts": "Borradores",
       "libraryHint": "Borradores y en curso",
       "updateVoice": "Afinar mi voz",
       "lastPost": "Último post creado",
@@ -698,6 +698,69 @@
       "lastPostUntitled": "Sin título",
       "lastDrafts": "Últimos borradores",
       "lastDraftsEmpty": "Sin borradores"
+    }
+  },
+  "dashboard": {
+    "eyebrow": "Resumen",
+    "title": "Panel",
+    "subtitle": "Sigue tus posts validados, tu cuota y encuentra borradores y sesiones en curso.",
+    "subtitlePending": "Posts en borrador o en refinamiento listos para finalizar en LinkedIn.",
+    "librarySection": {
+      "title": "Borradores y sesiones",
+      "description": "Busca, filtra por estado o alcance y retrabaja posts por lote.",
+      "descriptionPending": "Posts en borrador o en refinamiento listos para finalizar en LinkedIn."
+    },
+    "stats": {
+      "validated": "Posts validados",
+      "lastValidated": "Último validado: {date}",
+      "pending": "En curso",
+      "pendingHint": "Borradores y posts en refinamiento",
+      "quota": "Posts restantes",
+      "remainingCount": "{count, plural, one {# post} other {# posts}}",
+      "remainingUnlimited": "Ilimitado",
+      "quotaHint": "Según tu plan en el período actual",
+      "plan": "Plan actual",
+      "planHint": "Cuota y funciones incluidas",
+      "tier": {
+        "free_test": "Prueba gratuita",
+        "pro": "Pro",
+        "pro_plus": "Pro Plus",
+        "support_starter": "Support Starter",
+        "support_regular": "Support Regular",
+        "support_total": "Support Total",
+        "full_free": "Acceso completo",
+        "free_without_api": "Sin clave API",
+        "expired": "Expirado"
+      }
+    },
+    "recommendation": {
+      "eyebrow": "Recomendación",
+      "title": "Siguiente tipo de post sugerido",
+      "cta": "Crear post · {mode}",
+      "reason": {
+        "strategyCache": "Según el análisis de tu actividad en LinkedIn, un post « {mode} » encaja bien.",
+        "inspirations": "Tienes inspiraciones guardadas: un post « {mode} » podría funcionar.",
+        "diversifyNews": "Varía con actualidad: prueba un post « {mode} » para equilibrar tu línea editorial.",
+        "topicIdea": "Ya tienes posts de perfil: prueba un post « {mode} » sobre un tema concreto.",
+        "profileDefault": "Para seguir reforzando tu autoridad, un post « {mode} » es una buena opción."
+      }
+    },
+    "validatedTable": {
+      "title": "Posts validados",
+      "description": "Todos los posts listos para LinkedIn, con tipo de creación y características.",
+      "empty": "Aún no hay posts validados. Valida un borrador para verlo aquí.",
+      "columns": {
+        "hook": "Gancho",
+        "type": "Tipo",
+        "scope": "Alcance",
+        "angle": "Ángulo",
+        "language": "Idioma",
+        "validatedAt": "Validado el"
+      },
+      "angle": {
+        "expertise": "Experiencia",
+        "product": "Producto"
+      }
     }
   },
   "settings": {

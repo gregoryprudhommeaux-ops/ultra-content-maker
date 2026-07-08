@@ -1,6 +1,7 @@
 "use client";
 
 import { OptionalLabel } from "@/components/setup/optional-label";
+import { FORM_SUBSECTION_TITLE } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import type { AuthorProfile } from "@/types/workspace";
 import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
@@ -26,7 +27,7 @@ export function LinkedInDeliveryPreference({
   return (
     <div className="space-y-4 rounded-xl border border-ns-primary/20 bg-ns-primary/5 p-4">
       <div>
-        <p className="text-sm font-semibold text-ns-tertiary">{t("title")}</p>
+        <h3 className={FORM_SUBSECTION_TITLE}>{t("title")}</h3>
         <p className="mt-1 text-sm text-ns-secondary">{t("subtitle")}</p>
       </div>
 

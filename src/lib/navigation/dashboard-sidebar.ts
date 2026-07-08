@@ -1,7 +1,7 @@
 import { CREATE_FRESH_HREF, CREATE_HUB_PATH } from "@/lib/navigation/dashboard-nav";
 import { normalizeDashboardPathname } from "@/lib/navigation/dashboard-nav";
 
-export const LIBRARY_DRAFTS_HREF = "/articles?status=pending";
+export const LIBRARY_DRAFTS_HREF = "/dashboard?status=pending";
 export const UPDATE_VOICE_HREF = "/setup/author";
 
 export type SidebarQuickLinkKey =
@@ -29,7 +29,7 @@ export const SIDEBAR_QUICK_LINKS: readonly SidebarQuickLink[] = [
     href: LIBRARY_DRAFTS_HREF,
     isActive: (pathname, searchStatus) => {
       const path = normalizeDashboardPathname(pathname);
-      if (path !== "/articles") return false;
+      if (path !== "/dashboard" && path !== "/articles") return false;
       return searchStatus === "pending";
     },
   },
