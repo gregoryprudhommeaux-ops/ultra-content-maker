@@ -2,7 +2,7 @@
 
 import { CreationStrategyGuidePanel } from "@/components/articles/creation/creation-strategy-guide";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
-import { BTN_PRIMARY, BTN_SECONDARY, FORM_SECTION_TITLE, FORM_SUBSECTION_TITLE, META_LABEL, PAGE_TITLE, SECTION_TITLE } from "@/lib/ui/nextstep";
+import { BTN_PRIMARY, BTN_SECONDARY, FORM_SECTION_TITLE, FORM_SUBSECTION_TITLE, META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { CreationStrategyTheme } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useCallback, useRef, useState } from "react";
@@ -190,18 +190,20 @@ export function CreationModePicker({
   ];
 
   return (
-    <div className="space-y-8">
-      <section className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-br from-ns-brand-light via-white to-white p-6 shadow-sm md:p-8">
+    <div className="space-y-5 md:space-y-8">
+      <section className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-br from-ns-brand-light via-white to-white p-4 shadow-sm md:p-8">
         <div
           className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-ns-primary/15 blur-3xl"
           aria-hidden
         />
         <p className={META_LABEL}>{t("heroEyebrow")}</p>
-        <h2 className={`mt-2 max-w-2xl ${PAGE_TITLE}`}>{t("heroTitle")}</h2>
+        <h2 className="mt-2 max-w-2xl text-xl font-black uppercase leading-tight tracking-[0.05em] text-ns-tertiary md:text-2xl">
+          {t("heroTitle")}
+        </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ns-secondary md:text-base">
           {t("heroSubtitle")}
         </p>
-        <ul className="mt-5 flex flex-wrap gap-2">
+        <ul className="mt-4 flex flex-wrap gap-1.5 md:mt-5 md:gap-2">
           {[t("heroPill1"), t("heroPill2"), t("heroPill3")].map((pill) => (
             <li
               key={pill}
@@ -213,7 +215,7 @@ export function CreationModePicker({
         </ul>
       </section>
 
-      <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6">
+      <section className="hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:block md:p-6">
         <h3 className={SECTION_TITLE}>{t("decisionMatrixTitle")}</h3>
         <p className="mt-1 text-sm text-ns-secondary">{t("decisionMatrixHint")}</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -236,7 +238,7 @@ export function CreationModePicker({
 
       <div>
         <p className={`mb-3 ${META_LABEL}`}>{t("modesSectionLabel")}</p>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="flex flex-col gap-2 md:grid md:grid-cols-3 md:gap-4">
           {MODES.map((config) => (
             <ModeCard
               key={config.id}
@@ -340,60 +342,95 @@ function ModeCard({
   const accent = ACCENT[config.accent];
   const outputs = t.raw(`modes.${mode}.outputs`) as string[];
   const featured = config.featured === true;
+  const title = t(`modes.${mode}.title`);
+  const desc = t(`modes.${mode}.desc`);
+  const badge = t(`modes.${mode}.badge`);
+
+  const cardShell = [
+    "group relative w-full overflow-hidden rounded-xl border bg-white text-left shadow-sm transition-all duration-200",
+    featured ? accent.borderFeatured : accent.border,
+    accent.borderHover,
+    "active:scale-[0.99] md:hover:-translate-y-0.5 md:hover:shadow-md",
+    highlighted ? `ring-2 ${accent.ring} shadow-md` : "",
+    pulsing ? `ring-4 ${accent.ring} md:scale-[1.01] shadow-lg` : "",
+  ].join(" ");
+
+  const iconBox = (
+    <div
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg md:h-11 md:w-11 md:rounded-xl ${accent.bg} ${accent.icon}`}
+    >
+      <ModeIcon mode={mode} className="h-4 w-4 md:h-5 md:w-5" />
+    </div>
+  );
+
+  const categoryLabel = (
+    <div className="flex items-center justify-end gap-1.5">
+      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${accent.dot}`} aria-hidden />
+      <span className="text-[10px] font-bold uppercase tracking-widest text-ns-secondary">
+        {badge}
+      </span>
+    </div>
+  );
 
   return (
     <button
       type="button"
       ref={cardRef}
       onClick={() => onSelect(mode)}
-      className={[
-        "group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition-all duration-200",
-        featured ? accent.borderFeatured : accent.border,
-        accent.borderHover,
-        "hover:-translate-y-0.5 hover:shadow-md",
-        "p-5 md:p-6",
-        highlighted ? `ring-2 ${accent.ring} shadow-md` : "",
-        pulsing ? `ring-4 ${accent.ring} scale-[1.01] shadow-lg` : "",
-      ].join(" ")}
+      className={cardShell}
     >
       <div
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${accent.gradient}`}
+        className={`pointer-events-none absolute inset-0 hidden bg-gradient-to-br md:block ${accent.gradient}`}
         aria-hidden
       />
 
-      <div className="relative grid h-full min-h-[22rem] grid-rows-[2.75rem_3.5rem_4.75rem_4.5rem_1fr_auto] gap-y-3">
-        <div className="flex h-11 items-center gap-2">
-          <div
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${accent.bg} ${accent.icon}`}
-          >
-            <ModeIcon mode={mode} className="h-5 w-5" />
+      {/* Mobile — compact list row */}
+      <div className="relative flex items-start gap-3 p-3.5 md:hidden">
+        {iconBox}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pr-6">
+            <h3 className="text-sm font-bold leading-snug text-ns-hero">{title}</h3>
+            {featured ? (
+              <span
+                className={`rounded-full px-1.5 py-px text-[9px] font-bold uppercase tracking-wide ${accent.badge}`}
+              >
+                {t("recommended")}
+              </span>
+            ) : null}
           </div>
-          {featured ? (
-            <span
-              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
-            >
-              {t("recommended")}
-            </span>
-          ) : null}
-          <span className="min-w-0 flex-1" aria-hidden />
-          <span className="flex shrink-0 items-center gap-1.5">
-            <span className={`h-1.5 w-1.5 rounded-full ${accent.dot}`} aria-hidden />
-            <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-ns-secondary">
-              {t(`modes.${mode}.badge`)}
-            </span>
+          <div className="mt-1">{categoryLabel}</div>
+          <p className="mt-1.5 text-xs leading-relaxed text-ns-secondary line-clamp-2">{desc}</p>
+        </div>
+        <span
+          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-lg text-ns-secondary"
+          aria-hidden
+        >
+          →
+        </span>
+      </div>
+
+      {/* Desktop — card */}
+      <div className="relative hidden h-full flex-col gap-3 p-5 md:flex">
+        {featured ? (
+          <span
+            className={`absolute right-4 top-4 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${accent.badge}`}
+          >
+            {t("recommended")}
           </span>
+        ) : null}
+
+        <div className="flex items-start gap-3">
+          {iconBox}
+          <div className="min-w-0 flex-1">
+            <h3 className={`pr-16 ${FORM_SECTION_TITLE} line-clamp-2`}>{title}</h3>
+            <div className="mt-1.5">{categoryLabel}</div>
+          </div>
         </div>
 
-        <h3 className={`${FORM_SECTION_TITLE} line-clamp-2 leading-snug`}>
-          {t(`modes.${mode}.title`)}
-        </h3>
-
-        <p className="text-sm leading-relaxed text-ns-secondary line-clamp-3">
-          {t(`modes.${mode}.desc`)}
-        </p>
+        <p className="text-sm leading-relaxed text-ns-secondary line-clamp-2">{desc}</p>
 
         {Array.isArray(outputs) && outputs.length > 0 ? (
-          <ul className="flex max-h-[4.5rem] flex-wrap content-start gap-1.5 overflow-hidden">
+          <ul className="flex flex-wrap gap-1.5">
             {outputs.map((item) => (
               <li
                 key={item}
@@ -403,19 +440,19 @@ function ModeCard({
               </li>
             ))}
           </ul>
-        ) : (
-          <span aria-hidden />
-        )}
+        ) : null}
 
-        <span
-          className={[
-            "inline-flex w-full items-center justify-center gap-1 self-end",
-            featured ? BTN_PRIMARY : BTN_SECONDARY,
-            "!py-2.5 text-sm",
-          ].join(" ")}
-        >
-          {t("start")}
-          <span aria-hidden>→</span>
+        <span className="mt-auto inline-flex w-full items-center justify-center gap-1 pt-2">
+          <span
+            className={[
+              "inline-flex w-full items-center justify-center gap-1",
+              featured ? BTN_PRIMARY : BTN_SECONDARY,
+              "!min-h-10 !py-2 text-sm",
+            ].join(" ")}
+          >
+            {t("start")}
+            <span aria-hidden>→</span>
+          </span>
         </span>
       </div>
     </button>
