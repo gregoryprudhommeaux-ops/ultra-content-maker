@@ -26,6 +26,8 @@ export function AppFooter({
       showAppLinks={showAppLinks}
       labels={{
         tagline: t("tagline"),
+        taglineLead: t("taglineLead"),
+        taglineSuiteLink: t("taglineSuiteLink"),
         rights: t("rights", { year }),
         footerNavAria: "Footer",
         home: t("home"),

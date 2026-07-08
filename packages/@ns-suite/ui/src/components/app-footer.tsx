@@ -1,11 +1,16 @@
 "use client";
 
 import { NsMark } from "../brand/ns-mark";
-import { NEXTSTEP_COMPANY } from "../brand/ns-suite";
+import { NEXTSTEP_COMPANY, NS_SUITE_URL } from "../brand/ns-suite";
 import type { NsLinkComponent } from "../types/link";
 
 export type NsAppFooterLabels = {
+  /** Full tagline when taglineLead / taglineSuiteLink are not used. */
   tagline: string;
+  /** Text before the NS Suite link, e.g. "Ultra Content Maker : …, " */
+  taglineLead?: string;
+  /** Linked phrase pointing to the NS Suite hub. */
+  taglineSuiteLink?: string;
   rights: string;
   footerNavAria?: string;
   home?: string;
@@ -63,7 +68,25 @@ export function NsAppFooter({
                   isDark ? "text-white/60" : "text-ns-secondary"
                 }`}
               >
-                {labels.tagline}
+                {labels.taglineLead && labels.taglineSuiteLink && NS_SUITE_URL ? (
+                  <>
+                    {labels.taglineLead}
+                    <a
+                      href={NS_SUITE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={
+                        isDark
+                          ? "text-ns-primary underline decoration-ns-primary/40 underline-offset-2 hover:text-ns-primary/90"
+                          : "text-ns-tertiary underline decoration-ns-primary/35 underline-offset-2 hover:text-ns-primary"
+                      }
+                    >
+                      {labels.taglineSuiteLink}
+                    </a>
+                  </>
+                ) : (
+                  labels.tagline
+                )}
               </p>
               <p className={`text-[11px] ${isDark ? "text-white/40" : "text-ns-secondary/70"}`}>
                 {labels.rights}
