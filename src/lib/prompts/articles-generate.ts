@@ -5,12 +5,25 @@ import {
   injectAuthorSteering,
   type AuthorSteeringPayload,
 } from "@/lib/profile/author-steering-context";
-import type { ArticleScope, ContentLanguage, EmojiLevel, PostBrief } from "@/types/workspace";
+import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
+import {
+  buildOrganizationPromptBlock,
+  buildPublishedTopicsAvoidanceBlock,
+  buildEditorialCalendarPromptBlock,
+  parseEditorialPillars,
+  parseOrganizationProfile,
+} from "@/lib/persona/organization-enrichment";
+import type { ArticleScope, ContentLanguage, EmojiLevel, GapAnswerValue, PostBrief } from "@/types/workspace";
+import { buildPostBriefInstruction } from "./post-brief";
 import { emojiInstruction } from "./emoji-instruction";
 import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
 import { languageLabel, languageOnlyRule } from "./language-consistency";
-import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
-import { buildPostBriefInstruction } from "./post-brief";
+
+function enrichmentDetails(
+  raw?: Record<string, unknown> | null,
+): Record<string, GapAnswerValue> | null | undefined {
+  return raw as Record<string, GapAnswerValue> | null | undefined;
+}
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
  fr: "French",
@@ -86,6 +99,22 @@ export function buildArticlesSystemPromptWithCount(
     author: authorSteering?.author ?? null,
     profileEnrichment: profileEnrichment ?? authorSteering?.profileEnrichment ?? null,
   });
+  const enrichment = enrichmentDetails(profileEnrichment ?? authorSteering?.profileEnrichment);
+  const orgProfile = parseOrganizationProfile(enrichment);
+  const orgBlock = buildOrganizationPromptBlock(enrichment);
+  const publishedBlock = buildPublishedTopicsAvoidanceBlock(enrichment);
+  const calendarBlock = buildEditorialCalendarPromptBlock(enrichment);
+  const visualFirstRule =
+    (archetype === "founder_product" || archetype === "hybrid") && orgProfile.visualFirst !== false
+      ? "\n- Company mode · visual-first: keep each post SHORT (hook + body roughly 600-900 characters total) · one clear idea · detail lives in the feed image, not in long paragraphs."
+      : "";
+  const orgRules = [orgBlock, publishedBlock, calendarBlock].filter(Boolean).join("\n\n");
+  const pillars = parseEditorialPillars(enrichment);
+  const pillarFieldRule =
+    pillars.length > 0
+      ? `\n- Each post MUST include "editorialPillarId" — exact slug from: ${pillars.map((p) => `"${p.id}" (${p.label})`).join(", ")} · pick the best-matching pillar for the post angle.`
+      : "";
+  const pillarJsonField = pillars.length > 0 ? ', "editorialPillarId": string' : "";
   const mix =
  count === 1
  ? targetScope
@@ -99,6 +128,7 @@ export function buildArticlesSystemPromptWithCount(
  return `You are a senior LinkedIn B2B content strategist and ghostwriter. Follow the expert Persona system prompt provided by the user.
 
 ${buildLinkedIn2026SystemRules(contentLanguage, archetype)}
+${orgRules ? `\n${orgRules}\n` : ""}${visualFirstRule ? `\n${visualFirstRule}\n` : ""}
 
 ${languageOnlyRule(contentLanguage)}
 
@@ -110,12 +140,12 @@ ${systemLines}
 - Emoji rule (non-negotiable): ${emoji}
 - Match author voice and audience from the Persona strictly.
 - If the Persona says "no emojis" but emojiLevel is light or heavy, follow emojiLevel · user choice overrides.
-- For each post, add exactly ${LINKEDIN_HASHTAG_COUNT} LinkedIn hashtags in "hashtags" (strings without #): relevant to post content, author niche and audience from the Persona. Mix specific + broader tags. No generic spam.
+- For each post, add exactly ${LINKEDIN_HASHTAG_COUNT} LinkedIn hashtags in "hashtags" (strings without #): relevant to post content, author niche and audience from the Persona. Mix specific + broader tags. No generic spam.${pillarFieldRule}
 
 Return JSON only:
 {
  "articles": [
- { "hook": string, "body": string, "ps": string or empty string, "scope": "generalist" | "niche", "hashtags": string[] }
+ { "hook": string, "body": string, "ps": string or empty string, "scope": "generalist" | "niche", "hashtags": string[]${pillarJsonField} }
  ]
 }`;
 }
@@ -153,6 +183,10 @@ export function buildArticlesUserPromptWithCount(
  author: authorSteering?.author ?? null,
  profileEnrichment: profileEnrichment ?? authorSteering?.profileEnrichment ?? null,
  });
+ const enrichment = enrichmentDetails(profileEnrichment ?? authorSteering?.profileEnrichment);
+ const orgBlock = buildOrganizationPromptBlock(enrichment);
+ const publishedBlock = buildPublishedTopicsAvoidanceBlock(enrichment);
+ const calendarBlock = buildEditorialCalendarPromptBlock(enrichment);
 
  return JSON.stringify(
  injectAuthorSteering(
@@ -163,6 +197,9 @@ export function buildArticlesUserPromptWithCount(
  emojiRule,
  personaPromptText,
  profileEnrichment: profileEnrichment ?? {},
+ organizationContext: orgBlock ?? null,
+ publishedTopicsAvoidance: publishedBlock ?? null,
+ editorialCalendarContext: calendarBlock ?? null,
  postBrief: postBrief ?? null,
  postBriefInstruction: briefBlock ?? null,
  contentNicheInstruction: nicheBlock ?? null,

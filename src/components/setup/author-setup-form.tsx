@@ -31,6 +31,15 @@ import {
   parseCompanyOffersFromEnrichment,
   showsCompanyProfileFields,
 } from "@/lib/persona/company-enrichment";
+import {
+  emptyOrganizationProfile,
+  organizationEnrichmentPatch,
+  parseEditorialCalendar,
+  parseEditorialPillars,
+  parseLinkedInAnalyticsSummary,
+  parseOrganizationProfile,
+  showsOrganizationProfileFields,
+} from "@/lib/persona/organization-enrichment";
 import { getProfileEnrichment, saveProfileEnrichment } from "@/lib/workspace/enrichment";
 import {
   hasCapturedLinkedIn,
@@ -40,16 +49,27 @@ import {
 } from "@/lib/workspace/author-enrich";
 import { ensureUserDoc, updateSetupStep } from "@/lib/workspace/user";
 import { isValidUrl } from "@/lib/workspace/firestore-utils";
-import type { AuthorReferenceUrl, CompanyOffer, ContentArchetype, ContentLanguage } from "@/types/workspace";
+import type { AuthorReferenceUrl, CompanyOffer, ContentArchetype, ContentLanguage, EditorialCalendarEntry, EditorialPillar, LinkedInAnalyticsMonthlySummary, OrganizationProfile } from "@/types/workspace";
 import { ContentArchetypePicker } from "@/components/setup/content-archetype-picker";
 import { CompanyProfileFields } from "@/components/setup/company-profile-fields";
+import { EditorialCalendarPanel } from "@/components/setup/editorial-calendar-panel";
+import { EditorialPillarsEditor } from "@/components/setup/editorial-pillars-editor";
+import { LinkedInAnalyticsSummaryPanel } from "@/components/setup/linkedin-analytics-summary-panel";
+import { OrganizationProfileFields } from "@/components/setup/organization-profile-fields";
+import { PublishedTopicsPanel } from "@/components/setup/published-topics-panel";
 import { OptionalLabel } from "@/components/setup/optional-label";
 import {
   DashboardPageHero,
   DashboardPageSection,
   DashboardPageShell,
 } from "@/components/layout/dashboard-page";
+import { PersonaSyncStatusBanner } from "@/components/setup/persona-sync-status-banner";
+import {
+  ButtonSpinner,
+  GeneratingIndicator,
+} from "@/components/ui/generating-indicator";
 import { SaveFeedbackOverlay } from "@/components/ui/save-feedback-overlay";
+import { getPersona } from "@/lib/workspace/persona";
 import { BTN_PRIMARY, DASHBOARD_FORM } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
@@ -83,11 +103,22 @@ export function AuthorSetupForm() {
   const [positioningLine, setPositioningLine] = useState("");
   const [contentArchetype, setContentArchetype] = useState<ContentArchetype>("expert");
   const [companyOffers, setCompanyOffers] = useState<CompanyOffer[]>([]);
+  const [organizationProfile, setOrganizationProfile] = useState<OrganizationProfile>(
+    emptyOrganizationProfile(),
+  );
+  const [editorialPillars, setEditorialPillars] = useState<EditorialPillar[]>([]);
+  const [editorialCalendar, setEditorialCalendar] = useState<EditorialCalendarEntry[]>([]);
+  const [linkedInAnalyticsSummary, setLinkedInAnalyticsSummary] = useState<
+    LinkedInAnalyticsMonthlySummary[]
+  >([]);
   const [contentLanguage, setContentLanguage] = useState<ContentLanguage>(locale);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [savedMessage, setSavedMessage] = useState("");
+  const [personaRefreshToken, setPersonaRefreshToken] = useState(0);
+  const [pendingPhase, setPendingPhase] = useState<"idle" | "save" | "sync">("idle");
   const [savedProfile, setSavedProfile] = useState<Awaited<ReturnType<typeof getAuthorProfile>>>(null);
   const [inspirationSources, setInspirationSources] = useState<Awaited<ReturnType<typeof listSources>>>([]);
   const autoTabAppliedRef = useRef(false);
@@ -135,6 +166,10 @@ export function AuthorSetupForm() {
         setContentArchetype(profile.contentArchetype ?? "expert");
         setContentLanguage(profile.contentLanguage);
         setCompanyOffers(parseCompanyOffersFromEnrichment(enrichment?.details));
+        setOrganizationProfile(parseOrganizationProfile(enrichment?.details));
+        setEditorialPillars(parseEditorialPillars(enrichment?.details));
+        setEditorialCalendar(parseEditorialCalendar(enrichment?.details));
+        setLinkedInAnalyticsSummary(parseLinkedInAnalyticsSummary(enrichment?.details));
       } else {
         setSavedProfile(null);
         setInspirationSources(sources);
@@ -146,6 +181,10 @@ export function AuthorSetupForm() {
         setContentArchetype("expert");
         setContentLanguage(activeAccount.contentLanguage ?? locale);
         setCompanyOffers([]);
+        setOrganizationProfile(emptyOrganizationProfile());
+        setEditorialPillars([]);
+        setEditorialCalendar([]);
+        setLinkedInAnalyticsSummary([]);
       }
       setLoaded(true);
     })();
@@ -229,7 +268,27 @@ export function AuthorSetupForm() {
     const refreshed = await getAuthorProfile(user.uid);
     if (refreshed) setSavedProfile(refreshed);
     if (showsCompanyProfileFields(contentArchetype)) {
-      await saveProfileEnrichment(user.uid, companyOffersToEnrichmentPatch(companyOffers));
+      await saveProfileEnrichment(user.uid, {
+        ...companyOffersToEnrichmentPatch(companyOffers),
+        ...(showsOrganizationProfileFields(contentArchetype)
+          ? organizationEnrichmentPatch(
+              organizationProfile,
+              editorialPillars,
+              editorialCalendar,
+              linkedInAnalyticsSummary,
+            )
+          : {}),
+      });
+    } else if (showsOrganizationProfileFields(contentArchetype)) {
+      await saveProfileEnrichment(
+        user.uid,
+        organizationEnrichmentPatch(
+          organizationProfile,
+          editorialPillars,
+          editorialCalendar,
+          linkedInAnalyticsSummary,
+        ),
+      );
     }
     if (markComplete) await completeAuthorStep(user.uid);
     return true;
@@ -246,10 +305,24 @@ export function AuthorSetupForm() {
     if (!user) return;
     setError(null);
     setPending(true);
+    setPendingPhase("save");
     try {
       const ok = await persist(false);
       if (ok) {
         setError(null);
+        setPendingPhase("sync");
+        const persona = await getPersona(user.uid);
+        setPersonaRefreshToken((n) => n + 1);
+        const lastProfileSync = persona?.recentChanges?.find(
+          (c) => c.source === "profile_sync",
+        );
+        if (persona?.promptText?.trim()) {
+          setSavedMessage(
+            lastProfileSync?.summary?.trim() || t("personaSync.saveSuccess"),
+          );
+        } else {
+          setSavedMessage(t("personaSync.saveSuccessNoPersona"));
+        }
         setSavedFlash(true);
         notifyOnboardingProgressChanged();
       }
@@ -257,6 +330,7 @@ export function AuthorSetupForm() {
       setError(t("saveFailed"));
     } finally {
       setPending(false);
+      setPendingPhase("idle");
     }
   }
 
@@ -286,8 +360,12 @@ export function AuthorSetupForm() {
     <DashboardPageShell>
       <SaveFeedbackOverlay
         show={savedFlash}
-        message={t("saveSuccess")}
-        onDismiss={() => setSavedFlash(false)}
+        message={savedMessage || t("saveSuccess")}
+        onDismiss={() => {
+          setSavedFlash(false);
+          setSavedMessage("");
+        }}
+        durationMs={savedMessage.length > 80 ? 5200 : 3200}
       />
       <div className="mb-6 rounded-xl border border-ns-primary/20 bg-ns-primary/5 px-4 py-3 text-sm leading-relaxed text-ns-secondary">
         <p className="font-medium text-ns-tertiary">
@@ -355,6 +433,14 @@ export function AuthorSetupForm() {
             setContentArchetype={setContentArchetype}
             companyOffers={companyOffers}
             setCompanyOffers={setCompanyOffers}
+            organizationProfile={organizationProfile}
+            setOrganizationProfile={setOrganizationProfile}
+            editorialPillars={editorialPillars}
+            setEditorialPillars={setEditorialPillars}
+            editorialCalendar={editorialCalendar}
+            setEditorialCalendar={setEditorialCalendar}
+            linkedInAnalyticsSummary={linkedInAnalyticsSummary}
+            setLinkedInAnalyticsSummary={setLinkedInAnalyticsSummary}
             contentLanguage={contentLanguage}
             setContentLanguage={setContentLanguage}
           />
@@ -377,6 +463,24 @@ export function AuthorSetupForm() {
             : t(`tabs.requiredNote.${activeTab}`)}
         </p>
 
+        {enrichMode && user && !pending ? (
+          <PersonaSyncStatusBanner
+            userId={user.uid}
+            refreshToken={personaRefreshToken}
+          />
+        ) : null}
+
+        {enrichMode && pending ? (
+          <GeneratingIndicator
+            label={
+              pendingPhase === "sync"
+                ? t("personaSync.syncing")
+                : t("personaSync.savingProfile")
+            }
+            hint={t("personaSync.syncingHint")}
+          />
+        ) : null}
+
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="flex flex-wrap gap-3">
@@ -390,8 +494,19 @@ export function AuthorSetupForm() {
               {t("save")}
             </button>
           )}
-          <button type="submit" disabled={pending} className={`${BTN_PRIMARY} disabled:opacity-50`}>
-            {enrichMode ? t("enrichSave") : t("continue")}
+          <button
+            type="submit"
+            disabled={pending}
+            className={`inline-flex items-center justify-center gap-2 ${BTN_PRIMARY} disabled:opacity-50`}
+          >
+            {pending && enrichMode ? <ButtonSpinner className="border-white/30 border-t-white" /> : null}
+            {pending && enrichMode
+              ? pendingPhase === "sync"
+                ? t("personaSync.syncing")
+                : t("personaSync.savingProfile")
+              : enrichMode
+                ? t("enrichSave")
+                : t("continue")}
           </button>
           {enrichMode && (
             <Link
@@ -593,6 +708,14 @@ function VoiceFields({
   setContentArchetype,
   companyOffers,
   setCompanyOffers,
+  organizationProfile,
+  setOrganizationProfile,
+  editorialPillars,
+  setEditorialPillars,
+  editorialCalendar,
+  setEditorialCalendar,
+  linkedInAnalyticsSummary,
+  setLinkedInAnalyticsSummary,
   contentLanguage,
   setContentLanguage,
 }: {
@@ -607,6 +730,14 @@ function VoiceFields({
   setContentArchetype: (v: ContentArchetype) => void;
   companyOffers: CompanyOffer[];
   setCompanyOffers: (offers: CompanyOffer[]) => void;
+  organizationProfile: OrganizationProfile;
+  setOrganizationProfile: (profile: OrganizationProfile) => void;
+  editorialPillars: EditorialPillar[];
+  setEditorialPillars: (pillars: EditorialPillar[]) => void;
+  editorialCalendar: EditorialCalendarEntry[];
+  setEditorialCalendar: (entries: EditorialCalendarEntry[]) => void;
+  linkedInAnalyticsSummary: LinkedInAnalyticsMonthlySummary[];
+  setLinkedInAnalyticsSummary: (months: LinkedInAnalyticsMonthlySummary[]) => void;
   contentLanguage: ContentLanguage;
   setContentLanguage: (v: ContentLanguage) => void;
 }) {
@@ -664,6 +795,36 @@ function VoiceFields({
     />
   );
 
+  const organizationField = showsOrganizationProfileFields(contentArchetype) ? (
+    <OrganizationProfileFields
+      profile={organizationProfile}
+      onChange={setOrganizationProfile}
+    />
+  ) : null;
+
+  const pillarsField = showsOrganizationProfileFields(contentArchetype) ? (
+    <EditorialPillarsEditor pillars={editorialPillars} onChange={setEditorialPillars} />
+  ) : null;
+
+  const calendarField = showsOrganizationProfileFields(contentArchetype) ? (
+    <EditorialCalendarPanel
+      entries={editorialCalendar}
+      pillars={editorialPillars}
+      onChange={setEditorialCalendar}
+    />
+  ) : null;
+
+  const analyticsField = showsOrganizationProfileFields(contentArchetype) ? (
+    <LinkedInAnalyticsSummaryPanel
+      months={linkedInAnalyticsSummary}
+      onChange={setLinkedInAnalyticsSummary}
+    />
+  ) : null;
+
+  const publishedTopicsField = showsOrganizationProfileFields(contentArchetype) ? (
+    <PublishedTopicsPanel userId={userId} />
+  ) : null;
+
   const languageField = (
     <div>
       <OptionalLabel htmlFor="lang" optional={enrichMode}>
@@ -702,8 +863,13 @@ function VoiceFields({
         positioningField
       )}
       {archetypeField}
+      {organizationField}
+      {pillarsField}
+      {calendarField}
       {companyField}
       <AuthorBioDocumentsPanel userId={userId} />
+      {publishedTopicsField}
+      {analyticsField}
       {enrichMode ? (
         <PrefilledFieldBlock
           t={t}

@@ -11,11 +11,19 @@ import {
 } from "@/components/setup/linkedin-delivery-preference";
 import { ContentArchetypePicker } from "@/components/setup/content-archetype-picker";
 import { CompanyProfileFields } from "@/components/setup/company-profile-fields";
+import { OrganizationProfileFields } from "@/components/setup/organization-profile-fields";
+import { EditorialPillarsEditor } from "@/components/setup/editorial-pillars-editor";
 import {
   companyOffersToEnrichmentPatch,
   parseCompanyOffersFromEnrichment,
   showsCompanyProfileFields,
 } from "@/lib/persona/company-enrichment";
+import {
+  organizationEnrichmentPatch,
+  parseEditorialPillars,
+  parseOrganizationProfile,
+  showsOrganizationProfileFields,
+} from "@/lib/persona/organization-enrichment";
 import { getProfileEnrichment, saveProfileEnrichment } from "@/lib/workspace/enrichment";
 import { useSubscription } from "@/contexts/subscription-context";
 import {
@@ -44,7 +52,8 @@ import { serializeForApi } from "@/lib/workspace/serialize-profile";
 import { updateSetupStep } from "@/lib/workspace/user";
 import { BTN_PRIMARY, BTN_SECONDARY, CARD_SOFT } from "@/lib/ui/nextstep";
 import { INPUT_CLASS } from "@/types/workspace";
-import type { CompanyOffer, ContentArchetype, ContentLanguage } from "@/types/workspace";
+import type { CompanyOffer, ContentArchetype, ContentLanguage, EditorialPillar, OrganizationProfile } from "@/types/workspace";
+import { emptyOrganizationProfile } from "@/lib/persona/organization-enrichment";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -79,6 +88,10 @@ export function ExpressSetupForm() {
   const [positioningLine, setPositioningLine] = useState("");
   const [contentArchetype, setContentArchetype] = useState<ContentArchetype>("expert");
   const [companyOffers, setCompanyOffers] = useState<CompanyOffer[]>([]);
+  const [organizationProfile, setOrganizationProfile] = useState<OrganizationProfile>(
+    emptyOrganizationProfile(),
+  );
+  const [editorialPillars, setEditorialPillars] = useState<EditorialPillar[]>([]);
   const [prefill, setPrefill] = useState<PrefillState | null>(null);
   const [prefillLoading, setPrefillLoading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -105,6 +118,10 @@ export function ExpressSetupForm() {
       if (profile?.positioningLine) setPositioningLine(profile.positioningLine);
       if (profile?.contentArchetype) setContentArchetype(profile.contentArchetype);
       setCompanyOffers(parseCompanyOffersFromEnrichment(enrichment?.details));
+      if (enrichment?.details) {
+        setOrganizationProfile(parseOrganizationProfile(enrichment.details));
+        setEditorialPillars(parseEditorialPillars(enrichment.details));
+      }
       if (profile?.linkedInDeliveryMode) {
         setLinkedInDeliveryMode(profile.linkedInDeliveryMode);
       }
@@ -262,7 +279,17 @@ export function ExpressSetupForm() {
         status: "in_progress",
       });
       if (showsCompanyProfileFields(contentArchetype)) {
-        await saveProfileEnrichment(user.uid, companyOffersToEnrichmentPatch(companyOffers));
+        await saveProfileEnrichment(user.uid, {
+          ...companyOffersToEnrichmentPatch(companyOffers),
+          ...(showsOrganizationProfileFields(contentArchetype)
+            ? organizationEnrichmentPatch(organizationProfile, editorialPillars)
+            : {}),
+        });
+      } else if (showsOrganizationProfileFields(contentArchetype)) {
+        await saveProfileEnrichment(
+          user.uid,
+          organizationEnrichmentPatch(organizationProfile, editorialPillars),
+        );
       }
       await skipAudienceStep(user.uid);
       await updateSetupStep(user.uid, "persona");
@@ -475,6 +502,20 @@ export function ExpressSetupForm() {
             offers={companyOffers}
             onChange={setCompanyOffers}
           />
+
+          {showsOrganizationProfileFields(contentArchetype) ? (
+            <div className="space-y-4 rounded-xl border border-violet-200/60 bg-violet-50/20 p-4">
+              <p className="text-sm text-ns-secondary">{t("orgModeHint")}</p>
+              <OrganizationProfileFields
+                profile={organizationProfile}
+                onChange={setOrganizationProfile}
+              />
+              <EditorialPillarsEditor
+                pillars={editorialPillars}
+                onChange={setEditorialPillars}
+              />
+            </div>
+          ) : null}
 
           {access?.isSupportClient ? (
             <LinkedInDeliveryPreference

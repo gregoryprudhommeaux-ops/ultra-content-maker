@@ -3,6 +3,10 @@ import {
   buildPersonaArchetypeInstruction,
   resolveContentArchetype,
 } from "@/lib/persona/content-archetype";
+import {
+  buildOrganizationPromptBlock,
+  parseEditorialPillars,
+} from "@/lib/persona/organization-enrichment";
 import type {
  AudienceProfile,
  AuthorProfile,
@@ -92,6 +96,8 @@ export function buildPersonaUserPrompt(
     author,
     profileEnrichment: enrichment?.details,
   });
+  const customPillars = parseEditorialPillars(enrichment?.details);
+  const orgBlock = buildOrganizationPromptBlock(enrichment?.details);
 
   return JSON.stringify(
     {
@@ -104,6 +110,12 @@ export function buildPersonaUserPrompt(
         labels.name,
         enrichment?.details,
       ),
+      organizationContext: orgBlock ?? null,
+      editorialPillarsConfigured: customPillars.length > 0 ? customPillars : null,
+      editorialPillarsNote:
+        customPillars.length > 0
+          ? "Use these client-configured pillars as Topic DNA (override generic pillar inference). Rotate across pillars."
+          : null,
       author: author ?? {},
  audience: audience?.skipped ? { skipped: true } : (audience ?? {}),
  profileEnrichment: enrichment?.details ?? {},

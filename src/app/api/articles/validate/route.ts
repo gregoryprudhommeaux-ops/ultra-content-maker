@@ -7,6 +7,7 @@ import {
   recordRetainedPostServer,
 } from "@/lib/subscription/subscription.server";
 import { resolveArticleDocument } from "@/lib/workspace/article-doc.server";
+import { registerPublishedTopicFromArticleServer } from "@/lib/workspace/published-topics.server";
 import { isPlatformAdminUid } from "@/lib/workspace/platform-admin";
 import { canWriteWorkspace } from "@/lib/workspace/require-workspace-write.server";
 import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
@@ -112,11 +113,41 @@ export async function POST(request: Request) {
   await resolved.ref.update(patch);
 
   if (!alreadyValidated) {
+    const hook =
+      body.hook?.trim() ||
+      (typeof data.hook === "string" ? data.hook.trim() : "");
+    const articleBody =
+      body.body?.trim() ||
+      (typeof data.body === "string" ? data.body.trim() : "");
+    const editorialPillarId =
+      typeof data.editorialPillarId === "string"
+        ? data.editorialPillarId.trim()
+        : undefined;
+    let publishedTopicRegistered = true;
+    if (hook || articleBody) {
+      try {
+        await registerPublishedTopicFromArticleServer(
+          db,
+          scope,
+          body.articleId.trim(),
+          hook,
+          articleBody,
+          editorialPillarId || undefined,
+        );
+      } catch {
+        publishedTopicRegistered = false;
+      }
+    }
+
     const profile = await recordRetainedPostServer(ownerId);
     const access = resolveSubscriptionAccess(profile, {
       isPlatformAdmin: isPlatformAdminUid(actorUid),
     });
-    return NextResponse.json({ ok: true, subscription: access });
+    return NextResponse.json({
+      ok: true,
+      subscription: access,
+      publishedTopicRegistered,
+    });
   }
 
   return NextResponse.json({ ok: true });

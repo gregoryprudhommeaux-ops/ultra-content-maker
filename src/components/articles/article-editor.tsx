@@ -24,6 +24,16 @@ import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useSubscription } from "@/contexts/subscription-context";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
+import { resolveContentArchetype } from "@/lib/persona/content-archetype";
+import {
+ parseEditorialPillars,
+ parseOrganizationProfile,
+ showsOrganizationProfileFields,
+} from "@/lib/persona/organization-enrichment";
+import {
+ credibilityChecklistSummary,
+ runCredibilityChecklist,
+} from "@/lib/articles/credibility-checklist";
 import { getPersona } from "@/lib/workspace/persona";
 import { hasClientLlmAccess, llmPayloadForAccess } from "@/lib/llm/client-payload";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
@@ -46,6 +56,7 @@ import {
  saveArticleIllustration,
  saveArticleQuality,
  saveArticleRefinement,
+ saveArticleRepostSuggestions,
  saveArticleSlopAnalysis,
  updateArticleContent,
  validateArticleWithCta,
@@ -64,18 +75,22 @@ import { useTranslations } from "next-intl";
 import type {
  ArticleDoc,
  ArticleIllustration,
+ ArticlePerformanceSignals,
  ArticleQualityScores,
  ArticleRefinement,
  ArticleScope,
  CtaIntensity,
  CtaSuggestion,
  EmojiLevel,
+ EditorialPillar,
+ OrganizationProfile,
  RefinementAnswer,
+ RepostSuggestion,
  ToneEdge,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const ArticleQualityPanelLazy = dynamic(
  () =>
@@ -106,6 +121,35 @@ const ArticleIllustrationPanelLazy = dynamic(
  { loading: () => <EditorPanelPlaceholder lines={3} /> },
 );
 
+const ArticleRepostPanelLazy = dynamic(
+ () => import("@/components/articles/article-repost-panel").then((m) => m.ArticleRepostPanel),
+ { loading: () => <EditorPanelPlaceholder lines={3} /> },
+);
+
+const ArticleDeliveryPackPanelLazy = dynamic(
+ () =>
+ import("@/components/articles/article-delivery-pack-panel").then(
+ (m) => m.ArticleDeliveryPackPanel,
+ ),
+ { loading: () => <EditorPanelPlaceholder lines={4} /> },
+);
+
+const ArticleCredibilityChecklistLazy = dynamic(
+ () =>
+ import("@/components/articles/article-credibility-checklist").then(
+ (m) => m.ArticleCredibilityChecklist,
+ ),
+ { loading: () => <EditorPanelPlaceholder lines={2} /> },
+);
+
+const ArticlePerformancePanelLazy = dynamic(
+ () =>
+ import("@/components/articles/article-performance-panel").then(
+ (m) => m.ArticlePerformancePanel,
+ ),
+ { loading: () => <EditorPanelPlaceholder lines={2} /> },
+);
+
 type Props = {
  articleId: string;
  /** In wizard: hide nav/extra panels; show draft + refine + CTA inline. */
@@ -120,6 +164,8 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const tCta = useTranslations("setup.articles.cta");
  const tDetailHelp = useTranslations("setup.articles.detail.help");
  const tIll = useTranslations("setup.articles.illustration");
+ const tRepost = useTranslations("setup.articles.repost");
+ const tCred = useTranslations("setup.articles.credibilityChecklist");
  const tQuality = useTranslations("setup.articles.quality");
  const { user, loading: authLoading } = useAuth();
  const { access: subscriptionAccess, refresh: refreshSubscription } = useSubscription();
@@ -132,6 +178,16 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const [ctaLoading, setCtaLoading] = useState(false);
  const [illustration, setIllustration] = useState<ArticleIllustration | null>(null);
  const [illustrationLoading, setIllustrationLoading] = useState(false);
+ const [repostSuggestions, setRepostSuggestions] = useState<RepostSuggestion[] | null>(null);
+ const [repostExpectedTeamCount, setRepostExpectedTeamCount] = useState<number | undefined>(
+ undefined,
+ );
+ const [repostLoading, setRepostLoading] = useState(false);
+ const [organizationProfile, setOrganizationProfile] = useState<OrganizationProfile | null>(
+ null,
+ );
+ const [editorialPillars, setEditorialPillars] = useState<EditorialPillar[]>([]);
+ const [showOrgMode, setShowOrgMode] = useState(false);
  const [pendingAction, setPendingAction] = useState<"revise" | "validate" | null>(
  null,
  );
@@ -255,11 +311,68 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  [user, article, subscriptionAccess, tIll],
  );
 
+ const loadRepostSuggestions = useCallback(
+ async (force = false, opts?: { quiet?: boolean }) => {
+ if (!user || !article || !showOrgMode) return;
+ if (!force && article.repostSuggestions?.length) {
+ setRepostSuggestions(article.repostSuggestions);
+ return;
+ }
+ const org = organizationProfile ?? parseOrganizationProfile(null);
+ if (!(org.teamMembers?.length ?? 0)) return;
+
+ setRepostLoading(true);
+ if (!opts?.quiet) setError(null);
+ try {
+ const auth = getClientAuth();
+ const token = auth ? await auth.currentUser?.getIdToken() : null;
+ const llmProfile = await getUserLlmProfile(user.uid);
+ const llmPayload = llmPayloadForAccess(llmProfile, subscriptionAccess);
+ if (!token || !hasClientLlmAccess(subscriptionAccess, llmPayload)) return;
+
+ const res = await fetch("/api/articles/repost-suggestions", {
+ method: "POST",
+ headers: {
+ Authorization: `Bearer ${token}`,
+ "Content-Type": "application/json",
+ },
+ body: JSON.stringify({
+ contentLanguage: article.contentLanguage,
+ hook: article.hook,
+ body: article.body,
+ ps: article.ps,
+ exportText: article.exportText,
+ llm: llmPayload,
+ }),
+ });
+ const data = await res.json();
+ if (!res.ok || !data.suggestions?.length) {
+ if (!opts?.quiet) setError(tRepost("loadFailed"));
+ return;
+ }
+ setRepostExpectedTeamCount(
+ typeof data.expectedTeamCount === "number" ? data.expectedTeamCount : org.teamMembers?.length,
+ );
+ await saveArticleRepostSuggestions(user.uid, article.id, data.suggestions);
+ setRepostSuggestions(data.suggestions);
+ setArticle((prev) =>
+ prev ? { ...prev, repostSuggestions: data.suggestions } : prev,
+ );
+ } catch {
+ if (!opts?.quiet) setError(tRepost("loadFailed"));
+ } finally {
+ setRepostLoading(false);
+ }
+ },
+ [user, article, showOrgMode, organizationProfile, subscriptionAccess, tRepost],
+ );
+
  const load = useCallback(async () => {
  if (!user) return;
- const [a, p] = await Promise.all([
+ const [a, p, steering] = await Promise.all([
  getArticle(user.uid, articleId),
  getPersona(user.uid),
+ gatherAuthorSteeringPayload(user.uid).catch(() => null),
  ]);
  setArticle(
  a
@@ -272,9 +385,23 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  setPersonaText(p?.promptText ?? "");
  if (a?.selectedCtaStyle) setSelectedCtaStyle(a.selectedCtaStyle);
  setIllustration(a?.illustration ?? null);
+ setRepostSuggestions(a?.repostSuggestions ?? null);
  setQualityScores(a?.qualityScores ?? null);
  setAlternativeHooks(a?.alternativeHooks ?? []);
  setQualityCritique(a?.qualityCritique ?? null);
+ if (steering) {
+ const archetype = resolveContentArchetype({
+ author: steering.author ?? null,
+ profileEnrichment: steering.profileEnrichment ?? null,
+ });
+ setShowOrgMode(showsOrganizationProfileFields(archetype));
+ const enrichmentDetails = (steering.profileEnrichment ?? null) as Record<
+ string,
+ import("@/types/workspace").GapAnswerValue
+ > | null;
+ setOrganizationProfile(parseOrganizationProfile(enrichmentDetails));
+ setEditorialPillars(parseEditorialPillars(enrichmentDetails));
+ }
  setLoaded(true);
  }, [user, articleId]);
 
@@ -285,6 +412,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  const ctaFetchedRef = useRef(false);
  const illustrationFetchedRef = useRef<string | null>(null);
+ const repostFetchedRef = useRef<string | null>(null);
  const refinementSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
  const refinementSyncGenRef = useRef(0);
  const refineSectionRef = useRef<HTMLDivElement>(null);
@@ -301,6 +429,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  useEffect(() => {
  ctaFetchedRef.current = false;
  illustrationFetchedRef.current = null;
+ repostFetchedRef.current = null;
  }, [articleId]);
 
  const ensureCtaLoaded = useCallback(() => {
@@ -333,6 +462,23 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const quiet = article.status === "validated";
  void loadIllustrationSuggestions(false, { quiet });
  }, [article, loadIllustrationSuggestions]);
+
+ const ensureRepostLoaded = useCallback(() => {
+ if (!article || !showOrgMode) return;
+ if (article.repostSuggestions?.length) {
+ setRepostSuggestions(article.repostSuggestions);
+ return;
+ }
+ if (repostFetchedRef.current === article.id) return;
+ repostFetchedRef.current = article.id;
+ void loadRepostSuggestions(false, { quiet: true });
+ }, [article, showOrgMode, loadRepostSuggestions]);
+
+ useEffect(() => {
+ if (article?.status === "validated" && showOrgMode) {
+ ensureRepostLoaded();
+ }
+ }, [article?.status, article?.id, showOrgMode, ensureRepostLoaded]);
 
  const scrollToRefineSection = useCallback(() => {
  setRefineSectionOpen(true);
@@ -907,6 +1053,10 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  setShowValidationNudge(false);
  await load();
  notifyArticlesChanged();
+ if (showOrgMode) {
+ repostFetchedRef.current = null;
+ void loadRepostSuggestions(true, { quiet: true });
+ }
  scrollToPostPreview();
  } catch (err) {
  const code = err instanceof Error ? err.message : "validate_failed";
@@ -972,6 +1122,23 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const hasBodyLink =
  bodyContainsExternalLink(article.body) ||
  (article.ps ? bodyContainsExternalLink(article.ps) : false);
+
+ const credibilitySummary =
+ showOrgMode && organizationProfile
+ ? credibilityChecklistSummary(
+ runCredibilityChecklist(
+ article.hook,
+ article.body,
+ article.ps,
+ organizationProfile,
+ ),
+ )
+ : { canValidate: true, hasFail: false, hasWarn: false, allPass: true };
+
+ const pillarLabel = article.editorialPillarId
+ ? editorialPillars.find((p) => p.id === article.editorialPillarId)?.label ??
+ article.editorialPillarId
+ : undefined;
 
  return (
  <div className="space-y-6">
@@ -1095,6 +1262,41 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  void loadIllustrationSuggestions(true);
  }}
  />
+ {showOrgMode && (
+ <ArticleRepostPanelLazy
+ variant="inline"
+ suggestions={repostSuggestions}
+ expectedTeamCount={
+ repostExpectedTeamCount ?? organizationProfile?.teamMembers?.length
+ }
+ loading={repostLoading}
+ regenerateDisabled={isBusy}
+ onRegenerate={() => {
+ repostFetchedRef.current = null;
+ void loadRepostSuggestions(true);
+ }}
+ />
+ )}
+ {showOrgMode && article.exportText && (
+ <ArticleDeliveryPackPanelLazy
+ variant="inline"
+ exportText={article.exportText}
+ illustration={illustration}
+ repostSuggestions={repostSuggestions}
+ pillarLabel={pillarLabel}
+ articleId={article.id}
+ />
+ )}
+ {user && (
+ <ArticlePerformancePanelLazy
+ userId={user.uid}
+ articleId={article.id}
+ signals={article.performanceSignals}
+ onSaved={(signals: ArticlePerformanceSignals) =>
+ setArticle((prev) => (prev ? { ...prev, performanceSignals: signals } : prev))
+ }
+ />
+ )}
  </div>
  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
  <button
@@ -1703,6 +1905,19 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  />
 
  <div className="mt-4 space-y-4">
+ {showOrgMode && organizationProfile && user && (
+ <ArticleCredibilityChecklistLazy
+ compact
+ hook={article.hook}
+ body={article.body}
+ ps={article.ps}
+ orgProfile={organizationProfile}
+ contentLanguage={article.contentLanguage}
+ userId={user.uid}
+ subscriptionAccess={subscriptionAccess}
+ />
+ )}
+
  {!selectedCtaStyle && !ctaLoading && ctaSuggestions.length > 0 && (
  <p className="rounded-lg border border-sky-200/70 bg-sky-50/50 px-3 py-2.5 text-sm leading-relaxed text-sky-950">
  {t("validateNoCtaReminder")}{" "}
@@ -1724,9 +1939,15 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  />
  )}
 
+ {!credibilitySummary.canValidate && (
+ <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-950">
+ {tCred("blockValidate")}
+ </p>
+ )}
+
  <button
  type="button"
- disabled={isBusy || ctaLoading}
+ disabled={isBusy || ctaLoading || !credibilitySummary.canValidate}
  onClick={() => void onValidate()}
  className="inline-flex w-full items-center justify-center gap-2 rounded-sm bg-ns-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-black shadow-sm hover:bg-ns-primary/90 disabled:opacity-50 sm:w-auto"
  >

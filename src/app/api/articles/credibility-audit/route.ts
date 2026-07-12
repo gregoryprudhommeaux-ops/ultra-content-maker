@@ -1,18 +1,20 @@
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
-import { normalizeArticleIllustration } from "@/lib/articles/illustration";
+import { runCredibilityChecklist } from "@/lib/articles/credibility-checklist";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
 import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import {
+  buildOrganizationPromptBlock,
   parseOrganizationProfile,
   showsOrganizationProfileFields,
 } from "@/lib/persona/organization-enrichment";
 import {
-  buildIllustrationSystemPrompt,
-  buildIllustrationUserPrompt,
-} from "@/lib/prompts/article-illustration";
+  buildCredibilityAuditSystemPrompt,
+  buildCredibilityAuditUserPrompt,
+  normalizeCredibilityAudit,
+} from "@/lib/prompts/article-credibility-audit";
 import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
 import { readWorkspaceSingletonDoc } from "@/lib/workspace/workspace-read.server";
 import type { AuthorProfile, ContentLanguage, GapAnswerValue, LlmProvider } from "@/types/workspace";
@@ -26,7 +28,6 @@ type Body = {
   hook: string;
   body: string;
   ps?: string;
-  scope?: string;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -52,62 +53,65 @@ export async function POST(request: Request) {
 
   const contentLanguage = body.contentLanguage as ContentLanguage;
   const llm = await resolveContentRouteLlm(userId, body.llm);
-
   if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
-  let visualFirst = false;
   const db = getAdminFirestore();
-  if (db) {
-    try {
-      const scope = await resolveWorkspaceScopeForUser(db, userId);
-      const [authorDoc, enrichmentDoc] = await Promise.all([
-        readWorkspaceSingletonDoc(db, scope, "author", "profile"),
-        readWorkspaceSingletonDoc(db, scope, "enrichment", "profile"),
-      ]);
-      const details = (enrichmentDoc?.details as Record<string, GapAnswerValue> | undefined) ?? {};
-      const archetype = resolveContentArchetype({
-        author: authorDoc as Pick<
-          AuthorProfile,
-          "contentArchetype" | "roleTitle" | "positioningLine"
-        > | null,
-        profileEnrichment: details,
-      });
-      if (showsOrganizationProfileFields(archetype)) {
-        visualFirst = parseOrganizationProfile(details).visualFirst !== false;
-      }
-    } catch {
-      /* fallback: standard illustration mode */
-    }
+  if (!db) {
+    return NextResponse.json({ error: "admin_firestore_unavailable" }, { status: 503 });
   }
 
+  const scope = await resolveWorkspaceScopeForUser(db, userId);
+  const [authorDoc, enrichmentDoc] = await Promise.all([
+    readWorkspaceSingletonDoc(db, scope, "author", "profile"),
+    readWorkspaceSingletonDoc(db, scope, "enrichment", "profile"),
+  ]);
+  const details = (enrichmentDoc?.details as Record<string, GapAnswerValue> | undefined) ?? {};
+  const archetype = resolveContentArchetype({
+    author: authorDoc as Pick<
+      AuthorProfile,
+      "contentArchetype" | "roleTitle" | "positioningLine"
+    > | null,
+    profileEnrichment: details,
+  });
+
+  if (!showsOrganizationProfileFields(archetype)) {
+    return NextResponse.json({ error: "not_org_mode" }, { status: 400 });
+  }
+
+  const org = parseOrganizationProfile(details);
+  const orgBlock = buildOrganizationPromptBlock(details);
+  const heuristicFails = runCredibilityChecklist(body.hook, body.body, body.ps, org)
+    .filter((r) => r.status === "fail" || r.status === "warn")
+    .map((r) => `${r.id}:${r.status}${r.detail ? ` (${r.detail})` : ""}`);
+
   try {
-    const raw = await chatCompletionJson(llm, [
-      { role: "system", content: buildIllustrationSystemPrompt(contentLanguage, visualFirst) },
-      {
-        role: "user",
-        content: buildIllustrationUserPrompt({
-          hook: body.hook,
-          body: body.body,
-          ps: body.ps,
-          scope: body.scope,
-          visualFirst,
-        }),
-      },
-    ], mergeUsageLog(userId, "articles/illustration-suggestions"));
+    const raw = await chatCompletionJson(
+      llm,
+      [
+        { role: "system", content: buildCredibilityAuditSystemPrompt(contentLanguage) },
+        {
+          role: "user",
+          content: buildCredibilityAuditUserPrompt({
+            hook: body.hook,
+            body: body.body,
+            ps: body.ps,
+            orgBlock,
+            heuristicFails,
+          }),
+        },
+      ],
+      mergeUsageLog(userId, "articles/credibility-audit"),
+    );
 
     const parsed = parseLlmJson<Record<string, unknown>>(raw);
-    const illustration = normalizeArticleIllustration(parsed);
-
-    if (!illustration) {
-      return NextResponse.json(
-        { error: "Incomplete illustration suggestions" },
-        { status: 502 },
-      );
+    const audit = normalizeCredibilityAudit(parsed);
+    if (!audit) {
+      return NextResponse.json({ error: "Incomplete audit response" }, { status: 502 });
     }
 
-    return NextResponse.json({ illustration });
+    return NextResponse.json({ audit });
   } catch (e) {
     return NextResponse.json(
       {

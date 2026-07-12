@@ -43,6 +43,15 @@ export function normalizeArticleIllustration(
  const searchKeywords =
  typeof o.searchKeywords === "string" ? o.searchKeywords.trim() : undefined;
 
+ const visualConcept =
+ typeof o.visualConcept === "string" ? o.visualConcept.trim() : undefined;
+ const overlayTitle =
+ typeof o.overlayTitle === "string" ? o.overlayTitle.trim() : undefined;
+ const overlaySubtitle =
+ typeof o.overlaySubtitle === "string" ? o.overlaySubtitle.trim() : undefined;
+ const canvaPrompt =
+ typeof o.canvaPrompt === "string" ? o.canvaPrompt.trim() : undefined;
+
  const altFormatsRaw = o.alternativeFormats;
  const alternativeFormats = Array.isArray(altFormatsRaw)
  ? altFormatsRaw
@@ -57,5 +66,9 @@ export function normalizeArticleIllustration(
  imagePrompts: imagePrompts as [string, string, string],
  searchKeywords: searchKeywords || undefined,
  alternativeFormats: alternativeFormats?.length ? alternativeFormats : undefined,
+ visualConcept: visualConcept || undefined,
+ overlayTitle: overlayTitle || undefined,
+ overlaySubtitle: overlaySubtitle || undefined,
+ canvaPrompt: canvaPrompt || undefined,
  };
 }

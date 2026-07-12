@@ -1,5 +1,5 @@
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
-import { normalizeArticleIllustration } from "@/lib/articles/illustration";
+import { normalizeRepostSuggestions } from "@/lib/articles/repost-suggestions";
 import { getAdminFirestore } from "@/lib/firebase/admin";
 import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
 import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
@@ -10,9 +10,9 @@ import {
   showsOrganizationProfileFields,
 } from "@/lib/persona/organization-enrichment";
 import {
-  buildIllustrationSystemPrompt,
-  buildIllustrationUserPrompt,
-} from "@/lib/prompts/article-illustration";
+  buildRepostSuggestionsSystemPrompt,
+  buildRepostSuggestionsUserPrompt,
+} from "@/lib/prompts/article-repost-suggestions";
 import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
 import { readWorkspaceSingletonDoc } from "@/lib/workspace/workspace-read.server";
 import type { AuthorProfile, ContentLanguage, GapAnswerValue, LlmProvider } from "@/types/workspace";
@@ -26,7 +26,7 @@ type Body = {
   hook: string;
   body: string;
   ps?: string;
-  scope?: string;
+  exportText?: string;
   llm?: {
     provider: LlmProvider;
     apiKey: string;
@@ -57,57 +57,72 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });
   }
 
-  let visualFirst = false;
   const db = getAdminFirestore();
-  if (db) {
-    try {
-      const scope = await resolveWorkspaceScopeForUser(db, userId);
-      const [authorDoc, enrichmentDoc] = await Promise.all([
-        readWorkspaceSingletonDoc(db, scope, "author", "profile"),
-        readWorkspaceSingletonDoc(db, scope, "enrichment", "profile"),
-      ]);
-      const details = (enrichmentDoc?.details as Record<string, GapAnswerValue> | undefined) ?? {};
-      const archetype = resolveContentArchetype({
-        author: authorDoc as Pick<
-          AuthorProfile,
-          "contentArchetype" | "roleTitle" | "positioningLine"
-        > | null,
-        profileEnrichment: details,
-      });
-      if (showsOrganizationProfileFields(archetype)) {
-        visualFirst = parseOrganizationProfile(details).visualFirst !== false;
-      }
-    } catch {
-      /* fallback: standard illustration mode */
-    }
+  if (!db) {
+    return NextResponse.json({ error: "admin_firestore_unavailable" }, { status: 503 });
+  }
+
+  const scope = await resolveWorkspaceScopeForUser(db, userId);
+  const [authorDoc, enrichmentDoc] = await Promise.all([
+    readWorkspaceSingletonDoc(db, scope, "author", "profile"),
+    readWorkspaceSingletonDoc(db, scope, "enrichment", "profile"),
+  ]);
+  const details = (enrichmentDoc?.details as Record<string, GapAnswerValue> | undefined) ?? {};
+  const archetype = resolveContentArchetype({
+    author: authorDoc as Pick<
+      AuthorProfile,
+      "contentArchetype" | "roleTitle" | "positioningLine"
+    > | null,
+    profileEnrichment: details,
+  });
+
+  if (!showsOrganizationProfileFields(archetype)) {
+    return NextResponse.json({ suggestions: [] });
+  }
+
+  const org = parseOrganizationProfile(details);
+  const teamMembers = org.teamMembers ?? [];
+  if (teamMembers.length === 0) {
+    return NextResponse.json({ suggestions: [] });
   }
 
   try {
-    const raw = await chatCompletionJson(llm, [
-      { role: "system", content: buildIllustrationSystemPrompt(contentLanguage, visualFirst) },
-      {
-        role: "user",
-        content: buildIllustrationUserPrompt({
-          hook: body.hook,
-          body: body.body,
-          ps: body.ps,
-          scope: body.scope,
-          visualFirst,
-        }),
-      },
-    ], mergeUsageLog(userId, "articles/illustration-suggestions"));
+    const raw = await chatCompletionJson(
+      llm,
+      [
+        {
+          role: "system",
+          content: buildRepostSuggestionsSystemPrompt(contentLanguage),
+        },
+        {
+          role: "user",
+          content: buildRepostSuggestionsUserPrompt({
+            hook: body.hook,
+            body: body.body,
+            ps: body.ps,
+            exportText: body.exportText,
+            teamMembers,
+          }),
+        },
+      ],
+      mergeUsageLog(userId, "articles/repost-suggestions"),
+    );
 
-    const parsed = parseLlmJson<Record<string, unknown>>(raw);
-    const illustration = normalizeArticleIllustration(parsed);
+    const parsed = parseLlmJson<{ suggestions?: unknown }>(raw);
+    const suggestions = normalizeRepostSuggestions(parsed.suggestions, teamMembers);
 
-    if (!illustration) {
+    if (!suggestions) {
       return NextResponse.json(
-        { error: "Incomplete illustration suggestions" },
+        { error: "Incomplete repost suggestions" },
         { status: 502 },
       );
     }
 
-    return NextResponse.json({ illustration });
+    return NextResponse.json({
+      suggestions,
+      expectedTeamCount: teamMembers.length,
+      missingTeamCount: Math.max(0, teamMembers.length - suggestions.length),
+    });
   } catch (e) {
     return NextResponse.json(
       {

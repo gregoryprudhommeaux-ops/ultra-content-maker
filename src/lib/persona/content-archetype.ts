@@ -3,6 +3,7 @@ import {
   buildCompanyContextForPrompt,
   parseCompanyOffersFromEnrichment,
 } from "@/lib/persona/company-enrichment";
+import { buildOrganizationPromptBlock } from "@/lib/persona/organization-enrichment";
 
 const ARCHETYPES: ContentArchetype[] = ["expert", "founder_product", "hybrid"];
 
@@ -65,8 +66,10 @@ export function buildPersonaArchetypeInstruction(
   profileEnrichment?: Record<string, GapAnswerValue> | null,
 ): string {
   const companyContext = buildCompanyContextForPrompt(profileEnrichment ?? null);
+  const orgContext = buildOrganizationPromptBlock(profileEnrichment ?? null);
   const companyBlock = companyContext ? `\n\n${companyContext}` : "";
-  const base = `Content archetype for this author: ${archetype}. Adapt the entire expert prompt (Topic DNA, proof policy, hooks, anti-patterns) to this archetype. All section headings stay in ${languageName}.${companyBlock}`;
+  const orgBlock = orgContext ? `\n\n${orgContext}` : "";
+  const base = `Content archetype for this author: ${archetype}. Adapt the entire expert prompt (Topic DNA, proof policy, hooks, anti-patterns) to this archetype. All section headings stay in ${languageName}.${companyBlock}${orgBlock}`;
 
   if (archetype === "founder_product") {
     return `${base}

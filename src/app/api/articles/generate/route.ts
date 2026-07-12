@@ -87,6 +87,7 @@ function parseArticlesFromResponse(raw: string) {
  ps?: string;
  scope?: unknown;
  hashtags?: unknown;
+ editorialPillarId?: unknown;
  }[];
  }>(raw);
 
@@ -98,12 +99,15 @@ function parseArticlesFromResponse(raw: string) {
  const ps = a.ps?.trim()
  ? stripGenericLinkedInUrlsFromText(a.ps.trim()) || undefined
  : undefined;
+ const editorialPillarId =
+ typeof a.editorialPillarId === "string" ? a.editorialPillarId.trim() : undefined;
  return {
  hook,
  body,
  ps,
  scope: normalizeArticleScope(a.scope),
  hashtags: normalizeHashtags(a.hashtags),
+ editorialPillarId: editorialPillarId || undefined,
  };
  });
 }

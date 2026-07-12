@@ -717,6 +717,7 @@ export function ArticleCreationWizard() {
         ps?: string;
         scope?: ArticleScope;
         hashtags?: string[];
+        editorialPillarId?: string;
       }[];
 
       const item = articles[0];

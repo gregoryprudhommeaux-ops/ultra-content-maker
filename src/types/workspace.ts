@@ -20,6 +20,72 @@ export interface CompanyOffer {
   differentiators?: string;
 }
 
+/** Team member who may amplify company posts on LinkedIn. */
+export interface OrganizationTeamMember {
+  name: string;
+  role: string;
+}
+
+/** Company / product-service positioning (B2B org mode, distinct from personal expert). */
+export interface OrganizationProfile {
+  centralMessage?: string;
+  whatWeAreNot?: string;
+  clientSegments?: string[];
+  teamMembers?: OrganizationTeamMember[];
+  serviceScope?: string;
+  serviceExclusions?: string;
+  forbiddenPhrases?: string[];
+  preferredPhrases?: string[];
+  statsPolicy?: "none" | "validated_only" | "sources_required";
+  linkedInPresence?: "company_page" | "leader" | "hybrid" | "agency_managed";
+  /** Prefer short post copy + strong visual (typical B2B product/service clients). */
+  visualFirst?: boolean;
+}
+
+/** Client-configured editorial pillar (replaces or guides auto-generated Topic DNA). */
+export interface EditorialPillar {
+  id: string;
+  label: string;
+  description?: string;
+  exampleTopics?: string[];
+}
+
+/** Topic already covered in a validated post (anti-repetition). */
+export interface PublishedTopicEntry {
+  articleId: string;
+  headline: string;
+  summary: string;
+  pillarId?: string;
+  publishedAt: string;
+}
+
+/** Planned post slot in the editorial calendar (org mode). */
+export type EditorialCalendarEntryStatus = "planned" | "in_progress" | "published";
+
+export interface EditorialCalendarEntry {
+  id: string;
+  pillarId: string;
+  plannedDate: string;
+  topicHint?: string;
+  status: EditorialCalendarEntryStatus;
+}
+
+/** LinkedIn repost copy for an amplification team member. */
+export interface RepostSuggestion {
+  memberName: string;
+  memberRole: string;
+  repostText: string;
+}
+
+/** Manual monthly LinkedIn performance rollup (org mode setup). */
+export interface LinkedInAnalyticsMonthlySummary {
+  month: string;
+  totalImpressions?: number;
+  totalReactions?: number;
+  totalComments?: number;
+  notes?: string;
+}
+
 import type { SubscriptionProfile } from "@/types/subscription";
 
 export type SetupStep = "llm" | "express" | "author" | "audience" | "persona" | "articles" | "ready";
@@ -418,14 +484,17 @@ export type ArticleTranslations = Partial<
 
 /** Post-publication signals (manual entry, Phase 3). */
 export interface ArticlePerformanceSignals {
- saves?: number;
- qualifiedComments?: number;
- profileVisits?: number;
- dms?: number;
- businessOpportunity?: string;
- notes?: string;
- /** ISO date when metrics were recorded */
- recordedAt?: string;
+  impressions?: number;
+  reactions?: number;
+  comments?: number;
+  saves?: number;
+  qualifiedComments?: number;
+  profileVisits?: number;
+  dms?: number;
+  businessOpportunity?: string;
+  notes?: string;
+  /** ISO date when metrics were recorded */
+  recordedAt?: string;
 }
 
 export interface SlopAnalysis {
@@ -538,6 +607,11 @@ export interface ArticleIllustration {
  imagePrompts: [string, string, string];
  searchKeywords?: string;
  alternativeFormats?: IllustrationFormat[];
+ /** Visual-first deliverable (company / product-service mode) */
+ visualConcept?: string;
+ overlayTitle?: string;
+ overlaySubtitle?: string;
+ canvaPrompt?: string;
 }
 
 export interface ArticleDoc {
@@ -548,11 +622,14 @@ export interface ArticleDoc {
  hook: string;
  body: string;
  ps?: string;
- illustration?: ArticleIllustration;
- newsSource?: ArticleNewsSource;
+  illustration?: ArticleIllustration;
+  repostSuggestions?: RepostSuggestion[];
+  newsSource?: ArticleNewsSource;
  inspirationSource?: ArticleInspirationSource;
  /** generalist = broad angle; niche = vertical / ICP-specific */
  scope?: ArticleScope;
+ /** Editorial pillar slug when org mode pillars are configured. */
+ editorialPillarId?: string;
  /** Up to 4 LinkedIn hashtags (without #), appended on export */
  hashtags?: string[];
  exportText?: string;

@@ -30,6 +30,7 @@ import type {
   PostBrief,
   PostFormatPlan,
   RefinementAnswer,
+  RepostSuggestion,
   SlopAnalysis,
 } from "@/types/workspace";
 import { normalizeArticleIllustration } from "@/lib/articles/illustration";
@@ -60,6 +61,7 @@ import {
   joinLinkedInPostParts,
 } from "@/lib/linkedin/fit-linkedin-post";
 import { formatHashtagsLine, normalizeHashtags } from "@/lib/linkedin/hashtags";
+import { registerPublishedTopicFromArticle } from "@/lib/workspace/published-topics";
 import {
   sanitizeCtaLinkUrl,
   stripGenericLinkedInUrlsFromText,
@@ -101,6 +103,8 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     body: (d.body as string) ?? "",
     ps: d.ps as string | undefined,
     scope: normalizeArticleScope(d.scope),
+    editorialPillarId:
+      typeof d.editorialPillarId === "string" ? d.editorialPillarId.trim() : undefined,
     hashtags: d.hashtags
       ? normalizeHashtags(d.hashtags as string[])
       : undefined,
@@ -111,6 +115,9 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     contentLanguage: d.contentLanguage as ContentLanguage,
     refinement: d.refinement as ArticleRefinement | undefined,
     illustration: normalizeArticleIllustration(d.illustration),
+    repostSuggestions: Array.isArray(d.repostSuggestions)
+      ? (d.repostSuggestions as RepostSuggestion[])
+      : undefined,
     newsSource: d.newsSource
       ? (d.newsSource as ArticleNewsSource)
       : undefined,
@@ -253,6 +260,7 @@ export async function createArticleBatch(
     ps?: string;
     scope?: ArticleScope;
     hashtags?: string[];
+    editorialPillarId?: string;
   }[],
   contentLanguage: ContentLanguage,
   emojiLevel: EmojiLevel = "light",
@@ -271,6 +279,7 @@ export async function createArticleBatch(
       body: items[i].body,
       ps: items[i].ps ?? null,
       scope: items[i].scope ?? (i < 2 ? "generalist" : "niche"),
+      editorialPillarId: items[i].editorialPillarId ?? null,
       hashtags: items[i].hashtags?.length ? items[i].hashtags : null,
       newsSource: newsSource ?? null,
       inspirationSource: inspirationSource ?? null,
@@ -359,6 +368,9 @@ export async function saveArticlePerformanceSignals(
 ) {
   await updateDoc(articleDocRef(userId, articleId), {
     performanceSignals: {
+      impressions: signals.impressions ?? null,
+      reactions: signals.reactions ?? null,
+      comments: signals.comments ?? null,
       saves: signals.saves ?? null,
       qualifiedComments: signals.qualifiedComments ?? null,
       profileVisits: signals.profileVisits ?? null,
@@ -438,7 +450,26 @@ export async function saveArticleIllustration(
       imagePrompts: illustration.imagePrompts,
       searchKeywords: illustration.searchKeywords ?? null,
       alternativeFormats: illustration.alternativeFormats ?? null,
+      visualConcept: illustration.visualConcept ?? null,
+      overlayTitle: illustration.overlayTitle ?? null,
+      overlaySubtitle: illustration.overlaySubtitle ?? null,
+      canvaPrompt: illustration.canvaPrompt ?? null,
     },
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function saveArticleRepostSuggestions(
+  userId: string,
+  articleId: string,
+  suggestions: RepostSuggestion[],
+) {
+  await updateDoc(articleDocRef(userId, articleId), {
+    repostSuggestions: suggestions.map((s) => ({
+      memberName: s.memberName,
+      memberRole: s.memberRole,
+      repostText: s.repostText,
+    })),
     updatedAt: serverTimestamp(),
   });
 }
@@ -575,6 +606,13 @@ export async function validateArticleWithCta(
     validatedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+  const hook = opts?.hook ?? "";
+  const bodyText = opts?.body ?? "";
+  if (hook.trim() || bodyText.trim()) {
+    await registerPublishedTopicFromArticle(userId, articleId, hook, bodyText).catch(
+      () => {},
+    );
+  }
 }
 
 export function buildExportText(

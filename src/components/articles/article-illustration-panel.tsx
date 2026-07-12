@@ -24,9 +24,14 @@ export function ArticleIllustrationPanel({
  embedded = false,
 }: Props) {
  const t = useTranslations("setup.articles.illustration");
- const [copiedIndex, setCopiedIndex] = useState<number | "keywords" | null>(null);
+ const [copiedIndex, setCopiedIndex] = useState<
+ number | "keywords" | "concept" | "overlayTitle" | "overlaySubtitle" | "canva" | null
+ >(null);
 
- async function copyText(text: string, key: number | "keywords") {
+ async function copyText(
+ text: string,
+ key: number | "keywords" | "concept" | "overlayTitle" | "overlaySubtitle" | "canva",
+ ) {
  try {
  await navigator.clipboard.writeText(text);
  setCopiedIndex(key);
@@ -61,6 +66,76 @@ export function ArticleIllustrationPanel({
  </ol>
  ) : null;
 
+ const visualPack =
+ illustration &&
+ (illustration.visualConcept ||
+ illustration.overlayTitle ||
+ illustration.overlaySubtitle ||
+ illustration.canvaPrompt) ? (
+ <div className="space-y-3 rounded-lg border border-ns-primary/20 bg-white px-3 py-3">
+ <p className="text-xs font-semibold uppercase tracking-wide text-ns-secondary">
+ {t("visualPackTitle")}
+ </p>
+ {illustration.visualConcept ? (
+ <div>
+ <p className="text-xs font-medium text-ns-secondary">{t("visualConcept")}</p>
+ <p className="mt-1 text-sm text-ns-tertiary">{illustration.visualConcept}</p>
+ <button
+ type="button"
+ onClick={() => copyText(illustration.visualConcept!, "concept")}
+ className="mt-2 text-xs font-medium text-ns-primary underline"
+ >
+ {copiedIndex === "concept" ? t("copied") : t("copy")}
+ </button>
+ </div>
+ ) : null}
+ {(illustration.overlayTitle || illustration.overlaySubtitle) && (
+ <div className="space-y-2">
+ <p className="text-xs font-medium text-ns-secondary">{t("overlayText")}</p>
+ {illustration.overlayTitle ? (
+ <div className="rounded border border-gray-100 bg-gray-50/80 px-2 py-1.5">
+ <p className="text-[10px] uppercase text-ns-secondary">{t("overlayTitle")}</p>
+ <p className="text-sm font-medium text-ns-tertiary">{illustration.overlayTitle}</p>
+ <button
+ type="button"
+ onClick={() => copyText(illustration.overlayTitle!, "overlayTitle")}
+ className="mt-1 text-xs font-medium text-ns-primary underline"
+ >
+ {copiedIndex === "overlayTitle" ? t("copied") : t("copy")}
+ </button>
+ </div>
+ ) : null}
+ {illustration.overlaySubtitle ? (
+ <div className="rounded border border-gray-100 bg-gray-50/80 px-2 py-1.5">
+ <p className="text-[10px] uppercase text-ns-secondary">{t("overlaySubtitle")}</p>
+ <p className="text-sm text-ns-tertiary">{illustration.overlaySubtitle}</p>
+ <button
+ type="button"
+ onClick={() => copyText(illustration.overlaySubtitle!, "overlaySubtitle")}
+ className="mt-1 text-xs font-medium text-ns-primary underline"
+ >
+ {copiedIndex === "overlaySubtitle" ? t("copied") : t("copy")}
+ </button>
+ </div>
+ ) : null}
+ </div>
+ )}
+ {illustration.canvaPrompt ? (
+ <div>
+ <p className="text-xs font-medium text-ns-secondary">{t("canvaPrompt")}</p>
+ <p className="mt-1 text-sm text-ns-tertiary">{illustration.canvaPrompt}</p>
+ <button
+ type="button"
+ onClick={() => copyText(illustration.canvaPrompt!, "canva")}
+ className="mt-2 text-xs font-medium text-ns-primary underline"
+ >
+ {copiedIndex === "canva" ? t("copied") : t("copy")}
+ </button>
+ </div>
+ ) : null}
+ </div>
+ ) : null;
+
  if (isInline) {
  return (
  <div className="space-y-3 border-t border-gray-200/80 pt-4">
@@ -91,6 +166,7 @@ export function ArticleIllustrationPanel({
  </span>
  {illustration.rationale ? ` · ${illustration.rationale}` : ""}
  </p>
+ {visualPack}
  {illustration.searchKeywords && (
  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-gray-100 bg-white px-3 py-2">
  <span className="text-xs font-medium text-ns-secondary">{t("search")}</span>
@@ -169,6 +245,8 @@ export function ArticleIllustrationPanel({
  </div>
 
  <p className="text-sm leading-relaxed text-ns-tertiary">{illustration.rationale}</p>
+
+ {visualPack}
 
  {illustration.searchKeywords && (
  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-gray-100 bg-white px-3 py-2">
