@@ -38,6 +38,11 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { useSubscription } from "@/contexts/subscription-context";
 import {
+  isUpgradePaywallError,
+  reasonFromErrorCode,
+  useUpgradeModal,
+} from "@/contexts/upgrade-modal-context";
+import {
   notifyOnboardingProgressChangedDeferred,
   useOnboardingProgress,
 } from "@/contexts/onboarding-progress-context";
@@ -142,6 +147,7 @@ export function ArticleCreationWizard() {
   const { user, loading: authLoading } = useAuth();
   const { scope } = useWorkspace();
   const { access } = useSubscription();
+  const { openUpgradeModal } = useUpgradeModal();
   const { status: onboardingStatus } = useOnboardingProgress();
   const workspaceOwnerId = scope?.ownerId ?? user?.uid ?? "";
   const [showSetupReadyBanner, setShowSetupReadyBanner] = useState(false);
@@ -700,6 +706,9 @@ export function ArticleCreationWizard() {
       if (!res.ok) {
         const detail = typeof data.detail === "string" ? data.detail : "";
         const code = typeof data.error === "string" ? data.error : "llm_request_failed";
+        if (isUpgradePaywallError(code)) {
+          openUpgradeModal({ reason: reasonFromErrorCode(code) });
+        }
         setErrorInfo(
           formatError({
             errorCode: code,
@@ -1481,6 +1490,17 @@ export function ArticleCreationWizard() {
             <Link href="/persona" className="text-sm font-semibold underline">
               → {t("personaRequiredHint")}
             </Link>
+          )}
+          {errorInfo.errorCode && isUpgradePaywallError(errorInfo.errorCode) && (
+            <button
+              type="button"
+              onClick={() =>
+                openUpgradeModal({ reason: reasonFromErrorCode(errorInfo.errorCode!) })
+              }
+              className="text-sm font-semibold underline"
+            >
+              → {tArticles("goUpgrade")}
+            </button>
           )}
         </UserErrorBanner>
       )}

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Preview — Upgrade Modal</title>
+  <style>
+    :root {
+      --ns-primary: #9dc41a;
+      --ns-hero: #1a1a1a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #e8eae8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 12px;
+    }
+    .label {
+      flex: 0 0 auto;
+      width: 100%;
+      max-width: 920px;
+      margin-bottom: 10px;
+      color: #5a5f5a;
+      font-size: 11px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .backdrop {
+      position: relative;
+      width: 100%;
+      max-width: 920px;
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: calc(100dvh - 48px);
+      border-radius: 20px;
+      background:
+        linear-gradient(160deg, #2a3140 0%, #1a1a1a 50%, #12181f 100%);
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 25px 60px rgba(0,0,0,.35);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 28px 12px;
+    }
+    .backdrop::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(26,26,26,.7);
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+    .modal {
+      position: relative;
+      width: min(100%, 420px);
+      margin: 16px 0;
+      background: #0c0c0c;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      padding: 40px 16px 24px;
+      box-shadow: 0 24px 48px rgba(0,0,0,.55);
+      z-index: 1;
+    }
+    .icon {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: #161616;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,.4);
+    }
+    .close {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(255,255,255,.45);
+      font-size: 20px;
+      cursor: default;
+    }
+    h1 {
+      margin: 0;
+      text-align: center;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+    .sub {
+      margin: 10px 0 0;
+      text-align: center;
+      color: rgba(255,255,255,.55);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .sub strong { color: rgba(255,255,255,.85); font-weight: 600; }
+    .card {
+      margin-top: 20px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      padding: 16px;
+    }
+    .row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .plan { color: rgba(255,255,255,.8); font-size: 14px; font-weight: 500; margin: 0; }
+    .badge {
+      border-radius: 999px;
+      background: rgba(157,196,26,.2);
+      color: var(--ns-primary);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+    .price {
+      margin: 6px 0 0;
+      color: #fff;
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+    .price span {
+      margin-left: 4px;
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255,255,255,.45);
+    }
+    ul {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+    li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: rgba(255,255,255,.75);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .check {
+      flex: 0 0 auto;
+      margin-top: 1px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--ns-primary);
+      color: var(--ns-hero);
+      font-size: 10px;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+    }
+    .cta {
+      margin-top: 18px;
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ns-hero);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 20px;
+      text-decoration: none;
+    }
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      color: rgba(255,255,255,.45);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .footer a {
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    .alt {
+      margin-top: 12px;
+      text-align: center;
+      color: rgba(255,255,255,.35);
+      font-size: 12px;
+    }
+    @media (min-width: 640px) {
+      body {
+        justify-content: center;
+        padding: 24px;
+      }
+      .label {
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+      .backdrop {
+        min-height: 640px;
+        max-height: none;
+        align-items: center;
+        padding: 48px 24px;
+      }
+      .modal {
+        margin: 24px 0;
+        padding: 48px 24px 28px;
+      }
+      h1 { font-size: 1.35rem; }
+      .sub { font-size: 14px; }
+      .card { padding: 20px; margin-top: 24px; }
+      .price { font-size: 2rem; }
+      li { font-size: 14px; }
+      .footer { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="label">Preview · Ultra Content Maker — Upgrade modal</div>
+  <div class="backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="close" aria-label="Fermer">×</button>
+      <div class="icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364-6.364-2.121 2.121M8.757 15.243l-2.121 2.121m12.728 0-2.121-2.121M8.757 8.757 6.636 6.636"/>
+          <circle cx="12" cy="12" r="3.25"/>
+        </svg>
+      </div>
+      <h1>Votre essai est terminé</h1>
+      <p class="sub">
+        Votre essai inclut <strong>4 posts</strong> sur 15 jours.
+        Passez à un plan pour continuer à créer avec votre voix.
+      </p>
+      <div class="card">
+        <div class="row">
+          <p class="plan">Pro+</p>
+          <span class="badge">Populaire</span>
+        </div>
+        <p class="price">$33<span>/ mois</span></p>
+        <ul>
+          <li><span class="check">✓</span><span>Tout Pro sans gérer de clé API</span></li>
+          <li><span class="check">✓</span><span>IA plateforme incluse</span></li>
+          <li><span class="check">✓</span><span>Persona avancé et stratégie</span></li>
+          <li><span class="check">✓</span><span>Actu premium et archives</span></li>
+          <li><span class="check">✓</span><span>Support prioritaire</span></li>
+          <li><span class="check">✓</span><span>Idéal pour démarrer vite</span></li>
+          <li><span class="check">✓</span><span>Radar de professionnels dans votre domaine</span></li>
+        </ul>
+        <a class="cta" href="#">Passer à l'offre</a>
+      </div>
+      <p class="footer">Besoin d'un rythme plus soutenu ? <a href="#">Voir toutes les offres.</a></p>
+      <p class="alt">Préférer Pro avec votre clé API →</p>
+    </div>
+  </div>
+</body>
+</html>

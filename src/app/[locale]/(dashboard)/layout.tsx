@@ -8,8 +8,10 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { RequireAuth } from "@/components/auth/require-auth";
 import { LlmKeyDialog } from "@/components/settings/llm-key-dialog";
 import { SubscriptionProvider } from "@/contexts/subscription-context";
+import { UpgradeModalProvider } from "@/contexts/upgrade-modal-context";
 import { SubscriptionBanner } from "@/components/subscription/subscription-banner";
 import { SubscriptionExpiredGuard } from "@/components/subscription/subscription-expired-guard";
+import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import type { ReactNode } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -18,17 +20,20 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <RequireAuth>
         <WorkspaceProvider>
           <SubscriptionProvider>
+          <UpgradeModalProvider>
           <AdminClaimBootstrap />
           <OnboardingProgressProvider>
             <DashboardShell>
             <SubscriptionBanner />
             <LlmKeyDialog />
+            <UpgradeModal />
             <OnboardingStepper placement="dashboard" />
             <SubscriptionExpiredGuard>
               <OnboardingRouteGuard>{children}</OnboardingRouteGuard>
             </SubscriptionExpiredGuard>
             </DashboardShell>
           </OnboardingProgressProvider>
+          </UpgradeModalProvider>
           </SubscriptionProvider>
         </WorkspaceProvider>
       </RequireAuth>

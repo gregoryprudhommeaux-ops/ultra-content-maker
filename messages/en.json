@@ -1925,6 +1925,7 @@
       "needPersona": "Validate your Persona before generating posts.",
       "goPersona": "Go to Persona →",
       "goLlmSetup": "Configure my API key →",
+      "goUpgrade": "View plans →",
       "description": "Generate 3–4 LinkedIn posts, refine with guided questions, pick a CTA, and copy to LinkedIn.",
       "descriptionList": "Your drafts and validated posts. Start a new batch with the creation assistant.",
       "createCta": "Create posts",
@@ -3195,6 +3196,27 @@
       "proBlurb": "You manage your API key : full control of AI costs.",
       "proPlusBlurb": "Platform AI included · {posts} posts / month with no key setup.",
       "viewPricing": "Compare plans"
+    },
+    "upgradeModal": {
+      "close": "Close",
+      "subtitle": "Your trial includes <strong>{trialPosts} posts</strong> over {trialDays} days. Upgrade to keep creating in your own voice.",
+      "perMonth": "/ mo",
+      "popular": "Popular",
+      "upgradeNow": "Upgrade now",
+      "biggerPlan": "Need a bigger plan?",
+      "seeAllPlans": "See all plans.",
+      "preferPro": "Prefer Pro with your own API key →",
+      "preferProPlus": "Prefer Pro+ with platform AI included →",
+      "reasons": {
+        "generic": "Upgrade to unlock more",
+        "trialPosts": "Upgrade to create more posts",
+        "trialExpired": "Your trial has ended",
+        "proCap": "Pro monthly quota reached",
+        "proPlusCap": "Pro+ monthly quota reached",
+        "feedbackLimit": "Free feedback limit reached",
+        "premiumRequired": "Available on paid plans",
+        "wireOverdue": "Reactivate your subscription"
+      }
     },
     "wire": {
       "loginRequired": "Sign in to request a wire transfer.",

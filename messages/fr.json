@@ -1926,6 +1926,7 @@
       "needPersona": "Validez votre Persona avant de générer des posts.",
       "goPersona": "Aller au Persona →",
       "goLlmSetup": "Configurer ma clé API →",
+      "goUpgrade": "Voir les offres →",
       "description": "Générez 3–4 posts LinkedIn, affinez avec des questions, choisissez un CTA, copiez sur LinkedIn.",
       "descriptionList": "Vos brouillons et posts validés. Créez un nouveau lot via l’assistant de création.",
       "createCta": "Créer des posts",
@@ -3196,6 +3197,27 @@
       "proBlurb": "Vous gérez votre clé API, contrôle total des coûts IA.",
       "proPlusBlurb": "IA plateforme incluse · {posts} posts / mois sans configurer de clé.",
       "viewPricing": "Comparer les offres"
+    },
+    "upgradeModal": {
+      "close": "Fermer",
+      "subtitle": "Votre essai inclut <strong>{trialPosts} posts</strong> sur {trialDays} jours. Passez à un plan pour continuer à créer avec votre voix.",
+      "perMonth": "/ mois",
+      "popular": "Populaire",
+      "upgradeNow": "Passer à l'offre",
+      "biggerPlan": "Besoin d'un rythme plus soutenu ?",
+      "seeAllPlans": "Voir toutes les offres.",
+      "preferPro": "Préférer Pro avec votre clé API →",
+      "preferProPlus": "Préférer Pro+ avec l'IA incluse →",
+      "reasons": {
+        "generic": "Passez à l'offre supérieure",
+        "trialPosts": "Passez à l'offre pour créer plus de posts",
+        "trialExpired": "Votre essai est terminé",
+        "proCap": "Quota Pro atteint ce mois-ci",
+        "proPlusCap": "Quota Pro+ atteint ce mois-ci",
+        "feedbackLimit": "Limite d'affinage atteinte",
+        "premiumRequired": "Fonction réservée aux offres payantes",
+        "wireOverdue": "Réactivez votre abonnement"
+      }
     },
     "wire": {
       "loginRequired": "Connectez-vous pour demander un virement.",

@@ -1,20 +1,36 @@
 "use client";
 
 import { useSubscription } from "@/contexts/subscription-context";
+import { useUpgradeModal } from "@/contexts/upgrade-modal-context";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { Link, usePathname } from "@/i18n/navigation";
 import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui/nextstep";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 const ALLOWED_WHEN_EXPIRED = ["/upgrade", "/support", "/pricing"];
 
 export function SubscriptionExpiredGuard({ children }: { children: ReactNode }) {
   const { access, loading } = useSubscription();
+  const { openUpgradeModal } = useUpgradeModal();
   const isPlatformAdmin = usePlatformAdmin();
   const pathname = usePathname();
   const t = useTranslations("subscription.expired");
   const isWireOverdue = access?.blockReason === "wire_payment_overdue";
+
+  const blocked =
+    !loading &&
+    !isPlatformAdmin &&
+    Boolean(access?.isExpired) &&
+    !ALLOWED_WHEN_EXPIRED.some((p) => pathname === p || pathname?.startsWith(`${p}/`));
+
+  useEffect(() => {
+    if (!blocked) return;
+    openUpgradeModal({
+      reason: isWireOverdue ? "wire_payment_overdue" : "trial_expired",
+      plan: "pro_plus",
+    });
+  }, [blocked, isWireOverdue, openUpgradeModal]);
 
   if (loading || isPlatformAdmin) return <>{children}</>;
   if (!access?.isExpired) return <>{children}</>;
@@ -34,9 +50,18 @@ export function SubscriptionExpiredGuard({ children }: { children: ReactNode }) 
         {isWireOverdue ? t("wireOverdueReassurance") : t("reassurance")}
       </p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <Link href="/upgrade" className={BTN_PRIMARY}>
+        <button
+          type="button"
+          onClick={() =>
+            openUpgradeModal({
+              reason: isWireOverdue ? "wire_payment_overdue" : "trial_expired",
+              plan: "pro_plus",
+            })
+          }
+          className={BTN_PRIMARY}
+        >
           {t("upgrade")}
-        </Link>
+        </button>
         <Link href="/pricing" className={BTN_SECONDARY}>
           {t("pricing")}
         </Link>

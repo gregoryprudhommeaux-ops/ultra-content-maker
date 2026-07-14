@@ -23,6 +23,11 @@ import { ContextHelp } from "@/components/ui/context-help";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useSubscription } from "@/contexts/subscription-context";
+import {
+  isUpgradePaywallError,
+  reasonFromErrorCode,
+  useUpgradeModal,
+} from "@/contexts/upgrade-modal-context";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import {
@@ -169,6 +174,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const tQuality = useTranslations("setup.articles.quality");
  const { user, loading: authLoading } = useAuth();
  const { access: subscriptionAccess, refresh: refreshSubscription } = useSubscription();
+ const { openUpgradeModal } = useUpgradeModal();
  const [article, setArticle] = useState<ArticleDoc | null>(null);
  const [personaText, setPersonaText] = useState("");
  const [ctaSuggestions, setCtaSuggestions] = useState<CtaSuggestion[]>([]);
@@ -714,12 +720,17 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  async function runRevise(refinement: ArticleRefinement) {
  if (!user || !article) return;
  if (!subscriptionAccess?.canApplyArticleFeedback) {
- setReviseError(
+ const feedbackExhausted =
  subscriptionAccess?.isTrialActive &&
- subscriptionAccess.articleFeedbackRemaining === 0
+ subscriptionAccess.articleFeedbackRemaining === 0;
+ setReviseError(
+ feedbackExhausted
  ? tArticles("articleFeedbackLimit")
  : tArticles("premiumRequired"),
  );
+ openUpgradeModal({
+ reason: feedbackExhausted ? "article_feedback_limit" : "premium_required",
+ });
  return;
  }
  if (!hasReviseInput(refinement)) {
@@ -1073,9 +1084,11 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  } else if (code === "invalid_api_key") {
  setValidateError(tArticles("invalidApiKey"));
  } else if (code === "pro_cap" || code === "pro_plus_cap") {
- setValidateError(tArticles("insufficientCredits"));
+ setValidateError(tArticles("insufficientCredits"), { errorCode: code });
+ openUpgradeModal({ reason: reasonFromErrorCode(code) });
  } else if (code === "subscription_expired" || code === "trial_posts_exhausted") {
- setValidateError(tArticles("insufficientCredits"));
+ setValidateError(tArticles("insufficientCredits"), { errorCode: code });
+ openUpgradeModal({ reason: reasonFromErrorCode(code) });
  } else {
  setValidateError(t("validateFailed"), { errorCode: code });
  }
@@ -1359,18 +1372,39 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {(error === tArticles("noLlmKey") ||
  error === tArticles("invalidApiKey") ||
  error === tArticles("insufficientCredits") ||
+ error === tArticles("premiumRequired") ||
+ error === tArticles("articleFeedbackLimit") ||
  error === tArticles("needPersona")) && (
- <Link
- href={
- error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+ error === tArticles("needPersona") ? (
+ <Link href="/persona" className="text-sm font-semibold underline">
+ → {tArticles("goPersona")}
+ </Link>
+ ) : error === tArticles("insufficientCredits") ||
+ error === tArticles("premiumRequired") ||
+ error === tArticles("articleFeedbackLimit") ||
+ (errorApiCode && isUpgradePaywallError(errorApiCode)) ? (
+ <button
+ type="button"
+ onClick={() =>
+ openUpgradeModal({
+ reason: errorApiCode
+ ? reasonFromErrorCode(errorApiCode)
+ : error === tArticles("articleFeedbackLimit")
+ ? "article_feedback_limit"
+ : error === tArticles("premiumRequired")
+ ? "premium_required"
+ : "generic",
+ })
  }
  className="text-sm font-semibold underline"
  >
- →{" "}
- {error === tArticles("needPersona")
- ? tArticles("goPersona")
- : tArticles("goLlmSetup")}
+ → {tArticles("goUpgrade")}
+ </button>
+ ) : (
+ <Link href="/setup/llm" className="text-sm font-semibold underline">
+ → {tArticles("goLlmSetup")}
  </Link>
+ )
  )}
  </UserErrorBanner>
  )}
@@ -1517,18 +1551,39 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {(error === tArticles("noLlmKey") ||
  error === tArticles("invalidApiKey") ||
  error === tArticles("insufficientCredits") ||
+ error === tArticles("premiumRequired") ||
+ error === tArticles("articleFeedbackLimit") ||
  error === tArticles("needPersona")) && (
- <Link
- href={
- error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+ error === tArticles("needPersona") ? (
+ <Link href="/persona" className="text-sm font-semibold underline">
+ → {tArticles("goPersona")}
+ </Link>
+ ) : error === tArticles("insufficientCredits") ||
+ error === tArticles("premiumRequired") ||
+ error === tArticles("articleFeedbackLimit") ||
+ (errorApiCode && isUpgradePaywallError(errorApiCode)) ? (
+ <button
+ type="button"
+ onClick={() =>
+ openUpgradeModal({
+ reason: errorApiCode
+ ? reasonFromErrorCode(errorApiCode)
+ : error === tArticles("articleFeedbackLimit")
+ ? "article_feedback_limit"
+ : error === tArticles("premiumRequired")
+ ? "premium_required"
+ : "generic",
+ })
  }
  className="text-sm font-semibold underline"
  >
- →{" "}
- {error === tArticles("needPersona")
- ? tArticles("goPersona")
- : tArticles("goLlmSetup")}
+ → {tArticles("goUpgrade")}
+ </button>
+ ) : (
+ <Link href="/setup/llm" className="text-sm font-semibold underline">
+ → {tArticles("goLlmSetup")}
  </Link>
+ )
  )}
  </UserErrorBanner>
  )}
@@ -1970,18 +2025,39 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  {(error === tArticles("noLlmKey") ||
  error === tArticles("invalidApiKey") ||
  error === tArticles("insufficientCredits") ||
+ error === tArticles("premiumRequired") ||
+ error === tArticles("articleFeedbackLimit") ||
  error === tArticles("needPersona")) && (
- <Link
- href={
- error === tArticles("needPersona") ? "/persona" : "/setup/llm"
+ error === tArticles("needPersona") ? (
+ <Link href="/persona" className="text-sm font-semibold underline">
+ → {tArticles("goPersona")}
+ </Link>
+ ) : error === tArticles("insufficientCredits") ||
+ error === tArticles("premiumRequired") ||
+ error === tArticles("articleFeedbackLimit") ||
+ (errorApiCode && isUpgradePaywallError(errorApiCode)) ? (
+ <button
+ type="button"
+ onClick={() =>
+ openUpgradeModal({
+ reason: errorApiCode
+ ? reasonFromErrorCode(errorApiCode)
+ : error === tArticles("articleFeedbackLimit")
+ ? "article_feedback_limit"
+ : error === tArticles("premiumRequired")
+ ? "premium_required"
+ : "generic",
+ })
  }
  className="text-sm font-semibold underline"
  >
- →{" "}
- {error === tArticles("needPersona")
- ? tArticles("goPersona")
- : tArticles("goLlmSetup")}
+ → {tArticles("goUpgrade")}
+ </button>
+ ) : (
+ <Link href="/setup/llm" className="text-sm font-semibold underline">
+ → {tArticles("goLlmSetup")}
  </Link>
+ )
  )}
  </UserErrorBanner>
  </div>

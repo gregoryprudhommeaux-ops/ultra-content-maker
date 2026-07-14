@@ -1925,6 +1925,7 @@
       "needPersona": "Valida tu Persona antes de generar posts.",
       "goPersona": "Ir a Persona →",
       "goLlmSetup": "Configurar mi clave API →",
+      "goUpgrade": "Ver planes →",
       "description": "Genera 3–4 posts de LinkedIn, refina con preguntas, elige un CTA y copia a LinkedIn.",
       "descriptionList": "Tus borradores y posts validados. Crea un nuevo lote con el asistente de creación.",
       "createCta": "Crear posts",
@@ -3197,6 +3198,27 @@
       "proBlurb": "Gestionas tu clave API, control total de costes IA.",
       "proPlusBlurb": "IA de plataforma incluida · {posts} posts / mes sin configurar clave.",
       "viewPricing": "Comparar planes"
+    },
+    "upgradeModal": {
+      "close": "Cerrar",
+      "subtitle": "Tu prueba incluye <strong>{trialPosts} posts</strong> en {trialDays} días. Mejora tu plan para seguir creando con tu voz.",
+      "perMonth": "/ mes",
+      "popular": "Popular",
+      "upgradeNow": "Mejorar ahora",
+      "biggerPlan": "¿Necesitas un plan mayor?",
+      "seeAllPlans": "Ver todos los planes.",
+      "preferPro": "Preferir Pro con tu clave API →",
+      "preferProPlus": "Preferir Pro+ con IA incluida →",
+      "reasons": {
+        "generic": "Mejora tu plan para desbloquear más",
+        "trialPosts": "Mejora tu plan para crear más posts",
+        "trialExpired": "Tu prueba ha terminado",
+        "proCap": "Cupo mensual Pro alcanzado",
+        "proPlusCap": "Cupo mensual Pro+ alcanzado",
+        "feedbackLimit": "Límite de ajuste gratuito alcanzado",
+        "premiumRequired": "Disponible en planes de pago",
+        "wireOverdue": "Reactiva tu suscripción"
+      }
     },
     "wire": {
       "loginRequired": "Inicia sesión para solicitar transferencia.",
