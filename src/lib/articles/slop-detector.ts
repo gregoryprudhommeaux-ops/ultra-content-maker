@@ -24,8 +24,10 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "theatrical_dig", re: /\b(quand je creuse|en creusant( un peu)?|when i dig( deeper)?|digging (a bit|deeper)|cuando indago|al indagar|cuando profundizo)\b/i, weight: 3 },
   { id: "result_antithesis", re: /\b(r[ée]sultat\s*:|result\s*:|resultado\s*:)\s*.{0,40}\b(beaucoup|lots?|many|mucho|pouvoir|peu|few|poco)\b/i, weight: 2 },
   { id: "less_more_packaging", re: /\b(moins de .{0,40},?\s*plus de|less .{0,40},?\s*more |fewer .{0,40},?\s*more |menos .{0,40},?\s*m[áa]s )\b/i, weight: 2 },
-  // Symmetric qualification framework (2+ "même/same/mismo" beats in a short span · crosses newlines)
-  { id: "qualification_triad", re: /\b(m[êe]me[\s\S]{0,100}?m[êe]me|same [\w'-]{2,20}[\s\S]{0,100}?same |mism[oa][\s\S]{0,100}?mism[oa])/i, weight: 2 },
+  // Symmetric qualification framework — bullets OR polished inline triad (même×2+ / same×2+ / mismo×2+)
+  { id: "qualification_triad", re: /\b(m[êe]me[\s\S]{0,100}?m[êe]me|same [\w'-]{2,20}[\s\S]{0,100}?same |mism[oa][\s\S]{0,100}?mism[oa])/i, weight: 3 },
+  // Soft product-tease bolt-on (common after clean thought-leadership arc)
+  { id: "soft_format_teaser", re: /\b(je r[ée]fl[ée]chis [àa] lancer|i('|"|’)m (thinking of|considering) (launching|starting)|estoy pensando en lanzar|nouveau mode de rencontres|new (format|mode) of (meetings|gatherings)|un nuevo formato)\b/i, weight: 2 },
   { id: "real_lever_close", re: /\b(le vrai levier|le v[ée]ritable levier|the real lever|la verdadera palanca|la clave (es|del))\b/i, weight: 3 },
   { id: "soft_opinion_packaging", re: /\b((à mon sens|in my view|en mi opini[oó]n).{0,60}(levier|lever|palanca|cl[ée]|key is))\b/i, weight: 2 },
   { id: "corporate_unlock", re: /\b(unlock the full potential|lib[ée]rer le plein potentiel|potenciar al m[áa]ximo|empower your team|future[- ]proof)\b/i, weight: 2 },

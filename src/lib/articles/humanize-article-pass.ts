@@ -28,6 +28,7 @@ export function shouldHumanizeArticle(
     "soft_survey_hear",
     "theatrical_dig",
     "qualification_triad",
+    "soft_format_teaser",
     "result_antithesis",
     "real_lever_close",
     "en_loft_vocab",

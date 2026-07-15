@@ -142,7 +142,8 @@ BANNED structures & patterns:
 - Survey / false-consensus hook (very common AI tell · reject on sight): ${surveyHook}.
 - Generic category quotes: never invent a "typical" phrase said by "many leaders / companies" unless that exact wording appears in brief/Persona/proof.
 - Antithesis packaging: "beaucoup de X, peu de Y" / "lots of X, little Y" / "mucho X, poco Y" AND the soft twin "moins de X, plus de Y" / "less X, more Y" / "menos X, más Y" as the punchline · prefer a concrete consequence (what breaks, what you refuse, what you do next).
-- Qualification-framework bullets: do NOT default to a neat 3-bullet "same problem / same decision level / same agenda" (or FR/ES equivalents) list after a soft hear-hook · fold one uneven criterion into prose, drop the other two, or make lengths asymmetric.
+- Qualification triad (bullets OR inline prose): ban "Même industrie, même fonction, même irritant…" / "Same industry, same role, same pain" / "Misma industria, misma función…" and neat 3-bullet "same X / same Y / same Z" checklists · keep ONE sharp filter criterion in uneven prose; drop or demote the other two.
+- Clean framework arc (polished residual after survey-hook purge): thesis → preference → community analogy → soft "I'm thinking of launching a new format" teaser → CTA, with evenly sized paragraphs · break with uneven depth, one field friction/doubt, and no product tease unless the brief asks for it.
 - Soft packaging closes: "le vrai levier", "la clé", "the real lever", "the key is", "la verdadera palanca", "à mon sens c'est", "in my view the answer is" · state the claim without the wrapping.
 - Sandwich hook (visual slop): do NOT default to shock line + blank line + explanatory line for every hook. Compact 1–2 line blocks are often more human.
 - School connectors: "Pour commencer / Tout d'abord / Premièrement / Enfin", "First and foremost / To begin with", "Para empezar" · paragraph order should carry the logic.
@@ -183,6 +184,8 @@ Pre-delivery self-check (apply silently):
 6. Could 500 similar B2B posts start the same way tomorrow (swap market/persona)? → rewrite.
 7. Is the close "à mon sens / in my view, the real lever is…" OR "moins de X, plus de Y" packaging? → strip packaging; keep only the claim.
 7b. "En creusant / When I dig / Al indagar" + 3 symmetric qualification bullets? → kill the dig; uneven prose for one criterion max.
+7c. Inline "même/same/mismo ×3" triad in one sentence (Même industrie, même fonction, même irritant…)? → collapse to one criterion.
+7d. Clean arc thesis→preference→community→"nouveau format" teaser→CTA with even paragraphs? → uneven § + one asperity; drop teaser unless brief asks.
 8. Is the hook a sandwich (shock + blank + explain) by default? → compact if ideas belong together.
 9. Any loft EN word (testament/beacon/tapestry/pivotal…) or FR "Pour commencer,"? → rewrite.
 10. Em dashes stuffed / not-X-but-Y / unearned triplets / perfectly even paragraphs? → rewrite.

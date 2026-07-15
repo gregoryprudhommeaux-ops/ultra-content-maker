@@ -49,9 +49,9 @@ ${format}`;
 
 export function buildAntiAiHumanizerGenerationHints(contentLanguage: ContentLanguage): string {
   const samples: Record<ContentLanguage, string> = {
-    fr: `"pour commencer,", "j'entends souvent / phrase que j'entends", "en creusant", "3 bullets même X/Y/Z", "moins de X plus de Y", "ce n'est pas X c'est Y", "permettre/favoriser/garantir", "morale finale"`,
-    en: `"first and foremost,", "phrase I often hear", "digging a bit", "3 same-problem bullets", "less X more Y", "it's not X, it's Y", "enable/foster/ensure", "moral Wikipedia close"`,
-    es: `"para empezar,", "frase que escucho", "al indagar", "3 bullets mismo X/Y/Z", "menos X más Y", "no es solo X es Y", "permitir/fomentar/garantizar", "cierre moral"`,
+    fr: `"pour commencer,", "j'entends souvent", "en creusant", "même X, même Y, même Z (inline)", "je réfléchis à lancer un format", "moins de X plus de Y", "ce n'est pas X c'est Y", "morale finale"`,
+    en: `"first and foremost,", "phrase I often hear", "digging a bit", "same X, same Y, same Z", "thinking of launching a new format", "less X more Y", "it's not X, it's Y", "moral Wikipedia close"`,
+    es: `"para empezar,", "frase que escucho", "al indagar", "mismo X, mismo Y, mismo Z", "pensando en lanzar un formato", "menos X más Y", "no es solo X es Y", "cierre moral"`,
   };
   return `ANTI-IA 2026 (compact): delete ${samples[contentLanguage] ?? samples.en}. Uneven density + hedges + sharp verbs + voice asperities · not uniformly polished.`;
 }
