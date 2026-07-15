@@ -1,5 +1,17 @@
 # Changelog · /anti-linkedin-slop · Mr. ANTI-AI-SLOP
 
+## 2026-07-15 (h) — Soft survey-hook + qualification triad
+
+New tells (same false-consensus arc, softer wording):
+- Soft-hear: *phrase que j’entends souvent* / *phrase I often hear* / *frase que escucho* + fabricated category quote
+- Dig variants: *En creusant* / *Digging a bit* / *Al indagar*
+- Symmetric 3-bullet qualification framework (*même problème / niveau / agenda*)
+- Soft antithesis packaging: *moins de X, plus de Y* (twin of *beaucoup… peu…*)
+
+UCM mirrors: banned openers, `SURVEY_HOOK_PATTERNS`, banned-phrases, slop-detector (`soft_survey_hear`, `qualification_triad`, `less_more_packaging`), humanize blocking flags, humanizer compact hints.
+
+Charles + Lucy gate lists updated to treat soft survey-hook as blocking (same as hard).
+
 ## 2026-07-15 (g) — UCM server humanize gate
 
 - `humanize-article-pass.ts` runs after generate + revise when slop is detected (FR/EN/ES).

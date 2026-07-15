@@ -49,9 +49,9 @@ ${format}`;
 
 export function buildAntiAiHumanizerGenerationHints(contentLanguage: ContentLanguage): string {
   const samples: Record<ContentLanguage, string> = {
-    fr: `"pour commencer,", "ce n'est pas X c'est Y", "permettre/favoriser/garantir", "densité plate une idée/ligne", "morale finale"`,
-    en: `"first and foremost,", "it's not X, it's Y", "enable/foster/ensure", "equal-weight one-idea lines", "moral Wikipedia close"`,
-    es: `"para empezar,", "no es solo X es Y", "permitir/fomentar/garantizar", "densidad uniforme", "cierre moral"`,
+    fr: `"pour commencer,", "j'entends souvent / phrase que j'entends", "en creusant", "3 bullets même X/Y/Z", "moins de X plus de Y", "ce n'est pas X c'est Y", "permettre/favoriser/garantir", "morale finale"`,
+    en: `"first and foremost,", "phrase I often hear", "digging a bit", "3 same-problem bullets", "less X more Y", "it's not X, it's Y", "enable/foster/ensure", "moral Wikipedia close"`,
+    es: `"para empezar,", "frase que escucho", "al indagar", "3 bullets mismo X/Y/Z", "menos X más Y", "no es solo X es Y", "permitir/fomentar/garantizar", "cierre moral"`,
   };
   return `ANTI-IA 2026 (compact): delete ${samples[contentLanguage] ?? samples.en}. Uneven density + hedges + sharp verbs + voice asperities · not uniformly polished.`;
 }

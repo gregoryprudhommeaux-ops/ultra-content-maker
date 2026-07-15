@@ -18,10 +18,14 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "generic_inspiration", re: /\b(never stop learning|keep pushing|stay hungry)\b/i, weight: 2 },
   { id: "delve", re: /\b(let's delve|plongeons|profundicemos)\b/i, weight: 2 },
   { id: "tapestry", re: /\b(tapestry of|mosaïque de)\b/i, weight: 2 },
-  // Survey / false-consensus hook (common AI LinkedIn tell)
+  // Survey / false-consensus hook (hard + soft AI LinkedIn tells)
   { id: "survey_opener", re: /\b(je vois (beaucoup|trop) de|i see (a lot of|too many)|veo a (muchos|demasiados)|on me dit souvent|i often hear|a menudo escucho)\b/i, weight: 3 },
-  { id: "theatrical_dig", re: /\b(quand je creuse|when i dig( deeper)?|cuando indago|cuando profundizo)\b/i, weight: 3 },
+  { id: "soft_survey_hear", re: /\b((la |une )?phrase que (j['’]entends|j['’]entends souvent|i (often )?hear|escucho)|ce que j['’]entends souvent|what i often hear|lo que m[áa]s escucho|j['’]entends souvent|i hear (a lot|often)|oigo (mucho|seguido))\b/i, weight: 3 },
+  { id: "theatrical_dig", re: /\b(quand je creuse|en creusant( un peu)?|when i dig( deeper)?|digging (a bit|deeper)|cuando indago|al indagar|cuando profundizo)\b/i, weight: 3 },
   { id: "result_antithesis", re: /\b(r[ée]sultat\s*:|result\s*:|resultado\s*:)\s*.{0,40}\b(beaucoup|lots?|many|mucho|pouvoir|peu|few|poco)\b/i, weight: 2 },
+  { id: "less_more_packaging", re: /\b(moins de .{0,40},?\s*plus de|less .{0,40},?\s*more |fewer .{0,40},?\s*more |menos .{0,40},?\s*m[áa]s )\b/i, weight: 2 },
+  // Symmetric qualification framework (2+ "même/same/mismo" beats in a short span · crosses newlines)
+  { id: "qualification_triad", re: /\b(m[êe]me[\s\S]{0,100}?m[êe]me|same [\w'-]{2,20}[\s\S]{0,100}?same |mism[oa][\s\S]{0,100}?mism[oa])/i, weight: 2 },
   { id: "real_lever_close", re: /\b(le vrai levier|le v[ée]ritable levier|the real lever|la verdadera palanca|la clave (es|del))\b/i, weight: 3 },
   { id: "soft_opinion_packaging", re: /\b((à mon sens|in my view|en mi opini[oó]n).{0,60}(levier|lever|palanca|cl[ée]|key is))\b/i, weight: 2 },
   { id: "corporate_unlock", re: /\b(unlock the full potential|lib[ée]rer le plein potentiel|potenciar al m[áa]ximo|empower your team|future[- ]proof)\b/i, weight: 2 },

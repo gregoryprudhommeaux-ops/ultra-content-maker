@@ -23,6 +23,10 @@ const BANNED_OPENERS: Record<ContentLanguage, string[]> = {
     "Je vois trop de",
     "On me dit souvent",
     "On m'entend souvent dire",
+    "La phrase que j'entends souvent",
+    "Une phrase que j'entends souvent",
+    "Ce que j'entends souvent",
+    "J'entends souvent",
     "La plupart des dirigeants",
     "Trop d'entreprises",
     "Dans mon expérience",
@@ -56,6 +60,9 @@ const BANNED_OPENERS: Record<ContentLanguage, string[]> = {
     "I see a lot of",
     "I see too many",
     "I often hear",
+    "The phrase I hear a lot",
+    "A phrase I often hear",
+    "What I often hear",
     "Most leaders",
     "Too many companies",
     "In my experience",
@@ -81,6 +88,9 @@ const BANNED_OPENERS: Record<ContentLanguage, string[]> = {
     "Veo a muchos",
     "Veo demasiados",
     "A menudo escucho",
+    "La frase que escucho mucho",
+    "Una frase que oigo seguido",
+    "Lo que más escucho",
     "La mayoría de los líderes",
     "Demasiadas empresas",
     "En mi experiencia",
@@ -97,11 +107,11 @@ const FAKE_SCENARIO_PATTERNS: Record<ContentLanguage, string> = {
   es: `escenas inventadas tipo "El domingo por la noche un cliente me llamó en pánico…", llamadas dramáticas fuera de horario, anécdotas con fecha + cliente anónimo sin base en el brief/Persona`,
 };
 
-/** False-consensus / survey-hook template · the "Je vois beaucoup de…" arc. */
+/** False-consensus / survey-hook template · hard + soft variants. */
 const SURVEY_HOOK_PATTERNS: Record<ContentLanguage, string> = {
-  fr: `structure "faux terrain → pivot → levier" INTERDITE: (1) ouverture ethnographique "Je vois beaucoup de [persona]…", (2) citation inventée attribuée à une catégorie (« On a déjà des contacts sur place. »), (3) creusage théâtral "Quand je creuse…", (4) triade parallèle (fonctions / niveaux / agendas différents), (5) "Résultat : beaucoup de X, peu de Y", (6) clôture soft-opinion "À mon sens, le vrai levier / la clé, c'est…"`,
-  en: `BANNED "false consensus → pivot → lever" arc: (1) ethnographic opener "I see a lot of [persona]…", (2) invented quote attributed to a category ("We already have contacts on the ground."), (3) theatrical dig "When I dig deeper…", (4) parallel triad (different roles / levels / agendas), (5) "Result: lots of X, few Y", (6) soft-opinion close "In my view, the real lever / the key is…"`,
-  es: `estructura PROHIBIDA "falso terreno → pivote → palanca": (1) apertura etnográfica "Veo a muchos [persona]…", (2) cita inventada atribuida a una categoría, (3) excavación teatral "Cuando indago…", (4) tríada paralela, (5) "Resultado: mucho X, poco Y", (6) cierre soft-opinión "En mi opinión, la verdadera palanca / la clave es…"`,
+  fr: `structure "faux terrain → pivot → levier" INTERDITE (variantes dures OU soft — rejeter les deux): (1) ouverture ethnographique OU soft-hear: "Je vois beaucoup de…", "La phrase / une phrase que j'entends souvent…", "Ce que j'entends souvent…", "On me dit souvent…", (2) citation inventée attribuée à une catégorie (« On a déjà des contacts sur place. ») même sans "Je vois beaucoup de", (3) creusage théâtral: "Quand je creuse…", "En creusant…", "En creusant un peu…", (4) triade parallèle OU liste à puces de qualification symétrique (3 critères "même X / même Y / même Z" ou "pas seulement A, B, C"), (5) antithese packaging: "Résultat : beaucoup de X, peu de Y" OU "moins de X, plus de Y" / "moins de monde, plus de valeur", (6) clôture soft-opinion "À mon sens, le vrai levier / la clé, c'est…"`,
+  en: `BANNED "false consensus → pivot → lever" arc (hard OR soft — reject both): (1) ethnographic OR soft-hear opener: "I see a lot of…", "The phrase / a phrase I often hear…", "What I often hear…", "I often hear…", (2) invented quote attributed to a category even without "I see a lot of", (3) theatrical dig: "When I dig…", "Digging a bit…", "When you dig deeper…", (4) parallel triad OR clean 3-bullet symmetric qualification list ("same X / same Y / same Z"), (5) antithesis packaging: "Result: lots of X, few Y" OR "less X, more Y" / "fewer people, more value", (6) soft-opinion close "In my view, the real lever / the key is…"`,
+  es: `estructura PROHIBIDA "falso terreno → pivote → palanca" (dura O soft — rechazar ambas): (1) apertura etnográfica O soft-hear: "Veo a muchos…", "La frase / una frase que escucho mucho…", "Lo que más escucho…", "A menudo escucho…", (2) cita inventada atribuida a una categoría aunque no diga "Veo a muchos", (3) excavación teatral: "Cuando indago…", "Al indagar…", "Cuando profundizo…", (4) tríada paralela O lista de 3 bullets de calificación simétrica, (5) antítesis packaging: "Resultado: mucho X, poco Y" O "menos X, más Y", (6) cierre soft-opinión "En mi opinión, la verdadera palanca / la clave es…"`,
 };
 
 const REGIONAL_FILTER: Record<ContentLanguage, string> = {
@@ -131,7 +141,8 @@ BANNED structures & patterns:
 - Fake situational setups: ${fakeScenarios}. Never invent dramatic client calls, DMs, or calendar-stamped scenes unless explicitly provided in postBrief, proof field, or Persona.
 - Survey / false-consensus hook (very common AI tell · reject on sight): ${surveyHook}.
 - Generic category quotes: never invent a "typical" phrase said by "many leaders / companies" unless that exact wording appears in brief/Persona/proof.
-- Antithesis packaging: "beaucoup de X, peu de Y" / "lots of X, little Y" / "mucho X, poco Y" as the punchline · prefer a concrete consequence.
+- Antithesis packaging: "beaucoup de X, peu de Y" / "lots of X, little Y" / "mucho X, poco Y" AND the soft twin "moins de X, plus de Y" / "less X, more Y" / "menos X, más Y" as the punchline · prefer a concrete consequence (what breaks, what you refuse, what you do next).
+- Qualification-framework bullets: do NOT default to a neat 3-bullet "same problem / same decision level / same agenda" (or FR/ES equivalents) list after a soft hear-hook · fold one uneven criterion into prose, drop the other two, or make lengths asymmetric.
 - Soft packaging closes: "le vrai levier", "la clé", "the real lever", "the key is", "la verdadera palanca", "à mon sens c'est", "in my view the answer is" · state the claim without the wrapping.
 - Sandwich hook (visual slop): do NOT default to shock line + blank line + explanatory line for every hook. Compact 1–2 line blocks are often more human.
 - School connectors: "Pour commencer / Tout d'abord / Premièrement / Enfin", "First and foremost / To begin with", "Para empezar" · paragraph order should carry the logic.
@@ -168,9 +179,10 @@ Pre-delivery self-check (apply silently):
 2. Does the reader learn something precise? → if not, too vague.
 3. Could a reasonable expert disagree? → if not, too consensual.
 4. Does any sentence sound like a fake client anecdote? → remove or replace with observation.
-5. Does it open with "I see a lot of / Je vois beaucoup de / Veo a muchos" + a category quote? → rewrite thesis-first.
+5. Does it open with "I see a lot of / Je vois beaucoup de / Veo a muchos" OR soft-hear ("j'entends souvent / phrase I often hear / frase que escucho") + a category quote? → rewrite thesis-first; drop fabricated quotes.
 6. Could 500 similar B2B posts start the same way tomorrow (swap market/persona)? → rewrite.
-7. Is the close "à mon sens / in my view, the real lever is…"? → strip packaging; keep only the claim.
+7. Is the close "à mon sens / in my view, the real lever is…" OR "moins de X, plus de Y" packaging? → strip packaging; keep only the claim.
+7b. "En creusant / When I dig / Al indagar" + 3 symmetric qualification bullets? → kill the dig; uneven prose for one criterion max.
 8. Is the hook a sandwich (shock + blank + explain) by default? → compact if ideas belong together.
 9. Any loft EN word (testament/beacon/tapestry/pivotal…) or FR "Pour commencer,"? → rewrite.
 10. Em dashes stuffed / not-X-but-Y / unearned triplets / perfectly even paragraphs? → rewrite.

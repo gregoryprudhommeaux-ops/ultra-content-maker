@@ -25,7 +25,10 @@ export function shouldHumanizeArticle(
   const hasError = violations.some((v) => v.severity === "error");
   const blockingFlags = [
     "survey_opener",
+    "soft_survey_hear",
     "theatrical_dig",
+    "qualification_triad",
+    "result_antithesis",
     "real_lever_close",
     "en_loft_vocab",
     "school_opener",
