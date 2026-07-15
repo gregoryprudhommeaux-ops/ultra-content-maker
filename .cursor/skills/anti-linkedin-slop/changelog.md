@@ -10,6 +10,12 @@
 - `charles-linkedin-strategist` and `lucy-community-marketing` must run this skill (ANALYZE → HUMANIZE) before delivering copy.
 - Synced to UCM, nextstep-idea-os, la-mesa, ns-suite (+ personal ~/.cursor/skills).
 
+## 2026-07-15 (f) — Templates membres explicites
+
+- Lucy + Charles gate wording now explicitly covers **member communication templates** (email/Brevo/WhatsApp/nurture/RSVP).
+- Lucy `examples.md`: adapted templates still require ANALYZE → HUMANIZE before ship.
+- LA MESA project rule `.cursor/rules/anti-linkedin-slop-gate.mdc` aligned.
+
 ## 2026-07-15 (e) — Mr. ANTI-AI-SLOP agent prompt
 
 - Added `PROMPT.md`: full operational agent with ANALYZE / HUMANIZE / EVOLVE modes.
