@@ -1,5 +1,10 @@
 # Changelog · /anti-linkedin-slop · Mr. ANTI-AI-SLOP
 
+## 2026-07-15 (g) — UCM server humanize gate
+
+- `humanize-article-pass.ts` runs after generate + revise when slop is detected (FR/EN/ES).
+- Repurpose / first-comment / quality prompts inherit anti-slop.
+
 ## 2026-07-15 (f) — Wired into Charles + Lucy
 
 - `charles-linkedin-strategist` and `lucy-community-marketing` must run this skill (ANALYZE → HUMANIZE) before delivering copy.

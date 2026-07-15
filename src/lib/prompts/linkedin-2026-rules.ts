@@ -20,12 +20,15 @@ ${buildAntiLinkedInSlopRules(contentLanguage)}
 ${buildHumanWritingRules(contentLanguage)}
 ${buildAntiAiHumanizerGenerationHints(contentLanguage)}
 ${buildLinkedInArchetypeRules(resolved)}
+- Language: apply all anti-AI-slop rules in the output language only (fr / en / es) · for Spanish, respect Mexico vs Spain filters when geography/Persona implies it.
+- Uneven information density + certainty hedges + sharp verbs · never uniformly polished "perfect AI" prose.
 - Niche-specific: write for the defined ICP, not "everyone on LinkedIn".
 - Include at least one concrete proof element per post when available in brief/Persona (case, metric, field observation · no vague inspiration; never invent proof).
 - No engagement bait ("agree?", "like if", "comment YES").
 - Do NOT put external http(s) links in hook, body, or ps · user adds links in comments if needed.
 - Prefer line breaks for feed readability; end with substance that invites thoughtful comments when objective is conversation.
-- Optimize for saves, qualified comments, and profile visits · not vanity likes.`;
+- Optimize for saves, qualified comments, and profile visits · not vanity likes.
+- After drafting mentally: if the post would vanish in an AI-saturated feed, rewrite before outputting JSON.`;
 }
 
 /** Resolve archetype from optional steering payload fields. */

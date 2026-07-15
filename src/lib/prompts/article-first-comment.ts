@@ -1,6 +1,7 @@
 import {
  buildNewsSourceInFirstCommentInstruction,
 } from "@/lib/prompts/news-source-citation";
+import { buildAntiAiHumanizerGenerationHints } from "@/lib/prompts/anti-ai-humanizer";
 import {
  injectAuthorSteering,
  type AuthorSteeringPayload,
@@ -29,13 +30,16 @@ export function buildFirstCommentSystemPrompt(
 
  return `You write the author's FIRST comment under their own LinkedIn post (${lang}) to seed a quality discussion.
 
+${buildAntiAiHumanizerGenerationHints(contentLanguage)}
+
 Rules:
 - 2-4 short lines max
 - Add context, a nuance, or a specific question · NOT "thanks for reading"
-- No engagement bait, no "comment YES"
+- No engagement bait, no "comment YES", no school openers, no loft AI vocabulary
 ${linkRule}
 - Sound human and expert; invite replies from the target ICP
 - Align with post objective (especially conversation / credibility)
+- Prefer a hedge or concrete detail over a polished moral
 
 Return JSON only: { "comment": string }`;
 }

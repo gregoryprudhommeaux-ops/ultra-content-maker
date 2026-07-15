@@ -18,6 +18,7 @@ import {
   buildReviseSystemPrompt,
   buildReviseUserPrompt,
 } from "@/lib/prompts/article-revise";
+import { humanizeArticlePass } from "@/lib/articles/humanize-article-pass";
 import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import type {
   ArticleNewsSource,
@@ -169,8 +170,19 @@ export async function POST(request: Request) {
     }
 
     const tags = hashtags.length ? hashtags : fallbackTags;
-    const fitted = fitLinkedInArticleParts(
+    let fitted = fitLinkedInArticleParts(
       { hook, body: revisedBody, ps },
+      maxDraftCharsForArticle(tags),
+    );
+
+    const humanized = await humanizeArticlePass(
+      llm,
+      { hook: fitted.hook, body: fitted.body, ps: fitted.ps },
+      contentLanguage,
+      { userId, route: "articles/revise-humanize" },
+    );
+    fitted = fitLinkedInArticleParts(
+      humanized.parts,
       maxDraftCharsForArticle(tags),
     );
 
@@ -182,6 +194,8 @@ export async function POST(request: Request) {
       ps: fitted.ps,
       scope,
       hashtags: tags,
+      humanized: humanized.humanized,
+      slopAnalysis: humanized.slopAfter,
     });
   } catch (e) {
     return NextResponse.json(

@@ -39,6 +39,7 @@ import {
  maxDraftCharsForArticle,
 } from "@/lib/linkedin/fit-linkedin-post";
 import { stripNewsSourceUrlFromText } from "@/lib/linkedin/strip-news-source-url";
+import { humanizeArticlesPass } from "@/lib/articles/humanize-article-pass";
 import { postContainsEmoji } from "@/lib/prompts/emoji-instruction";
 import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
@@ -358,7 +359,26 @@ export async function POST(request: Request) {
 
  articles = enforceLinkedInLengthOnArticles(articles);
 
- return NextResponse.json({ articles, model: llm.model });
+ // Post-generation anti-AI-slop gate (FR/EN/ES): detect → HUMANIZER pass when needed
+ const humanized = await humanizeArticlesPass(
+   llm,
+   articles.map((a) => ({ hook: a.hook, body: a.body, ps: a.ps })),
+   contentLanguage,
+   { userId, route: "articles/generate-humanize" },
+ );
+ articles = articles.map((a, i) => {
+   const h = humanized.articles[i];
+   if (!h) return a;
+   return { ...a, hook: h.hook, body: h.body, ps: h.ps };
+ });
+ articles = enforceLinkedInLengthOnArticles(articles);
+
+ return NextResponse.json({
+   articles,
+   model: llm.model,
+   humanizedCount: humanized.humanizedCount,
+   slopAnalyses: humanized.slopAnalyses,
+ });
  } catch (e) {
  return llmErrorResponse(e);
  }

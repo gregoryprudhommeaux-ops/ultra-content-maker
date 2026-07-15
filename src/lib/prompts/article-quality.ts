@@ -1,4 +1,5 @@
 import { buildHumanWritingRules } from "@/lib/articles/human-writing";
+import { buildAntiAiHumanizerGenerationHints } from "@/lib/prompts/anti-ai-humanizer";
 import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import {
  injectAuthorSteering,
@@ -20,10 +21,12 @@ export function buildArticleQualitySystemPrompt(
 ): string {
  const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
 
- if (personalVoice) {
+  if (personalVoice) {
  return `You are an empathetic writing coach reviewing a personal LinkedIn post in ${lang} (first-person life update or milestone).
 
+${buildAntiLinkedInSlopRules(contentLanguage)}
 ${buildHumanWritingRules(contentLanguage)}
+${buildAntiAiHumanizerGenerationHints(contentLanguage)}
 
 Score the post 1-10 on each dimension (integers only):
 - nicheClarity: how clearly the personal moment lands for the author's network (not generic inspiration)
@@ -46,6 +49,7 @@ Return JSON only:
 ${buildAntiLinkedInSlopRules(contentLanguage)}
 
 ${buildHumanWritingRules(contentLanguage)}
+${buildAntiAiHumanizerGenerationHints(contentLanguage)}
 
 Score the post 1-10 on each dimension (integers only):
 - nicheClarity: specific to a defined ICP vs generic "everyone"
