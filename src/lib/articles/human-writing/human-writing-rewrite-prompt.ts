@@ -1,19 +1,15 @@
 import type { ContentLanguage } from "@/types/workspace";
-import { buildHumanWritingRules } from "./human-writing-rules";
+import { buildAntiAiHumanizerSystemPrompt } from "@/lib/prompts/anti-ai-humanizer";
 import type { HumanWritingViolation } from "./human-writing-lint";
 
 /**
- * System prompt for an auto-fix revision pass targeting human-writing violations.
+ * System prompt for an auto-fix / humanize revision pass.
+ * Uses full ANTI-IA-SLOP HUMANIZER (aligned with Cursor skill /anti-linkedin-slop).
  */
 export function buildHumanWritingRewriteSystemPrompt(
   contentLanguage: ContentLanguage,
 ): string {
-  return `You rewrite a LinkedIn post to fix human-writing / anti-AI-detection issues while preserving meaning, facts, and author voice.
-
-${buildHumanWritingRules(contentLanguage)}
-
-Reply with a single valid JSON object only: { "hook": string, "body": string, "ps": string }.
-Do not invent facts, clients, or metrics not in the original post.`;
+  return buildAntiAiHumanizerSystemPrompt(contentLanguage, { jsonFields: true });
 }
 
 export function buildHumanWritingRewriteUserPrompt(input: {
@@ -33,9 +29,9 @@ export function buildHumanWritingRewriteUserPrompt(input: {
         body: input.body,
         ps: input.ps ?? "",
       },
-      violationsToFix: violationList || "General human-writing polish",
+      violationsToFix: violationList || "General anti-IA-slop humanize polish",
       instruction:
-        "Fix every listed violation. Keep the same language. Preserve scope and niche. Output JSON only.",
+        "Humanize the post: fix every listed violation, apply ANTI-IA-SLOP HUMANIZER rules, keep the same language, preserve facts and niche. Output JSON only.",
     },
     null,
     2,

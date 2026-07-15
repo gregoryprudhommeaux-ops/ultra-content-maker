@@ -1,6 +1,7 @@
 import { buildHumanWritingRules } from "@/lib/articles/human-writing";
 import { LINKEDIN_LENGTH_PROMPT_RULE } from "@/lib/linkedin/fit-linkedin-post";
 import { buildLinkedInArchetypeRules, resolveContentArchetype } from "@/lib/persona/content-archetype";
+import { buildAntiAiHumanizerGenerationHints } from "@/lib/prompts/anti-ai-humanizer";
 import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import { AUTHOR_STEERING_PROMPT_RULE } from "@/lib/profile/author-steering-context";
 import type { ContentArchetype, ContentLanguage } from "@/types/workspace";
@@ -17,6 +18,7 @@ ${LINKEDIN_LENGTH_PROMPT_RULE}
 ${AUTHOR_STEERING_PROMPT_RULE}
 ${buildAntiLinkedInSlopRules(contentLanguage)}
 ${buildHumanWritingRules(contentLanguage)}
+${buildAntiAiHumanizerGenerationHints(contentLanguage)}
 ${buildLinkedInArchetypeRules(resolved)}
 - Niche-specific: write for the defined ICP, not "everyone on LinkedIn".
 - Include at least one concrete proof element per post when available in brief/Persona (case, metric, field observation · no vague inspiration; never invent proof).

@@ -1,5 +1,6 @@
 import { buildHumanWritingRules } from "@/lib/articles/human-writing";
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
+import { buildAntiAiHumanizerGenerationHints } from "@/lib/prompts/anti-ai-humanizer";
 import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
 import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
@@ -48,6 +49,7 @@ export function buildReviseSystemPrompt(
 ${languageOnlyRule(contentLanguage)}
 ${buildAntiLinkedInSlopRules(contentLanguage)}
 ${buildHumanWritingRules(contentLanguage)}
+${buildAntiAiHumanizerGenerationHints(contentLanguage)}
 
 Keep the post in ${lang}. Preserve author expertise. Apply all feedback.${toneNote}${personalNote}
 Emoji rule (non-negotiable): ${emoji}

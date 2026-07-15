@@ -138,8 +138,22 @@ function detectPunctuationIssues(text: string): HumanWritingViolation[] {
       id: "em_dash_overuse",
       category: "punctuation",
       severity: emCount > 3 ? "error" : "warn",
-      message: `${emCount} em dashes (—) · max 1–2 recommended`,
+      message: `${emCount} em dashes (—) · prefer ≤1 per paragraph · max 1–2 per post`,
     });
+  }
+
+  // Per-paragraph em dash: more than one in any paragraph is a strong AI tell
+  for (const para of text.split(/\n\s*\n/)) {
+    const paraEm = countEmDashes(para);
+    if (paraEm > 1) {
+      violations.push({
+        id: "em_dash_per_paragraph",
+        category: "punctuation",
+        severity: "warn",
+        message: `${paraEm} em dashes in one paragraph (max 1)`,
+      });
+      break;
+    }
   }
 
   const lengths = sentenceLengths(text);

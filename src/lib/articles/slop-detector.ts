@@ -18,6 +18,24 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "generic_inspiration", re: /\b(never stop learning|keep pushing|stay hungry)\b/i, weight: 2 },
   { id: "delve", re: /\b(let's delve|plongeons|profundicemos)\b/i, weight: 2 },
   { id: "tapestry", re: /\b(tapestry of|mosaïque de)\b/i, weight: 2 },
+  // Survey / false-consensus hook (common AI LinkedIn tell)
+  { id: "survey_opener", re: /\b(je vois (beaucoup|trop) de|i see (a lot of|too many)|veo a (muchos|demasiados)|on me dit souvent|i often hear|a menudo escucho)\b/i, weight: 3 },
+  { id: "theatrical_dig", re: /\b(quand je creuse|when i dig( deeper)?|cuando indago|cuando profundizo)\b/i, weight: 3 },
+  { id: "result_antithesis", re: /\b(r[ée]sultat\s*:|result\s*:|resultado\s*:)\s*.{0,40}\b(beaucoup|lots?|many|mucho|pouvoir|peu|few|poco)\b/i, weight: 2 },
+  { id: "real_lever_close", re: /\b(le vrai levier|le v[ée]ritable levier|the real lever|la verdadera palanca|la clave (es|del))\b/i, weight: 3 },
+  { id: "soft_opinion_packaging", re: /\b((à mon sens|in my view|en mi opini[oó]n).{0,60}(levier|lever|palanca|cl[ée]|key is))\b/i, weight: 2 },
+  { id: "corporate_unlock", re: /\b(unlock the full potential|lib[ée]rer le plein potentiel|potenciar al m[áa]ximo|empower your team|future[- ]proof)\b/i, weight: 2 },
+  { id: "leverage_utilize", re: /\b(leverage|utilize|delve into|tirer parti|capitaliser sur|aprovechar al m[áa]ximo)\b/i, weight: 2 },
+  { id: "next_level_bait", re: /\b(next level|niveau sup[ée]rieur|siguiente nivel)\b/i, weight: 2 },
+  { id: "fast_paced_world", re: /\b(fast[- ]paced world|dynamic landscape|monde en constante [ée]volution|entorno actual en constante)\b/i, weight: 2 },
+  { id: "school_opener", re: /\b(pour commencer|tout d['']abord|premi[èe]rement|first and foremost|to begin with|para empezar|en primer lugar)\b/i, weight: 2 },
+  { id: "en_loft_vocab", re: /\b(testament|beacon|tapestry|pivotal|underscore|paramount|delve|our journey)\b/i, weight: 3 },
+  { id: "fr_corp_calque", re: /\b(ce post traite de|je suis ravi de partager|assurez[- ]vous de)\b/i, weight: 2 },
+  { id: "es_spain_in_mx_tell", re: /\b(vosotros|¡?vale!|ordenador)\b/i, weight: 2 },
+  { id: "es_agendar", re: /\bagendar una (llamada|reuni[oó]n)\b/i, weight: 2 },
+  { id: "sandwich_hook", re: /^(.{8,120})\n\n(.{20,200})$/m, weight: 1 },
+  { id: "soft_verb_stack", re: /\b(permet(tre| d[e'])|contribuer à|favoriser|enable[sd]?|foster|facilitate|ensures that|fomentar|garantizar|permite que)\b/i, weight: 1 },
+  { id: "wikipedia_moral_close", re: /\b(finalement,? tout est|at the end of the day,? it'?s all about|al final del d[ií]a,? se trata de|question d['']ex[ée]cution)\b/i, weight: 2 },
 ];
 
 export function detectSlop(
