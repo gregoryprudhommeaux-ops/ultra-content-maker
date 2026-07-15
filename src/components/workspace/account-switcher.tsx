@@ -9,7 +9,7 @@ import { resolveLandingPath } from "@/lib/workspace/landing-path";
 import { META_LABEL, INPUT_CLASS } from "@/lib/ui/nextstep";
 import { ImeSafeInput } from "@/components/ui/ime-safe-field";
 import type { ContentLanguage } from "@/types/workspace";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OPEN_ACCOUNT_SWITCHER_EVENT } from "@/lib/workspace/account-switcher-events";
@@ -32,7 +32,6 @@ export function AccountSwitcher() {
     createAccount,
   } = useWorkspace();
   const pathname = usePathname();
-  const router = useRouter();
   const isAdminRoute = Boolean(pathname?.includes("/admin"));
   const [open, setOpen] = useState(false);
   const [panelMode, setPanelMode] = useState<AccountPanelMode>("list");
@@ -41,11 +40,13 @@ export function AccountSwitcher() {
   const [busy, setBusy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  /** Hard reload so no residual React/library state from the previous account remains. */
   const navigateToAccountHome = useCallback(async () => {
     if (!user) return;
     const path = await resolveLandingPath(user.uid);
-    router.push(path);
-  }, [router, user]);
+    const href = `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
+    window.location.assign(href);
+  }, [locale, user]);
 
   useEffect(() => {
     if (!open) return;

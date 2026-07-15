@@ -11,6 +11,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { ContextHelp } from "@/components/ui/context-help";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { useWorkspace } from "@/contexts/workspace-context";
 import {
   articleMatchesLibraryFilters,
   countArticles,
@@ -56,6 +57,7 @@ export function DashboardHub() {
   const tRework = useTranslations("setup.articles.create.recentPosts");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
+  const { scope } = useWorkspace();
   const router = useRouter();
   const { progress, loading: onboardingLoading } = useOnboardingProgress();
   const onboardingBootstrapping = isOnboardingBootstrapping(onboardingLoading, progress);
@@ -66,6 +68,7 @@ export function DashboardHub() {
   const [author, setAuthor] = useState<AuthorProfile | null>(null);
   const [inspirationSourcesCount, setInspirationSourcesCount] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const workspaceKey = `${scope?.ownerId ?? ""}:${scope?.accountId ?? ""}`;
 
   const filters = useMemo(
     () => ({
@@ -78,6 +81,10 @@ export function DashboardHub() {
 
   useEffect(() => {
     if (!user) return;
+    setLoaded(false);
+    setBatches([]);
+    setAuthor(null);
+    setInspirationSourcesCount(0);
     void Promise.all([
       listArticleBatches(user.uid),
       getAuthorProfile(user.uid),
@@ -93,7 +100,7 @@ export function DashboardHub() {
       );
       setLoaded(true);
     });
-  }, [user]);
+  }, [user, workspaceKey]);
 
   useEffect(() => {
     if (onboardingBootstrapping || !progress) return;

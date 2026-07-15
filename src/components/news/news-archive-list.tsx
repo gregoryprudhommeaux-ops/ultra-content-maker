@@ -7,6 +7,7 @@ import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import {
   groupArchivedNewsByScan,
@@ -23,6 +24,7 @@ export function NewsArchiveList() {
   const t = useTranslations("setup.news");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
+  const { scope } = useWorkspace();
   const { progress, status, loading: onboardingLoading } = useOnboardingProgress();
   const onboardingBootstrapping = isOnboardingBootstrapping(
     onboardingLoading,
@@ -32,11 +34,16 @@ export function NewsArchiveList() {
   const [selected, setSelected] = useState<ArchivedNewsDoc | null>(null);
   const [detailItem, setDetailItem] = useState<ArchivedNewsDoc | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const workspaceKey = `${scope?.ownerId ?? ""}:${scope?.accountId ?? ""}`;
 
   const scans = useMemo(() => groupArchivedNewsByScan(archived), [archived]);
 
   const reload = useCallback(async () => {
     if (!user) return;
+    setArchived([]);
+    setSelected(null);
+    setDetailItem(null);
+    setLoaded(false);
     const items = await listArchivedNewsForScans(user.uid);
     setArchived(items);
     setLoaded(true);
@@ -49,7 +56,7 @@ export function NewsArchiveList() {
       return;
     }
     reload().catch(() => setLoaded(true));
-  }, [user, authLoading, reload]);
+  }, [user, authLoading, reload, workspaceKey]);
 
   const canCreateFromNews = progress?.canAccessCreation ?? false;
   const setupNextHref = status?.nextHref ?? "/start";

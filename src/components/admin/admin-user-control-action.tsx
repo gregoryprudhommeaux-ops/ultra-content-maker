@@ -5,6 +5,8 @@ import { getClientAuth } from "@/lib/firebase/client";
 import { managedAccountId } from "@/lib/workspace/managed-clients";
 import { DEFAULT_ACCOUNT_ID } from "@/lib/workspace/workspace-scope";
 import { useWorkspace } from "@/contexts/workspace-context";
+import { resolveLandingPath } from "@/lib/workspace/landing-path";
+import { useLocale } from "next-intl";
 import { useMemo, useState } from "react";
 
 type Labels = {
@@ -48,6 +50,7 @@ export function AdminUserControlAction({
   labels,
   onChanged,
 }: Props) {
+  const locale = useLocale();
   const { reload, switchAccount, accounts } = useWorkspace();
   const [mode, setMode] = useState<"idle" | "confirm-control" | "confirm-release">("idle");
   const [busy, setBusy] = useState(false);
@@ -83,6 +86,12 @@ export function AdminUserControlAction({
     return labels.controlErrors[code] ?? labels.controlFailed;
   }
 
+  async function hardReloadIntoWorkspace(ownerUid: string) {
+    const path = await resolveLandingPath(ownerUid);
+    const href = `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
+    window.location.assign(href);
+  }
+
   async function runControl() {
     setBusy(true);
     setError(null);
@@ -115,6 +124,8 @@ export function AdminUserControlAction({
           data.client?.accountId?.trim() || user.managedClientAccountId || DEFAULT_ACCOUNT_ID,
         );
         await switchAccount(switcherId);
+        await hardReloadIntoWorkspace(currentAdminUserId);
+        return;
       } catch {
         /* link succeeded; workspace switch is best-effort */
       }
@@ -165,9 +176,9 @@ export function AdminUserControlAction({
     try {
       await reload();
       await switchAccount(resolveManagedSwitcherId(user));
+      await hardReloadIntoWorkspace(currentAdminUserId);
     } catch {
       setError(labels.controlFailed);
-    } finally {
       setBusy(false);
     }
   }

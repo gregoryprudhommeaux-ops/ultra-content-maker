@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { useWorkspace } from "@/contexts/workspace-context";
 import {
   RECENT_ARTICLES_MAX,
   RECENT_ARTICLES_PREVIEW,
@@ -22,21 +23,24 @@ export function RecentPostsSection({ onRework, reworkArticleId }: Props) {
   const t = useTranslations("setup.articles.create.recentPosts");
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
+  const { scope } = useWorkspace();
   const [articles, setArticles] = useState<ArticleDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
+  const workspaceKey = `${scope?.ownerId ?? ""}:${scope?.accountId ?? ""}`;
 
   useEffect(() => {
     if (!user) return;
     void (async () => {
       setLoading(true);
+      setArticles([]);
       try {
         setArticles(await listRecentArticles(user.uid, RECENT_ARTICLES_MAX));
       } finally {
         setLoading(false);
       }
     })();
-  }, [user]);
+  }, [user, workspaceKey]);
 
   const visible = useMemo(
     () => (expanded ? articles : articles.slice(0, RECENT_ARTICLES_PREVIEW)),

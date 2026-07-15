@@ -6,6 +6,7 @@ import { OnboardingBlockedBanner } from "@/components/onboarding/onboarding-bloc
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useSubscription } from "@/contexts/subscription-context";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { getClientAuth } from "@/lib/firebase/client";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { newsToSource } from "@/lib/news/to-source";
@@ -31,6 +32,7 @@ export function NewsArchiveHub() {
   const locale = useLocale() as ContentLanguage;
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { scope } = useWorkspace();
   const { access } = useSubscription();
   const [personaOk, setPersonaOk] = useState<boolean | null>(null);
   const [personaText, setPersonaText] = useState("");
@@ -40,9 +42,13 @@ export function NewsArchiveHub() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emojiLevel, setEmojiLevel] = useState<EmojiLevel>("light");
+  const workspaceKey = `${scope?.ownerId ?? ""}:${scope?.accountId ?? ""}`;
 
   const reload = useCallback(async () => {
     if (!user) return;
+    setLoaded(false);
+    setArchived([]);
+    setSelected(null);
     const [p, items, learning] = await Promise.all([
       getPersona(user.uid),
       listArchivedNews(user.uid),
@@ -62,7 +68,7 @@ export function NewsArchiveHub() {
       return;
     }
     reload().catch(() => setLoaded(true));
-  }, [user, authLoading, reload]);
+  }, [user, authLoading, reload, workspaceKey]);
 
   async function runGenerate() {
     if (!user || !personaText || !selected) {

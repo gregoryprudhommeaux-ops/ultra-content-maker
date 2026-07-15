@@ -16,6 +16,7 @@ import { DashboardPageShell } from "@/components/layout/dashboard-page";
 import { CREATE_FRESH_HREF } from "@/lib/navigation/dashboard-nav";
 import { ArticlesLibraryToolbar } from "@/components/articles/articles-library-toolbar";
 import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
+import { useWorkspace } from "@/contexts/workspace-context";
 import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -49,6 +50,7 @@ export function ArticlesHub() {
   const tRework = useTranslations("setup.articles.create.recentPosts");
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
+  const { scope } = useWorkspace();
   const router = useRouter();
   const { progress, loading: onboardingLoading } = useOnboardingProgress();
   const onboardingBootstrapping = isOnboardingBootstrapping(
@@ -60,6 +62,7 @@ export function ArticlesHub() {
   const [query, setQuery] = useState("");
   const [batches, setBatches] = useState<ArticleBatchGroup[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const workspaceKey = `${scope?.ownerId ?? ""}:${scope?.accountId ?? ""}`;
 
   const filters = useMemo(
     () => ({
@@ -72,11 +75,13 @@ export function ArticlesHub() {
 
   useEffect(() => {
     if (!user) return;
+    setLoaded(false);
+    setBatches([]);
     void listArticleBatches(user.uid).then((list) => {
       setBatches(list);
       setLoaded(true);
     });
-  }, [user]);
+  }, [user, workspaceKey]);
 
   useEffect(() => {
     if (onboardingBootstrapping || !progress) return;
