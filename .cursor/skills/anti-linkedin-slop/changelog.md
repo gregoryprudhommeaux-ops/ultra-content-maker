@@ -1,5 +1,10 @@
 # Changelog · /anti-linkedin-slop · Mr. ANTI-AI-SLOP
 
+## 2026-07-15 (f) — Wired into Charles + Lucy
+
+- `charles-linkedin-strategist` and `lucy-community-marketing` must run this skill (ANALYZE → HUMANIZE) before delivering copy.
+- Synced to UCM, nextstep-idea-os, la-mesa, ns-suite (+ personal ~/.cursor/skills).
+
 ## 2026-07-15 (e) — Mr. ANTI-AI-SLOP agent prompt
 
 - Added `PROMPT.md`: full operational agent with ANALYZE / HUMANIZE / EVOLVE modes.
