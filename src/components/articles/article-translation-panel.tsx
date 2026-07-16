@@ -2,6 +2,7 @@
 
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSubscription } from "@/contexts/subscription-context";
 import { useFormatUserError } from "@/hooks/use-format-user-error";
 import {
   ARTICLE_TRANSLATION_LOCALES,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/articles/translation-locale";
 import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import { getClientAuth } from "@/lib/firebase/client";
+import { hasClientLlmAccess, llmPayloadForAccess } from "@/lib/llm/client-payload";
 import { joinLinkedInPostParts } from "@/lib/linkedin/fit-linkedin-post";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getPersona } from "@/lib/workspace/persona";
@@ -51,6 +53,7 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
   const t = useTranslations("setup.articles.translate");
   const formatError = useFormatUserError();
   const { user } = useAuth();
+  const { access } = useSubscription();
   const sourceLang = article.contentLanguage;
 
   const [targetLocale, setTargetLocale] = useState<ArticleTranslationLocale>(() =>
@@ -87,7 +90,8 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
         getPersona(user.uid),
         gatherAuthorSteeringPayload(user.uid),
       ]);
-      if (!token || !llmProfile?.apiKey) {
+      const llmPayload = llmPayloadForAccess(llmProfile, access);
+      if (!token || !hasClientLlmAccess(access, llmPayload)) {
         setErrorInfo(
           formatError({ errorCode: "no_llm_key", fallbackMessage: t("noLlm") }),
         );
@@ -116,11 +120,7 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
           hashtags: article.hashtags,
           postBrief: article.postBrief,
           authorSteering,
-          llm: {
-            provider: llmProfile.provider,
-            apiKey: llmProfile.apiKey,
-            model: llmProfile.model,
-          },
+          llm: llmPayload,
         }),
       });
 
@@ -157,6 +157,7 @@ export function ArticleTranslationPanel({ article, onUpdated }: Props) {
       setLoading(false);
     }
   }, [
+    access,
     article,
     formatError,
     mode,

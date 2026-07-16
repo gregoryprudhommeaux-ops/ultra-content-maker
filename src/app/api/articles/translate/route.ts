@@ -1,7 +1,7 @@
 import { verifyBearerUserId } from "@/lib/api/verify-bearer-user";
 import { buildExportText } from "@/lib/workspace/articles";
 import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
-import { resolveRequestLlm } from "@/lib/llm/resolve-request-llm";
+import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
 import { requireActiveSubscriptionLlm } from "@/lib/subscription/llm-gate.server";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import {
@@ -43,7 +43,7 @@ type Body = {
   audience?: Record<string, unknown>;
   llm?: {
     provider: LlmProvider;
-    apiKey: string;
+    apiKey?: string;
     model?: string;
   };
 };
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const llm = await resolveRequestLlm(userId, body.llm);
+  const llm = await resolveContentRouteLlm(userId, body.llm, subGate.access);
 
   if (!llm) {
     return NextResponse.json({ error: "no_llm_key" }, { status: 503 });

@@ -2,6 +2,7 @@
 
 import type { ArticleDoc, ArticleRepurpose, PostFormatPlan } from "@/types/workspace";
 import { getClientAuth } from "@/lib/firebase/client";
+import { hasClientLlmAccess, llmPayloadForAccess } from "@/lib/llm/client-payload";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
@@ -11,6 +12,7 @@ import {
 } from "@/lib/workspace/articles";
 import { ArticleTranslationPanel } from "@/components/articles/article-translation-panel";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSubscription } from "@/contexts/subscription-context";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -31,6 +33,7 @@ export function ArticleFormatPanel({
 }: Props) {
   const t = useTranslations("setup.articles.format");
   const { user } = useAuth();
+  const { access } = useSubscription();
   const [formatPlan, setFormatPlan] = useState<PostFormatPlan | null>(
     article.postFormatPlan ?? null,
   );
@@ -65,17 +68,14 @@ export function ArticleFormatPanel({
       getUserLlmProfile(user.uid),
       gatherAuthorSteeringPayload(user.uid),
     ]);
-    if (!llmProfile?.apiKey) return null;
+    const llm = llmPayloadForAccess(llmProfile, access);
+    if (!hasClientLlmAccess(access, llm)) return null;
     return {
       token,
       authorSteering,
-      llm: {
-        provider: llmProfile.provider,
-        apiKey: llmProfile.apiKey,
-        model: llmProfile.model,
-      },
+      llm,
     };
-  }, [user]);
+  }, [access, user]);
 
   async function loadFormatPlan() {
     if (!user) return;
