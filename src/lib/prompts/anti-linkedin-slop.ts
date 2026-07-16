@@ -144,6 +144,7 @@ BANNED structures & patterns:
 - Antithesis packaging: "beaucoup de X, peu de Y" / "lots of X, little Y" / "mucho X, poco Y" AND the soft twin "moins de X, plus de Y" / "less X, more Y" / "menos X, más Y" as the punchline · prefer a concrete consequence (what breaks, what you refuse, what you do next).
 - Qualification triad (bullets OR inline prose): ban "Même industrie, même fonction, même irritant…" / "Same industry, same role, same pain" / "Misma industria, misma función…" and neat 3-bullet "same X / same Y / same Z" checklists · keep ONE sharp filter criterion in uneven prose; drop or demote the other two.
 - Clean framework arc (polished residual after survey-hook purge): thesis → preference → community analogy → soft "I'm thinking of launching a new format" teaser → CTA, with evenly sized paragraphs · break with uneven depth, one field friction/doubt, and no product tease unless the brief asks for it.
+- Teaser failure pack (when job is TEASER / desire POV): ban full funnel dump (waitlist→profile→invite→seat); ban follower-proof bait ("pueden dar fe" / "those who follow me can vouch"); ban CTA comment/add ("comenta y agrégame" / "like if"); ban network moral closes ("una buena red no se mide…"); ban WIP soft spine ("estoy perfeccionando" / "lo que realmente me interesa") · prefer sharp "estoy armando" / "I'm building" and ≤1 product sentence + DM/link CTA.
 - Soft packaging closes: "le vrai levier", "la clé", "the real lever", "the key is", "la verdadera palanca", "à mon sens c'est", "in my view the answer is" · state the claim without the wrapping.
 - Sandwich hook (visual slop): do NOT default to shock line + blank line + explanatory line for every hook. Compact 1–2 line blocks are often more human.
 - School connectors: "Pour commencer / Tout d'abord / Premièrement / Enfin", "First and foremost / To begin with", "Para empezar" · paragraph order should carry the logic.
@@ -186,6 +187,7 @@ Pre-delivery self-check (apply silently):
 7b. "En creusant / When I dig / Al indagar" + 3 symmetric qualification bullets? → kill the dig; uneven prose for one criterion max.
 7c. Inline "même/same/mismo ×3" triad in one sentence (Même industrie, même fonction, même irritant…)? → collapse to one criterion.
 7d. Clean arc thesis→preference→community→"nouveau format" teaser→CTA with even paragraphs? → uneven § + one asperity; drop teaser unless brief asks.
+7e. TEASER job with funnel dump / comment-add CTA / follower-vouch / network moral / "perfeccionando"? → collapse to ≤1 product sentence + DM/link; kill bait closes.
 8. Is the hook a sandwich (shock + blank + explain) by default? → compact if ideas belong together.
 9. Any loft EN word (testament/beacon/tapestry/pivotal…) or FR "Pour commencer,"? → rewrite.
 10. Em dashes stuffed / not-X-but-Y / unearned triplets / perfectly even paragraphs? → rewrite.

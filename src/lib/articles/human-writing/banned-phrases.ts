@@ -59,6 +59,11 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "favoriser_la", phrase: "favoriser la" },
     { id: "permet_d", phrase: "permet d'" },
     { id: "permet_de", phrase: "permet de" },
+    { id: "commentez_et_ajoutez", phrase: "commentez et ajoutez" },
+    { id: "ceux_qui_me_suivent", phrase: "ceux qui me suivent peuvent" },
+    { id: "bon_reseau_ne_se_mesure", phrase: "bon réseau ne se mesure" },
+    { id: "je_perfectionne", phrase: "je perfectionne" },
+    { id: "ce_qui_m_interesse_vraiment", phrase: "ce qui m'intéresse vraiment" },
   ],
   en: [
     { id: "lower_friction", phrase: "lower the friction" },
@@ -116,6 +121,11 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "foster", phrase: "foster" },
     { id: "facilitate", phrase: "facilitate" },
     { id: "ensures_that", phrase: "ensures that" },
+    { id: "comment_and_connect", phrase: "comment and connect" },
+    { id: "those_who_follow_me", phrase: "those who follow me can" },
+    { id: "good_network_isnt_measured", phrase: "good network isn't measured" },
+    { id: "im_perfecting", phrase: "i'm perfecting" },
+    { id: "what_i_really_care_about", phrase: "what i really care about" },
   ],
   es: [
     { id: "reducir_la_friccion", phrase: "reducir la fricción" },
@@ -153,6 +163,13 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "fomentar", phrase: "fomentar" },
     { id: "garantizar", phrase: "garantizar" },
     { id: "permite_que", phrase: "permite que" },
+    { id: "comenta_y_agregame", phrase: "comenta y agrégame" },
+    { id: "dejame_un_comentario", phrase: "déjame un comentario" },
+    { id: "pueden_dar_fe", phrase: "pueden dar fe" },
+    { id: "buena_red_no_se_mide", phrase: "buena red no se mide" },
+    { id: "estoy_perfeccionando", phrase: "estoy perfeccionando" },
+    { id: "lo_que_realmente_me_interesa", phrase: "lo que realmente me interesa" },
+    { id: "lista_perfil_invitacion", phrase: "lista de espera, perfil" },
   ],
 };
 
