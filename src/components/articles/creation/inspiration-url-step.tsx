@@ -1,7 +1,9 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSubscription } from "@/contexts/subscription-context";
 import { getClientAuth } from "@/lib/firebase/client";
+import { hasClientLlmAccess, llmPayloadForAccess } from "@/lib/llm/client-payload";
 import { isInvalidApiKeyError } from "@/lib/llm/parse-json";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { WizardStepActions, WizardStepCard } from "@/components/articles/creation/wizard-step-card";
@@ -38,6 +40,7 @@ export function InspirationUrlStep({
   const tArticles = useTranslations("setup.articles");
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
+  const { access } = useSubscription();
 
   const [fetching, setFetching] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -56,7 +59,8 @@ export function InspirationUrlStep({
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       const llmProfile = await getUserLlmProfile(user.uid);
-      if (!token || !llmProfile?.apiKey) {
+      const llmPayload = llmPayloadForAccess(llmProfile, access);
+      if (!token || !hasClientLlmAccess(access, llmPayload)) {
         setFetchError(tArticles("noLlmKey"));
         return;
       }
@@ -73,11 +77,7 @@ export function InspirationUrlStep({
         body: JSON.stringify({
           url: url.trim(),
           contentLanguage: lang,
-          llm: {
-            provider: llmProfile.provider,
-            apiKey: llmProfile.apiKey,
-            model: llmProfile.model,
-          },
+          llm: llmPayload,
         }),
       });
 
@@ -96,6 +96,10 @@ export function InspirationUrlStep({
         }
         if (data.error === "url_invalid" || data.error === "url_blocked") {
           setFetchError(t("urlInvalid"));
+          return;
+        }
+        if (data.error === "no_llm_key") {
+          setFetchError(tArticles("noLlmKey"));
           return;
         }
         if (data.error === "invalid_api_key" || isInvalidApiKeyError(data.detail ?? "")) {

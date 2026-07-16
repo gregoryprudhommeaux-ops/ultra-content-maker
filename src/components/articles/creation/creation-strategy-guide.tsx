@@ -1,11 +1,13 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSubscription } from "@/contexts/subscription-context";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useFormatUserError } from "@/hooks/use-format-user-error";
 import type { UserErrorInfo } from "@/lib/errors/format-user-error";
 import { getClientAuth } from "@/lib/firebase/client";
+import { hasClientLlmAccess, llmPayloadForAccess } from "@/lib/llm/client-payload";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { linkedInActivityUrlsFromProfile, activityUrlsFingerprint } from "@/lib/profile/author-reference-urls";
@@ -53,6 +55,7 @@ export function CreationStrategyGuidePanel({
   const formatError = useFormatUserError();
   const locale = useLocale() as ContentLanguage;
   const { user } = useAuth();
+  const { access } = useSubscription();
   const { scope } = useWorkspace();
   const workspaceOwnerId = scope?.ownerId ?? user?.uid ?? "";
 
@@ -80,8 +83,9 @@ export function CreationStrategyGuidePanel({
           getAuthorProfile(workspaceOwnerId),
           gatherAuthorSteeringPayload(user.uid, { scope }),
         ]);
+        const llmPayload = llmPayloadForAccess(llmProfile, access);
 
-        if (!token || !llmProfile?.apiKey) {
+        if (!token || !hasClientLlmAccess(access, llmPayload)) {
           setErrorInfo(formatError({ errorCode: "no_llm_key", fallbackMessage: t("noLlm") }));
           return;
         }
@@ -104,11 +108,7 @@ export function CreationStrategyGuidePanel({
             userSteering: steeringText || undefined,
             forceRefresh,
             cached: forceRefresh ? null : author?.creationStrategyCache ?? null,
-            llm: {
-              provider: llmProfile.provider,
-              apiKey: llmProfile.apiKey,
-              model: llmProfile.model,
-            },
+            llm: llmPayload,
           }),
         });
 
@@ -163,7 +163,19 @@ export function CreationStrategyGuidePanel({
         setLoading(false);
       }
     },
-    [activityUrls, formatError, locale, onRecommendMode, personaText, steering, t, user, workspaceOwnerId, scope],
+    [
+      access,
+      activityUrls,
+      formatError,
+      locale,
+      onRecommendMode,
+      personaText,
+      scope,
+      steering,
+      t,
+      user,
+      workspaceOwnerId,
+    ],
   );
 
   useEffect(() => {
