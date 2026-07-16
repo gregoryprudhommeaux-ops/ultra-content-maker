@@ -1769,7 +1769,8 @@
         "keeping": "Adding…",
         "inspire": "Inspire a post",
         "dismiss": "Remove",
-        "viewProfile": "View on LinkedIn",
+        "viewProfile": "Search on LinkedIn",
+        "viewProfileHint": "Opens LinkedIn people search (guessed /in/ slugs often 404). From the results, open the profile to send a connection invite.",
         "funnel": {
           "awareness": "Awareness",
           "consideration": "Consideration",
@@ -2197,8 +2198,8 @@
           "manageLibraryLink": "Inspirations page",
           "input": {
             "paste": {
-              "title": "Paste a post or article",
-              "desc": "Full text copied from LinkedIn, a blog, etc."
+              "title": "Combine multiple sources",
+              "desc": "Pasted text + fetched link + PDF/document + library, in one reference."
             },
             "url": {
               "title": "Link to content",
@@ -2251,10 +2252,26 @@
         "newsIntro": "We scan 4 recent publications for your domain. Select the story to anchor on.",
         "continueWithNews": "Continue with this story",
         "pasteTitle": "Reference content",
-        "pasteHint": "Paste the full text (LinkedIn post, article excerpt, etc.). The AI will propose a new angle, not a paraphrase.",
-        "pasteLabel": "Text to repurpose",
+        "pasteHint": "Combine text, link, PDF, and library. The AI will propose a new angle, not a paraphrase.",
+        "pasteLabel": "Combined reference",
         "pastePlaceholder": "Paste the source post or article here…",
         "pasteRequired": "Paste at least a few lines of reference text.",
+        "composer": {
+          "hint": "Add as many sources as you need — each addition stacks into the reference text below.",
+          "intro": "Paste text, fetch a URL, upload a PDF, or reuse a saved inspiration — then edit everything before continuing.",
+          "urlSection": "Web link",
+          "addUrl": "Fetch and add to text",
+          "documentSection": "Document (PDF, DOCX…)",
+          "librarySection": "Inspiration library",
+          "combinedHelp": "Final text sent to the AI (stacked sources + your manual edits).",
+          "combinedPlaceholder": "Paste text here, or add a link / PDF above…",
+          "chars": "characters",
+          "documentEmptyText": "This document has too little extractable text.",
+          "sourceUrl": "Source URL · {url}",
+          "sourceUrlTitled": "Source URL · {title} · {url}",
+          "sourceDocument": "Source document · {label}",
+          "sourceLibrary": "Source library · {label}"
+        },
         "continueToBrief": "Continue to brief",
         "personaRequired": "Validate your Persona before generating.",
         "personaRequiredHint": "Go to Persona →",

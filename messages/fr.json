@@ -1769,7 +1769,8 @@
         "keeping": "Ajout…",
         "inspire": "Inspirer un post",
         "dismiss": "Retirer",
-        "viewProfile": "Voir sur LinkedIn",
+        "viewProfile": "Chercher sur LinkedIn",
+        "viewProfileHint": "Ouvre la recherche LinkedIn (le slug /in/ est estimé et peut mener à une page 404). Depuis les résultats, ouvrez le profil pour envoyer une invitation.",
         "funnel": {
           "awareness": "Awareness",
           "consideration": "Consideration",
@@ -2198,8 +2199,8 @@
           "manageLibraryLink": "page Inspirations",
           "input": {
             "paste": {
-              "title": "Coller un post ou article",
-              "desc": "Texte intégral copié depuis LinkedIn, un blog, etc."
+              "title": "Combiner plusieurs sources",
+              "desc": "Texte collé + lien récupéré + PDF/document + bibliothèque, dans un seul contenu de référence."
             },
             "url": {
               "title": "Lien vers un contenu",
@@ -2252,10 +2253,26 @@
         "newsIntro": "Nous analysons 4 publications récentes pour votre domaine. Sélectionnez celle qui servira d’ancrage.",
         "continueWithNews": "Continuer avec cette actu",
         "pasteTitle": "Contenu de référence",
-        "pasteHint": "Collez le texte intégral (post LinkedIn, extrait d’article, etc.). L’IA proposera un nouvel angle : pas une paraphrase.",
-        "pasteLabel": "Texte à décliner",
+        "pasteHint": "Combinez texte, lien, PDF et bibliothèque. L’IA proposera un nouvel angle : pas une paraphrase.",
+        "pasteLabel": "Référence combinée",
         "pastePlaceholder": "Collez ici le post ou l’article source…",
         "pasteRequired": "Collez au moins quelques lignes de référence.",
+        "composer": {
+          "hint": "Ajoutez autant de sources que nécessaire : chaque ajout s’empile dans le texte de référence ci-dessous.",
+          "intro": "Collez du texte, récupérez une URL, importez un PDF, ou réutilisez une inspiration enregistrée — puis éditez le tout avant de continuer.",
+          "urlSection": "Lien web",
+          "addUrl": "Récupérer et ajouter au texte",
+          "documentSection": "Document (PDF, DOCX…)",
+          "librarySection": "Bibliothèque d’inspirations",
+          "combinedHelp": "Texte final envoyé à l’IA (sources empilées + vos ajouts manuels).",
+          "combinedPlaceholder": "Collez un texte ici, ou ajoutez un lien / PDF ci-dessus…",
+          "chars": "caractères",
+          "documentEmptyText": "Ce document n’a pas assez de texte extractible.",
+          "sourceUrl": "Source URL · {url}",
+          "sourceUrlTitled": "Source URL · {title} · {url}",
+          "sourceDocument": "Source document · {label}",
+          "sourceLibrary": "Source bibliothèque · {label}"
+        },
         "continueToBrief": "Continuer vers le brief",
         "personaRequired": "Validez votre Persona avant de générer.",
         "personaRequiredHint": "Aller au Persona →",

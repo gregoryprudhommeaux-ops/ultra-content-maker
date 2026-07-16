@@ -16,6 +16,7 @@ import { ArticleEditor } from "@/components/articles/article-editor";
 import { ArticleTopicBriefForm, enrichArticleTopicBriefForGeneration } from "@/components/articles/creation/article-topic-brief-form";
 import { CreationIntentSummary } from "@/components/articles/creation/creation-intent-summary";
 import { CreationModePicker } from "@/components/articles/creation/creation-mode-picker";
+import { InspirationComposerStep } from "@/components/articles/creation/inspiration-composer-step";
 import { InspirationDocumentStep } from "@/components/articles/creation/inspiration-document-step";
 import { ProfileBriefVariantToggle, type ProfileBriefVariant } from "@/components/articles/creation/profile-brief-variant-toggle";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
@@ -108,7 +109,6 @@ import type {
   SourceLink,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
-import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -1220,37 +1220,21 @@ export function ArticleCreationWizard() {
       )}
 
       {step === "paste" && (
-        <WizardStepCard title={t("pasteTitle")} hint={t("pasteHint")} onBack={goBack}>
-          <div>
-            <label className={LABEL_CLASS} htmlFor="inspiration-paste">
-              {t("pasteLabel")}
-            </label>
-            <ImeSafeTextarea
-              id="inspiration-paste"
-              rows={12}
-              value={inspirationCtx?.excerpt ?? ""}
-              onValueChange={(excerpt) =>
-                setInspirationCtx({
-                  kind: "paste",
-                  excerpt,
-                })
-              }
-              placeholder={t("pastePlaceholder")}
-              className={`${INPUT_CLASS} mt-1 font-mono text-sm`}
-              lang={locale}
-            />
-          </div>
-          <WizardStepActions onBack={goBack}>
-            <button
-              type="button"
-              disabled={(inspirationCtx?.excerpt.trim().length ?? 0) < 40}
-              onClick={goToBriefFromInspiration}
-              className={`${BTN_PRIMARY} disabled:opacity-50`}
-            >
-              {t("continueToBrief")}
-            </button>
-          </WizardStepActions>
-        </WizardStepCard>
+        <InspirationComposerStep
+          excerpt={inspirationCtx?.excerpt ?? ""}
+          librarySources={inspirationLibrary}
+          onBack={goBack}
+          onContinue={goToBriefFromInspiration}
+          onExcerptChange={(excerpt) =>
+            setInspirationCtx({
+              kind: "paste",
+              excerpt,
+              url: inspirationCtx?.url,
+              label: inspirationCtx?.label,
+              sourceId: inspirationCtx?.sourceId,
+            })
+          }
+        />
       )}
 
       {step === "inspiration-url" && (

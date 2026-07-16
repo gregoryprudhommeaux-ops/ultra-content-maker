@@ -1769,7 +1769,8 @@
         "keeping": "Añadiendo…",
         "inspire": "Inspirar un post",
         "dismiss": "Quitar",
-        "viewProfile": "Ver en LinkedIn",
+        "viewProfile": "Buscar en LinkedIn",
+        "viewProfileHint": "Abre la búsqueda de personas en LinkedIn (los slugs /in/ estimados suelen dar 404). Desde los resultados, abre el perfil para enviar una invitación.",
         "funnel": {
           "awareness": "Awareness",
           "consideration": "Consideration",
@@ -2197,8 +2198,8 @@
           "manageLibraryLink": "página Inspiraciones",
           "input": {
             "paste": {
-              "title": "Pegar un post o artículo",
-              "desc": "Texto completo copiado de LinkedIn, un blog, etc."
+              "title": "Combinar varias fuentes",
+              "desc": "Texto pegado + enlace recuperado + PDF/documento + biblioteca, en una sola referencia."
             },
             "url": {
               "title": "Enlace al contenido",
@@ -2251,10 +2252,26 @@
         "newsIntro": "Analizamos 4 publicaciones recientes de tu sector. Elige la noticia de referencia.",
         "continueWithNews": "Continuar con esta noticia",
         "pasteTitle": "Contenido de referencia",
-        "pasteHint": "Pega el texto completo (post de LinkedIn, extracto de artículo, etc.). La IA propondrá un ángulo nuevo, no una paráfrasis.",
-        "pasteLabel": "Texto a reutilizar",
+        "pasteHint": "Combina texto, enlace, PDF y biblioteca. La IA propondrá un ángulo nuevo, no una paráfrasis.",
+        "pasteLabel": "Referencia combinada",
         "pastePlaceholder": "Pega aquí el post o artículo fuente…",
         "pasteRequired": "Pega al menos unas líneas de referencia.",
+        "composer": {
+          "hint": "Añade tantas fuentes como necesites: cada una se apila en el texto de referencia abajo.",
+          "intro": "Pega texto, recupera una URL, importa un PDF o reutiliza una inspiración guardada — y edita todo antes de continuar.",
+          "urlSection": "Enlace web",
+          "addUrl": "Recuperar y añadir al texto",
+          "documentSection": "Documento (PDF, DOCX…)",
+          "librarySection": "Biblioteca de inspiraciones",
+          "combinedHelp": "Texto final enviado a la IA (fuentes apiladas + tus ediciones).",
+          "combinedPlaceholder": "Pega un texto aquí, o añade un enlace / PDF arriba…",
+          "chars": "caracteres",
+          "documentEmptyText": "Este documento no tiene suficiente texto extraíble.",
+          "sourceUrl": "Fuente URL · {url}",
+          "sourceUrlTitled": "Fuente URL · {title} · {url}",
+          "sourceDocument": "Fuente documento · {label}",
+          "sourceLibrary": "Fuente biblioteca · {label}"
+        },
         "continueToBrief": "Continuar al brief",
         "personaRequired": "Valida tu Persona antes de generar.",
         "personaRequiredHint": "Ir al Persona →",

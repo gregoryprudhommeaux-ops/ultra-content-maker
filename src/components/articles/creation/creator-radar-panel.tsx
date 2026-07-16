@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { CreatorRadarSuggestion } from "@/types/creator-radar";
 import type { CreatorRadarErrorDisplay } from "@/lib/creator-radar/radar-error-message";
+import { buildLinkedInPeopleSearchUrl } from "@/lib/linkedin/people-search-url";
 import { BTN_PRIMARY, BTN_SECONDARY } from "@/lib/ui/nextstep";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -13,21 +14,26 @@ const FUNNEL_CLASS: Record<CreatorRadarSuggestion["funnelStage"], string> = {
   conversion: "bg-emerald-100 text-emerald-900",
 };
 
-function LinkedInProfileLink({
-  href,
+function LinkedInPeopleSearchLink({
+  name,
+  headline,
   className,
+  title,
   children,
 }: {
-  href: string;
+  name: string;
+  headline?: string;
   className?: string;
+  title?: string;
   children: ReactNode;
 }) {
   return (
     <a
-      href={href}
+      href={buildLinkedInPeopleSearchUrl(name, headline)}
       target="_blank"
       rel="noopener noreferrer"
       className={className}
+      title={title}
     >
       {children}
     </a>
@@ -197,8 +203,10 @@ export function CreatorRadarPanel({
             className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
-              <LinkedInProfileLink
-                href={creator.linkedinUrl}
+              <LinkedInPeopleSearchLink
+                name={creator.name}
+                headline={creator.headline}
+                title={t("viewProfileHint")}
                 className="group min-w-0 flex-1 rounded-lg -m-1 p-1 transition hover:bg-ns-brand-light/40"
               >
                 <span className="flex items-start gap-1.5">
@@ -210,7 +218,7 @@ export function CreatorRadarPanel({
                 <p className="mt-0.5 text-xs text-ns-secondary line-clamp-2 group-hover:text-ns-tertiary/90">
                   {creator.headline}
                 </p>
-              </LinkedInProfileLink>
+              </LinkedInPeopleSearchLink>
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${FUNNEL_CLASS[creator.funnelStage]}`}
               >
@@ -226,13 +234,15 @@ export function CreatorRadarPanel({
               {creator.lastPostAngle}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <LinkedInProfileLink
-                href={creator.linkedinUrl}
+              <LinkedInPeopleSearchLink
+                name={creator.name}
+                headline={creator.headline}
+                title={t("viewProfileHint")}
                 className={`${BTN_SECONDARY} inline-flex items-center gap-1.5 !px-3 !py-1.5 !text-xs`}
               >
                 {t("viewProfile")}
                 <ExternalLinkIcon className="h-3.5 w-3.5" />
-              </LinkedInProfileLink>
+              </LinkedInPeopleSearchLink>
               <button
                 type="button"
                 disabled={keepingId === creator.id}
