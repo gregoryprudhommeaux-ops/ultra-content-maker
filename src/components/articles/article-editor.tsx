@@ -80,7 +80,6 @@ import { useTranslations } from "next-intl";
 import type {
  ArticleDoc,
  ArticleIllustration,
- ArticlePerformanceSignals,
  ArticleQualityScores,
  ArticleRefinement,
  ArticleScope,
@@ -143,14 +142,6 @@ const ArticleCredibilityChecklistLazy = dynamic(
  () =>
  import("@/components/articles/article-credibility-checklist").then(
  (m) => m.ArticleCredibilityChecklist,
- ),
- { loading: () => <EditorPanelPlaceholder lines={2} /> },
-);
-
-const ArticlePerformancePanelLazy = dynamic(
- () =>
- import("@/components/articles/article-performance-panel").then(
- (m) => m.ArticlePerformancePanel,
  ),
  { loading: () => <EditorPanelPlaceholder lines={2} /> },
 );
@@ -1298,16 +1289,6 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  repostSuggestions={repostSuggestions}
  pillarLabel={pillarLabel}
  articleId={article.id}
- />
- )}
- {user && (
- <ArticlePerformancePanelLazy
- userId={user.uid}
- articleId={article.id}
- signals={article.performanceSignals}
- onSaved={(signals: ArticlePerformanceSignals) =>
- setArticle((prev) => (prev ? { ...prev, performanceSignals: signals } : prev))
- }
  />
  )}
  </div>
