@@ -32,7 +32,7 @@ import {
  PAIR_ARTICLE_COUNT,
  SINGLE_ARTICLE_COUNT,
 } from "@/lib/articles/scope";
-import { normalizeHashtags } from "@/lib/linkedin/hashtags";
+import { normalizeHashtagsForBrief } from "@/lib/linkedin/hashtags";
 import { stripGenericLinkedInUrlsFromText } from "@/lib/linkedin/sanitize-post-link";
 import {
  fitLinkedInArticleParts,
@@ -80,7 +80,7 @@ type GenerateBody = {
  };
 };
 
-function parseArticlesFromResponse(raw: string) {
+function parseArticlesFromResponse(raw: string, postBrief?: PostBrief) {
  const parsed = parseLlmJson<{
  articles?: {
  hook?: string;
@@ -107,7 +107,7 @@ function parseArticlesFromResponse(raw: string) {
  body,
  ps,
  scope: normalizeArticleScope(a.scope),
- hashtags: normalizeHashtags(a.hashtags),
+ hashtags: normalizeHashtagsForBrief(a.hashtags, postBrief),
  editorialPillarId: editorialPillarId || undefined,
  };
  });
@@ -283,7 +283,7 @@ export async function POST(request: Request) {
  ? "\n\nAll posts MUST anchor on the news story in the user message. Name the publisher in the text if useful · NEVER paste any https:// URL in hook, body, or PS (source link goes in the first comment only)."
  : "";
 
- systemContent = `${buildArticlesSystemPromptWithCount(contentLanguage, articleCount, emojiLevel, articleCount === 1 ? targetScope : undefined, body.profileEnrichment, authorSteering)}${systemExtra}`;
+ systemContent = `${buildArticlesSystemPromptWithCount(contentLanguage, articleCount, emojiLevel, articleCount === 1 ? targetScope : undefined, body.profileEnrichment, authorSteering, postBrief)}${systemExtra}`;
  userContent = `${body.personaPromptText}\n\n---\n\n${userContent}`;
  }
 
@@ -296,7 +296,7 @@ export async function POST(request: Request) {
  mergeUsageLog(userId, "articles/generate"),
  );
 
- let articles = parseArticlesFromResponse(raw).slice(0, expectedCount);
+ let articles = parseArticlesFromResponse(raw, postBrief).slice(0, expectedCount);
 
  if (articles.length < 1) {
  return NextResponse.json({ error: "No articles in response" }, { status: 502 });
@@ -334,7 +334,7 @@ export async function POST(request: Request) {
  ],
  mergeUsageLog(userId, "articles/generate"),
  );
- const retryArticles = parseArticlesFromResponse(retryRaw).slice(0, expectedCount);
+ const retryArticles = parseArticlesFromResponse(retryRaw, postBrief).slice(0, expectedCount);
  if (retryArticles.length > 0) {
  articles =
  articleCount === 1
@@ -365,6 +365,7 @@ export async function POST(request: Request) {
    articles.map((a) => ({ hook: a.hook, body: a.body, ps: a.ps })),
    contentLanguage,
    { userId, route: "articles/generate-humanize" },
+   { productFrame: postBrief?.productFrame },
  );
  articles = articles.map((a, i) => {
    const h = humanized.articles[i];

@@ -2372,6 +2372,29 @@
           "awareness": "Grow reach with shareable angles.",
           "leads": "Drive qualified inbound requests."
         },
+        "editorialOs": {
+          "title": "Editorial OS",
+          "hint": "Optional · job, channel owner, and product frame steer length, CTA, and bans (Charles / Lucy).",
+          "unset": "—",
+          "job": "Content job",
+          "channel": "Channel owner",
+          "product": "Product frame",
+          "jobs": {
+            "teaser": "TEASER · desire, short",
+            "explain": "EXPLAIN · context / proof",
+            "convert": "CONVERT · DM / link"
+          },
+          "channels": {
+            "gregory": "Gregory (personal)",
+            "la_mesa": "LA MESA (brand)",
+            "generic": "Generic"
+          },
+          "products": {
+            "la_mesa_dinners": "LA MESA dinners",
+            "nextstep_market_entry": "NextStep market entry",
+            "generic": "Generic B2B"
+          }
+        },
         "problemLabel": "Audience problem",
         "problemPlaceholder": "E.g. SMB exporters struggling to secure supply chains…",
         "problemNewsLabel": "Topic or stakes",

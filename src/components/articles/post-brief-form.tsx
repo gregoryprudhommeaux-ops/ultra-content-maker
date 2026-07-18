@@ -1,6 +1,11 @@
 "use client";
 
 import {
+ CHANNEL_OWNERS,
+ CONTENT_JOBS,
+ PRODUCT_FRAMES,
+} from "@/lib/articles/editorial-os";
+import {
  isObjectiveSelected,
  normalizePostBrief,
  objectivePriority,
@@ -13,10 +18,13 @@ import { FORM_SECTION_TITLE } from "@/lib/ui/nextstep";
 import type {
  ArticleScope,
  BriefNicheCheck,
+ ChannelOwner,
  ContentArchetype,
+ ContentJob,
  GapAnswerValue,
  PostBrief,
  PostObjectivePriority,
+ ProductFrame,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { PostAnglePicker } from "@/components/articles/creation/post-angle-picker";
@@ -128,6 +136,84 @@ export function PostBriefForm({
  contentArchetype={contentArchetype}
  profileEnrichment={profileEnrichment}
  />
+
+ <div className="space-y-3 rounded-xl border border-gray-100 bg-ns-brand-light/30 p-4">
+ <div>
+ <span className={LABEL_CLASS}>{t("editorialOs.title")}</span>
+ <p className="mt-1 text-xs text-ns-secondary">{t("editorialOs.hint")}</p>
+ </div>
+ <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+ <label className="block space-y-1.5">
+ <span className="text-xs font-medium text-ns-tertiary">
+ {t("editorialOs.job")}
+ </span>
+ <select
+ className={INPUT_CLASS}
+ value={safeBrief.contentJob ?? ""}
+ onChange={(e) => {
+ const value = e.target.value;
+ set(
+ "contentJob",
+ value ? (value as ContentJob) : undefined,
+ );
+ }}
+ >
+ <option value="">{t("editorialOs.unset")}</option>
+ {CONTENT_JOBS.map((job) => (
+ <option key={job} value={job}>
+ {t(`editorialOs.jobs.${job}`)}
+ </option>
+ ))}
+ </select>
+ </label>
+ <label className="block space-y-1.5">
+ <span className="text-xs font-medium text-ns-tertiary">
+ {t("editorialOs.channel")}
+ </span>
+ <select
+ className={INPUT_CLASS}
+ value={safeBrief.channelOwner ?? ""}
+ onChange={(e) => {
+ const value = e.target.value;
+ set(
+ "channelOwner",
+ value ? (value as ChannelOwner) : undefined,
+ );
+ }}
+ >
+ <option value="">{t("editorialOs.unset")}</option>
+ {CHANNEL_OWNERS.map((owner) => (
+ <option key={owner} value={owner}>
+ {t(`editorialOs.channels.${owner}`)}
+ </option>
+ ))}
+ </select>
+ </label>
+ <label className="block space-y-1.5">
+ <span className="text-xs font-medium text-ns-tertiary">
+ {t("editorialOs.product")}
+ </span>
+ <select
+ className={INPUT_CLASS}
+ value={safeBrief.productFrame ?? ""}
+ onChange={(e) => {
+ const value = e.target.value;
+ set(
+ "productFrame",
+ value ? (value as ProductFrame) : undefined,
+ );
+ }}
+ >
+ <option value="">{t("editorialOs.unset")}</option>
+ {PRODUCT_FRAMES.map((frame) => (
+ <option key={frame} value={frame}>
+ {t(`editorialOs.products.${frame}`)}
+ </option>
+ ))}
+ </select>
+ </label>
+ </div>
+ </div>
 
  <div className="rounded-xl border border-ns-primary/25 bg-gradient-to-br from-ns-brand-light/60 via-white to-white p-4 md:p-5">
  <div className="flex flex-wrap items-start justify-between gap-3">

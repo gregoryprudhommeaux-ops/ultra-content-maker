@@ -7,7 +7,7 @@ import {
   lintHumanWriting,
 } from "@/lib/articles/human-writing";
 import { detectSlop } from "@/lib/articles/slop-detector";
-import type { ContentLanguage, SlopAnalysis } from "@/types/workspace";
+import type { ContentLanguage, ProductFrame, SlopAnalysis } from "@/types/workspace";
 
 export type ArticleParts = {
   hook: string;
@@ -15,12 +15,21 @@ export type ArticleParts = {
   ps?: string;
 };
 
+export type HumanizeOptions = {
+  force?: boolean;
+  productFrame?: ProductFrame;
+};
+
 /** Run humanizer when detector or checklist says the draft still looks AI-shaped. */
 export function shouldHumanizeArticle(
   text: string,
   contentLanguage: ContentLanguage,
+  options: { productFrame?: ProductFrame } = {},
 ): { run: boolean; slop: SlopAnalysis } {
-  const slop = detectSlop(text, { contentLanguage });
+  const slop = detectSlop(text, {
+    contentLanguage,
+    productFrame: options.productFrame,
+  });
   const violations = lintHumanWriting(text, { contentLanguage });
   const hasError = violations.some((v) => v.severity === "error");
   const blockingFlags = [
@@ -37,6 +46,14 @@ export function shouldHumanizeArticle(
     "soft_verb_stack",
     "wikipedia_moral_close",
     "next_level_bait",
+    // Teaser failure pack + obsolete networking metaphors
+    "funnel_dump_teaser",
+    "follower_proof_bait",
+    "engagement_bait",
+    "network_moral_close",
+    "wip_soft_spine",
+    "obsolete_business_card_metaphor",
+    "la_mesa_market_entry_mismatch",
   ];
   const hasBlockingFlag = slop.flags.some((f) =>
     blockingFlags.some((b) => f === b || f.includes(b)),
@@ -59,7 +76,7 @@ export async function humanizeArticlePass(
   parts: ArticleParts,
   contentLanguage: ContentLanguage,
   usage: { userId: string; route: string },
-  options: { force?: boolean } = {},
+  options: HumanizeOptions = {},
 ): Promise<{
   parts: ArticleParts;
   humanized: boolean;
@@ -67,7 +84,9 @@ export async function humanizeArticlePass(
   slopAfter: SlopAnalysis;
 }> {
   const combined = `${parts.hook}\n\n${parts.body}${parts.ps ? `\n\n${parts.ps}` : ""}`;
-  const { run, slop: slopBefore } = shouldHumanizeArticle(combined, contentLanguage);
+  const { run, slop: slopBefore } = shouldHumanizeArticle(combined, contentLanguage, {
+    productFrame: options.productFrame,
+  });
 
   if (!options.force && !run) {
     return { parts, humanized: false, slopBefore, slopAfter: slopBefore };
@@ -111,7 +130,10 @@ export async function humanizeArticlePass(
       ps: parsed.ps?.trim() ? parsed.ps.trim() : parts.ps,
     };
     const afterText = `${next.hook}\n\n${next.body}${next.ps ? `\n\n${next.ps}` : ""}`;
-    const slopAfter = detectSlop(afterText, { contentLanguage });
+    const slopAfter = detectSlop(afterText, {
+      contentLanguage,
+      productFrame: options.productFrame,
+    });
     return { parts: next, humanized: true, slopBefore, slopAfter };
   } catch {
     return { parts, humanized: false, slopBefore, slopAfter: slopBefore };
@@ -124,6 +146,7 @@ export async function humanizeArticlesPass(
   articles: ArticleParts[],
   contentLanguage: ContentLanguage,
   usage: { userId: string; route: string },
+  options: HumanizeOptions = {},
 ): Promise<{
   articles: ArticleParts[];
   humanizedCount: number;
@@ -134,7 +157,13 @@ export async function humanizeArticlesPass(
   let humanizedCount = 0;
 
   for (const article of articles) {
-    const result = await humanizeArticlePass(llm, article, contentLanguage, usage);
+    const result = await humanizeArticlePass(
+      llm,
+      article,
+      contentLanguage,
+      usage,
+      options,
+    );
     out.push(result.parts);
     slopAnalyses.push(result.slopAfter);
     if (result.humanized) humanizedCount += 1;

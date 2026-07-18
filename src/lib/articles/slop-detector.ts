@@ -1,6 +1,5 @@
 import { runHumanWritingChecklist } from "@/lib/articles/human-writing";
-import type { SlopAnalysis } from "@/types/workspace";
-import type { ContentLanguage } from "@/types/workspace";
+import type { ContentLanguage, ProductFrame, SlopAnalysis } from "@/types/workspace";
 
 /** Common AI-slop / LinkedIn cliché patterns (multilingual). */
 const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
@@ -19,6 +18,7 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "funnel_dump_teaser", re: /\b(lista de espera.{0,100}perfil.{0,100}invitaci[oó]n|waitlist.{0,100}profile.{0,100}invitation|liste d['']attente.{0,100}profil.{0,100}invitation)/i, weight: 3 },
   { id: "network_moral_close", re: /\b((buena|una buena) red no se mide|good network (isn'?t|is not) measured|un bon r[eé]seau ne se mesure|calidad de las oportunidades que genera)\b/i, weight: 3 },
   { id: "wip_soft_spine", re: /\b(estoy perfeccionando|i('|'|')m (perfecting|refining|working on) (a |an )?(simple )?format|je (suis en train de )?perfectionn|lo que realmente me interesa|what (i |really )?(care about|matters to me) is)\b/i, weight: 2 },
+  { id: "obsolete_business_card_metaphor", re: /\b(tarjetas? de visita|colecci[oó]n de tarjetas|intercambio de tarjetas|cartes? de visite|pile de cartes|business cards?|collect(ing)? (business )?cards)\b/i, weight: 3 },
   { id: "generic_inspiration", re: /\b(never stop learning|keep pushing|stay hungry)\b/i, weight: 2 },
   { id: "delve", re: /\b(let's delve|plongeons|profundicemos)\b/i, weight: 2 },
   { id: "tapestry", re: /\b(tapestry of|mosaïque de)\b/i, weight: 2 },
@@ -48,9 +48,19 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "wikipedia_moral_close", re: /\b(finalement,? tout est|at the end of the day,? it'?s all about|al final del d[ií]a,? se trata de|question d['']ex[ée]cution)\b/i, weight: 2 },
 ];
 
+/** Only when productFrame = la_mesa_dinners — dinners ≠ market-entry consulting pitch. */
+const LA_MESA_MARKET_ENTRY_MISMATCH = {
+  id: "la_mesa_market_entry_mismatch",
+  re: /\b(pyme europea|pme europ[eé]enne|entrada (a |al )?mercado|d[eé]veloppement (international|au mexique)|desarrollo internacional)\b/i,
+  weight: 2,
+};
+
 export function detectSlop(
   text: string,
-  options: { contentLanguage?: ContentLanguage } = {},
+  options: {
+    contentLanguage?: ContentLanguage;
+    productFrame?: ProductFrame;
+  } = {},
 ): SlopAnalysis {
   const combined = text.trim();
   if (!combined) {
@@ -69,6 +79,14 @@ export function detectSlop(
       flags.push(id);
       penalty += weight;
     }
+  }
+
+  if (
+    options.productFrame === "la_mesa_dinners" &&
+    LA_MESA_MARKET_ENTRY_MISMATCH.re.test(combined)
+  ) {
+    flags.push(LA_MESA_MARKET_ENTRY_MISMATCH.id);
+    penalty += LA_MESA_MARKET_ENTRY_MISMATCH.weight;
   }
 
   const humanWriting = runHumanWritingChecklist(combined, {

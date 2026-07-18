@@ -1,3 +1,8 @@
+import {
+  isChannelOwner,
+  isContentJob,
+  isProductFrame,
+} from "@/lib/articles/editorial-os";
 import type {
   PostAngle,
   PostBrief,
@@ -93,6 +98,13 @@ export function normalizePostBrief(raw: unknown): PostBrief {
   const postAngle = isPostAngle(partial?.postAngle) ? partial.postAngle : undefined;
   const productFocus =
     typeof partial?.productFocus === "string" ? partial.productFocus.trim() : "";
+  const contentJob = isContentJob(partial?.contentJob) ? partial.contentJob : undefined;
+  const channelOwner = isChannelOwner(partial?.channelOwner)
+    ? partial.channelOwner
+    : undefined;
+  const productFrame = isProductFrame(partial?.productFrame)
+    ? partial.productFrame
+    : undefined;
 
   return {
     objectives,
@@ -102,6 +114,9 @@ export function normalizePostBrief(raw: unknown): PostBrief {
     ...(postAngle ? { postAngle } : {}),
     ...(productFocus ? { productFocus } : {}),
     ...(articleWritingStyle ? { articleWritingStyle } : {}),
+    ...(contentJob ? { contentJob } : {}),
+    ...(channelOwner ? { channelOwner } : {}),
+    ...(productFrame ? { productFrame } : {}),
   };
 }
 

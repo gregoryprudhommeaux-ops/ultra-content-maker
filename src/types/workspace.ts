@@ -392,6 +392,20 @@ export type PostObjectivePriority = 1 | 2 | 3;
 /** Article wizard: linkedin = expert post; personal = first-person authentic share. */
 export type ArticleWritingStyle = "linkedin" | "personal";
 
+/**
+ * Editorial job (Charles/Lucy OS) — shapes length, product density, CTA.
+ * Distinct from PostObjective (awareness/credibility/…).
+ */
+export type ContentJob = "teaser" | "explain" | "convert";
+
+/** Who owns the channel — routes voice rules (Gregory personal vs LA MESA brand). */
+export type ChannelOwner = "gregory" | "la_mesa" | "generic";
+
+/**
+ * Product framing — prevents wrong pitch (e.g. market-entry LatAm on a dinners post).
+ */
+export type ProductFrame = "la_mesa_dinners" | "nextstep_market_entry" | "generic";
+
 export type RankedPostObjective = {
  objective: PostObjective;
  priority: PostObjectivePriority;
@@ -409,6 +423,12 @@ export interface PostBrief {
  productFocus?: string;
  /** Set in article-topic wizard only. */
  articleWritingStyle?: ArticleWritingStyle;
+ /** Editorial OS · TEASER | EXPLAIN | CONVERT */
+ contentJob?: ContentJob;
+ /** Editorial OS · gregory (Charles) | la_mesa (Lucy) | generic */
+ channelOwner?: ChannelOwner;
+ /** Editorial OS · dinners vs market-entry vs generic B2B */
+ productFrame?: ProductFrame;
 }
 
 export interface ArticleQualityScores {

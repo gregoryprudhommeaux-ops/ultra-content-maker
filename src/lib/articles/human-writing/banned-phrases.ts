@@ -64,6 +64,8 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "bon_reseau_ne_se_mesure", phrase: "bon réseau ne se mesure" },
     { id: "je_perfectionne", phrase: "je perfectionne" },
     { id: "ce_qui_m_interesse_vraiment", phrase: "ce qui m'intéresse vraiment" },
+    { id: "cartes_de_visite", phrase: "cartes de visite" },
+    { id: "pile_de_cartes", phrase: "pile de cartes" },
   ],
   en: [
     { id: "lower_friction", phrase: "lower the friction" },
@@ -126,6 +128,8 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "good_network_isnt_measured", phrase: "good network isn't measured" },
     { id: "im_perfecting", phrase: "i'm perfecting" },
     { id: "what_i_really_care_about", phrase: "what i really care about" },
+    { id: "business_cards", phrase: "business cards" },
+    { id: "collecting_business_cards", phrase: "collecting business cards" },
   ],
   es: [
     { id: "reducir_la_friccion", phrase: "reducir la fricción" },
@@ -170,6 +174,9 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "estoy_perfeccionando", phrase: "estoy perfeccionando" },
     { id: "lo_que_realmente_me_interesa", phrase: "lo que realmente me interesa" },
     { id: "lista_perfil_invitacion", phrase: "lista de espera, perfil" },
+    { id: "tarjetas_de_visita", phrase: "tarjetas de visita" },
+    { id: "coleccion_de_tarjetas", phrase: "colección de tarjetas" },
+    { id: "intercambio_de_tarjetas", phrase: "intercambio de tarjetas" },
   ],
 };
 

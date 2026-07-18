@@ -1,4 +1,5 @@
 import { buildContentNichePromptBlock, resolveContentNicheFromSteering } from "@/lib/articles/content-niche";
+import { resolveLinkedInHashtagCount } from "@/lib/articles/editorial-os";
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
 import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import {
@@ -92,7 +93,9 @@ export function buildArticlesSystemPromptWithCount(
   targetScope?: ArticleScope,
   profileEnrichment?: Record<string, unknown>,
   authorSteering?: AuthorSteeringPayload | null,
+  postBrief?: PostBrief,
 ): string {
+  const hashtagCount = resolveLinkedInHashtagCount(postBrief) || LINKEDIN_HASHTAG_COUNT;
   const lang = LANGUAGE_LABELS[contentLanguage] ?? "English";
   const emoji = emojiInstruction(emojiLevel, contentLanguage);
   const archetype = resolveContentArchetype({
@@ -140,7 +143,7 @@ ${systemLines}
 - Emoji rule (non-negotiable): ${emoji}
 - Match author voice and audience from the Persona strictly.
 - If the Persona says "no emojis" but emojiLevel is light or heavy, follow emojiLevel · user choice overrides.
-- For each post, add exactly ${LINKEDIN_HASHTAG_COUNT} LinkedIn hashtags in "hashtags" (strings without #): relevant to post content, author niche and audience from the Persona. Mix specific + broader tags. No generic spam.${pillarFieldRule}
+- For each post, add exactly ${hashtagCount} LinkedIn hashtags in "hashtags" (strings without #): relevant to post content, author niche and audience from the Persona. Mix specific + broader tags. No generic spam.${pillarFieldRule}
 
 Return JSON only:
 {

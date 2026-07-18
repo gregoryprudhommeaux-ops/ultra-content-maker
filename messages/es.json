@@ -2372,6 +2372,29 @@
           "awareness": "Ampliar el alcance con ángulos compartibles.",
           "leads": "Generar solicitudes entrantes cualificadas."
         },
+        "editorialOs": {
+          "title": "Editorial OS",
+          "hint": "Opcional · job, canal y marco de producto guían longitud, CTA y bans (Charles / Lucy).",
+          "unset": "—",
+          "job": "Job de contenido",
+          "channel": "Dueño del canal",
+          "product": "Marco de producto",
+          "jobs": {
+            "teaser": "TEASER · deseo, corto",
+            "explain": "EXPLAIN · contexto / prueba",
+            "convert": "CONVERT · DM / link"
+          },
+          "channels": {
+            "gregory": "Gregory (personal)",
+            "la_mesa": "LA MESA (marca)",
+            "generic": "Genérico"
+          },
+          "products": {
+            "la_mesa_dinners": "Cenas LA MESA",
+            "nextstep_market_entry": "NextStep entrada a mercado",
+            "generic": "B2B genérico"
+          }
+        },
         "problemLabel": "Problema de la audiencia",
         "problemPlaceholder": "Ej.: PYME exportadoras con dificultad para asegurar la cadena de suministro…",
         "problemNewsLabel": "Tema o enjeu",
