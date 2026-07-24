@@ -1,5 +1,11 @@
 # Changelog · /anti-linkedin-slop · Mr. ANTI-AI-SLOP
 
+## 2026-07-24 (c) — Name functional overlaps (do not merge IDs)
+
+Reviewer note on TELLS-CATALOG:
+- `#3 school_opener` ↔ `#42 numbered_moral_list`: shared “numbering” signal; local school connector vs full moral-list architecture — flag both when present; disambiguate *Premièrement* (connector vs 1-2-3 lessons arc).
+- `#16 qualification_triad` ↔ `#34 triple_adjectives`: same “triplet” family, two layers (framework/filter vs surface lexical rhythm) — neither absorbs the other.
+
 ## 2026-07-24 (b) — Nine classic LinkedIn tells + rhetorical Q taxonomy
 
 External review of the “40 tells” list. Added hard bans: years-legitimation opener, fake scoop, closed rhetorical CTA, fake-we intimacy, round follower milestone, “simple yet powerful”, anaphora stacks (3× same opener), vague coming-soon CTA, false humility. Clarified: mid-body open rhetorical Q = rhythm (sparingly OK); closed pressure Q in close = engagement manipulation (ban). UCM: detector + blocking flags + i18n labels.

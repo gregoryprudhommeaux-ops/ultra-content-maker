@@ -26,7 +26,7 @@
 |---|-----|-----------------|--------|
 | 1 | `in_todays_world` | *Dans un monde…* / *In today’s world…* / *En el mundo actual…* | BAN |
 | 2 | `digital_era` | *À l’ère du numérique* / *In the digital era* / *En la era digital* | BAN |
-| 3 | `school_opener` | *Pour commencer* / *First and foremost* / *Para empezar* / *Tout d’abord* / *Premièrement* | BLOCKING |
+| 3 | `school_opener` | *Pour commencer* / *First and foremost* / *Para empezar* / *Tout d’abord* / *Premièrement* (en **ouverture** ou connecteur scolaire de paragraphe) | BLOCKING |
 | 4 | `excited_to_share` | *Je suis ravi de partager* / *Excited to share* / *Emocionado de compartir* | BAN |
 | 5 | `heres_the_thing` | *Here’s the thing* / *Voici la chose* | BAN |
 | 6 | `fr_corp_calque` | *Ce post traite de…* / *Assurez-vous de…* | BLOCKING |
@@ -44,7 +44,7 @@
 | 13 | `theatrical_dig` | *En creusant* / *Quand je creuse* / *Digging a bit* / *Al indagar* | BLOCKING |
 | 14 | `result_antithesis` | *Résultat : beaucoup… peu…* | BLOCKING |
 | 15 | `less_more_packaging` | *Moins de X, plus de Y* / *Less X, more Y* / *Menos X, más Y* | BAN |
-| 16 | `qualification_triad` | *Même industrie, même fonction, même irritant* (bullets **ou** prose inline ×3) | BLOCKING |
+| 16 | `qualification_triad` | Framework / filtre en **3 critères symétriques** : *Même industrie, même fonction, même irritant* (bullets **ou** prose inline ×3 *même/same/mismo*) | BLOCKING |
 
 ## C. Emballages « smart »
 
@@ -77,7 +77,7 @@
 | # | ID | Tell | Statut |
 |---|-----|------|--------|
 | 33 | `em_dash_overuse` | Tirets cadratin (—) en série · max 1 / paragraphe | BAN (lint) |
-| 34 | `triple_adjectives` | *Clair, direct, efficace* / *clear, direct, effective* | BAN (lint) |
+| 34 | `triple_adjectives` | Triplet **lexical** rythmique : *Clair, direct, efficace* / *clear, direct, effective* (adj/noms empilés pour « sonner bien ») | BAN (lint) |
 | 35 | `uniform_paragraph_size` | Tous les paragraphes de la même taille | BAN (lint) |
 | 36 | `uniform_sentence_rhythm` | 4–5 phrases de longueur quasi identique | BAN (lint) |
 | 37 | `emoji_line_start` | Même emoji en tête de chaque puce / trop de lignes | BAN (lint) |
@@ -90,7 +90,7 @@
 | # | ID | Tell | Statut |
 |---|-----|------|--------|
 | 41 | `mechanical_transitions` | *Par ailleurs / Moreover / Además* en tête en série | BAN |
-| 42 | `numbered_moral_list` | *3 lessons* / leçons numérotées / arc intro→anecdote→bullets→morale→Q | BAN |
+| 42 | `numbered_moral_list` | **Arc** « 3 lessons » / leçons numérotées / intro→anecdote→bullets→morale→Q (structure de post entière) | BAN |
 | 43 | `geo_sector_filler` | Opener interchangeable (swap Mexique↔autre marché = même texte) | BAN |
 | 44 | `soft_verb_stack` | *Permettre / favoriser / contribuer / enable / foster / facilitar* empilés | BLOCKING |
 
@@ -110,6 +110,13 @@
 | 54 | `fake_we_intimacy` | *On a tous vécu ce moment où…* / *We’ve all been there…* | HARD BAN |
 
 > Compteur : **54 IDs** (les « 40 classiques » + survey-hook pack + teaser pack + 9 tells 2026-07-24 + lint syntaxe). Certains chevauchent volontairement (familles).
+
+### Doublons fonctionnels nommés (ne pas fusionner)
+
+| Paire | Niveau A | Niveau B | Relation | Règle de lecture |
+|-------|----------|----------|----------|------------------|
+| `#3` `school_opener` ↔ `#42` `numbered_moral_list` | **Connecteur** scolaire local (*Premièrement,* / *First and foremost,* en tête de § ou d’intro) | **Architecture** du post (liste morale numérotée / « 3 lessons » / arc complet) | Chevauchement sur le signal « numérotation » | Flaguer **les deux** si présents. `#3` seul = ouverture/transition scolaire. `#42` seul = squelette pédagogique. *Premièrement* dans une liste 1-2-3 de leçons → compter surtout `#42` ; *Premièrement* hors liste morale → `#3`. |
+| `#16` `qualification_triad` ↔ `#34` `triple_adjectives` | **Structure / fond** : 3 critères de qualification symétriques (*même X, même Y, même Z* ou 3 bullets « same… ») | **Lexique / surface** : 3 adjectifs/noms rythmiques (*clair, direct, efficace*) | Même famille « triplets IA », **deux étages** | L’un **n’absorbe pas** l’autre. Un post peut avoir `#34` sans `#16` (style) ou `#16` sans `#34` (framework). Les deux = double signal → rewrite prioritaire. |
 
 ---
 

@@ -70,6 +70,8 @@ Packaging beats:
 - *Résultat : beaucoup… peu…* and soft twin *moins de X, plus de Y* / *less X, more Y* / *menos X, más Y*
 - Qualification triad / neat 3-bullet framework: *même problème / même niveau / même agenda* (or EN/ES *same…*) as symmetric checklist after a hear-hook
 
+**≠ lexical triplets** (`triple_adjectives`): *clair, direct, efficace* is surface rhythm; qualification triad is a 3-criterion **framework**. Same family, two layers — do not merge IDs.
+
 Rewrite: thesis-first → one uneven concrete criterion in prose → consequence → no invented quote → no dig theatre → close without packaging.
 
 ### Polished residual (post–anti-slop tell · 2026-07-15)
@@ -179,6 +181,8 @@ Rewrite directions:
 
 ### Lexical triplets (beyond survey-hook)
 Ban rhythmic adjective/noun stacks anywhere: *clair, direct, efficace* / *clear, direct, effective* / *claro, directo, efectivo*. Prefer one sharp word, a pair, or uneven phrasing.
+
+**≠ `qualification_triad`:** lexical triplets (`triple_adjectives`) are surface rhythm; qualification triad is a **3-criterion framework** (*même/same/mismo ×3* or neat same-X bullets). Same family (“triplets”), two layers — do not merge IDs; flag both when present.
 
 ### Paragraph length symmetry
 Even blocks (≈same line count every paragraph) read as model output. Vary hard: 2-line beat next to an 8-line development without padding filler.
