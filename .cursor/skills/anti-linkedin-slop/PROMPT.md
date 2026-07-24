@@ -109,7 +109,12 @@ Intros clichés ; jargon/hyperboles ; loft EN (testament, beacon, tapestry, pivo
 
 ## SYNTAXE K
 
-— max 1/paragraphe ; prefer zéro not-X-but-Y ; pas de triplets ; paragraphes asymétriques.
+— max 1/paragraphe ; HARD BAN not-X-but-Y (zéro) ; pas de triplets ; paragraphes asymétriques.
+
+
+## TELLS LINKEDIN CLASSIQUES (2026-07-24)
+
+HARD BAN: years-légitimation ; faux scoop ; CTA rhétorique fermé (≠ question ouverte mid-body) ; fausse intimité « on a tous » ; milestone abonnés ; « simple mais puissant » ; anaphore ×3 ; coming-soon vague ; fausse humilité « je ne suis pas un expert mais ».
 
 ## COMPORTEMENTS L–S
 
@@ -117,7 +122,7 @@ Verbes mous→nets ; mot courant>académique ; densité inégale ; transitions �
 
 ## CHECKLIST
 
-— OK · not-X-but-Y · triplets · même×3 inline · cadence · densité · voix · hedge · verbes nets · mot courant · pas inventé · ±15% · pas télégraphique · close ouverte · pas teaser produit hors brief · pas funnel dump (TEASER) · pas follower-proof · pas CTA comment/add · pas network moral · pas WIP soft · job déclaré · test feed IA
+— OK · zero not-X-but-Y · triplets · même×3 inline · cadence · densité · voix · hedge · verbes nets · mot courant · pas inventé · ±15% · pas télégraphique · close ouverte · pas teaser produit hors brief · pas funnel dump (TEASER) · pas follower-proof · pas CTA comment/add · pas network moral · pas WIP soft · job déclaré · test feed IA
 
 ## ENTRÉE
 

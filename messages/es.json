@@ -182,7 +182,7 @@
             "problem": "Problema de audiencia",
             "pov": "Punto de vista"
           },
-          "samplePov": "La palanca no es el precio: es la visibilidad de extremo a extremo.",
+          "samplePov": "La visibilidad de extremo a extremo pesa más que el precio de lista.",
           "objectives": {
             "credibility": "Credibilidad",
             "conversation": "Conversación"
@@ -2646,9 +2646,9 @@
         "title": "Frases genéricas (estilo IA / LinkedIn)",
         "help": {
           "label": "Ayuda: detección de clichés",
-          "body": "Detecta fórmulas « plantilla » LinkedIn / IA (game changer, emocionado de compartir, lecciones numeradas…). Análisis local al instante, sin llamada API. No es una nota global del post, una señal para personalizar antes de publicar."
+          "body": "Detecta fórmulas « plantilla » LinkedIn / IA (game changer, emocionado de compartir, lecciones numeradas…). Análisis local al instante, sin llamada API. No sustituye un juicio global del post: es una señal para personalizar antes de publicar."
         },
-        "intro": "Este panel detecta fórmulas que todo el mundo ve en LinkedIn y que las IA repiten a menudo («game changer», «emocionado de compartir», lecciones numeradas, etc.). No es una nota global de calidad del post: es una señal para hacerlo más personal, concreto y creíble.",
+        "intro": "Este panel detecta fórmulas que todo el mundo ve en LinkedIn y que las IA repiten a menudo («game changer», «emocionado de compartir», lecciones numeradas, etc.). No sustituye una nota global de calidad: es una señal para hacerlo más personal, concreto y creíble.",
         "howItWorksTitle": "Cómo funciona",
         "howItWorks": "La app compara tu texto con una lista integrada de patrones conocidos, análisis al instante, sin usar tu clave API. Las puntuaciones se actualizan al editar el gancho o el cuerpo.",
         "save": "Guardar análisis",
@@ -2683,7 +2683,17 @@
           "engagement_bait": "Cebo de engagement",
           "generic_inspiration": "Inspiración genérica",
           "delve": "Profundicemos",
-          "tapestry": "Tapiz / tapestry"
+          "tapestry": "Tapiz / tapestry",
+          "not_x_its_y": "No es X, es Y (prohibido)",
+          "years_legitimation": "Después de X años… (auto-legitimación)",
+          "fake_scoop": "Nadie habla de esto (falso scoop)",
+          "closed_rhetorical_cta": "Pregunta retórica cerrada (presión CTA)",
+          "fake_we_intimacy": "Todos hemos vivido… (falsa intimidad)",
+          "round_follower_milestone": "1.000 seguidores · lo que aprendí",
+          "simple_yet_powerful": "Simple pero poderoso",
+          "anaphora_stack": "Anáfora ×3 (Cuando…/Si…)",
+          "vague_coming_soon_cta": "Estoy preparando algo…",
+          "false_humility": "No soy un experto, pero…"
         },
         "humanWriting": {
           "title": "Checklist escritura humana",
@@ -2710,7 +2720,7 @@
             "banned_game_changer": "Game changer",
             "banned_en_un_mundo_donde": "En un mundo donde",
             "banned_spoiler": "Spoiler",
-            "not_x_its_y": "No es X, es Y",
+            "not_x_its_y": "No es X, es Y (prohibido)",
             "triple_adjectives": "Triple adjetivo",
             "em_dash_overuse": "Demasiados guiones largos",
             "uniform_sentence_rhythm": "Ritmo de frases uniforme",
@@ -2730,7 +2740,7 @@
         "subtitle": "Puntuaciones y palancas para un post creíble, de nicho y conversacional.",
         "help": {
           "label": "Ayuda: Quality Panel",
-          "body": "Cuatro puntuaciones (claridad nicho, voz humana, prueba, conversación) y palancas de reescritura. No es una nota «oficial» de LinkedIn, una guía para afinar antes de publicar."
+          "body": "Cuatro puntuaciones (claridad nicho, voz humana, prueba, conversación) y palancas de reescritura. No sustituye una nota «oficial» de LinkedIn: es una guía para afinar antes de publicar."
         },
         "analyze": "Analizar este post",
         "refresh": "Re-analizar",

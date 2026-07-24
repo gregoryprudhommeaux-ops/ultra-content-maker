@@ -182,7 +182,7 @@
             "problem": "Problème audience",
             "pov": "Point de vue"
           },
-          "samplePov": "Le levier, ce n'est pas le prix : c'est la visibilité bout en bout.",
+          "samplePov": "La visibilité bout en bout pèse plus que le prix affiché.",
           "objectives": {
             "credibility": "Crédibilité",
             "conversation": "Conversation"
@@ -2684,7 +2684,17 @@
           "engagement_bait": "Engagement bait",
           "generic_inspiration": "Inspiration générique",
           "delve": "Plongeons / delve",
-          "tapestry": "Tapisserie / tapestry"
+          "tapestry": "Tapisserie / tapestry",
+          "not_x_its_y": "Ce n'est pas X, c'est Y (interdit)",
+          "years_legitimation": "J'ai passé X années… (auto-légitimation)",
+          "fake_scoop": "Personne ne parle de ça (faux scoop)",
+          "closed_rhetorical_cta": "Question rhétorique fermée (pression CTA)",
+          "fake_we_intimacy": "On a tous vécu… (fausse intimité)",
+          "round_follower_milestone": "1 000 abonnés · ce que j'ai appris",
+          "simple_yet_powerful": "Simple mais puissant",
+          "anaphora_stack": "Anaphore ×3 (Quand…/Si…)",
+          "vague_coming_soon_cta": "Je prépare quelque chose…",
+          "false_humility": "Je ne suis pas un expert, mais…"
         },
         "humanWriting": {
           "title": "Checklist écriture humaine",
@@ -2711,7 +2721,7 @@
             "banned_game_changer": "Game changer",
             "banned_dans_un_monde_ou": "Dans un monde où",
             "banned_spoiler": "Spoiler",
-            "not_x_its_y": "Ce n'est pas X, c'est Y",
+            "not_x_its_y": "Ce n'est pas X, c'est Y (interdit)",
             "triple_adjectives": "Triple adjectif",
             "em_dash_overuse": "Trop de tirets cadratin",
             "uniform_sentence_rhythm": "Rythme de phrases uniforme",
@@ -2731,7 +2741,7 @@
         "subtitle": "Scores et leviers pour un post crédible, niche et conversationnel.",
         "help": {
           "label": "Aide : Quality Panel",
-          "body": "Quatre scores (clarté niche, voix humaine, preuve, conversation) plus des leviers de réécriture ciblée. Ce n’est pas une note « LinkedIn officielle », un guide pour affiner avant publication."
+          "body": "Quatre scores (clarté niche, voix humaine, preuve, conversation) plus des leviers de réécriture ciblée. Pas une note « LinkedIn officielle » : un guide pour affiner avant publication."
         },
         "analyze": "Analyser ce post",
         "refresh": "Ré-analyser",

@@ -1,5 +1,13 @@
 # Changelog · /anti-linkedin-slop · Mr. ANTI-AI-SLOP
 
+## 2026-07-24 (b) — Nine classic LinkedIn tells + rhetorical Q taxonomy
+
+External review of the “40 tells” list. Added hard bans: years-legitimation opener, fake scoop, closed rhetorical CTA, fake-we intimacy, round follower milestone, “simple yet powerful”, anaphora stacks (3× same opener), vague coming-soon CTA, false humility. Clarified: mid-body open rhetorical Q = rhythm (sparingly OK); closed pressure Q in close = engagement manipulation (ban). UCM: detector + blocking flags + i18n labels.
+
+## 2026-07-24 — Hard ban “not X, it’s Y” antithesis
+
+Founder note (UCM): *Ce n’est pas X, c’est Y* smells like AI from a mile away. Elevate from “prefer zero / max 1” to **hard ban (0)** FR/EN/ES. Rewrite = state the claim or contrast with a concrete scene — never the formula. UCM: lint `maxAllowed: 0`, `slop-detector` + humanizer blocking flag `not_x_its_y`, prompts + landing sample POV cleaned.
+
 ## 2026-07-17 (b) — Fake-luxury loft ban (LA MESA product copy)
 
 Ban *exclusivo/curated/selecta/alto valor/high-signal/dîners qualifiés/red privada seleccionados/we'd love your feedback*. Prefer concrete dinner facts + `LA MESA · Guadalajara`. Applied in LA MESA site/emails pass 2026-07-17.

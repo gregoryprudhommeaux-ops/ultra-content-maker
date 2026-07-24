@@ -40,6 +40,7 @@ export function shouldHumanizeArticle(
     "qualification_triad",
     "soft_format_teaser",
     "result_antithesis",
+    "not_x_its_y",
     "real_lever_close",
     "en_loft_vocab",
     "school_opener",
@@ -55,6 +56,16 @@ export function shouldHumanizeArticle(
     "wip_soft_spine",
     "obsolete_business_card_metaphor",
     "la_mesa_market_entry_mismatch",
+    // Classic LinkedIn tells 2026-07-24
+    "years_legitimation",
+    "fake_scoop",
+    "closed_rhetorical_cta",
+    "fake_we_intimacy",
+    "round_follower_milestone",
+    "simple_yet_powerful",
+    "anaphora_stack",
+    "vague_coming_soon_cta",
+    "false_humility",
   ];
   const hasBlockingFlag = slop.flags.some((f) =>
     blockingFlags.some((b) => f === b || f.includes(b)),

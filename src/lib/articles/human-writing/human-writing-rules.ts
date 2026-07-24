@@ -40,7 +40,8 @@ export function buildHumanWritingRules(contentLanguage: ContentLanguage): string
 Meta-goal: not "undetectable AI" · a text that feels written by an identifiable person. Keep asperities (lexical tics, rhythm, intentional repeats, hedges, imperfect but credible lines). Uniformly polished prose = still slop.
 
 1) Ban AI language tics
-- Prefer zero "Ce n'est pas X, c'est Y" / "It's not X, it's Y" / "No es solo X, es Y" · hard max 1, never stack two.
+- HARD BAN "Ce n'est pas X, c'est Y" / "It's not (about) X, it's Y" / "No es (solo) X, es Y" / "Il ne s'agit pas de X, mais de Y" · zero per post. State the claim directly, or contrast with a concrete fact/scene — never the antithesis formula.
+- HARD BAN classic LinkedIn packaging: years-legitimation openers; fake scoop ("Personne ne parle…"); closed rhetorical CTA closes (≠ one mid-body open question for rhythm); fake-we intimacy; round follower milestones; "Simple mais puissant"; 3+ anaphora stacks (Quand/Si/When/If); vague coming-soon CTA; false humility ("Je ne suis pas un expert, mais…").
 - No lexical triplets anywhere ("clair, direct, efficace") · pairs only, occasional.
 - Blacklist: ${banned}, and similar filler · delete before delivering.
 - Soft verbs: ${softVerbs[contentLanguage] ?? softVerbs.en}.

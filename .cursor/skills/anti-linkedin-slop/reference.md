@@ -96,6 +96,31 @@ When the brief is a **TEASER** (desire / POV), not an EXPLAIN, ban these as bloc
 | EXPLAIN | longer OK | funnel OK | soft |
 | CONVERT | short | seat/invite clear | DM / link, never comment-bait |
 
+## E2. Classic LinkedIn legitimacy / intimacy / teaser tells (2026-07-24)
+
+Hard ban as packaging (rewrite even if “true” in the brief — rephrase without the formula):
+
+| ID | FR | EN | ES |
+|----|----|----|-----|
+| `years_legitimation` | *J’ai passé X années à…* (surtout en ouverture) | *After X years in…* | *Después de X años en…* |
+| `fake_scoop` | *Personne ne parle de ça* | *Nobody talks about this* / *What nobody tells you* | *Nadie habla de esto* |
+| `closed_rhetorical_cta` | *Tu veux vraiment laisser passer ça ?* | *Are you really going to let this pass?* | *¿De verdad vas a dejar pasar esto?* |
+| `fake_we_intimacy` | *On a tous vécu ce moment où…* | *We’ve all been there when…* | *Todos hemos vivido ese momento…* |
+| `round_follower_milestone` | *1 000 abonnés. Ce que j’ai appris.* | *1,000 followers. What I learned.* | *1.000 seguidores. Lo que aprendí.* |
+| `simple_yet_powerful` | *Simple mais puissant* | *Simple yet powerful* / *Simple but powerful* | *Simple pero poderoso* |
+| `anaphora_stack` | 3+ bullets/phrases d’affilée qui démarrent par le même mot (*Quand… / Si…*) | Same with *When… / If…* | Same with *Cuando… / Si…* |
+| `vague_coming_soon_cta` | *Je prépare quelque chose. Reste à l’écoute.* | *Something is coming… Stay tuned.* | *Estoy preparando algo. Mantente atento.* |
+| `false_humility` | *Je ne suis pas un expert, mais…* (+ contenu très prescriptif) | *I’m not an expert, but…* | *No soy un experto, pero…* |
+
+### Rhetorical question — two buckets (no doublon)
+
+| Bucket | Job | Status |
+|--------|-----|--------|
+| **Rhythm** (mid-body) | One open question that advances thought (*Et si le vrai frein n’était pas le prix ?*) | Allowed sparingly if not bait |
+| **Engagement manipulation** (`closed_rhetorical_cta`) | Closed pressure close (*Tu veux vraiment… ?*, *Agree?*, *Ready to…?*) | **Hard ban** — same family as engagement bait |
+
+Do not list “rhetorical question” twice as syntax + close. Treat **closed CTA questions** under engagement/closes; mid-body open questions under voice/rhythm.
+
 ## F. Fake scenes
 
 - *Ce matin / Dimanche soir / Un client m’a appelé en panique*
@@ -141,11 +166,16 @@ Independent of vocabulary. Fix even when the lexicon looks “clean”.
 ### Em dash (—)
 Top cross-language AI tell. **Max 1 per paragraph**; prefer rare in the whole piece. Use commas, periods, or parentheses instead of cascading — asides.
 
-### Antithesis “not X, it’s Y”
+### Antithesis “not X, it’s Y” · HARD BAN
 - FR: *Ce n’est pas X, c’est Y* / *Il ne s’agit pas de X, mais de Y*
 - EN: *It’s not about X, it’s about Y* / *It’s not just X — it’s Y*
 - ES: *No es solo X, es Y* / *No se trata de X, sino de Y*  
-Prefer **zero** per post; never stack two.
+**Zero per post.** State the claim directly, or contrast with a concrete fact/scene. Never the antithesis formula (high LinkedIn AI tell).
+
+Rewrite directions:
+- Bad: *Ce n’est pas un outil, c’est une méthode.*
+- Better: *On n’installe pas un outil. On change comment on décide.*
+- Or: *La méthode a tenu ; l’outil, non.*
 
 ### Lexical triplets (beyond survey-hook)
 Ban rhythmic adjective/noun stacks anywhere: *clair, direct, efficace* / *clear, direct, effective* / *claro, directo, efectivo*. Prefer one sharp word, a pair, or uneven phrasing.

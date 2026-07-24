@@ -28,6 +28,8 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "theatrical_dig", re: /\b(quand je creuse|en creusant( un peu)?|when i dig( deeper)?|digging (a bit|deeper)|cuando indago|al indagar|cuando profundizo)\b/i, weight: 3 },
   { id: "result_antithesis", re: /\b(r[ée]sultat\s*:|result\s*:|resultado\s*:)\s*.{0,40}\b(beaucoup|lots?|many|mucho|pouvoir|peu|few|poco)\b/i, weight: 2 },
   { id: "less_more_packaging", re: /\b(moins de .{0,40},?\s*plus de|less .{0,40},?\s*more |fewer .{0,40},?\s*more |menos .{0,40},?\s*m[áa]s )\b/i, weight: 2 },
+  // Antithesis packaging — "Ce n'est pas X, c'est Y" (high LinkedIn AI tell · hard ban)
+  { id: "not_x_its_y", re: /\b(ce n['’]est pas|il ne s['’]agit pas|it['’]?s not(?: about| just| only)?|it is not(?: about| just| only)?|no es(?: solo| sólo)?|no se trata de)\b[^.!?\n]{0,100}\b(c['’]est|mais de|it['’]?s|it is|es|sino (?:de|que))\b/i, weight: 3 },
   // Symmetric qualification framework — bullets OR polished inline triad (même×2+ / same×2+ / mismo×2+)
   { id: "qualification_triad", re: /\b(m[êe]me[\s\S]{0,100}?m[êe]me|same [\w'-]{2,20}[\s\S]{0,100}?same |mism[oa][\s\S]{0,100}?mism[oa])/i, weight: 3 },
   // Soft product-tease bolt-on (common after clean thought-leadership arc)
@@ -46,8 +48,57 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "sandwich_hook", re: /^(.{8,120})\n\n(.{20,200})$/m, weight: 1 },
   { id: "soft_verb_stack", re: /\b(permet(tre| d[e'])|contribuer à|favoriser|enable[sd]?|foster|facilitate|ensures that|fomentar|garantizar|permite que)\b/i, weight: 1 },
   { id: "wikipedia_moral_close", re: /\b(finalement,? tout est|at the end of the day,? it'?s all about|al final del d[ií]a,? se trata de|question d['']ex[ée]cution)\b/i, weight: 2 },
+  // Classic LinkedIn legitimacy / intimacy / teaser tells (2026-07-24)
+  { id: "years_legitimation", re: /\b(j['']ai pass[ée] \d+[\s-]?(ans|ann[ée]es)|apr[eè]s \d+[\s-]?(ans|ann[ée]es) (dans|en|à)|after \d+[\s-]?years? (in|of|as)|despu[eé]s de \d+[\s-]?a[nñ]os (en|de))\b/i, weight: 2 },
+  { id: "fake_scoop", re: /\b(personne ne (en )?parle|ce dont (on|personne) (ne )?parle|nobody (talks?|is talking) about|what nobody (tells|talks)|nadie (habla|est[aá] hablando) (de )?esto|de lo que nadie habla)\b/i, weight: 3 },
+  { id: "closed_rhetorical_cta", re: /\b(tu veux (vraiment|encore) (laisser|rater|passer)|allez[- ]vous (vraiment )?laisser|are you (really )?(going to |gonna )?(let|miss|pass)|ready to (take|transform|level)|de verdad vas a (dejar|perder)|vas a dejar pasar)\b/i, weight: 3 },
+  { id: "fake_we_intimacy", re: /\b(on a tous (v[ée]cu|connu|senti)|nous avons tous|we(''|’)ve all (been|felt|lived)|todos hemos (vivido|sentido|conocido)|quién no ha)\b/i, weight: 3 },
+  { id: "round_follower_milestone", re: /\b(\d{1,3}([ \u00a0.]?\d{3})+\s*(abonn[ée]s|followers?|seguidores).{0,40}(ce que j['']ai appris|what i (learned|learnt)|lo que (aprend[ií]|he aprendido))|(ce que|what|lo que).{0,20}(appris|learned|aprend).{0,40}\d{1,3}([ \u00a0.]?\d{3})+\s*(abonn|follower|seguidor))\b/i, weight: 3 },
+  { id: "simple_yet_powerful", re: /\b(simple (mais|et) puissant|simple yet powerful|simple but powerful|simple pero poderos[oa]|sencillo pero poderos[oa])\b/i, weight: 3 },
+  { id: "vague_coming_soon_cta", re: /\b(je pr[ée]pare quelque chose|reste[rz]? [àa] l[''][ée]coute|something is coming|stay tuned|big (things?|news) (are |is )?coming|estoy preparando algo|mantente? (atento|al tanto)|pr[oó]ximamente algo)\b/i, weight: 3 },
+  { id: "false_humility", re: /\b(je (ne )?suis pas (un |une )?(expert|sp[ée]cialiste)|i(''|’)m not (an? )?(expert|specialist)|no soy (un |una )?(experto|especialista)),?\s*(mais|but|pero)\b/i, weight: 3 },
 ];
 
+/** Detect 3+ consecutive lines/sentences starting with the same opener word (Quand/Si/When/If…). */
+export function detectAnaphoraStack(text: string): boolean {
+  const lines = text
+    .split(/\n+/)
+    .map((l) => l.replace(/^[-*•\d.)\s]+/, "").trim())
+    .filter((l) => l.length > 8);
+  if (lines.length < 3) return false;
+  let streak = 1;
+  let prev = firstToken(lines[0]);
+  for (let i = 1; i < lines.length; i++) {
+    const tok = firstToken(lines[i]);
+    if (tok && prev && tok === prev) {
+      streak++;
+      if (streak >= 3) return true;
+    } else {
+      streak = 1;
+      prev = tok;
+    }
+  }
+  return false;
+}
+
+function firstToken(line: string): string | null {
+  const m = line.match(/^([A-Za-zÀ-ÿ'’]{2,12})\b/);
+  if (!m) return null;
+  const t = m[1].toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+  const watch = new Set([
+    "quand",
+    "lorsque",
+    "si",
+    "when",
+    "if",
+    "porque",
+    "cuando",
+    "mientras",
+    "parce",
+    "because",
+  ]);
+  return watch.has(t) ? t : null;
+}
 /** Only when productFrame = la_mesa_dinners — dinners ≠ market-entry consulting pitch. */
 const LA_MESA_MARKET_ENTRY_MISMATCH = {
   id: "la_mesa_market_entry_mismatch",
@@ -79,6 +130,11 @@ export function detectSlop(
       flags.push(id);
       penalty += weight;
     }
+  }
+
+  if (detectAnaphoraStack(combined)) {
+    flags.push("anaphora_stack");
+    penalty += 3;
   }
 
   if (

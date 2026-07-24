@@ -104,6 +104,28 @@ Do **not** invent facts when transforming — only reshape what exists.
 >
 > Si te interesa, mándame DM y te paso el link.
 
+## FR — classic LinkedIn packaging (2026-07-24)
+
+**Avant (slop) :**
+> J’ai passé 12 années à diriger des usines.
+>
+> Personne ne parle de ça.
+>
+> Ce n’est pas un outil, c’est une méthode. Simple mais puissant.
+>
+> Je ne suis pas un expert, mais voici ce qu’il faut faire.
+>
+> Je prépare quelque chose. Reste à l’écoute.
+>
+> Tu veux vraiment laisser passer ça ?
+
+**Après :**
+> Douze ans d’usine m’ont laissé un réflexe : si le process n’est pas écrit, il n’existe pas.
+>
+> La méthode a tenu. L’outil, non.
+>
+> Si tu es dans le même coin, DM — je t’envoie le lien.
+
 ## Persona paste — Gregory LinkedIn (UCM / Charles)
 
 ```

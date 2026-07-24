@@ -76,10 +76,23 @@ describe("lintHumanWriting · emoji rules", () => {
 });
 
 describe("lintHumanWriting · not X it's Y", () => {
-  it("errors when pattern appears more than once", () => {
+  it("errors on a single antithesis (hard ban)", () => {
+    const text =
+      "Ce n'est pas un outil, c'est une méthode. On avance autrement.";
+    const violations = lintHumanWriting(text, { contentLanguage: "fr" });
+    assert.ok(violations.some((v) => v.id === "not_x_its_y"));
+  });
+
+  it("errors when the pattern is stacked", () => {
     const text =
       "Ce n'est pas un outil, c'est une méthode. Et ce n'est pas une mode, c'est une évidence.";
     const violations = lintHumanWriting(text, { contentLanguage: "fr" });
+    assert.ok(violations.some((v) => v.id === "not_x_its_y"));
+  });
+
+  it("errors on EN it's-not-about formula", () => {
+    const text = "It's not about price, it's about visibility end to end.";
+    const violations = lintHumanWriting(text, { contentLanguage: "en" });
     assert.ok(violations.some((v) => v.id === "not_x_its_y"));
   });
 });

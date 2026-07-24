@@ -66,6 +66,12 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "ce_qui_m_interesse_vraiment", phrase: "ce qui m'intéresse vraiment" },
     { id: "cartes_de_visite", phrase: "cartes de visite" },
     { id: "pile_de_cartes", phrase: "pile de cartes" },
+    { id: "personne_ne_parle", phrase: "personne ne parle" },
+    { id: "simple_mais_puissant", phrase: "simple mais puissant" },
+    { id: "je_prepare_quelque_chose", phrase: "je prépare quelque chose" },
+    { id: "reste_a_lecoute", phrase: "reste à l'écoute" },
+    { id: "je_ne_suis_pas_un_expert", phrase: "je ne suis pas un expert" },
+    { id: "on_a_tous_vecu", phrase: "on a tous vécu" },
   ],
   en: [
     { id: "lower_friction", phrase: "lower the friction" },
@@ -130,6 +136,13 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "what_i_really_care_about", phrase: "what i really care about" },
     { id: "business_cards", phrase: "business cards" },
     { id: "collecting_business_cards", phrase: "collecting business cards" },
+    { id: "nobody_talks", phrase: "nobody talks about" },
+    { id: "simple_yet_powerful", phrase: "simple yet powerful" },
+    { id: "simple_but_powerful", phrase: "simple but powerful" },
+    { id: "something_is_coming", phrase: "something is coming" },
+    { id: "stay_tuned", phrase: "stay tuned" },
+    { id: "im_not_an_expert", phrase: "i'm not an expert" },
+    { id: "weve_all_been", phrase: "we've all been" },
   ],
   es: [
     { id: "reducir_la_friccion", phrase: "reducir la fricción" },
@@ -177,6 +190,11 @@ export const BANNED_PHRASES_BY_LANG: Record<
     { id: "tarjetas_de_visita", phrase: "tarjetas de visita" },
     { id: "coleccion_de_tarjetas", phrase: "colección de tarjetas" },
     { id: "intercambio_de_tarjetas", phrase: "intercambio de tarjetas" },
+    { id: "nadie_habla", phrase: "nadie habla de esto" },
+    { id: "simple_pero_poderoso", phrase: "simple pero poderoso" },
+    { id: "estoy_preparando_algo", phrase: "estoy preparando algo" },
+    { id: "no_soy_un_experto", phrase: "no soy un experto" },
+    { id: "todos_hemos_vivido", phrase: "todos hemos vivido" },
   ],
 };
 
@@ -189,9 +207,10 @@ export const STRUCTURAL_PATTERN_RULES: {
 }[] = [
   {
     id: "not_x_its_y",
-    re: /\b(ce n['']est pas|it's not|it is not|no es)\b[^.!?\n]{0,80}\b(c['']est|it's|it is|es)\b/gi,
+    // Antithesis packaging · hard ban (0). Catches FR/EN/ES formula variants.
+    re: /\b(ce n['’]est pas|il ne s['’]agit pas|it['’]?s not(?: about| just| only)?|it is not(?: about| just| only)?|no es(?: solo| sólo)?|no se trata de)\b[^.!?\n]{0,100}\b(c['’]est|mais de|it['’]?s|it is|es|sino (?:de|que))\b/gi,
     weight: 3,
-    maxAllowed: 1,
+    maxAllowed: 0,
   },
   {
     id: "triple_adjectives",

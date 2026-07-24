@@ -108,11 +108,14 @@ function detectStructuralPatterns(text: string): HumanWritingViolation[] {
     if (matches.length === 0) continue;
 
     if (rule.maxAllowed !== undefined && matches.length > rule.maxAllowed) {
+      const isHardBan = rule.maxAllowed === 0;
       violations.push({
         id: rule.id,
         category: "ai_tics",
         severity: "error",
-        message: `"Not X, it's Y" pattern used ${matches.length} times (max ${rule.maxAllowed})`,
+        message: isHardBan
+          ? `"Not X, it's Y" antithesis detected (${matches.length}) · hard ban · state the claim without the formula`
+          : `"Not X, it's Y" pattern used ${matches.length} times (max ${rule.maxAllowed})`,
         detail: matches[0]?.[0],
       });
     } else if (rule.id === "triple_adjectives" && matches.length > 0) {

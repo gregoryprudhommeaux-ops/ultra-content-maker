@@ -182,7 +182,7 @@
             "problem": "Audience problem",
             "pov": "Point of view"
           },
-          "samplePov": "The lever isn't price : it's end-to-end visibility.",
+          "samplePov": "End-to-end visibility weighs more than the sticker price.",
           "objectives": {
             "credibility": "Credibility",
             "conversation": "Conversation"
@@ -2683,7 +2683,17 @@
           "engagement_bait": "Engagement bait",
           "generic_inspiration": "Generic inspiration",
           "delve": "Let's delve",
-          "tapestry": "Tapestry"
+          "tapestry": "Tapestry",
+          "not_x_its_y": "It's not X, it's Y (banned)",
+          "years_legitimation": "After X years… (legitimacy opener)",
+          "fake_scoop": "Nobody talks about this (fake scoop)",
+          "closed_rhetorical_cta": "Closed rhetorical CTA (pressure close)",
+          "fake_we_intimacy": "We've all been there… (fake intimacy)",
+          "round_follower_milestone": "1,000 followers · what I learned",
+          "simple_yet_powerful": "Simple yet powerful",
+          "anaphora_stack": "Anaphora ×3 (When…/If…)",
+          "vague_coming_soon_cta": "Something is coming…",
+          "false_humility": "I'm not an expert, but…"
         },
         "humanWriting": {
           "title": "Human writing checklist",
@@ -2710,7 +2720,7 @@
             "banned_game_changer": "Game changer",
             "banned_in_a_world_where": "In a world where",
             "banned_spoiler": "Spoiler",
-            "not_x_its_y": "It's not X, it's Y",
+            "not_x_its_y": "It's not X, it's Y (banned)",
             "triple_adjectives": "Triple adjective",
             "em_dash_overuse": "Too many em dashes",
             "uniform_sentence_rhythm": "Uniform sentence rhythm",

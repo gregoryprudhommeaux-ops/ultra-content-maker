@@ -150,7 +150,8 @@ BANNED structures & patterns:
 - Sandwich hook (visual slop): do NOT default to shock line + blank line + explanatory line for every hook. Compact 1–2 line blocks are often more human.
 - School connectors: "Pour commencer / Tout d'abord / Premièrement / Enfin", "First and foremost / To begin with", "Para empezar" · paragraph order should carry the logic.
 - Bullet UI slop: identical emoji on every bullet; systematic "**Bold lead:**" on every line · prefer plain "-" sometimes.
-- Syntax tics (all languages · high detectability): excess em dashes (—) · max 1 per paragraph; "Ce n'est pas X, c'est Y" / "It's not about X, it's about Y" / "No es solo X, es Y" · prefer zero; lexical triplets anywhere ("clair, direct, efficace"); evenly sized paragraphs · vary hard (2-line then 8-line).
+- Syntax tics (all languages · high detectability): excess em dashes (—) · max 1 per paragraph; HARD BAN "Ce n'est pas X, c'est Y" / "It's not about X, it's about Y" / "No es solo X, es Y" / "Il ne s'agit pas de X, mais de Y" · zero per post · state the claim without the antithesis formula; lexical triplets anywhere ("clair, direct, efficace"); evenly sized paragraphs · vary hard (2-line then 8-line).
+- Classic LinkedIn packaging (HARD BAN): years-legitimation openers ("J'ai passé X années…"); fake scoop ("Personne ne parle de ça"); closed rhetorical CTA closes ("Tu veux vraiment laisser passer ça ?") — distinct from one mid-body open question used for rhythm; fake-we intimacy ("On a tous vécu…"); round follower milestones ("1000 abonnés. Ce que j'ai appris"); "Simple mais puissant / Simple yet powerful"; 3+ anaphora stacks (Quand…/Si…/When…); vague coming-soon CTA ("Je prépare quelque chose / Something is coming"); false humility ("Je ne suis pas un expert, mais…").
 - Uniform information density (one equal-weight idea per line forever) · pack some sentences; let others breathe.
 - Mushy verb stacks: permettre/favoriser/contribuer/garantir · enable/foster/facilitate/ensure · permitir/fomentar/garantizar · prefer sharp concrete verbs.
 - Flat emotional glue alone (Ensuite / En pratique / Enfin) · prefer reaction beats when natural; open experiential closes · not Wikipedia morals.
@@ -191,7 +192,7 @@ Pre-delivery self-check (apply silently):
 7e. TEASER job with funnel dump / comment-add CTA / follower-vouch / network moral / "perfeccionando"? → collapse to ≤1 product sentence + DM/link; kill bait closes.
 8. Is the hook a sandwich (shock + blank + explain) by default? → compact if ideas belong together.
 9. Any loft EN word (testament/beacon/tapestry/pivotal…) or FR "Pour commencer,"? → rewrite.
-10. Em dashes stuffed / not-X-but-Y / unearned triplets / perfectly even paragraphs? → rewrite.
+10. Em dashes stuffed / any not-X-but-Y antithesis / unearned triplets / perfectly even paragraphs? → rewrite.
 11. Did you sand away the author's voice into generic correct prose? → restore 1–2 markers.
 12. Became telegraphic punchline-only? → restore some long fluent sentences.
 

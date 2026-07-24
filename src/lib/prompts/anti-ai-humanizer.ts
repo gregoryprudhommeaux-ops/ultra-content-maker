@@ -39,7 +39,7 @@ ${buildHumanWritingRules(contentLanguage)}
 
 HUMANIZER extras (behaviors 2026):
 - Lexical purge: slogans, loft EN, FR calques, ES MX/ES mixups, soft-verb stacks, academic twins.
-- Syntax: max 1 em dash per paragraph; prefer zero not-X-but-Y; no unearned triplets; uneven paragraphs.
+- Syntax: max 1 em dash per paragraph; HARD BAN not-X-but-Y (zero); no unearned triplets; uneven paragraphs.
 - Density: some lines breathe; others carry multiple ideas · kill equal-weight one-idea-per-line slabs.
 - Depth zoom + reaction transitions + intentional key-word repeats + uneven reason lengths.
 - Hedges when not absolute; open experiential close (not moral).
@@ -52,9 +52,9 @@ ${format}`;
 
 export function buildAntiAiHumanizerGenerationHints(contentLanguage: ContentLanguage): string {
   const samples: Record<ContentLanguage, string> = {
-    fr: `"pour commencer,", "j'entends souvent", "en creusant", "même X, même Y, même Z (inline)", "je réfléchis à lancer un format", "moins de X plus de Y", "ce n'est pas X c'est Y", "morale finale"`,
-    en: `"first and foremost,", "phrase I often hear", "digging a bit", "same X, same Y, same Z", "thinking of launching a new format", "less X more Y", "it's not X, it's Y", "moral Wikipedia close"`,
-    es: `"para empezar,", "frase que escucho", "al indagar", "mismo X, mismo Y, mismo Z", "pensando en lanzar un formato", "menos X más Y", "no es solo X es Y", "cierre moral"`,
+    fr: `"pour commencer,", "j'entends souvent", "en creusant", "même X, même Y, même Z", "ce n'est pas X c'est Y", "j'ai passé X années", "personne ne parle de ça", "on a tous vécu", "simple mais puissant", "je prépare quelque chose", "je ne suis pas un expert mais", "morale finale"`,
+    en: `"first and foremost,", "phrase I often hear", "digging a bit", "same X, same Y, same Z", "it's not X, it's Y", "after X years in", "nobody talks about this", "we've all been there", "simple yet powerful", "something is coming", "I'm not an expert but", "moral Wikipedia close"`,
+    es: `"para empezar,", "frase que escucho", "al indagar", "mismo X, mismo Y, mismo Z", "no es solo X es Y", "después de X años", "nadie habla de esto", "todos hemos vivido", "simple pero poderoso", "estoy preparando algo", "no soy un experto pero", "cierre moral"`,
   };
   return `ANTI-IA 2026 (compact): delete ${samples[contentLanguage] ?? samples.en}. Uneven density + hedges + sharp verbs + voice asperities · not uniformly polished.`;
 }
