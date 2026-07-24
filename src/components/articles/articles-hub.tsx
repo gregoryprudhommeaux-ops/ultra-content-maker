@@ -21,7 +21,7 @@ import { isOnboardingBootstrapping } from "@/lib/workspace/onboarding-shell";
 import { GeneratingIndicator } from "@/components/ui/generating-indicator";
 import { useAuth } from "@/components/auth/auth-provider";
 import { listArticleBatches, type ArticleBatchGroup } from "@/lib/workspace/articles";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { BTN_PRIMARY } from "@/lib/ui/nextstep";
 import { useLocale, useTranslations } from "next-intl";
 import type { ArticleCreationMode, ContentLanguage } from "@/types/workspace";
@@ -51,7 +51,6 @@ export function ArticlesHub() {
   const locale = useLocale() as ContentLanguage;
   const { user, loading: authLoading } = useAuth();
   const { scope } = useWorkspace();
-  const router = useRouter();
   const { progress, loading: onboardingLoading } = useOnboardingProgress();
   const onboardingBootstrapping = isOnboardingBootstrapping(
     onboardingLoading,
@@ -83,13 +82,6 @@ export function ArticlesHub() {
     });
   }, [user, workspaceKey]);
 
-  useEffect(() => {
-    if (onboardingBootstrapping || !progress) return;
-    if (!progress.canAccessCreation) {
-      router.replace("/start");
-    }
-  }, [onboardingBootstrapping, progress, router]);
-
   const totalCount = useMemo(() => countArticles(batches), [batches]);
 
   const visibleBatches = useMemo(
@@ -112,12 +104,9 @@ export function ArticlesHub() {
   const hasAnyPosts = totalCount > 0;
   const hasFilterResults = visibleCount > 0;
 
-  if (
-    authLoading ||
-    !loaded ||
-    onboardingBootstrapping ||
-    !progress?.canAccessCreation
-  ) {
+  // Drafts / library stay reachable even if a setup flag (e.g. audience) flips mid-session.
+  // Creation remains gated on /articles/new and the sidebar "Créer" link.
+  if (authLoading || !loaded || onboardingBootstrapping) {
     return <GeneratingIndicator label="…" className="max-w-xl" />;
   }
 

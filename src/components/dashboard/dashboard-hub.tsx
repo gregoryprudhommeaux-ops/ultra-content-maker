@@ -106,7 +106,9 @@ export function DashboardHub() {
 
   useEffect(() => {
     if (onboardingBootstrapping || !progress) return;
-    if (!progress.canAccessCreation) {
+    // Only send brand-new accounts to /start. Existing drafts/library must stay open
+    // even if a setup flag (e.g. audience) flips mid-session.
+    if (!progress.canAccessCreation && !progress.completion.hasGeneratedPost) {
       router.replace("/start");
     }
   }, [onboardingBootstrapping, progress, router]);
@@ -157,12 +159,11 @@ export function DashboardHub() {
   const hasFilterResults = visibleCount > 0;
   const isPendingView = filters.status === "pending";
 
-  if (
-    authLoading ||
-    !loaded ||
-    onboardingBootstrapping ||
-    !progress?.canAccessCreation
-  ) {
+  if (authLoading || !loaded || onboardingBootstrapping) {
+    return <GeneratingIndicator label="…" className="max-w-xl" />;
+  }
+
+  if (!progress?.canAccessCreation && !progress?.completion.hasGeneratedPost) {
     return <GeneratingIndicator label="…" className="max-w-xl" />;
   }
 

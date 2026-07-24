@@ -5,6 +5,37 @@ import { readScopedOrLegacyDoc, workspaceDocRef } from "./workspace-scope";
 
 const DOC_ID = "profile";
 
+const AUDIENCE_STRING_KEYS = [
+  "targetLabel",
+  "contentFocus",
+  "contentNiche",
+  "newsInterestQuery",
+  "optionalNotes",
+] as const;
+
+type AudienceWritable = Partial<Omit<AudienceProfile, "updatedAt">> & {
+  skipped?: boolean;
+};
+
+function audiencePatchPayload(input: AudienceWritable): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    updatedAt: serverTimestamp(),
+  };
+
+  for (const key of AUDIENCE_STRING_KEYS) {
+    if (!Object.prototype.hasOwnProperty.call(input, key)) continue;
+    const value = input[key];
+    payload[key] =
+      typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(input, "skipped")) {
+    payload.skipped = Boolean(input.skipped);
+  }
+
+  return payload;
+}
+
 export async function getAudienceProfile(userId: string): Promise<AudienceProfile | null> {
   const d = await readScopedOrLegacyDoc(userId, (x) => x, "audience", DOC_ID);
   if (!d) return null;
@@ -19,21 +50,15 @@ export async function getAudienceProfile(userId: string): Promise<AudienceProfil
   };
 }
 
-export async function saveAudienceProfile(
-  userId: string,
-  input: Partial<Omit<AudienceProfile, "updatedAt">> & { skipped?: boolean },
-) {
+/**
+ * Partial merge: only writes keys present on `input`.
+ * Callers that only update niche / news interest must not wipe targetLabel,
+ * contentFocus, or a prior `skipped: true` (that ejects users from creation).
+ */
+export async function saveAudienceProfile(userId: string, input: AudienceWritable) {
   await setDoc(
     workspaceDocRef(userId, "audience", DOC_ID),
-    {
-      targetLabel: input.targetLabel ?? null,
-      contentFocus: input.contentFocus ?? null,
-      contentNiche: input.contentNiche ?? null,
-      newsInterestQuery: input.newsInterestQuery ?? null,
-      optionalNotes: input.optionalNotes ?? null,
-      skipped: input.skipped ?? false,
-      updatedAt: serverTimestamp(),
-    },
+    audiencePatchPayload(input),
     { merge: true },
   );
   const { getAuthorProfile } = await import("@/lib/workspace/author");
@@ -47,3 +72,6 @@ export async function saveAudienceProfile(
 export async function skipAudienceStep(userId: string) {
   await saveAudienceProfile(userId, { skipped: true });
 }
+
+/** Exported for unit tests. */
+export { audiencePatchPayload };
