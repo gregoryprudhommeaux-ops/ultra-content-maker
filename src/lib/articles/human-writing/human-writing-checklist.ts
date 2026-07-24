@@ -48,9 +48,11 @@ const AUTO_FIXABLE_IDS = new Set([
   "two_sentence_blocks",
   "emoji_count",
   "emoji_line_start",
+  "decorative_emoji_suffix",
   "not_x_its_y",
   "uniform_sentence_rhythm",
   "uniform_paragraph_size",
+  "uniform_list_length",
 ]);
 
 function isAutoFixable(violation: HumanWritingViolation): boolean {

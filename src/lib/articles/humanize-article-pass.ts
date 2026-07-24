@@ -66,6 +66,11 @@ export function shouldHumanizeArticle(
     "anaphora_stack",
     "vague_coming_soon_cta",
     "false_humility",
+    "geo_sector_filler",
+    "self_title_hook",
+    "thread_meta_promise",
+    "hindsight_regret_hook",
+    "decorative_emoji_suffix",
   ];
   const hasBlockingFlag = slop.flags.some((f) =>
     blockingFlags.some((b) => f === b || f.includes(b)),

@@ -97,6 +97,27 @@ describe("lintHumanWriting · not X it's Y", () => {
   });
 });
 
+describe("lintHumanWriting · uniform list + decorative emoji suffix", () => {
+  it("flags 5+ bullets of near-identical length", () => {
+    const text = [
+      "- Build a clear filter for every seat",
+      "- Build a clear filter for every room",
+      "- Build a clear filter for every deal",
+      "- Build a clear filter for every call",
+      "- Build a clear filter for every intro",
+    ].join("\n");
+    const violations = lintHumanWriting(text, { contentLanguage: "en" });
+    assert.ok(violations.some((v) => v.id === "uniform_list_length"));
+  });
+
+  it("flags decorative emoji at end of hook", () => {
+    const text =
+      "A small table beats a big room 🚀\n\nHere is why selection matters.";
+    const violations = lintHumanWriting(text, { contentLanguage: "en" });
+    assert.ok(violations.some((v) => v.id === "decorative_emoji_suffix"));
+  });
+});
+
 describe("runHumanWritingChecklist", () => {
   it("returns critical summary for heavy violations", () => {
     const text = `💡 Ligne un

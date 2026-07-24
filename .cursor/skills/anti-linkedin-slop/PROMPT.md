@@ -92,12 +92,14 @@ Survey-hook hard OR soft (même arc):
 - Arc trop clean: thèse → préférence → communauté → teaser “nouveau format” → CTA, paragraphes de longueur égale
 - Lexique sobre + hedge mais zéro aspérité / doute terrain → injecter 1 friction ou 1 critère fort seul
 
-**Teaser failure pack** (job TEASER · blocking):
-- Funnel dump waitlist→profil→invitation→plaza dans un teaser
-- Follower-proof bait (*pueden dar fe* / *those who follow me can vouch*)
-- CTA LinkedIn bait (*comenta y agrégame* / *comment and connect* / *like if*)
-- Network moral close (*buena red no se mide* / *good network isn’t measured*)
-- WIP soft (*perfeccionando* / *lo que realmente me interesa* / *I’m refining a format*)
+**Job** (déclarer TEASER | EXPLAIN | CONVERT · voir TELLS-CATALOG Partie 2): scan d’abord les *Tells prioritaires* du job ; les 60 IDs restent interdits.
+
+**Teaser failure pack** (job TEASER · blocking · IDs):
+- `#55` funnel dump waitlist→profil→invitation→plaza
+- `#49` follower-proof (*pueden dar fe* / *those who follow me can vouch*)
+- `#47` CTA LinkedIn bait (*comenta y agrégame* / *like if*)
+- `#50` network moral (*buena red no se mide* / *good network isn’t measured*)
+- `#51` WIP soft (*perfeccionando* / *lo que realmente me interesa*)
 
 Aussi interdits: sandwich hook ; Pour commencer / First and foremost / Para empezar ; spam transitions ; emoji+Gras bullets ; scènes fake ; 3 lessons ; next-level bait ; engagement bait ; geo-filler ; closes morales Wikipedia.
 
@@ -105,7 +107,7 @@ Rewrite: thèse nette → **un** critère de qualification asymétrique (pas 3) 
 
 ## LEXIQUE A–J (résumé)
 
-Intros clichés ; jargon/hyperboles ; loft EN (testament, beacon, tapestry, pivotal, delve, journey…) ; soft ES slogans ; ES MX≠ES (vosotros/vale/ordenador vs computadora/platicar/coordinar).
+Intros clichés ; jargon/hyperboles ; loft EN (testament, beacon, tapestry, pivotal, delve, journey…) ; soft ES slogans ; **ES MX≠ES** (défaut GDL = MX B2B pro-chaleureux · ban vosotros/vale/ordenador/venga · prefer computadora/platicar/coordinar/celular · pas de slang street *güey* ni colloquial ES *tío* pour « localiser » · pas d’español neutro IA).
 
 ## SYNTAXE K
 
@@ -114,11 +116,19 @@ Intros clichés ; jargon/hyperboles ; loft EN (testament, beacon, tapestry, pivo
 
 ## TELLS LINKEDIN CLASSIQUES (2026-07-24)
 
-HARD BAN: years-légitimation ; faux scoop ; CTA rhétorique fermé (≠ question ouverte mid-body) ; fausse intimité « on a tous » ; milestone abonnés ; « simple mais puissant » ; anaphore ×3 ; coming-soon vague ; fausse humilité « je ne suis pas un expert mais ».
+HARD BAN: years-légitimation ; faux scoop ; CTA rhétorique fermé (≠ question ouverte mid-body) ; fausse intimité « on a tous » ; milestone abonnés ; « simple mais puissant » ; anaphore ×3 ; coming-soon vague ; fausse humilité « je ne suis pas un expert mais » ; auto-titre *En tant que [titre]…* ; meta-promise *Ce thread va changer…*.
+
+Aussi BAN/BLOCKING: *j’aurais aimé savoir ça avant* ; listes 5+ longueur égale ; emoji décoratif en suffixe (🔥🚀💡).
 
 ## COMPORTEMENTS L–S
 
-Verbes mous→nets ; mot courant>académique ; densité inégale ; transitions émotionnelles ; hedges ; répétitions intentionnelles ; profondeur inégale ; ponctuation variée ; closes ouvertes.
+| À éviter | À faire |
+|----------|---------|
+| Verbes mous (*permettre, favoriser*) | Verbe d’action net (*envoie, coupe, livre*) |
+| Densité plate | Alternance court / dense / respiration |
+| Close engagement bait | Close ouverte sans pression |
+
+Aussi : mot courant>académique ; hedges ; profondeur inégale ; ponctuation variée. Anti-sur-correction : pas de style « punchline only ».
 
 ## CHECKLIST
 

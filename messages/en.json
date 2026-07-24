@@ -2693,7 +2693,13 @@
           "simple_yet_powerful": "Simple yet powerful",
           "anaphora_stack": "Anaphora ×3 (When…/If…)",
           "vague_coming_soon_cta": "Something is coming…",
-          "false_humility": "I'm not an expert, but…"
+          "false_humility": "I'm not an expert, but…",
+          "geo_sector_filler": "Interchangeable geo/sector opener",
+          "self_title_hook": "As a [title]… (self-title hook)",
+          "thread_meta_promise": "This thread will change how you see…",
+          "hindsight_regret_hook": "I wish I knew this earlier",
+          "uniform_list_length": "5+ list items, same length",
+          "decorative_emoji_suffix": "Decorative emoji suffix (🔥🚀💡)"
         },
         "humanWriting": {
           "title": "Human writing checklist",

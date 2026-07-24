@@ -225,11 +225,78 @@ function detectEmojiIssues(text: string): HumanWritingViolation[] {
     });
   }
 
+  if (detectDecorativeEmojiSuffix(text)) {
+    violations.push({
+      id: "decorative_emoji_suffix",
+      category: "emojis",
+      severity: "error",
+      message: "Decorative emoji at end of title/bullet (🔥🚀💡…)",
+    });
+  }
+
   return violations;
+}
+
+/** 🔥🚀💡 etc. as pure decoration after a title or bullet line. */
+function detectDecorativeEmojiSuffix(text: string): boolean {
+  const decorative =
+    /[🔥🚀💡✨✅🎯💪🙌⭐️⭐🌟📈🎉💎🏆]/u;
+  const lines = text
+    .split(/\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 6);
+  if (lines.length === 0) return false;
+
+  const endsDecorative = (line: string) => {
+    const stripped = line.replace(/\s+$/u, "");
+    // Must have real text before the emoji (not emoji-only line)
+    if (!/\S.*\p{Extended_Pictographic}/u.test(stripped)) return false;
+    return (
+      decorative.test(stripped) &&
+      /\p{Extended_Pictographic}\s*$/u.test(stripped)
+    );
+  };
+
+  const listLines = lines.filter((l) => /^[-*•]|^\d+[.)]/.test(l));
+
+  // Hook / first line
+  if (endsDecorative(lines[0])) return true;
+
+  // Any bullet / numbered item with decorative suffix
+  return listLines.some(endsDecorative);
+}
+
+function detectUniformListLength(text: string): HumanWritingViolation | null {
+  const bullets = text
+    .split(/\n/)
+    .map((l) => l.trim())
+    .filter((l) => /^[-*•]/.test(l) || /^\d+[.)]/.test(l));
+  if (bullets.length < 5) return null;
+
+  const lengths = bullets.map((l) =>
+    l.replace(/^[-*•\d.)\s]+/, "").replace(/\p{Extended_Pictographic}/gu, "").trim()
+      .length,
+  );
+  const avg = lengths.reduce((a, b) => a + b, 0) / lengths.length;
+  if (avg < 12) return null;
+  const tolerance = Math.max(8, avg * 0.18);
+  const allSimilar = lengths.every((len) => Math.abs(len - avg) <= tolerance);
+  if (!allSimilar) return null;
+
+  return {
+    id: "uniform_list_length",
+    category: "paragraphs",
+    severity: "warn",
+    message: `${bullets.length} list items with near-identical length (Excel-grid effect)`,
+  };
 }
 
 function detectParagraphPattern(text: string): HumanWritingViolation[] {
   const violations: HumanWritingViolation[] = [];
+
+  const uniformList = detectUniformListLength(text);
+  if (uniformList) violations.push(uniformList);
+
   const paragraphs = splitParagraphs(text);
   if (paragraphs.length < 2) return violations;
 

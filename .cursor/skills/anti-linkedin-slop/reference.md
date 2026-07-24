@@ -46,6 +46,8 @@ Prefer concrete: mesa chica, un tema, invitados cuando hay fit, Guadalajara. Foo
 - EN: *however*, *moreover*, *additionally*, *furthermore* (sentence-initial spam)
 - ES: *sin embargo*, *además*, *por lo tanto*, *en ese sentido* (mechanical)
 
+**Overlap with numbered moral lists (`numbered_moral_list`):** *Premièrement / First / Primero* as a **local school connector** (open a paragraph) = `school_opener`. A full **“3 lessons / 1-2-3 moral arc”** for the whole post = `numbered_moral_list`. Shared “numbering” signal — name both when present; do not collapse into one ID. Disambiguate: *Premièrement* inside a lessons checklist → primarily `#42`; *Premièrement* as bare intro glue → `#3`.
+
 ## D. Next-level bait & moral closes
 
 - FR: *passer au niveau supérieur ?*, *au final… mindset*, *en fin de compte…*
@@ -91,13 +93,15 @@ When the brief is a **TEASER** (desire / POV), not an EXPLAIN, ban these as bloc
 4. **Network moral close** — *una buena red no se mide por…* / *a good network isn’t measured by…* / *un bon réseau ne se mesure pas par…* (Wikipedia packaging).
 5. **WIP soft stack** — *estoy perfeccionando* / *I’m refining a format* / *je perfectionne* / *lo que realmente me interesa* as the spine (use sharp verbs: *estoy armando / I’m building / j’installe*).
 
-**Job taxonomy (generation must declare one):**
-| Job | Max length | Allowed product | CTA |
-|-----|------------|-----------------|-----|
-| TEASER | ~120–150 words | ≤1 sentence | DM or link |
-| EXPLAIN | longer OK | funnel OK | soft |
-| CONVERT | short | seat/invite clear | DM / link, never comment-bait |
+**Job taxonomy (generation must declare one · maps to tell IDs — see TELLS-CATALOG Partie 2):**
 
+| Job | Max length | Allowed product | CTA | Priority banned tells |
+|-----|------------|-----------------|-----|----------------------|
+| TEASER | ~120–150 words | ≤1 sentence | DM or link | `funnel_dump_teaser` · `follower_proof_bait` · `engagement_bait` · `network_moral_close` · `wip_soft_spine` · `vague_coming_soon_cta` · `soft_format_teaser` · `numbered_moral_list` |
+| EXPLAIN | longer OK | funnel OK | soft | survey-hook `#10–16` · `clean_framework_arc` · `numbered_moral_list` · `years_legitimation` · `fake_scoop` · `not_x_its_y` · `real_lever_close` · `wikipedia_moral_close` |
+| CONVERT | short | seat/invite clear | DM / link, never comment-bait | `engagement_bait` · `closed_rhetorical_cta` · `follower_proof_bait` · `vague_coming_soon_cta` · `network_moral_close` · `real_lever_close` · `simple_yet_powerful` · `funnel_dump_teaser` if the post turns into a funnel tutorial |
+
+All 60 catalog tells remain banned; priority column = scan first for that job.
 ## E2. Classic LinkedIn legitimacy / intimacy / teaser tells (2026-07-24)
 
 Hard ban as packaging (rewrite even if “true” in the brief — rephrase without the formula):
@@ -113,6 +117,22 @@ Hard ban as packaging (rewrite even if “true” in the brief — rephrase with
 | `anaphora_stack` | 3+ bullets/phrases d’affilée qui démarrent par le même mot (*Quand… / Si…*) | Same with *When… / If…* | Same with *Cuando… / Si…* |
 | `vague_coming_soon_cta` | *Je prépare quelque chose. Reste à l’écoute.* | *Something is coming… Stay tuned.* | *Estoy preparando algo. Mantente atento.* |
 | `false_humility` | *Je ne suis pas un expert, mais…* (+ contenu très prescriptif) | *I’m not an expert, but…* | *No soy un experto, pero…* |
+| `self_title_hook` | *En tant que CEO / thought leader…* (accroche) | *As a serial entrepreneur…* | *Como experto / founder…* |
+| `thread_meta_promise` | *Ce thread va changer ta façon de voir…* | *This thread will change how you see…* | *Este hilo va a cambiar…* |
+| `hindsight_regret_hook` | *J’aurais aimé savoir ça avant* | *I wish I knew this earlier* | *Ojalá lo hubiera sabido antes* |
+
+Lint / structure (also catalogued): `uniform_list_length` (5+ bullets near-identical length) · `decorative_emoji_suffix` (🔥🚀💡 at end of title/bullet — ≠ leading `emoji_line_start`).
+
+### Structural content tell · `geo_sector_filler` (#43)
+
+Not lexicon / not rhythm — **interchangeable opener**. Human oracle: swap the geo/sector proper noun; if the claim still holds, rewrite.
+
+**Programmatic proxy** (`detectGeoSectorFiller` in UCM `slop-detector.ts`):
+1. Opener window = first 2 paragraphs or ~320 chars
+2. Match a **frame bound to a geo/sector slot** (Mexique/Mexico/LatAm/… or SaaS/fintech/tech…): *Au SLOT, aujourd’hui / le marché…* · *SLOT est une opportunité* · *SLOT … comme ailleurs* · *doing business in SLOT* · *Dans la tech aujourd’hui*
+3. **Exempt** if the same window has a non-swappable anchor: digit, `%`, `$`/`€`, or deadline lexeme (*avant / before / antes / d’ici / deadline*)
+
+Status: **BAN** · weight 2 · blocking humanizer gate.
 
 ### Rhetorical question — two buckets (no doublon)
 
@@ -128,11 +148,24 @@ Do not list “rhetorical question” twice as syntax + close. Treat **closed CT
 - *Ce matin / Dimanche soir / Un client m’a appelé en panique*
 - *Yesterday a CEO DM’d me…* (unless in source)
 
-## G. Spanish regional filter (critical)
+## G. Spanish regional filter (critical · MX ≠ ES)
+
+**Default for Guadalajara / LA MESA:** Mexican warm-pro B2B — not Castilian Spain, not fake “español neutro”, not street slang dumped for flavor.
 
 ### Mexico target — avoid Spain tells
-Ban: *vosotros*, *vale*, *venga*, *ordenador*
-Prefer when natural: *computadora*, *platicar* (warm professional), *coordinar una reunión/llamada* (not *agendar una llamada*), *eliminar/quitar* (not *remover* for delete)
+| Ban (ES-Spain leak) | Prefer (MX) |
+|---------------------|-------------|
+| *vosotros / os* | *ustedes / los* or *tú* per Persona |
+| *vale / venga* | *ok / de acuerdo / vamos* |
+| *ordenador* | *computadora* |
+| *móvil* (strong ES cast) | *celular* |
+| *agendar una llamada* | *coordinar una reunión/llamada* |
+| *remover* (delete) | *eliminar / quitar* |
+| *coger* (take) | *tomar / agarrar* (sense differs MX↔ES) |
+
+Also prefer when natural: *platicar* (warm-pro), concrete Guadalajara stakes over generic “LatAm market” filler.
+
+**Register:** *güey* ≠ *tío* means “don’t import another country’s colloquial” — LinkedIn B2B GDL still isn’t street MX (*güey/órale* spam) nor Madrid bar talk (*tío/mola*).
 
 ### Spain target — avoid LATAM-only calques
 Use local direct register; don’t paste Mexico-only fillers. No fake “español neutro” (tú + ultra-distant formality + bad gerunds calqued from English *-ing*).
@@ -141,6 +174,8 @@ Use local direct register; don’t paste Mexico-only fillers. No fake “españo
 - *agendar una llamada* → *coordinar una reunión/llamada*
 - *remover* (delete sense) → *eliminar / quitar*
 - Bad gerund calque: *…siendo publicado hoy* style English *-ing* dumps
+
+Runtime: `es_spain_in_mx_tell` (*vosotros|vale|ordenador*), `es_agendar`.
 
 ## H. Bullet / emoji UI slop
 
@@ -194,13 +229,21 @@ Even blocks (≈same line count every paragraph) read as model output. Vary hard
 
 ## L. Soft / mushy verbs (prefer sharp)
 
+**Comportements express (L / N / S) :**
+
+| À éviter | À faire |
+|----------|---------|
+| Verbes mous (*permettre, favoriser*) | Verbe d’action net (*envoie, coupe, livre, bloque, casse*) |
+| Densité plate | Alternance court / dense / respiration |
+| Close engagement bait | Close ouverte sans pression |
+
 Blacklist when a concrete verb exists:
 
 | Soft (ban/prefer replace) | Sharp direction |
 |---------------------------|-----------------|
-| FR *permettre, favoriser, contribuer à, offrir, garantir, assurer, perfectionner (WIP)* | *bloque, casse, ralentit, pousse, évite, force* · *j’installe / je construis* |
-| EN *enable, foster, facilitate, provide, ensure, allow, help* (vague), *perfecting / refining a format* | *blocks, breaks, slows, pushes* · *I’m building / I’m installing* |
-| ES *permitir, fomentar, contribuir, ofrecer, garantizar, asegurar* (vago), *perfeccionando*, *lo que realmente me interesa* | *bloquea, frena, empuja* · *estoy armando* |
+| FR *permettre, favoriser, contribuer à, offrir, garantir, assurer, perfectionner (WIP)* | *envoie, coupe, livre, bloque, casse, ralentit, pousse, évite* · *j’installe / je construis* |
+| EN *enable, foster, facilitate, provide, ensure, allow, help* (vague), *perfecting / refining a format* | *sends, cuts, ships, blocks, breaks, slows, pushes* · *I’m building / I’m installing* |
+| ES *permitir, fomentar, contribuir, ofrecer, garantizar, asegurar* (vago), *perfeccionando*, *lo que realmente me interesa* | *manda, corta, entrega, bloquea, frena, empuja* · *estoy armando* |
 
 ## M. Overly clean / academic diction
 

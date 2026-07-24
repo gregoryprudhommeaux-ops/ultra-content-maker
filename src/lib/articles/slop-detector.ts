@@ -57,6 +57,10 @@ const SLOP_PATTERNS: { id: string; re: RegExp; weight: number }[] = [
   { id: "simple_yet_powerful", re: /\b(simple (mais|et) puissant|simple yet powerful|simple but powerful|simple pero poderos[oa]|sencillo pero poderos[oa])\b/i, weight: 3 },
   { id: "vague_coming_soon_cta", re: /\b(je pr[ée]pare quelque chose|reste[rz]? [àa] l[''][ée]coute|something is coming|stay tuned|big (things?|news) (are |is )?coming|estoy preparando algo|mantente? (atento|al tanto)|pr[oó]ximamente algo)\b/i, weight: 3 },
   { id: "false_humility", re: /\b(je (ne )?suis pas (un |une )?(expert|sp[ée]cialiste)|i(''|’)m not (an? )?(expert|specialist)|no soy (un |una )?(experto|especialista)),?\s*(mais|but|pero)\b/i, weight: 3 },
+  // Hook packaging 2026-07-24 (g)
+  { id: "self_title_hook", re: /\b(en tant qu['’e]|as an?|como(?: un[ea]?)?)\s+.{0,48}\b(ceo|cto|cmo|founder|co-?founder|serial entrepreneur|thought[\s-]?leader|expert|leader|coach|consultant|visionnaire|directeur|fondateur|especialista|emprendedor|influencer|l[ií]der de opini[oó]n)\b/i, weight: 3 },
+  { id: "thread_meta_promise", re: /\b((ce|this|este)\s+(thread|hilo|carousel|carrusel|post).{0,70}(va (changer|transformer)|will (change|transform)|cambiar[aá]|va a cambiar).{0,50}(fa[cç]on|way|manera|forma|c[oó]mo (ves|ves|miras))|(this|ce|este)\s+(thread|hilo).{0,40}(must[\s-]?read|[àa] ne pas manquer|imprescindible|game[\s-]?chang))\b/i, weight: 3 },
+  { id: "hindsight_regret_hook", re: /\b(j['’]aurais aim[ée] (le )?savoir|i wish i(''|’)?d known|i wish i (had )?(known|knew)|what i wish i (had )?(known|knew)|si (lo )?hubiera sabido|me hubiera gustado saber|ojal[aá] (lo )?hubiera sabido|si seulement j['’]avais su)\b/i, weight: 2 },
 ];
 
 /** Detect 3+ consecutive lines/sentences starting with the same opener word (Quand/Si/When/If…). */
@@ -99,6 +103,65 @@ function firstToken(line: string): string | null {
   ]);
   return watch.has(t) ? t : null;
 }
+
+/**
+ * Structural content tell (#43 geo_sector_filler): opener where swapping
+ * geo/sector still "works". Not a lexicon ban — heuristic only.
+ * Spec: TELLS-CATALOG.md → Détection programmatique · #43
+ */
+export function detectGeoSectorFiller(text: string): boolean {
+  const opener = geoSectorOpenerWindow(text);
+  if (!opener) return false;
+  if (NON_SWAPABLE_ANCHOR.test(opener)) return false;
+  return GEO_SECTOR_FRAMES.some((re) => re.test(opener));
+}
+
+function geoSectorOpenerWindow(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+  const paras = trimmed.split(/\n\s*\n/).filter((p) => p.trim().length > 0);
+  const fromParas = paras.slice(0, 2).join("\n\n");
+  if (fromParas.length > 0 && fromParas.length <= 320) return fromParas;
+  return trimmed.slice(0, 320);
+}
+
+/** Digits, money, %, deadlines — stake that survives a geo swap. */
+const NON_SWAPABLE_ANCHOR =
+  /\d|[%$€]|(\b(avant|before|antes|deadline|d['’]ici)\b)/i;
+
+const GEO =
+  "mexique|mexico|m[eé]xico|guadalajara|am[eé]rique latine|am[eé]rica latina|latinoam[eé]rica|latam|latin america|france|espa[nñ]a|spain|europe|asie|asia|colombia|colombie|argentine|argentina|br[eé]sil|brazil|usa|etats?-unis|united states|allemagne|germany|canada";
+const SECTOR = "saas|fintech|tech|retail|industrie|healthcare|salud|health[- ]?care";
+const SLOT = `(?:${GEO}|${SECTOR})`;
+
+const GEO_SECTOR_FRAMES: RegExp[] = [
+  // Au/En/In SLOT, today / the market / companies…
+  new RegExp(
+    `\\b(au|en|in|dans(?:\\s+la)?)\\s+(?:${SLOT})\\b\\s*[,:]?\\s*(aujourd['’]hui|today|hoy|le march[eé]|the market|el mercado|les entreprises|companies|las empresas|los l[ií]deres|founders|emprendedores)\\b`,
+    "i",
+  ),
+  // SLOT is an opportunity / booming / dynamique
+  new RegExp(
+    `\\b(?:${SLOT})\\b\\s+(est|is|est[aá]|offre|offers|presenta)\\b.{0,50}\\b(opportunit|opportunity|oportunidad|dynamique|booming|creciendo|en pleine)\\w*`,
+    "i",
+  ),
+  // SLOT … comme ailleurs / as elsewhere
+  new RegExp(
+    `\\b(?:${SLOT})\\b[\\s\\S]{0,80}\\b(comme ailleurs|as elsewhere|como en cualquier|como en todas partes)\\b`,
+    "i",
+  ),
+  // doing business in SLOT
+  new RegExp(
+    `\\b(doing business|faire des affaires|hacer negocios)\\s+(in|au|en|dans)\\s+(?:${SLOT})\\b`,
+    "i",
+  ),
+  // Dans la tech/SaaS aujourd'hui (sector-only frame)
+  new RegExp(
+    `\\b(dans|in|en)\\s+(la\\s+)?(?:${SECTOR})\\b\\s*[,:]?\\s*(aujourd['’]hui|today|hoy)\\b`,
+    "i",
+  ),
+];
+
 /** Only when productFrame = la_mesa_dinners — dinners ≠ market-entry consulting pitch. */
 const LA_MESA_MARKET_ENTRY_MISMATCH = {
   id: "la_mesa_market_entry_mismatch",
@@ -135,6 +198,11 @@ export function detectSlop(
   if (detectAnaphoraStack(combined)) {
     flags.push("anaphora_stack");
     penalty += 3;
+  }
+
+  if (detectGeoSectorFiller(combined)) {
+    flags.push("geo_sector_filler");
+    penalty += 2;
   }
 
   if (

@@ -1,5 +1,33 @@
 # Changelog · /anti-linkedin-slop · Mr. ANTI-AI-SLOP
 
+## 2026-07-24 (h) — Comportements mini-grille À éviter / À faire
+
+Partie 4 lead table: soft verbs → sharp (*envoie, coupe, livre*) · flat density → short/dense/breath · engagement-bait close → open close. Mirrored in PROMPT, reference L, `human-writing-rules.ts`.
+
+## 2026-07-24 (g) — Five missing classic tells (#56–60)
+
+| ID | Status | Runtime |
+|----|--------|---------|
+| `self_title_hook` | HARD BAN | `slop-detector` |
+| `uniform_list_length` | BAN (lint) | `human-writing-lint` · 5+ near-equal bullets |
+| `thread_meta_promise` | HARD BAN | `slop-detector` |
+| `hindsight_regret_hook` | BAN | `slop-detector` |
+| `decorative_emoji_suffix` | BLOCKING | lint · ≠ `emoji_line_start` (suffix vs prefix) |
+
+Catalog counter → **60**. Named overlaps with emoji_line_start / uniform_paragraph_size.
+
+## 2026-07-24 (f) — Expand MX ≠ ES regional filter (TELLS Partie 3)
+
+Partie 3 “Filtre ES régional” was a one-liner. Replaced with a dedicated block: register (MX B2B warm-pro vs Castilian vs fake neutro vs street), concrete lexical table (vosotros/vale/ordenador/móvil/agendar/remover/coger), *güey≠tío* as “don’t import another country’s colloquial”, runtime IDs. Mirrored in reference.md + PROMPT.
+
+## 2026-07-24 (e) — `geo_sector_filler` detection contract + runtime
+
+`#43` is the only structural *content* tell (not lexicon/rhythm). Catalog now documents a 5-step programmable heuristic (opener window → geo/sector slot → template frame → non-swappable anchor exemption). Implemented as `detectGeoSectorFiller` in UCM `slop-detector.ts` (blocking humanizer gate).
+
+## 2026-07-24 (d) — Job taxonomy actionable (not an orphan brief)
+
+TELLS-CATALOG Partie 2: TEASER / EXPLAIN / CONVERT table now has **Tells interdits prioritaires** (IDs). Added `#55` `funnel_dump_teaser` (already in UCM `slop-detector`) so the teaser failure pack maps 1:1. Rule: declare job → scan priority tells first; all catalog IDs still banned.
+
 ## 2026-07-24 (c) — Name functional overlaps (do not merge IDs)
 
 Reviewer note on TELLS-CATALOG:

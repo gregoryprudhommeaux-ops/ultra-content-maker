@@ -30,9 +30,9 @@ export function buildHumanWritingRules(contentLanguage: ContentLanguage): string
   };
 
   const softVerbs: Record<ContentLanguage, string> = {
-    fr: 'éviter verbes mous empilés: "permettre/favoriser/contribuer/offrir/garantir/assurer" → préférer "bloque, casse, ralentit, pousse, évite"',
-    en: 'avoid mushy verb stacks: "enable/foster/facilitate/provide/ensure" → prefer "blocks, breaks, slows, pushes, avoids"',
-    es: 'evitar verbos blandos: "permitir/fomentar/contribuir/ofrecer/garantizar" → preferir "bloquea, frena, empuja, evita"',
+    fr: 'éviter verbes mous empilés: "permettre/favoriser/contribuer/offrir/garantir/assurer" → préférer "envoie, coupe, livre, bloque, casse, pousse"',
+    en: 'avoid mushy verb stacks: "enable/foster/facilitate/provide/ensure" → prefer "sends, cuts, ships, blocks, breaks, pushes"',
+    es: 'evitar verbos blandos: "permitir/fomentar/contribuir/ofrecer/garantizar" → preferir "manda, corta, entrega, bloquea, frena, empuja"',
   };
 
   return `HUMAN WRITING (anti-AI detection · ${lang} · non-negotiable):
@@ -54,6 +54,7 @@ Meta-goal: not "undetectable AI" · a text that feels written by an identifiable
 - Never 4–5 consecutive same-length sentences.
 
 3) Variabilité humaine (behaviors, not just bans)
+- Rewrite priority grid: soft verbs → sharp action verbs (envoie/coupe/livre) · flat density → short/dense/breath · engagement-bait close → open close without pressure.
 - Uneven information density: some lines only breathe; others pack several ideas · reject equal-weight one-idea-per-line slabs.
 - Depth zoom: concrete → general → concrete → opinion.
 - Reaction transitions when natural ("Ce qui m'a surpris", "Franchement", "Honestly", "Lo que me sorprendió") · not only flat "Ensuite / En pratique / Enfin".
@@ -71,7 +72,7 @@ Meta-goal: not "undetectable AI" · a text that feels written by an identifiable
 5) Structure patterns to break
 - Reject every-paragraph-exactly-2-sentences slabs and even paragraph heights.
 - Avoid sandwich hooks (shock + blank + explain) as default.
-- Open closes ("C'est comme ça que je le vois aujourd'hui") · not moral Wikipedia ("Finalement, tout est une question d'exécution").
+- Open closes without pressure ("C'est comme ça que je le vois aujourd'hui" / "Si tu es dans ce cas, dis-moi ce que tu as essayé") · not moral Wikipedia ("Finalement, tout est une question d'exécution") · not engagement bait (Agree? / Like if / closed rhetorical CTA).
 
 6) Voice & length
 - Preserve 1–2 author voice markers when revising.

@@ -2694,7 +2694,13 @@
           "simple_yet_powerful": "Simple mais puissant",
           "anaphora_stack": "Anaphore ×3 (Quand…/Si…)",
           "vague_coming_soon_cta": "Je prépare quelque chose…",
-          "false_humility": "Je ne suis pas un expert, mais…"
+          "false_humility": "Je ne suis pas un expert, mais…",
+          "geo_sector_filler": "Opener marché/secteur interchangeable",
+          "self_title_hook": "En tant que [titre]… (auto-titre)",
+          "thread_meta_promise": "Ce thread va changer ta façon de voir…",
+          "hindsight_regret_hook": "J'aurais aimé savoir ça avant",
+          "uniform_list_length": "Liste 5+ items longueur égale",
+          "decorative_emoji_suffix": "Emoji décoratif en fin de ligne (🔥🚀💡)"
         },
         "humanWriting": {
           "title": "Checklist écriture humaine",

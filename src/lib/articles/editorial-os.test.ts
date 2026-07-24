@@ -91,4 +91,41 @@ describe("editorial OS", () => {
       }).flags.includes("la_mesa_market_entry_mismatch"),
     );
   });
+
+  it("flags geo_sector_filler on interchangeable market openers", () => {
+    const filler =
+      "Au Mexique, aujourd'hui les entreprises cherchent encore du réseau de qualité.";
+    assert.ok(
+      detectSlop(filler, { contentLanguage: "fr" }).flags.includes(
+        "geo_sector_filler",
+      ),
+    );
+    const anchored =
+      "Au Mexique j'ai refus\u00e9 3 deals cette semaine parce que le fit table n'\u00e9tait pas l\u00e0.";
+    assert.ok(
+      !detectSlop(anchored, { contentLanguage: "fr" }).flags.includes(
+        "geo_sector_filler",
+      ),
+    );
+  });
+
+  it("flags self_title_hook, thread_meta_promise, hindsight_regret_hook", () => {
+    assert.ok(
+      detectSlop(
+        "En tant que serial entrepreneur, voici ce que j'ai appris sur le r\u00e9seau.",
+        { contentLanguage: "fr" },
+      ).flags.includes("self_title_hook"),
+    );
+    assert.ok(
+      detectSlop(
+        "Ce thread va changer ta fa\u00e7on de voir le networking.",
+        { contentLanguage: "fr" },
+      ).flags.includes("thread_meta_promise"),
+    );
+    assert.ok(
+      detectSlop("I wish I knew this earlier about warm intros.", {
+        contentLanguage: "en",
+      }).flags.includes("hindsight_regret_hook"),
+    );
+  });
 });
