@@ -4,6 +4,7 @@ import { AdminSupportRenewalsPanel } from "@/components/admin/admin-support-rene
 import { AdminCommercialProposalsPanel } from "@/components/admin/admin-commercial-proposals-panel";
 import { AdminBillingInvoicesPanel } from "@/components/admin/admin-billing-invoices-panel";
 import { AdminCockpitSection } from "@/components/admin/admin-cockpit-layout";
+import { AdminEmailTemplatesPanel } from "@/components/admin/admin-email-templates-panel";
 import { AdminSubscriptionPanel } from "@/components/admin/admin-subscription-panel";
 import { AdminWeeklyDigestPanel } from "@/components/admin/admin-weekly-digest-panel";
 import { AdminWireRequestsPanel } from "@/components/admin/admin-wire-requests-panel";
@@ -32,6 +33,10 @@ export function AdminBillingHub() {
       </div>
 
       <AdminWeeklyDigestPanel embedded />
+
+      <AdminCockpitSection title={t("emailTemplatesTitle")} subtitle={t("emailTemplatesSubtitle")}>
+        <AdminEmailTemplatesPanel embedded />
+      </AdminCockpitSection>
     </div>
   );
 }

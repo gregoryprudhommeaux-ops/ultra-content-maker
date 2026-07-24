@@ -11,6 +11,7 @@ import {
   isSignupNotifyConfigured,
   sendSignupNotificationEmail,
 } from "@/lib/email/send-signup-notification";
+import { sendTemplatedCustomerEmail } from "@/lib/email/send-templated-customer";
 import { formatDisplayNameFromEmail } from "@/lib/workspace/display-name";
 import { isPlatformAdminIdentity } from "@/lib/workspace/platform-admin";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
@@ -134,6 +135,34 @@ export async function POST(request: Request) {
             { adminSignupNotifiedAt: FieldValue.serverTimestamp() },
             { merge: true },
           );
+        }
+      }
+
+      // Customer welcome (templated · member locale)
+      if (payload.userEmail && payload.userEmail !== "unknown") {
+        const alreadyWelcomed = Boolean(userDocData?.customerWelcomeSentAt);
+        if (!alreadyWelcomed) {
+          const welcome = await sendTemplatedCustomerEmail({
+            to: payload.userEmail,
+            templateKey: "signup_welcome",
+            locale: payload.locale,
+            vars: {
+              fullName: payload.displayName,
+              firstName: payload.displayName?.split(/\s+/)[0],
+              email: payload.userEmail,
+            },
+          }).catch((e) => ({
+            ok: false as const,
+            error: e instanceof Error ? e.message : "welcome_failed",
+          }));
+          if (welcome.ok && userDocRef) {
+            await userDocRef.set(
+              { customerWelcomeSentAt: FieldValue.serverTimestamp() },
+              { merge: true },
+            );
+          } else if (!welcome.ok && !("skipped" in welcome && welcome.skipped)) {
+            console.warn("[login-notification] customer welcome failed", welcome.error);
+          }
         }
       }
     } else if (payload.event === "login" && isLoginNotifyConfigured()) {
