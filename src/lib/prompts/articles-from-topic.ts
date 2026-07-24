@@ -11,6 +11,7 @@ import { emojiInstruction } from "./emoji-instruction";
 import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
 import { languageOnlyRule } from "./language-consistency";
 import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
+import { buildNarrativeFormatPromptBlock } from "@/lib/articles/narrative-format";
 import { buildPostBriefInstruction } from "./post-brief";
 
 const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
@@ -99,10 +100,18 @@ export function buildTopicArticleUserPayload(
  profileEnrichment: authorSteering?.profileEnrichment ?? null,
  authorSteering,
  });
- const postBriefInstruction =
- !personal && postBrief.postAngle
- ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
- : null;
+ const hasStructuredBrief = !!(
+  postBrief.postAngle ||
+  postBrief.narrativeFormat ||
+  postBrief.contentJob ||
+  postBrief.channelOwner ||
+  postBrief.productFrame
+ );
+ const postBriefInstruction = personal
+  ? buildNarrativeFormatPromptBlock(postBrief) || null
+  : hasStructuredBrief
+    ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
+    : null;
 
  const instructionWithBrief = postBriefInstruction
  ? `${instruction}\n\n${postBriefInstruction}`

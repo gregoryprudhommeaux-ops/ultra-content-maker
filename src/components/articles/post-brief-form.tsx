@@ -28,6 +28,7 @@ import type {
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { PostAnglePicker } from "@/components/articles/creation/post-angle-picker";
+import { NarrativeFormatPicker } from "@/components/articles/creation/narrative-format-picker";
 import { ContextHelp } from "@/components/ui/context-help";
 import { ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useLocale, useTranslations } from "next-intl";
@@ -136,6 +137,8 @@ export function PostBriefForm({
  contentArchetype={contentArchetype}
  profileEnrichment={profileEnrichment}
  />
+
+ <NarrativeFormatPicker brief={safeBrief} onChange={onChange} />
 
  <div className="space-y-3 rounded-xl border border-gray-100 bg-ns-brand-light/30 p-4">
  <div>

@@ -84,7 +84,11 @@ export function buildReviseUserPrompt(
  authorSteering,
  });
  const postBriefInstruction =
- postBrief?.postAngle
+ postBrief?.postAngle ||
+ postBrief?.narrativeFormat ||
+ postBrief?.contentJob ||
+ postBrief?.channelOwner ||
+ postBrief?.productFrame
  ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
  : null;
  const voiceFingerprintContext = buildVoiceFingerprintPromptBlock(

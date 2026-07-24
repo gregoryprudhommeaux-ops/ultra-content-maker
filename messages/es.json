@@ -2518,6 +2518,23 @@
           "productFocus": "Enfoque producto",
           "productFocusPlaceholder": "ej. Lanzamiento, caso cliente SaaS RRHH, objeción precio…"
         },
+        "narrativeFormat": {
+          "title": "Formato narrativo",
+          "hint": "Cómo contar este post · distinto del formato media (texto / carrusel / vídeo).",
+          "auto": "Dejar que la IA elija",
+          "formats": {
+            "story": "Historia",
+            "method": "Método",
+            "announce": "Anuncio",
+            "decrypt": "Descifrado"
+          },
+          "descriptions": {
+            "story": "Escena → tensión → lección de campo.",
+            "method": "Problema → pasos → resultado usable.",
+            "announce": "Novedad → prueba → siguiente paso.",
+            "decrypt": "Señal de mercado → matiz → postura."
+          }
+        },
         "help": {
           "objective": {
             "label": "Ayuda: objetivo",
@@ -2542,6 +2559,10 @@
           "postAngle": {
             "label": "Ayuda: ángulo del post",
             "body": "Empresa y expertise = visión y categoría de la empresa (nombre de empresa requerido en el post). Producto = problema ICP y prueba de oferta — nombre de la oferta requerido si está seleccionada · sin folleto."
+          },
+          "narrativeFormat": {
+            "label": "Ayuda: formato narrativo",
+            "body": "Historia, método, anuncio o descifrado: la estructura del relato. Independiente del formato LinkedIn (texto, carrusel, vídeo)."
           }
         },
         "niche": {

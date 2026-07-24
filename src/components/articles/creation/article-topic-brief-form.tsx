@@ -13,6 +13,7 @@ import { FORM_SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { ArticleWritingStyle, ContentArchetype, GapAnswerValue, PostBrief } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
 import { PostAnglePicker } from "@/components/articles/creation/post-angle-picker";
+import { NarrativeFormatPicker } from "@/components/articles/creation/narrative-format-picker";
 import { ContextHelp } from "@/components/ui/context-help";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
 import { useLocale, useTranslations } from "next-intl";
@@ -22,7 +23,7 @@ type ParsedTopicBrief = ReturnType<typeof parseArticleTopicFields>;
 function buildTopicBrief(
   fields: ParsedTopicBrief,
   articleWritingStyle?: ArticleWritingStyle,
-  prior?: Pick<PostBrief, "postAngle" | "productFocus">,
+  prior?: Pick<PostBrief, "postAngle" | "productFocus" | "narrativeFormat">,
 ): PostBrief {
   const proofParts: string[] = [];
   if (fields.example) proofParts.push(fields.example);
@@ -38,6 +39,7 @@ function buildTopicBrief(
     ...(articleWritingStyle ? { articleWritingStyle } : {}),
     ...(prior?.postAngle ? { postAngle: prior.postAngle } : {}),
     ...(prior?.productFocus ? { productFocus: prior.productFocus } : {}),
+    ...(prior?.narrativeFormat ? { narrativeFormat: prior.narrativeFormat } : {}),
   });
 }
 
@@ -66,6 +68,7 @@ export function ArticleTopicBriefForm({
       buildTopicBrief({ ...fields, ...patch }, writingStyle, {
         postAngle: normalized.postAngle,
         productFocus: normalized.productFocus,
+        narrativeFormat: normalized.narrativeFormat,
       }),
     );
   }
@@ -75,6 +78,7 @@ export function ArticleTopicBriefForm({
       buildTopicBrief(fields, style, {
         postAngle: normalized.postAngle,
         productFocus: normalized.productFocus,
+        narrativeFormat: normalized.narrativeFormat,
       }),
     );
   }
@@ -84,6 +88,17 @@ export function ArticleTopicBriefForm({
       buildTopicBrief(fields, writingStyle, {
         postAngle: next.postAngle,
         productFocus: next.productFocus,
+        narrativeFormat: normalized.narrativeFormat,
+      }),
+    );
+  }
+
+  function onNarrativeChange(next: PostBrief) {
+    onChange(
+      buildTopicBrief(fields, writingStyle, {
+        postAngle: normalized.postAngle,
+        productFocus: normalized.productFocus,
+        narrativeFormat: next.narrativeFormat,
       }),
     );
   }
@@ -140,6 +155,8 @@ export function ArticleTopicBriefForm({
         profileEnrichment={profileEnrichment}
         layout="cards"
       />
+
+      <NarrativeFormatPicker brief={normalized} onChange={onNarrativeChange} />
 
       <div>
         <div className="flex items-center gap-2">

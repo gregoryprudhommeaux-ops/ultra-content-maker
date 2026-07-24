@@ -63,6 +63,7 @@ import {
 } from "@/lib/articles/creation-wizard-session";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import { DEFAULT_POST_BRIEF, saveStoredPostBrief } from "@/lib/articles/post-brief-storage";
+import { defaultNarrativeFormatForMode } from "@/lib/articles/narrative-format";
 import { newsToSource } from "@/lib/news/to-source";
 import { UserErrorBanner } from "@/components/ui/user-error-banner";
 import { useFormatUserError } from "@/hooks/use-format-user-error";
@@ -1026,6 +1027,7 @@ export function ArticleCreationWizard() {
         ...DEFAULT_POST_BRIEF,
         problem: creator.lastPostAngle.slice(0, 280),
         pointOfView: creator.whyRelevant.slice(0, 400),
+        narrativeFormat: defaultNarrativeFormatForMode("inspiration"),
       }),
     );
     setInspirationCtx({
@@ -1051,6 +1053,7 @@ export function ArticleCreationWizard() {
     setMode(next);
     setErrorInfo(null);
     briefSuggestedRef.current = !!briefSeed;
+    const narrativeDefault = defaultNarrativeFormatForMode(next);
     const briefDefaults =
       profileVariant === "quick"
         ? {
@@ -1058,8 +1061,12 @@ export function ArticleCreationWizard() {
             problem: "",
             pointOfView: "",
             proof: "",
+            ...(narrativeDefault ? { narrativeFormat: narrativeDefault } : {}),
           }
-        : DEFAULT_POST_BRIEF;
+        : {
+            ...DEFAULT_POST_BRIEF,
+            ...(narrativeDefault ? { narrativeFormat: narrativeDefault } : {}),
+          };
     setPostBrief(normalizePostBrief({ ...briefDefaults, ...briefSeed }));
     setInspirationCtx(null);
     setInterviewPack(null);
@@ -1609,6 +1616,7 @@ export function ArticleCreationWizard() {
                       pointOfView: prev.pointOfView,
                       proof: "",
                       articleWritingStyle: prev.articleWritingStyle,
+                      narrativeFormat: prev.narrativeFormat,
                     }),
                   );
                 }

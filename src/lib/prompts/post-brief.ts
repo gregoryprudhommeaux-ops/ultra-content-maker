@@ -1,4 +1,5 @@
 import { buildEditorialOsPromptBlock } from "@/lib/articles/editorial-os";
+import { buildNarrativeFormatPromptBlock } from "@/lib/articles/narrative-format";
 import {
  normalizePostBrief,
  sortObjectivesByPriority,
@@ -77,10 +78,11 @@ export function buildPostBriefInstruction(
 
  const angleBlock = buildPostAngleBlock(normalized, context);
  const editorialOs = buildEditorialOsPromptBlock(normalized);
+ const narrativeFormat = buildNarrativeFormatPromptBlock(normalized);
 
  return `POST BRIEF (mandatory · all ${lang} posts in this batch must follow):
 ${objectivesBlock}
-${angleBlock ? `${angleBlock}\n` : ""}${editorialOs ? `${editorialOs}\n` : ""}- Primary objective (priority 1) drives hook, body shape, and closing; secondary objectives may appear subtly but must not dilute the main intent.
+${angleBlock ? `${angleBlock}\n` : ""}${editorialOs ? `${editorialOs}\n` : ""}${narrativeFormat ? `${narrativeFormat}\n` : ""}- Primary objective (priority 1) drives hook, body shape, and closing; secondary objectives may appear subtly but must not dilute the main intent.
 - Audience problem: ${normalized.problem.trim()}
 - Author point of view: ${normalized.pointOfView.trim()}
 - Proof to weave in (required): ${normalized.proof.trim()}

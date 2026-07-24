@@ -3,6 +3,7 @@ import {
   isContentJob,
   isProductFrame,
 } from "@/lib/articles/editorial-os";
+import { isNarrativePostFormat } from "@/lib/articles/narrative-format";
 import type {
   PostAngle,
   PostBrief,
@@ -105,6 +106,9 @@ export function normalizePostBrief(raw: unknown): PostBrief {
   const productFrame = isProductFrame(partial?.productFrame)
     ? partial.productFrame
     : undefined;
+  const narrativeFormat = isNarrativePostFormat(partial?.narrativeFormat)
+    ? partial.narrativeFormat
+    : undefined;
 
   return {
     objectives,
@@ -117,6 +121,7 @@ export function normalizePostBrief(raw: unknown): PostBrief {
     ...(contentJob ? { contentJob } : {}),
     ...(channelOwner ? { channelOwner } : {}),
     ...(productFrame ? { productFrame } : {}),
+    ...(narrativeFormat ? { narrativeFormat } : {}),
   };
 }
 

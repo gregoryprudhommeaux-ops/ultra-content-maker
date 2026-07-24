@@ -2518,6 +2518,23 @@
           "productFocus": "Product focus",
           "productFocusPlaceholder": "e.g. Launch, SaaS HR case study, pricing objection…"
         },
+        "narrativeFormat": {
+          "title": "Narrative format",
+          "hint": "How to tell this post · distinct from media format (text / carousel / video).",
+          "auto": "Let AI choose",
+          "formats": {
+            "story": "Story",
+            "method": "Method",
+            "announce": "Announcement",
+            "decrypt": "Decrypt"
+          },
+          "descriptions": {
+            "story": "Scene → tension → field lesson.",
+            "method": "Problem → steps → usable outcome.",
+            "announce": "News → proof → next step.",
+            "decrypt": "Market signal → nuance → stance."
+          }
+        },
         "help": {
           "objective": {
             "label": "Help: objective",
@@ -2542,6 +2559,10 @@
           "postAngle": {
             "label": "Help: post angle",
             "body": "Company & expertise = company vision and category (company name required in the post). Product = ICP problem and offer proof — offer name required when selected · not a brochure."
+          },
+          "narrativeFormat": {
+            "label": "Help: narrative format",
+            "body": "Story, method, announcement, or decrypt: the narrative structure. Independent from LinkedIn media format (text, carousel, video)."
           }
         },
         "niche": {

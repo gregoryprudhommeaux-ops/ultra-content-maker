@@ -445,6 +445,12 @@ export type RankedPostObjective = {
  priority: PostObjectivePriority;
 };
 
+/**
+ * Narrative structure for the post (Alchie-style) — distinct from LinkedInPostFormat (media).
+ * story | method | announce | decrypt
+ */
+export type NarrativePostFormat = "story" | "method" | "announce" | "decrypt";
+
 export interface PostBrief {
  /** Up to 3 ranked objectives (1 = primary). */
  objectives: RankedPostObjective[];
@@ -463,6 +469,8 @@ export interface PostBrief {
  channelOwner?: ChannelOwner;
  /** Editorial OS · dinners vs market-entry vs generic B2B */
  productFrame?: ProductFrame;
+ /** Narrative structure · story / method / announce / decrypt (optional · AI chooses if unset). */
+ narrativeFormat?: NarrativePostFormat;
 }
 
 export interface ArticleQualityScores {
