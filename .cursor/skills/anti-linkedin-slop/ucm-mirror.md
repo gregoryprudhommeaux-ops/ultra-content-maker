@@ -22,3 +22,4 @@ When improving the skill, sync these UCM paths:
 Generation = compact anti-slop + human-writing + generation hints (FR/EN/ES via `contentLanguage`).
 Server gate = `detectSlop` → full HUMANIZER rewrite when score ≥ 4 or blocking flags.
 Humanize / affiner = full humanizer + JSON hook/body/ps.
+| Full tells catalog (human-readable) | `.cursor/skills/anti-linkedin-slop/TELLS-CATALOG.md` (sync from `~/.cursor/skills/…`) |
