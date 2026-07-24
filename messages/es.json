@@ -2131,7 +2131,7 @@
               "badge": "Extracción",
               "outputs": [
                 "6 preguntas guiadas",
-                "Brief auto + tips",
+                "Brief auto + tips + fotos",
                 "Siguientes ángulos"
               ]
             },
@@ -2389,10 +2389,17 @@
           "matterLabel": "Materia extraída",
           "pack": {
             "eyebrow": "Pack de sesión",
-            "title": "Tips y siguientes ángulos",
+            "title": "Tips, fotos y siguientes ángulos",
             "hint": "De esta entrevista — publica mejor hoy y sabe qué escribir después.",
             "matterLabel": "Lo que retuvimos",
             "tipsLabel": "Tips de storytelling",
+            "photoLabel": "Ideas de foto",
+            "photoHint": "2 escenas concretas para el feed. Tras generar, rellenan el panel Ilustración del borrador.",
+            "photoIdeaLabel": "Idea {n}",
+            "photoSearch": "Búsqueda",
+            "copyScene": "Copiar escena",
+            "copySearch": "Copiar búsqueda",
+            "copied": "Copiado",
             "anglesLabel": "Siguientes ángulos",
             "useAngle": "Usar este ángulo",
             "pillar": {

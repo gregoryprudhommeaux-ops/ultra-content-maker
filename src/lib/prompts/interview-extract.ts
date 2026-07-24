@@ -5,7 +5,14 @@ import {
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import { languageLabel, languageOnlyRule } from "@/lib/prompts/language-consistency";
-import type { ContentLanguage, PostBrief, PostObjective, PostObjectivePriority, RankedPostObjective } from "@/types/workspace";
+import type {
+  ArticleIllustration,
+  ContentLanguage,
+  PostBrief,
+  PostObjective,
+  PostObjectivePriority,
+  RankedPostObjective,
+} from "@/types/workspace";
 
 export type InterviewQuestion = {
   id: string;
@@ -18,9 +25,19 @@ export type InterviewAnswer = {
   answer: string;
 };
 
+export type InterviewPhotoIdea = {
+  /** What to photograph / show in the feed (concrete scene). */
+  scene: string;
+  /** Why this visual serves the post. */
+  why: string;
+  /** Optional stock / GenAI search line. */
+  searchHint?: string;
+};
+
 export type InterviewSessionPack = {
   storytellingTips: string[];
   nextAngles: { title: string; angle: string; pillar?: string }[];
+  photoIdeas: InterviewPhotoIdea[];
 };
 
 export type InterviewExtractResult = {
@@ -93,6 +110,9 @@ Return JSON only:
   "storytellingTips": [string, string, string],
   "nextAngles": [
     { "title": string, "angle": string, "pillar": "market" | "expertise" | "build_in_public" }
+  ],
+  "photoIdeas": [
+    { "scene": string, "why": string, "searchHint": string }
   ]
 }
 
@@ -104,6 +124,11 @@ Rules:
 - storytellingTips: exactly 3 tips — (1) strongest message, (2) what to reinforce, (3) lesson for next post
 - nextAngles: 3 to 5 unused angles from THIS interview (not the primary brief angle)
 - pillar: market = niche/trends/opinion on market · expertise = method/advice · build_in_public = behind-the-scenes / journey
+- photoIdeas: exactly 2 LinkedIn feed photo/visual ideas grounded in the interview matter
+  - scene: concrete shootable or showable image (object, place, gesture, diagram on whiteboard) — not abstract "success"
+  - why: one sentence on how it supports the post message
+  - searchHint: 5–12 words for stock photo or GenAI search (${lang})
+  - Prefer real-world / documentary feel over stock cliché handshakes
 - Prefer concrete details (numbers, dates, named tension) when present in answers
 - Output all user-facing strings in ${lang}`;
 }
@@ -198,6 +223,7 @@ export function normalizeInterviewExtract(raw: {
   matterSummary?: unknown;
   storytellingTips?: unknown;
   nextAngles?: unknown;
+  photoIdeas?: unknown;
 }): InterviewExtractResult {
   const brief = normalizePostBrief({
     objectives: parseObjectives(raw),
@@ -232,6 +258,27 @@ export function normalizeInterviewExtract(raw: {
         .slice(0, 5)
     : [];
 
+  const photoIdeas = Array.isArray(raw.photoIdeas)
+    ? raw.photoIdeas
+        .flatMap((item) => {
+          if (!item || typeof item !== "object") return [];
+          const scene = String((item as { scene?: unknown }).scene ?? "").trim();
+          const why = String((item as { why?: unknown }).why ?? "").trim();
+          if (scene.length < 8 || why.length < 8) return [];
+          const searchHint = String(
+            (item as { searchHint?: unknown }).searchHint ?? "",
+          ).trim();
+          return [
+            {
+              scene,
+              why,
+              ...(searchHint.length >= 3 ? { searchHint } : {}),
+            } satisfies InterviewPhotoIdea,
+          ];
+        })
+        .slice(0, 2)
+    : [];
+
   return {
     brief,
     matterSummary:
@@ -239,6 +286,33 @@ export function normalizeInterviewExtract(raw: {
     sessionPack: {
       storytellingTips: tips,
       nextAngles,
+      photoIdeas,
     },
+  };
+}
+
+/** Seed the draft Illustration panel from interview photo ideas. */
+export function illustrationFromInterviewPhotoIdeas(
+  ideas: InterviewPhotoIdea[] | null | undefined,
+): ArticleIllustration | null {
+  const list = (ideas ?? []).filter((i) => i.scene.trim().length >= 8).slice(0, 2);
+  if (list.length === 0) return null;
+
+  const prompts = list.map((i) => i.scene.trim());
+  while (prompts.length < 3) {
+    prompts.push(list[0]!.scene.trim());
+  }
+
+  const searchKeywords = list
+    .map((i) => i.searchHint?.trim())
+    .filter((s): s is string => !!s && s.length >= 3)
+    .join(" · ");
+
+  return {
+    format: "photo",
+    rationale: list.map((i) => i.why.trim()).filter(Boolean).join(" · ") || "-",
+    imagePrompts: [prompts[0]!, prompts[1]!, prompts[2]!] as [string, string, string],
+    ...(searchKeywords ? { searchKeywords } : {}),
+    visualConcept: list[0]!.scene.trim(),
   };
 }

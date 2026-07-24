@@ -97,7 +97,9 @@ import {
   createArticleBatch,
   getArticle,
   replaceArticleDraft,
+  saveArticleIllustration,
 } from "@/lib/workspace/articles";
+import { illustrationFromInterviewPhotoIdeas } from "@/lib/prompts/interview-extract";
 import {
   getArchivedNews,
   upsertNewsArchiveBatch,
@@ -957,6 +959,10 @@ export function ArticleCreationWizard() {
         );
         setDraftArticleId(replaceArticleId);
         setDraftRevision((n) => n + 1);
+        const seeded = illustrationFromInterviewPhotoIdeas(interviewPack?.photoIdeas);
+        if (seeded) {
+          await saveArticleIllustration(workspaceOwnerId, replaceArticleId, seeded);
+        }
       } else {
         const batchId = crypto.randomUUID();
         const inspirationMeta =
@@ -975,6 +981,10 @@ export function ArticleCreationWizard() {
         );
         setDraftArticleId(ids[0]);
         setDraftRevision((n) => n + 1);
+        const seeded = illustrationFromInterviewPhotoIdeas(interviewPack?.photoIdeas);
+        if (seeded && ids[0]) {
+          await saveArticleIllustration(workspaceOwnerId, ids[0], seeded);
+        }
       }
       setStep("draft-done");
       notifyOnboardingProgressChangedDeferred();

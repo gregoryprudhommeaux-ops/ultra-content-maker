@@ -138,6 +138,7 @@ export async function POST(request: Request) {
       matterSummary?: unknown;
       storytellingTips?: unknown;
       nextAngles?: unknown;
+      photoIdeas?: unknown;
     }>(raw);
 
     const result = normalizeInterviewExtract(parsed);

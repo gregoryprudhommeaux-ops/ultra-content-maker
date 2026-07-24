@@ -2,6 +2,7 @@
 
 import type {
   InterviewAnswer,
+  InterviewPhotoIdea,
   InterviewQuestion,
   InterviewSessionPack,
 } from "@/lib/prompts/interview-extract";
@@ -121,10 +122,71 @@ type PackProps = {
   onUseAngle?: (title: string, angle: string) => void;
 };
 
+function PhotoIdeaCard({
+  idea,
+  index,
+  t,
+}: {
+  idea: InterviewPhotoIdea;
+  index: number;
+  t: ReturnType<typeof useTranslations<"setup.articles.create.interview.pack">>;
+}) {
+  const [copied, setCopied] = useState<"scene" | "search" | null>(null);
+
+  async function copy(text: string, key: "scene" | "search") {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(key);
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return (
+    <li className="rounded-lg border border-ns-alternate/60 bg-white px-3 py-3">
+      <p className="text-xs font-medium text-ns-secondary">
+        {t("photoIdeaLabel", { n: index + 1 })}
+      </p>
+      <p className="mt-1 text-sm font-semibold text-ns-tertiary">{idea.scene}</p>
+      <p className="mt-1 text-xs leading-relaxed text-ns-secondary">{idea.why}</p>
+      {idea.searchHint ? (
+        <p className="mt-2 text-xs text-ns-secondary">
+          <span className="font-medium text-ns-tertiary">{t("photoSearch")}: </span>
+          {idea.searchHint}
+        </p>
+      ) : null}
+      <div className="mt-2 flex flex-wrap gap-3">
+        <button
+          type="button"
+          className="text-xs font-semibold text-ns-tertiary underline"
+          onClick={() => void copy(idea.scene, "scene")}
+        >
+          {copied === "scene" ? t("copied") : t("copyScene")}
+        </button>
+        {idea.searchHint ? (
+          <button
+            type="button"
+            className="text-xs font-semibold text-ns-tertiary underline"
+            onClick={() => void copy(idea.searchHint!, "search")}
+          >
+            {copied === "search" ? t("copied") : t("copySearch")}
+          </button>
+        ) : null}
+      </div>
+    </li>
+  );
+}
+
 export function InterviewSessionPackPanel({ pack, matterSummary, onUseAngle }: PackProps) {
   const t = useTranslations("setup.articles.create.interview.pack");
+  const photoIdeas = pack.photoIdeas ?? [];
 
-  if (pack.storytellingTips.length === 0 && pack.nextAngles.length === 0) {
+  if (
+    pack.storytellingTips.length === 0 &&
+    pack.nextAngles.length === 0 &&
+    photoIdeas.length === 0
+  ) {
     return null;
   }
 
@@ -152,6 +214,23 @@ export function InterviewSessionPackPanel({ pack, matterSummary, onUseAngle }: P
               >
                 {tip}
               </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {photoIdeas.length > 0 ? (
+        <div className="mt-4">
+          <p className={META_LABEL}>{t("photoLabel")}</p>
+          <p className="mt-1 text-xs text-ns-secondary">{t("photoHint")}</p>
+          <ul className="mt-2 space-y-2">
+            {photoIdeas.map((idea, index) => (
+              <PhotoIdeaCard
+                key={`${idea.scene.slice(0, 40)}-${index}`}
+                idea={idea}
+                index={index}
+                t={t}
+              />
             ))}
           </ul>
         </div>

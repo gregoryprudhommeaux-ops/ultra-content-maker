@@ -2132,7 +2132,7 @@
               "badge": "Extraction",
               "outputs": [
                 "6 questions guidées",
-                "Brief auto + tips",
+                "Brief auto + tips + photos",
                 "Angles suivants"
               ]
             },
@@ -2379,10 +2379,17 @@
           "matterLabel": "Matière extraite",
           "pack": {
             "eyebrow": "Pack session",
-            "title": "Tips & prochains angles",
+            "title": "Tips, photos & prochains angles",
             "hint": "Issus de cette interview — pour publier mieux aujourd’hui et savoir quoi écrire ensuite.",
             "matterLabel": "Ce qu’on a retenu",
             "tipsLabel": "Tips storytelling",
+            "photoLabel": "Idées photo",
+            "photoHint": "2 scènes concrètes pour le feed. Après génération, elles préremplissent le panneau Illustration du brouillon.",
+            "photoIdeaLabel": "Idée {n}",
+            "photoSearch": "Recherche",
+            "copyScene": "Copier la scène",
+            "copySearch": "Copier la recherche",
+            "copied": "Copié",
             "anglesLabel": "Angles suivants",
             "useAngle": "Utiliser cet angle",
             "pillar": {

@@ -2131,7 +2131,7 @@
               "badge": "Extraction",
               "outputs": [
                 "6 guided questions",
-                "Auto brief + tips",
+                "Auto brief + tips + photos",
                 "Next angles"
               ]
             },
@@ -2389,10 +2389,17 @@
           "matterLabel": "Extracted material",
           "pack": {
             "eyebrow": "Session pack",
-            "title": "Tips & next angles",
+            "title": "Tips, photos & next angles",
             "hint": "From this interview — publish better today and know what to write next.",
             "matterLabel": "What we kept",
             "tipsLabel": "Storytelling tips",
+            "photoLabel": "Photo ideas",
+            "photoHint": "2 concrete feed scenes. After generation, they prefill the draft Illustration panel.",
+            "photoIdeaLabel": "Idea {n}",
+            "photoSearch": "Search",
+            "copyScene": "Copy scene",
+            "copySearch": "Copy search",
+            "copied": "Copied",
             "anglesLabel": "Next angles",
             "useAngle": "Use this angle",
             "pillar": {
