@@ -1374,7 +1374,7 @@ export function ArticleCreationWizard() {
   return (
     <div
       className={`mx-auto space-y-6 ${
-        step === "mode" || step === "draft-done" ? "max-w-4xl" : "max-w-3xl"
+        step === "mode" || step === "draft-done" ? "max-w-6xl" : "max-w-3xl"
       }`}
     >
       {step !== "mode" && (

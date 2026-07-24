@@ -68,8 +68,8 @@
       "eyebrow": "AI ghostwriter · FR · EN · ES",
       "languagesBadge": "FR · EN · ES",
       "headline": "Publish on LinkedIn in your voice.",
-      "headlineSubtitle": "Persona, brief, and 4 qualified drafts : one-click export. No lost evenings, no generic ChatGPT filler.",
-      "subheadline": "Express setup · 4 paths · creator radar · commented news",
+      "headlineSubtitle": "Persona, brief, and 4 paths based on what you have. One-click LinkedIn export — no lost evenings writing.",
+      "subheadline": "Express setup · 4 paths · creator radar · Quality Panel",
       "pill1": "Persona & Topic DNA",
       "pill2": "Creator radar",
       "pill3": "4 drafts / batch",
@@ -85,9 +85,10 @@
     "product": {
       "eyebrow": "Product",
       "title": "What actually beats ChatGPT or a freelancer",
-      "subtitle": "Four WOW moments, then one flow from brief to LinkedIn export.",
-      "mockupAria": "Product showcase: 4-draft batch, Persona, quality, and journey",
-      "mockupSummary": "Four-draft batch, Persona Content Brain, anti-slop Quality Panel, creator radar, four-step journey.",
+      "subtitle": "Four entry paths based on what you have on hand, then one flow from brief to LinkedIn export.",
+      "mockupAria": "Product showcase: 4 paths, draft batch, Persona, and quality",
+      "mockupSummary": "Four paths (expertise, interview, news, source), Persona Content Brain, anti-slop Quality Panel, creator radar, brief → export flow.",
+      "pathsIntro": "Where should this post start? One path, one draft in your voice.",
       "wowHero": {
         "eyebrow": "WOW · Exploration",
         "title": "4 qualified drafts in one batch",
@@ -117,11 +118,11 @@
         }
       },
       "flow": {
-        "label": "One engine, four entry paths",
+        "label": "One engine, four paths",
         "steps": {
           "sources": {
             "title": "4 paths",
-            "hint": "Profile · news · inspiration · topic"
+            "hint": "Expertise · interview · news · source"
           },
           "brief": {
             "title": "Framed brief",
@@ -152,20 +153,24 @@
           "label": "4 paths",
           "modes": {
             "profile": {
-              "title": "My profile",
-              "hint": "Persona + optional brief"
+              "title": "Expertise & angle",
+              "hint": "You already have a topic",
+              "outcome": "Quick topic or brief · draft aligned with your Persona."
+            },
+            "interview": {
+              "title": "Guided interview",
+              "hint": "You have experience, not a topic yet",
+              "outcome": "6 questions · auto brief · draft + next angles."
             },
             "news": {
-              "title": "The news",
-              "hint": "4 stories commented"
+              "title": "From the news",
+              "hint": "You want to react to the news",
+              "outcome": "4 stories scanned · commented post with source."
             },
             "inspiration": {
-              "title": "Inspiration",
-              "hint": "Paste, URL, or library"
-            },
-            "topic": {
-              "title": "My topic",
-              "hint": "Free idea + tone"
+              "title": "Source or document",
+              "hint": "You start from a link or document",
+              "outcome": "Paste, link, library, or PDF · distinct angle."
             }
           }
         },
@@ -218,8 +223,8 @@
           "description": "Content Brain + Topic DNA: pillars, beliefs, off-limits. Nothing starts from a blank page."
         },
         "create": {
-          "title": "Create from 4 sources",
-          "description": "Profile, daily news, inspiration (anti-plagiarism), or free topic : intent brief and 4 drafts per batch."
+          "title": "Pick a path",
+          "description": "Expertise, interview, news, or source: the brief adapts. Then 4 drafts per batch — or one commented post from the news."
         },
         "publish": {
           "title": "Polish & publish",
@@ -252,8 +257,8 @@
         "description": "Validated Content Brain before any generation: positioning, audience, angle, pillars, AI writes like you, not like everyone."
       },
       "sources": {
-        "title": "4 creation paths",
-        "description": "From your profile, niche news, an inspiration (paste, URL, library), or a free topic, a distinct angle every time."
+        "title": "4 paths based on what you have",
+        "description": "Clear topic, lived experience to extract, news to comment, or a document to reshape — a draft in your voice every time."
       },
       "radar": {
         "title": "Creator radar",
@@ -689,7 +694,7 @@
       "ariaLabel": "Workspace shortcuts",
       "title": "Shortcuts",
       "createNewPost": "Create a new post",
-      "createHint": "Profile · News · Inspiration · Your topic",
+      "createHint": "Expertise · Interview · News · Source",
       "dashboard": "Dashboard",
       "dashboardHint": "Overview · quota · validated",
       "libraryDrafts": "Drafts",
@@ -2022,7 +2027,7 @@
         "modePicker": {
           "heroEyebrow": "Create",
           "heroTitle": "Where should this post start?",
-          "heroSubtitle": "Four paths, based on what you have on hand. One click, one draft in your voice.",
+          "heroSubtitle": "Four paths based on what you have. One click → a draft in your voice.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "LinkedIn-ready",

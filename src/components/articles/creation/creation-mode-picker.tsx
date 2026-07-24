@@ -209,16 +209,16 @@ export function CreationModePicker({
 
   return (
     <div className="space-y-5 md:space-y-8">
-      <section className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-br from-ns-brand-light via-white to-white p-4 shadow-sm md:p-8">
+      <section className="relative overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-br from-ns-brand-light via-white to-white px-4 py-4 shadow-sm md:px-6 md:py-5">
         <div
           className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-ns-primary/15 blur-3xl"
           aria-hidden
         />
         <p className={META_LABEL}>{t("heroEyebrow")}</p>
-        <h2 className="mt-2 max-w-2xl text-xl font-black uppercase leading-tight tracking-[0.05em] text-ns-tertiary md:text-2xl">
+        <h2 className="mt-1.5 text-xl font-black uppercase leading-tight tracking-[0.05em] text-ns-tertiary md:text-2xl">
           {t("heroTitle")}
         </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ns-secondary md:text-base">
+        <p className="mt-2 text-sm leading-snug text-ns-secondary md:text-[15px] md:whitespace-nowrap">
           {t("heroSubtitle")}
         </p>
       </section>

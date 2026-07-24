@@ -68,8 +68,8 @@
       "eyebrow": "Ghostwriter IA · FR · EN · ES",
       "languagesBadge": "FR · EN · ES",
       "headline": "Publiez sur LinkedIn avec votre voix.",
-      "headlineSubtitle": "Persona, brief et 4 brouillons qualifiés : export en un clic. Sans soirées perdues à écrire, sans ChatGPT générique.",
-      "subheadline": "Setup express · 4 parcours · radar influenceurs · actu commentée",
+      "headlineSubtitle": "Persona, brief et 4 chemins selon ce que vous avez. Export LinkedIn en un clic — sans soirées perdues à écrire.",
+      "subheadline": "Setup express · 4 chemins · radar influenceurs · Quality Panel",
       "pill1": "Persona & Topic DNA",
       "pill2": "Radar influenceurs",
       "pill3": "4 brouillons / lot",
@@ -85,9 +85,10 @@
     "product": {
       "eyebrow": "Produit",
       "title": "Ce qui change vraiment vs ChatGPT ou un freelance",
-      "subtitle": "Quatre effets WOW, puis un flux unique du brief à l'export LinkedIn.",
-      "mockupAria": "Vitrine produit : lot de 4 brouillons, Persona, qualité et parcours",
-      "mockupSummary": "Lot de quatre brouillons, Persona Content Brain, Quality Panel anti-slop, radar influenceurs, parcours en quatre étapes.",
+      "subtitle": "Quatre chemins d’entrée selon ce que vous avez sous la main, puis un flux unique du brief à l’export LinkedIn.",
+      "mockupAria": "Vitrine produit : 4 chemins, lot de brouillons, Persona et qualité",
+      "mockupSummary": "Quatre chemins (expertise, interview, actu, source), Persona Content Brain, Quality Panel anti-slop, radar influenceurs, flux brief → export.",
+      "pathsIntro": "Par où commencer ce post ? Un chemin, un brouillon dans votre voix.",
       "wowHero": {
         "eyebrow": "Effet WOW · Exploration",
         "title": "4 brouillons qualifiés en un seul lot",
@@ -117,11 +118,11 @@
         }
       },
       "flow": {
-        "label": "Un seul moteur, quatre points d'entrée",
+        "label": "Un seul moteur, quatre chemins",
         "steps": {
           "sources": {
-            "title": "4 parcours",
-            "hint": "Profil · actu · inspiration · sujet"
+            "title": "4 chemins",
+            "hint": "Expertise · interview · actu · source"
           },
           "brief": {
             "title": "Brief cadré",
@@ -149,23 +150,27 @@
       },
       "panels": {
         "sources": {
-          "label": "4 parcours",
+          "label": "4 chemins",
           "modes": {
             "profile": {
-              "title": "Mon profil",
-              "hint": "Persona + brief optionnel"
+              "title": "Expertise & angle",
+              "hint": "Vous avez déjà un sujet",
+              "outcome": "Sujet rapide ou brief · brouillon aligné sur votre Persona."
+            },
+            "interview": {
+              "title": "Interview guidée",
+              "hint": "Vous avez du vécu, pas encore de sujet",
+              "outcome": "6 questions · brief auto · brouillon + angles suivants."
             },
             "news": {
-              "title": "L'actualité",
-              "hint": "4 actus commentées"
+              "title": "Depuis l’actualité",
+              "hint": "Vous voulez réagir à l’actu",
+              "outcome": "4 actus scannées · post commenté avec source."
             },
             "inspiration": {
-              "title": "Inspiration",
-              "hint": "Collage, URL ou bibliothèque"
-            },
-            "topic": {
-              "title": "Mon sujet",
-              "hint": "Idée libre + ton"
+              "title": "Source ou document",
+              "hint": "Vous partez d’un lien ou d’un doc",
+              "outcome": "Coller, lien, bibliothèque ou PDF · angle distinct."
             }
           }
         },
@@ -202,7 +207,7 @@
           "sample": "Hook percutant…\n\nCorps avec cas et chiffre…\n\nPS : Gregory, Guadalajara…"
         }
       },
-      "caption": "4 parcours → brief → 4 brouillons → qualité → export."
+      "caption": "4 chemins → brief → 4 brouillons → qualité → export."
     },
     "howItWorks": {
       "eyebrow": "Méthode",
@@ -218,8 +223,8 @@
           "description": "Content Brain + Topic DNA : piliers, croyances, hors-sujet. Rien ne part d'une page blanche."
         },
         "create": {
-          "title": "Créer depuis 4 sources",
-          "description": "Profil, actu du jour, inspiration (sans plagiat) ou sujet libre : brief intentionnel et 4 brouillons par lot."
+          "title": "Choisir un chemin",
+          "description": "Expertise, interview, actu ou source : le brief s’adapte. Puis 4 brouillons par lot — ou un post commenté depuis l’actu."
         },
         "publish": {
           "title": "Affûter & publier",
@@ -252,8 +257,8 @@
         "description": "Content Brain validé avant toute génération : positionnement, audience, angle, piliers : l'IA écrit comme vous, pas comme tout le monde."
       },
       "sources": {
-        "title": "4 parcours de création",
-        "description": "Depuis votre profil, l'actu de votre niche, une inspiration (collage, URL, bibliothèque) ou un sujet libre, un angle distinct à chaque fois."
+        "title": "4 chemins selon ce que vous avez",
+        "description": "Sujet déjà clair, vécu à extraire, actu à commenter, ou document à décliner — un brouillon dans votre voix à chaque fois."
       },
       "radar": {
         "title": "Radar influenceurs",
@@ -689,7 +694,7 @@
       "ariaLabel": "Raccourcis",
       "title": "Raccourcis",
       "createNewPost": "Créer un nouveau post",
-      "createHint": "Profil · Actu · Inspiration · Votre sujet",
+      "createHint": "Expertise · Interview · Actu · Source",
       "dashboard": "Tableau de bord",
       "dashboardHint": "Vue d’ensemble · quota · validés",
       "libraryDrafts": "Brouillons",
@@ -2023,7 +2028,7 @@
         "modePicker": {
           "heroEyebrow": "Création",
           "heroTitle": "Par où commencer ce post ?",
-          "heroSubtitle": "Quatre chemins selon ce que vous avez sous la main. Un clic, un brouillon dans votre voix.",
+          "heroSubtitle": "Quatre chemins selon ce que vous avez. Un clic → un brouillon dans votre voix.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Prêt pour LinkedIn",

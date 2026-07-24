@@ -68,8 +68,8 @@
       "eyebrow": "Ghostwriter IA · FR · EN · ES",
       "languagesBadge": "FR · EN · ES",
       "headline": "Publica en LinkedIn con tu voz.",
-      "headlineSubtitle": "Persona, brief y 4 borradores cualificados : exportación en un clic. Sin noches perdidas, sin ChatGPT genérico.",
-      "subheadline": "Setup express · 4 recorridos · radar de creadores · noticias comentadas",
+      "headlineSubtitle": "Persona, brief y 4 caminos según lo que tengas. Exportación LinkedIn en un clic — sin noches perdidas escribiendo.",
+      "subheadline": "Setup express · 4 caminos · radar de creadores · Quality Panel",
       "pill1": "Persona y Topic DNA",
       "pill2": "Radar de creadores",
       "pill3": "4 borradores / lote",
@@ -85,9 +85,10 @@
     "product": {
       "eyebrow": "Producto",
       "title": "Lo que cambia de verdad vs ChatGPT o un freelance",
-      "subtitle": "Cuatro efectos WOW, luego un flujo único del brief a la exportación LinkedIn.",
-      "mockupAria": "Vitrina producto: lote de 4 borradores, Persona, calidad y recorrido",
-      "mockupSummary": "Lote de cuatro borradores, Persona Content Brain, Quality Panel anti-slop, radar de creadores, recorrido en cuatro pasos.",
+      "subtitle": "Cuatro caminos de entrada según lo que tengas a la mano, luego un flujo único del brief a la exportación LinkedIn.",
+      "mockupAria": "Vitrina producto: 4 caminos, lote de borradores, Persona y calidad",
+      "mockupSummary": "Cuatro caminos (experiencia, entrevista, actualidad, fuente), Persona Content Brain, Quality Panel anti-slop, radar de creadores, flujo brief → exportación.",
+      "pathsIntro": "¿Por dónde empieza este post? Un camino, un borrador con tu voz.",
       "wowHero": {
         "eyebrow": "WOW · Exploración",
         "title": "4 borradores cualificados en un solo lote",
@@ -117,11 +118,11 @@
         }
       },
       "flow": {
-        "label": "Un motor, cuatro puntos de entrada",
+        "label": "Un motor, cuatro caminos",
         "steps": {
           "sources": {
-            "title": "4 recorridos",
-            "hint": "Perfil · noticias · inspiración · tema"
+            "title": "4 caminos",
+            "hint": "Experiencia · entrevista · actualidad · fuente"
           },
           "brief": {
             "title": "Brief enmarcado",
@@ -149,23 +150,27 @@
       },
       "panels": {
         "sources": {
-          "label": "4 recorridos",
+          "label": "4 caminos",
           "modes": {
             "profile": {
-              "title": "Mi perfil",
-              "hint": "Persona + brief opcional"
+              "title": "Experiencia y ángulo",
+              "hint": "Ya tienes un tema",
+              "outcome": "Tema rápido o brief · borrador alineado con tu Persona."
+            },
+            "interview": {
+              "title": "Entrevista guiada",
+              "hint": "Tienes vivencia, aún no un tema",
+              "outcome": "6 preguntas · brief auto · borrador + siguientes ángulos."
             },
             "news": {
-              "title": "Actualidad",
-              "hint": "4 noticias comentadas"
+              "title": "Desde la actualidad",
+              "hint": "Quieres reaccionar a la actualidad",
+              "outcome": "4 noticias escaneadas · post comentado con fuente."
             },
             "inspiration": {
-              "title": "Inspiración",
-              "hint": "Pegar, URL o biblioteca"
-            },
-            "topic": {
-              "title": "Mi tema",
-              "hint": "Idea libre + tono"
+              "title": "Fuente o documento",
+              "hint": "Partes de un enlace o documento",
+              "outcome": "Pegar, enlace, biblioteca o PDF · ángulo distinto."
             }
           }
         },
@@ -202,7 +207,7 @@
           "sample": "Hook contundente…\n\nCuerpo con caso y cifra…\n\nPS: Gregory, Guadalajara…"
         }
       },
-      "caption": "4 recorridos → brief → 4 borradores → calidad → exportación."
+      "caption": "4 caminos → brief → 4 borradores → calidad → exportación."
     },
     "howItWorks": {
       "eyebrow": "Método",
@@ -218,8 +223,8 @@
           "description": "Content Brain + Topic DNA: pilares, creencias, fuera de tema. Nada parte de cero."
         },
         "create": {
-          "title": "Crear desde 4 fuentes",
-          "description": "Perfil, noticias del día, inspiración (anti-plagio) o tema libre : brief y 4 borradores por lote."
+          "title": "Elegir un camino",
+          "description": "Experiencia, entrevista, actualidad o fuente: el brief se adapta. Luego 4 borradores por lote — o un post comentado desde la actualidad."
         },
         "publish": {
           "title": "Afinar y publicar",
@@ -252,8 +257,8 @@
         "description": "Content Brain validado antes de generar: posicionamiento, audiencia, ángulo, pilares, la IA escribe como tú."
       },
       "sources": {
-        "title": "4 recorridos de creación",
-        "description": "Desde tu perfil, noticias de tu nicho, una inspiración (pegar, URL, biblioteca) o tema libre : ángulo distinto cada vez."
+        "title": "4 caminos según lo que tengas",
+        "description": "Tema claro, vivencia por extraer, noticia por comentar, o documento por adaptar — un borrador con tu voz cada vez."
       },
       "radar": {
         "title": "Radar de creadores",
@@ -689,7 +694,7 @@
       "ariaLabel": "Accesos rápidos",
       "title": "Accesos rápidos",
       "createNewPost": "Crear un nuevo post",
-      "createHint": "Perfil · Noticias · Inspiración · Tu tema",
+      "createHint": "Experiencia · Entrevista · Actualidad · Fuente",
       "dashboard": "Panel",
       "dashboardHint": "Resumen · cuota · validados",
       "libraryDrafts": "Borradores",
@@ -2022,7 +2027,7 @@
         "modePicker": {
           "heroEyebrow": "Creación",
           "heroTitle": "¿Por dónde empieza este post?",
-          "heroSubtitle": "Cuatro caminos según lo que tengas a la mano. Un clic, un borrador con tu voz.",
+          "heroSubtitle": "Cuatro caminos según lo que tengas. Un clic → un borrador con tu voz.",
           "heroPill1": "Persona y brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Listo para LinkedIn",

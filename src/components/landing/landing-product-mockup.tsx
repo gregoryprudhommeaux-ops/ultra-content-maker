@@ -4,6 +4,14 @@ import { useTranslations } from "next-intl";
 
 const WOW_KEYS = ["persona", "batch", "quality"] as const;
 const FLOW_KEYS = ["sources", "brief", "drafts", "export"] as const;
+const PATH_KEYS = ["profile", "interview", "news", "inspiration"] as const;
+
+const PATH_ACCENT: Record<(typeof PATH_KEYS)[number], string> = {
+  profile: "border-ns-primary/35 bg-ns-primary/10",
+  interview: "border-amber-200 bg-amber-50/80",
+  news: "border-sky-200 bg-sky-50/80",
+  inspiration: "border-violet-200 bg-violet-50/80",
+};
 
 export function LandingProductMockup() {
   const t = useTranslations("landing.product");
@@ -68,7 +76,33 @@ export function LandingProductMockup() {
         </div>
       </article>
 
-      {/* WOW moments 2–4 (hero above is #1: 4-draft batch) */}
+      {/* 4 creation paths — mirrors in-app chooser */}
+      <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-ns-secondary">
+          {t("panels.sources.label")}
+        </p>
+        <p className="mt-1 text-sm font-medium text-ns-tertiary">{t("pathsIntro")}</p>
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {PATH_KEYS.map((key) => (
+            <li
+              key={key}
+              className={`flex min-h-[7.5rem] flex-col rounded-xl border px-4 py-3 ${PATH_ACCENT[key]}`}
+            >
+              <p className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+                {t(`panels.sources.modes.${key}.hint`)}
+              </p>
+              <p className="mt-2 text-sm font-bold leading-snug text-ns-tertiary">
+                {t(`panels.sources.modes.${key}.title`)}
+              </p>
+              <p className="mt-auto pt-2 text-xs leading-snug text-ns-secondary">
+                {t(`panels.sources.modes.${key}.outcome`)}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* WOW moments 2–4 */}
       <ul className="grid gap-4 md:grid-cols-3">
         {WOW_KEYS.map((key) => (
           <li key={key}>
@@ -88,7 +122,7 @@ export function LandingProductMockup() {
         ))}
       </ul>
 
-      {/* Pipeline: uniform strip */}
+      {/* Pipeline */}
       <div className="rounded-2xl border border-ns-alternate/60 bg-ns-brand-light/40 px-4 py-5 md:px-6">
         <p className="text-center text-xs font-bold uppercase tracking-[0.18em] text-ns-secondary">
           {t("flow.label")}
