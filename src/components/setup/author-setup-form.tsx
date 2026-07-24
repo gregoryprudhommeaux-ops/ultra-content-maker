@@ -9,6 +9,7 @@ import { ClientInvitePanel } from "@/components/workspace/client-invite-panel";
 import { notifyOnboardingProgressChanged } from "@/contexts/onboarding-progress-context";
 import { InspirationsEditor } from "@/components/setup/inspirations-editor";
 import { MyPostsLinksEditor } from "@/components/setup/my-posts-links-editor";
+import { VoiceFingerprintPanel } from "@/components/setup/voice-fingerprint-panel";
 import { AuthorBioDocumentsPanel } from "@/components/setup/author-bio-documents-panel";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -888,6 +889,7 @@ function VoiceFields({
         languageField
       )}
       <MyPostsLinksEditor userId={userId} />
+      <VoiceFingerprintPanel userId={userId} contentLanguage={contentLanguage} />
       {voiceBasicsDone && (
         <p className="text-xs leading-relaxed text-ns-secondary">{t("fullProfile.voiceExtrasHint")}</p>
       )}

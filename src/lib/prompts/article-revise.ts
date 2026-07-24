@@ -5,6 +5,7 @@ import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
 import { buildNewsSourceInPostInstruction } from "@/lib/prompts/news-source-citation";
 import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
+import { buildVoiceFingerprintPromptBlock } from "@/lib/persona/voice-fingerprint";
 import { buildPostBriefInstruction } from "@/lib/prompts/post-brief";
 import {
  injectAuthorSteering,
@@ -16,6 +17,7 @@ import type {
  ArticleRefinement,
  ContentLanguage,
  EmojiLevel,
+ GapAnswerValue,
  PostBrief,
 } from "@/types/workspace";
 import { emojiInstruction } from "./emoji-instruction";
@@ -85,6 +87,9 @@ export function buildReviseUserPrompt(
  postBrief?.postAngle
  ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
  : null;
+ const voiceFingerprintContext = buildVoiceFingerprintPromptBlock(
+ authorSteering?.profileEnrichment as Record<string, GapAnswerValue> | null | undefined,
+ );
 
  const payload: Record<string, unknown> = {
  personaPromptText: personaPromptText.slice(0, REVISE_PERSONA_MAX_CHARS),
@@ -94,6 +99,7 @@ export function buildReviseUserPrompt(
  toneEdgeInstruction,
  corrosiveToneRequested: isCorrosiveToneEdge(refinement),
  ...(postBriefInstruction ? { postBriefInstruction } : {}),
+ ...(voiceFingerprintContext ? { voiceFingerprintContext } : {}),
  };
  if (newsSource?.url) {
  payload.newsSourceCitation = buildNewsSourceInPostInstruction(

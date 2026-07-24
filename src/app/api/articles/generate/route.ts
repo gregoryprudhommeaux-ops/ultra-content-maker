@@ -42,12 +42,14 @@ import { stripNewsSourceUrlFromText } from "@/lib/linkedin/strip-news-source-url
 import { humanizeArticlesPass } from "@/lib/articles/humanize-article-pass";
 import { postContainsEmoji } from "@/lib/prompts/emoji-instruction";
 import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
+import { buildVoiceFingerprintPromptBlock } from "@/lib/persona/voice-fingerprint";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import type {
  ArticleInspirationSource,
  ArticleNewsSource,
  ArticleScope,
  ContentLanguage,
+ GapAnswerValue,
  EmojiLevel,
  LlmProvider,
  PostBrief,
@@ -360,12 +362,19 @@ export async function POST(request: Request) {
  articles = enforceLinkedInLengthOnArticles(articles);
 
  // Post-generation anti-AI-slop gate (FR/EN/ES): detect → HUMANIZER pass when needed
+ const voiceFingerprintBlock = buildVoiceFingerprintPromptBlock(
+   (body.profileEnrichment ??
+     authorSteering?.profileEnrichment) as Record<string, GapAnswerValue> | null | undefined,
+ );
  const humanized = await humanizeArticlesPass(
    llm,
    articles.map((a) => ({ hook: a.hook, body: a.body, ps: a.ps })),
    contentLanguage,
    { userId, route: "articles/generate-humanize" },
-   { productFrame: postBrief?.productFrame },
+   {
+     productFrame: postBrief?.productFrame,
+     voiceFingerprintBlock: voiceFingerprintBlock || undefined,
+   },
  );
  articles = articles.map((a, i) => {
    const h = humanized.articles[i];

@@ -20,10 +20,12 @@ import {
 } from "@/lib/prompts/article-revise";
 import { humanizeArticlePass } from "@/lib/articles/humanize-article-pass";
 import { resolveAuthorSteering, type AuthorSteeringPayload } from "@/lib/profile/author-steering-context";
+import { buildVoiceFingerprintPromptBlock } from "@/lib/persona/voice-fingerprint";
 import type {
   ArticleNewsSource,
   ArticleRefinement,
   ContentLanguage,
+  GapAnswerValue,
   LlmProvider,
   PostBrief,
 } from "@/types/workspace";
@@ -180,6 +182,16 @@ export async function POST(request: Request) {
       { hook: fitted.hook, body: fitted.body, ps: fitted.ps },
       contentLanguage,
       { userId, route: "articles/revise-humanize" },
+      {
+        voiceFingerprintBlock:
+          buildVoiceFingerprintPromptBlock(
+            (body.profileEnrichment ??
+              authorSteering?.profileEnrichment) as
+              | Record<string, GapAnswerValue>
+              | null
+              | undefined,
+          ) || undefined,
+      },
     );
     fitted = fitLinkedInArticleParts(
       humanized.parts,

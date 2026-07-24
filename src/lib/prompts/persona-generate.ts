@@ -7,6 +7,7 @@ import {
   buildOrganizationPromptBlock,
   parseEditorialPillars,
 } from "@/lib/persona/organization-enrichment";
+import { buildVoiceFingerprintPromptBlock } from "@/lib/persona/voice-fingerprint";
 import type {
  AudienceProfile,
  AuthorProfile,
@@ -73,6 +74,7 @@ Prioritize gaps that would materially improve LinkedIn content: sectors, ICP siz
 - If contentArchetype is missing or unclear, include one gap question (enrichment key content_archetype, type single) with options EXACTLY ["expert", "founder_product", "hybrid"] (localized label/hint · slugs stay English).
 
 When the user provides inspirationPosts or inspirationProfiles, weave them into the expert prompt as explicit creative references (not plagiarism): mirror the ASPECTS they marked (tone, angle, subject, approach, content, format) and optional whyLike notes. Never copy text from URLs. myPosts define the author's own voice baseline; inspirations are external models to borrow structure and energy from.
+When voiceFingerprintContext is present, weave it into the Voice section as hard constraints (rhythm, hooks, posture, lexical tics, preserve markers, avoid list).
 
 Return JSON only:
 {
@@ -98,6 +100,7 @@ export function buildPersonaUserPrompt(
   });
   const customPillars = parseEditorialPillars(enrichment?.details);
   const orgBlock = buildOrganizationPromptBlock(enrichment?.details);
+  const voiceBlock = buildVoiceFingerprintPromptBlock(enrichment?.details);
 
   return JSON.stringify(
     {
@@ -111,6 +114,7 @@ export function buildPersonaUserPrompt(
         enrichment?.details,
       ),
       organizationContext: orgBlock ?? null,
+      voiceFingerprintContext: voiceBlock || null,
       editorialPillarsConfigured: customPillars.length > 0 ? customPillars : null,
       editorialPillarsNote:
         customPillars.length > 0

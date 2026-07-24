@@ -14,11 +14,12 @@ import {
   parseEditorialPillars,
   parseOrganizationProfile,
 } from "@/lib/persona/organization-enrichment";
+import { buildVoiceFingerprintPromptBlock } from "@/lib/persona/voice-fingerprint";
 import type { ArticleScope, ContentLanguage, EmojiLevel, GapAnswerValue, PostBrief } from "@/types/workspace";
 import { buildPostBriefInstruction } from "./post-brief";
 import { emojiInstruction } from "./emoji-instruction";
 import { buildLinkedIn2026SystemRules } from "./linkedin-2026-rules";
-import { languageLabel, languageOnlyRule } from "./language-consistency";
+import { languageOnlyRule } from "./language-consistency";
 
 function enrichmentDetails(
   raw?: Record<string, unknown> | null,
@@ -107,11 +108,14 @@ export function buildArticlesSystemPromptWithCount(
   const orgBlock = buildOrganizationPromptBlock(enrichment);
   const publishedBlock = buildPublishedTopicsAvoidanceBlock(enrichment);
   const calendarBlock = buildEditorialCalendarPromptBlock(enrichment);
+  const voiceBlock = buildVoiceFingerprintPromptBlock(enrichment);
   const visualFirstRule =
     (archetype === "founder_product" || archetype === "hybrid") && orgProfile.visualFirst !== false
       ? "\n- Company mode · visual-first: keep each post SHORT (hook + body roughly 600-900 characters total) · one clear idea · detail lives in the feed image, not in long paragraphs."
       : "";
-  const orgRules = [orgBlock, publishedBlock, calendarBlock].filter(Boolean).join("\n\n");
+  const orgRules = [orgBlock, publishedBlock, calendarBlock, voiceBlock]
+    .filter(Boolean)
+    .join("\n\n");
   const pillars = parseEditorialPillars(enrichment);
   const pillarFieldRule =
     pillars.length > 0
@@ -190,6 +194,7 @@ export function buildArticlesUserPromptWithCount(
  const orgBlock = buildOrganizationPromptBlock(enrichment);
  const publishedBlock = buildPublishedTopicsAvoidanceBlock(enrichment);
  const calendarBlock = buildEditorialCalendarPromptBlock(enrichment);
+ const voiceBlock = buildVoiceFingerprintPromptBlock(enrichment);
 
  return JSON.stringify(
  injectAuthorSteering(
@@ -203,6 +208,7 @@ export function buildArticlesUserPromptWithCount(
  organizationContext: orgBlock ?? null,
  publishedTopicsAvoidance: publishedBlock ?? null,
  editorialCalendarContext: calendarBlock ?? null,
+ voiceFingerprintContext: voiceBlock || null,
  postBrief: postBrief ?? null,
  postBriefInstruction: briefBlock ?? null,
  contentNicheInstruction: nicheBlock ?? null,

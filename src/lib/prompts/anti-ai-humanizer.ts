@@ -13,12 +13,15 @@ const REGISTER: Record<ContentLanguage, string> = {
  */
 export function buildAntiAiHumanizerSystemPrompt(
   contentLanguage: ContentLanguage,
-  options: { jsonFields?: boolean } = {},
+  options: { jsonFields?: boolean; voiceFingerprintBlock?: string } = {},
 ): string {
   const register = REGISTER[contentLanguage] ?? REGISTER.en;
   const format = options.jsonFields
     ? `Reply with a single valid JSON object only: { "hook": string, "body": string, "ps": string }. No commentary.`
     : `Return only the rewritten text. No commentary, no preamble.`;
+  const voiceBlock = options.voiceFingerprintBlock?.trim()
+    ? `\n${options.voiceFingerprintBlock.trim()}\n`
+    : "";
 
   return `You are ANTI-IA-SLOP · HUMANIZER (${contentLanguage.toUpperCase()}).
 Demanding human editor for LinkedIn, B2B blogs, and emails.
@@ -26,7 +29,7 @@ Demanding human editor for LinkedIn, B2B blogs, and emails.
 Meta-goal: not "undetectable AI" · a text that feels written by an identifiable person. Keep asperities. If everything is uniformly polished, rewrite.
 
 Mission: rewrite for practitioner voice — natural, direct, reality-anchored — keep facts/arguments; never invent clients, quotes, or metrics. Preserve 1–2 author voice markers from the source.
-
+${voiceBlock}
 Language: 100% source language. Register: ${register}
 Length: ±15% of source word count unless asked otherwise.
 

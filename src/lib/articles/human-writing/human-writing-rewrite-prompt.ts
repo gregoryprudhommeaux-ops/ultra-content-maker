@@ -8,8 +8,12 @@ import type { HumanWritingViolation } from "./human-writing-lint";
  */
 export function buildHumanWritingRewriteSystemPrompt(
   contentLanguage: ContentLanguage,
+  options: { voiceFingerprintBlock?: string } = {},
 ): string {
-  return buildAntiAiHumanizerSystemPrompt(contentLanguage, { jsonFields: true });
+  return buildAntiAiHumanizerSystemPrompt(contentLanguage, {
+    jsonFields: true,
+    voiceFingerprintBlock: options.voiceFingerprintBlock,
+  });
 }
 
 export function buildHumanWritingRewriteUserPrompt(input: {

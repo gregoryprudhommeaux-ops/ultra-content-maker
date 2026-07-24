@@ -18,6 +18,7 @@ export type ArticleParts = {
 export type HumanizeOptions = {
   force?: boolean;
   productFrame?: ProductFrame;
+  voiceFingerprintBlock?: string;
 };
 
 /** Run humanizer when detector or checklist says the draft still looks AI-shaped. */
@@ -100,7 +101,9 @@ export async function humanizeArticlePass(
       [
         {
           role: "system",
-          content: buildHumanWritingRewriteSystemPrompt(contentLanguage),
+          content: buildHumanWritingRewriteSystemPrompt(contentLanguage, {
+            voiceFingerprintBlock: options.voiceFingerprintBlock,
+          }),
         },
         {
           role: "user",

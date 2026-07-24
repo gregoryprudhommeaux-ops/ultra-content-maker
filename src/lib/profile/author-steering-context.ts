@@ -58,6 +58,7 @@ export const AUTHOR_STEERING_PROMPT_RULE = `
 Author steering (when "authorSteering" is in the user JSON):
 - All fields are live constraints that evolve output together with the Persona: audience focus, news keywords, enrichment answers, LinkedIn activity history, strategy steering text, reference URLs, and bioReferenceDocuments (extracted CV/bio text).
 - Honor linkedInPositioning from the last activity analysis (patterns, themes, recommended path) unless steering explicitly requests a pivot.
+- When profileEnrichment.voice_fingerprint or voiceFingerprintContext is present: honor that voice fingerprint (rhythm, hooks, posture, lexical tics, preserve markers, avoid list) as hard voice constraints — prefer asperities over generic LinkedIn polish.
 - newsInterestQuery and creationStrategySteering override generic Persona defaults when they conflict.
 - contentNiche (when set) is the owned niche anchor: one reader, one problem — honor it unless the brief explicitly pivots.
 - contentArchetype (expert | founder_product | hybrid) steers whether posts lead with expertise vs category/product proof — follow Persona rules for that archetype.
@@ -229,6 +230,11 @@ export function slimAuthorSteeringForRevise(
  patternSummary: steering.linkedInPositioning.patternSummary?.slice(0, 400),
  activeSteering: steering.linkedInPositioning.activeSteering,
  };
+ }
+
+ const voiceRaw = steering.profileEnrichment?.voice_fingerprint;
+ if (typeof voiceRaw === "string" && voiceRaw.trim()) {
+ slim.profileEnrichment = { voice_fingerprint: voiceRaw };
  }
 
  return hasSteeringContent(slim) ? slim : undefined;
