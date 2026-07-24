@@ -2,7 +2,7 @@
 
 import { CreationStrategyGuidePanel } from "@/components/articles/creation/creation-strategy-guide";
 import type { WizardCreationMode } from "@/lib/prompts/post-brief";
-import { BTN_PRIMARY, BTN_SECONDARY, FORM_SECTION_TITLE, FORM_SUBSECTION_TITLE, META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
+import { BTN_PRIMARY, BTN_SECONDARY, META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { CreationStrategyTheme } from "@/types/workspace";
 import { useTranslations } from "next-intl";
 import { useCallback, useRef, useState } from "react";
@@ -221,56 +221,26 @@ export function CreationModePicker({
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ns-secondary md:text-base">
           {t("heroSubtitle")}
         </p>
-        <ul className="mt-4 flex flex-wrap gap-1.5 md:mt-5 md:gap-2">
-          {[t("heroPill1"), t("heroPill2"), t("heroPill3")].map((pill) => (
-            <li
-              key={pill}
-              className="rounded-full border border-ns-primary/20 bg-white/90 px-3 py-1 text-xs font-semibold text-ns-tertiary"
-            >
-              {pill}
-            </li>
-          ))}
-        </ul>
       </section>
 
-      <section className="hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:block md:p-6">
-        <h3 className={SECTION_TITLE}>{t("decisionMatrixTitle")}</h3>
-        <p className="mt-1 text-sm text-ns-secondary">{t("decisionMatrixHint")}</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {(["profile", "interview", "news", "inspiration"] as const).map((modeId) => (
-            <div
-              key={modeId}
-              className="flex min-h-[8.5rem] flex-col rounded-xl border border-gray-100 bg-ns-brand-light/30 px-4 py-3"
-            >
-              <p className={META_LABEL}>{t(`decisionMatrix.${modeId}.when`)}</p>
-              <p className={`mt-2 min-h-[2.75rem] ${FORM_SUBSECTION_TITLE} line-clamp-2`}>
-                {t(`modes.${modeId}.title`)}
-              </p>
-              <p className="mt-auto pt-2 text-xs leading-relaxed text-ns-secondary">
-                {t(`decisionMatrix.${modeId}.outcome`)}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div>
-        <p className={`mb-3 ${META_LABEL}`}>{t("modesSectionLabel")}</p>
-        <div className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4 xl:grid-cols-4">
-          {MODES.map((config) => (
-            <ModeCard
-              key={config.id}
-              config={config}
-              highlighted={guideHighlight === config.id}
-              pulsing={pulseMode === config.id}
-              cardRef={(el) => {
-                modeCardRefs.current[config.id] = el;
-              }}
-              onSelect={onSelect}
-              t={t}
-            />
-          ))}
-        </div>
+      <div
+        className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4 xl:grid-cols-4"
+        role="list"
+        aria-label={t("modesSectionLabel")}
+      >
+        {MODES.map((config) => (
+          <ModeCard
+            key={config.id}
+            config={config}
+            highlighted={guideHighlight === config.id}
+            pulsing={pulseMode === config.id}
+            cardRef={(el) => {
+              modeCardRefs.current[config.id] = el;
+            }}
+            onSelect={onSelect}
+            t={t}
+          />
+        ))}
       </div>
 
       <details className="group rounded-2xl border border-dashed border-ns-alternate/80 bg-ns-brand-light/40">
@@ -361,7 +331,8 @@ function ModeCard({
   const outputs = t.raw(`modes.${mode}.outputs`) as string[];
   const featured = config.featured === true;
   const title = t(`modes.${mode}.title`);
-  const desc = t(`modes.${mode}.desc`);
+  const when = t(`decisionMatrix.${mode}.when`);
+  const outcome = t(`decisionMatrix.${mode}.outcome`);
 
   const cardShell = [
     "group relative w-full overflow-hidden rounded-xl border bg-white text-left shadow-sm transition-all duration-200",
@@ -374,7 +345,7 @@ function ModeCard({
 
   const iconBox = (
     <div
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg md:h-11 md:w-11 md:rounded-xl ${accent.bg} ${accent.icon}`}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg md:h-10 md:w-10 md:rounded-xl ${accent.bg} ${accent.icon}`}
     >
       <ModeIcon mode={mode} className="h-4 w-4 md:h-5 md:w-5" />
     </div>
@@ -386,6 +357,7 @@ function ModeCard({
       ref={cardRef}
       onClick={() => onSelect(mode)}
       className={cardShell}
+      role="listitem"
     >
       <div
         className={`pointer-events-none absolute inset-0 hidden bg-gradient-to-br md:block ${accent.gradient}`}
@@ -395,32 +367,34 @@ function ModeCard({
       {/* Mobile — compact list row */}
       <div className="relative flex items-start gap-3 p-3.5 md:hidden">
         {iconBox}
-        <div className="min-w-0 flex-1">
-          <h3 className="pr-6 text-sm font-bold leading-snug text-ns-hero">{title}</h3>
-          <p className="mt-1.5 text-xs leading-relaxed text-ns-secondary line-clamp-2">{desc}</p>
+        <div className="min-w-0 flex-1 pr-5">
+          <p className={`${META_LABEL} leading-snug`}>{when}</p>
+          <h3 className="mt-1 text-sm font-bold leading-snug text-ns-hero">{title}</h3>
+          <p className="mt-1.5 text-xs leading-relaxed text-ns-secondary">{outcome}</p>
         </div>
         <span
-          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-lg text-ns-secondary"
+          className="absolute right-3.5 top-3.5 text-base text-ns-secondary"
           aria-hidden
         >
           →
         </span>
       </div>
 
-      {/* Desktop — card */}
+      {/* Desktop — stacked card (full title, no clamp) */}
       <div className="relative hidden h-full flex-col gap-3 p-5 md:flex">
-        <div className="flex items-start gap-3">
-          {iconBox}
-          <div className="min-w-0 flex-1">
-            <h3 className={`${FORM_SECTION_TITLE} line-clamp-2`}>{title}</h3>
-          </div>
+        {iconBox}
+        <div className="min-w-0">
+          <p className={`${META_LABEL} leading-snug`}>{when}</p>
+          <h3 className={`mt-1.5 text-base font-bold leading-snug tracking-tight text-ns-hero`}>
+            {title}
+          </h3>
         </div>
 
-        <p className="text-sm leading-relaxed text-ns-secondary line-clamp-2">{desc}</p>
+        <p className="text-sm leading-relaxed text-ns-secondary">{outcome}</p>
 
         {Array.isArray(outputs) && outputs.length > 0 ? (
           <ul className="flex flex-wrap gap-1.5">
-            {outputs.map((item) => (
+            {outputs.slice(0, 2).map((item) => (
               <li
                 key={item}
                 className={`rounded-md border px-2 py-0.5 text-[11px] font-medium leading-snug text-ns-tertiary ${accent.tag}`}
@@ -431,7 +405,7 @@ function ModeCard({
           </ul>
         ) : null}
 
-        <span className="mt-auto inline-flex w-full items-center justify-center gap-1 pt-2">
+        <span className="mt-auto inline-flex w-full items-center justify-center gap-1 pt-1">
           <span
             className={[
               "inline-flex w-full items-center justify-center gap-1",

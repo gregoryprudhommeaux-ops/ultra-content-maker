@@ -2021,13 +2021,13 @@
           "niche": "Niche"
         },
         "modePicker": {
-          "heroEyebrow": "Assistant de création",
-          "heroTitle": "Votre prochain post LinkedIn, en quelques minutes",
-          "heroSubtitle": "Quatre parcours, une même promesse : un brouillon dans votre voix, prêt à affiner et publier.",
+          "heroEyebrow": "Création",
+          "heroTitle": "Par où commencer ce post ?",
+          "heroSubtitle": "Quatre chemins selon ce que vous avez sous la main. Un clic, un brouillon dans votre voix.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Prêt pour LinkedIn",
-          "modesSectionLabel": "Choisir un parcours",
+          "modesSectionLabel": "Parcours de création",
           "recommended": "Recommandé",
           "start": "Commencer",
           "strategyDrawerTitle": "Analyse LinkedIn & recommandations",
@@ -2041,9 +2041,10 @@
             "news": "Je veux réagir à l’actualité",
             "repurpose": "Je veux décliner un contenu existant",
             "hint": {
-              "profile": "→ Parcours expertise : sujet rapide ou brief complet, aligné sur votre Persona.",
-              "news": "→ Parcours actu : scan de 4 stories récentes, puis 1 post ancré sur votre angle.",
-              "inspiration": "→ Parcours inspiration : 1 brouillon avec un angle distinct (sans copier le source)."
+              "profile": "→ Expertise : sujet rapide ou brief complet, aligné sur votre Persona.",
+              "interview": "→ Interview : questions guidées, puis brief + brouillon à partir de votre vécu.",
+              "news": "→ Actu : 4 stories scannées, puis 1 post ancré sur votre angle.",
+              "inspiration": "→ Source : 1 brouillon avec un angle distinct (sans copier)."
             }
           },
           "strategy": {
@@ -2076,7 +2077,7 @@
             "modes": {
               "profile": "Expertise & angle",
               "news": "Depuis l’actualité",
-              "inspiration": "Source externe ou document"
+              "inspiration": "Source ou document"
             },
             "relation": {
               "continuity": "Cohérence",
@@ -2099,20 +2100,20 @@
           },
           "decisionMatrix": {
             "profile": {
-              "when": "Vous partez de votre expertise",
-              "outcome": "Sujet rapide ou brief structuré · 1 brouillon dans votre voix."
+              "when": "Vous avez déjà un sujet",
+              "outcome": "Sujet rapide ou brief · brouillon aligné sur votre Persona."
             },
             "interview": {
-              "when": "Vous avez du vécu à extraire",
-              "outcome": "Questions guidées · matière brute → brief → brouillon + angles suivants."
+              "when": "Vous avez du vécu, pas encore de sujet",
+              "outcome": "6 questions · brief auto · brouillon + angles suivants."
             },
             "news": {
-              "when": "Vous réagissez à l’actualité",
-              "outcome": "4 actus scannées · 1 post commenté avec source."
+              "when": "Vous voulez réagir à l’actu",
+              "outcome": "4 actus scannées · post commenté avec source."
             },
             "inspiration": {
-              "when": "Vous déclinez un contenu existant",
-              "outcome": "Coller, lien, bibliothèque ou document · angle distinct."
+              "when": "Vous partez d’un lien ou d’un doc",
+              "outcome": "Coller, lien, bibliothèque ou PDF · angle distinct."
             }
           },
           "modes": {
@@ -2121,19 +2122,17 @@
               "desc": "Décrivez votre sujet ou complétez le brief : un brouillon dans votre voix, aligné sur votre Persona.",
               "badge": "Expertise",
               "outputs": [
-                "Sujet rapide ou brief complet",
-                "Persona & objectifs",
-                "Quality Panel"
+                "Sujet rapide ou brief",
+                "Persona & objectifs"
               ]
             },
             "interview": {
-              "title": "Interview / extraction",
+              "title": "Interview guidée",
               "desc": "Répondez à quelques questions (texte) : on extrait votre vécu, on remplit le brief, puis un brouillon dans votre voix.",
               "badge": "Extraction",
               "outputs": [
                 "6 questions guidées",
-                "Brief auto + tips + photos",
-                "Angles suivants"
+                "Brief + tips + photos"
               ]
             },
             "news": {
@@ -2142,18 +2141,16 @@
               "badge": "Actualité",
               "outputs": [
                 "Actu < 7 jours",
-                "Source en commentaire",
-                "Quality Panel"
+                "Source en commentaire"
               ]
             },
             "inspiration": {
-              "title": "Source externe ou document",
+              "title": "Source ou document",
               "desc": "À partir d’un texte, lien ou document : un brouillon réécrit avec un angle distinct, sans copier la source.",
               "badge": "Source",
               "outputs": [
-                "Coller · URL · Doc · Bibliothèque",
-                "Angle anti-plagiat",
-                "Quality Panel"
+                "Coller · URL · Doc",
+                "Angle anti-plagiat"
               ]
             },
             "article": {

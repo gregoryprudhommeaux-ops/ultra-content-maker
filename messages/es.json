@@ -2020,13 +2020,13 @@
           "niche": "Nicho"
         },
         "modePicker": {
-          "heroEyebrow": "Asistente de creación",
-          "heroTitle": "Tu próximo post de LinkedIn, en minutos",
-          "heroSubtitle": "Cuatro recorridos, una misma promesa: un borrador con tu voz, listo para afinar y publicar.",
+          "heroEyebrow": "Creación",
+          "heroTitle": "¿Por dónde empieza este post?",
+          "heroSubtitle": "Cuatro caminos según lo que tengas a la mano. Un clic, un borrador con tu voz.",
           "heroPill1": "Persona y brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Listo para LinkedIn",
-          "modesSectionLabel": "Elegir un recorrido",
+          "modesSectionLabel": "Recorridos de creación",
           "recommended": "Recomendado",
           "start": "Empezar",
           "strategyDrawerTitle": "Análisis LinkedIn y recomendaciones",
@@ -2040,9 +2040,10 @@
             "news": "Quiero reaccionar a la actualidad",
             "repurpose": "Quiero adaptar un contenido existente",
             "hint": {
-              "profile": "→ Recorrido experiencia: tema rápido o brief completo, alineado con tu Persona.",
-              "news": "→ Recorrido actualidad: escaneo de 4 noticias y 1 post con tu ángulo.",
-              "inspiration": "→ Recorrido inspiración: 1 borrador con ángulo distinto (sin copiar la fuente)."
+              "profile": "→ Experiencia: tema rápido o brief completo, alineado con tu Persona.",
+              "interview": "→ Entrevista: preguntas guiadas, luego brief + borrador desde tu vivencia.",
+              "news": "→ Actualidad: 4 noticias escaneadas, luego 1 post con tu ángulo.",
+              "inspiration": "→ Fuente: 1 borrador con ángulo distinto (sin copiar)."
             }
           },
           "strategy": {
@@ -2098,20 +2099,20 @@
           },
           "decisionMatrix": {
             "profile": {
-              "when": "Partes de tu experiencia",
-              "outcome": "Tema rápido o brief completo · 1 borrador con tu voz."
-            },
-            "news": {
-              "when": "Reaccionas a la actualidad",
-              "outcome": "4 noticias escaneadas · 1 post comentado con fuente."
-            },
-            "inspiration": {
-              "when": "Adaptas un contenido existente",
-              "outcome": "Pegar, enlace, biblioteca o documento · ángulo distinto."
+              "when": "Ya tienes un tema",
+              "outcome": "Tema rápido o brief · borrador alineado con tu Persona."
             },
             "interview": {
-              "when": "Tienes experiencia vivida que extraer",
-              "outcome": "Preguntas guiadas · materia prima → brief → borrador + siguientes ángulos."
+              "when": "Tienes vivencia, aún no un tema",
+              "outcome": "6 preguntas · brief auto · borrador + siguientes ángulos."
+            },
+            "news": {
+              "when": "Quieres reaccionar a la actualidad",
+              "outcome": "4 noticias escaneadas · post comentado con fuente."
+            },
+            "inspiration": {
+              "when": "Partes de un enlace o documento",
+              "outcome": "Pegar, enlace, biblioteca o PDF · ángulo distinto."
             }
           },
           "modes": {
@@ -2120,19 +2121,17 @@
               "desc": "Describe tu tema o completa el brief: un borrador con tu voz, alineado con tu Persona.",
               "badge": "Experiencia",
               "outputs": [
-                "Tema rápido o brief completo",
-                "Persona y objetivos",
-                "Quality Panel"
+                "Tema rápido o brief",
+                "Persona y objetivos"
               ]
             },
             "interview": {
-              "title": "Entrevista / extracción",
+              "title": "Entrevista guiada",
               "desc": "Responde unas preguntas (texto): extraemos tu vivencia, rellenamos el brief y generamos un borrador con tu voz.",
               "badge": "Extracción",
               "outputs": [
                 "6 preguntas guiadas",
-                "Brief auto + tips + fotos",
-                "Siguientes ángulos"
+                "Brief + tips + fotos"
               ]
             },
             "news": {
@@ -2141,18 +2140,16 @@
               "badge": "Actualidad",
               "outputs": [
                 "Noticias < 7 días",
-                "Fuente en comentario",
-                "Quality Panel"
+                "Fuente en comentario"
               ]
             },
             "inspiration": {
-              "title": "Fuente externa o documento",
+              "title": "Fuente o documento",
               "desc": "A partir de un texto, enlace o documento: un borrador reescrito con ángulo distinto, sin copiar la fuente.",
               "badge": "Fuente",
               "outputs": [
-                "Pegar · URL · Doc · Biblioteca",
-                "Ángulo anti-plagio",
-                "Quality Panel"
+                "Pegar · URL · Doc",
+                "Ángulo anti-plagio"
               ]
             },
             "article": {

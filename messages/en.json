@@ -2020,13 +2020,13 @@
           "niche": "Niche"
         },
         "modePicker": {
-          "heroEyebrow": "Creation assistant",
-          "heroTitle": "Your next LinkedIn post, in minutes",
-          "heroSubtitle": "Four paths, one promise: a draft in your voice, ready to refine and publish.",
+          "heroEyebrow": "Create",
+          "heroTitle": "Where should this post start?",
+          "heroSubtitle": "Four paths, based on what you have on hand. One click, one draft in your voice.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "LinkedIn-ready",
-          "modesSectionLabel": "Choose a path",
+          "modesSectionLabel": "Creation paths",
           "recommended": "Recommended",
           "start": "Get started",
           "strategyDrawerTitle": "LinkedIn analysis & recommendations",
@@ -2040,9 +2040,10 @@
             "news": "I want to react to the news",
             "repurpose": "I want to repurpose existing content",
             "hint": {
-              "profile": "→ Expertise path: quick topic or full brief, aligned with your Persona.",
-              "news": "→ News path: scan 4 recent stories, then 1 post anchored on your angle.",
-              "inspiration": "→ Inspiration path: 1 draft with a distinct angle (no copying the source)."
+              "profile": "→ Expertise: quick topic or full brief, aligned with your Persona.",
+              "interview": "→ Interview: guided questions, then brief + draft from your lived experience.",
+              "news": "→ News: scan 4 recent stories, then 1 post on your angle.",
+              "inspiration": "→ Source: 1 draft with a distinct angle (no copying)."
             }
           },
           "strategy": {
@@ -2075,7 +2076,7 @@
             "modes": {
               "profile": "Expertise & angle",
               "news": "From the news",
-              "inspiration": "External source or document"
+              "inspiration": "Source or document"
             },
             "relation": {
               "continuity": "Continuity",
@@ -2098,20 +2099,20 @@
           },
           "decisionMatrix": {
             "profile": {
-              "when": "You start from your expertise",
-              "outcome": "Quick topic or full brief · 1 draft in your voice."
-            },
-            "news": {
-              "when": "You react to the news",
-              "outcome": "4 stories scanned · 1 commented post with source."
-            },
-            "inspiration": {
-              "when": "You repurpose existing content",
-              "outcome": "Paste, link, library, or document · distinct angle."
+              "when": "You already have a topic",
+              "outcome": "Quick topic or brief · draft aligned with your Persona."
             },
             "interview": {
-              "when": "You have lived experience to extract",
-              "outcome": "Guided questions · raw matter → brief → draft + next angles."
+              "when": "You have experience, not a topic yet",
+              "outcome": "6 questions · auto brief · draft + next angles."
+            },
+            "news": {
+              "when": "You want to react to the news",
+              "outcome": "4 stories scanned · commented post with source."
+            },
+            "inspiration": {
+              "when": "You start from a link or document",
+              "outcome": "Paste, link, library, or PDF · distinct angle."
             }
           },
           "modes": {
@@ -2120,19 +2121,17 @@
               "desc": "Describe your topic or complete the brief: one draft in your voice, aligned with your Persona.",
               "badge": "Expertise",
               "outputs": [
-                "Quick topic or full brief",
-                "Persona & objectives",
-                "Quality Panel"
+                "Quick topic or brief",
+                "Persona & objectives"
               ]
             },
             "interview": {
-              "title": "Interview / extraction",
+              "title": "Guided interview",
               "desc": "Answer a few text questions: we extract your lived experience, fill the brief, then draft in your voice.",
               "badge": "Extraction",
               "outputs": [
                 "6 guided questions",
-                "Auto brief + tips + photos",
-                "Next angles"
+                "Brief + tips + photos"
               ]
             },
             "news": {
@@ -2141,18 +2140,16 @@
               "badge": "News",
               "outputs": [
                 "News < 7 days",
-                "Source in comment",
-                "Quality Panel"
+                "Source in comment"
               ]
             },
             "inspiration": {
-              "title": "External source or document",
+              "title": "Source or document",
               "desc": "From pasted text, a link, or a document: one rewritten draft with a distinct angle, without copying the source.",
               "badge": "Source",
               "outputs": [
-                "Paste · URL · Doc · Library",
-                "Anti-plagiarism angle",
-                "Quality Panel"
+                "Paste · URL · Doc",
+                "Anti-plagiarism angle"
               ]
             },
             "article": {
