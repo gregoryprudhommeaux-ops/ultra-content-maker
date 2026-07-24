@@ -791,6 +791,33 @@
         "brain": "Content Brain",
         "generations": "Generations"
       }
+    },
+    "nextAngles": {
+      "eyebrow": "Editorial queue",
+      "title": "Next angles",
+      "hint": "From your interviews — balanced across market / expertise / build in public. Click to start a brief.",
+      "useCta": "Write this angle",
+      "dismiss": "Dismiss"
+    },
+    "editorialCycle": {
+      "eyebrow": "Business cycle",
+      "title": "Editorial cycle (4 phases)",
+      "hint": "Pick a business objective: a light Alchie-style plan — 4 phases, 1–2 angles each, grounded in your Persona.",
+      "generateCta": "Generate my cycle",
+      "generating": "Generating cycle…",
+      "regenerate": "Regenerate",
+      "dismiss": "Archive cycle",
+      "generateFailed": "Could not generate the cycle right now.",
+      "personaRequired": "Validate your Persona before generating a cycle.",
+      "phaseLabel": "Phase {n}",
+      "useCta": "Write this angle",
+      "used": "Already started",
+      "objectives": {
+        "authority": "Authority",
+        "launch": "Launch",
+        "conversion": "Conversion",
+        "reposition": "Repositioning"
+      }
     }
   },
   "settings": {
@@ -1971,7 +1998,7 @@
         "modePicker": {
           "heroEyebrow": "Creation assistant",
           "heroTitle": "Your next LinkedIn post, in minutes",
-          "heroSubtitle": "Three paths, one promise: a draft in your voice, ready to refine and publish.",
+          "heroSubtitle": "Four paths, one promise: a draft in your voice, ready to refine and publish.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "LinkedIn-ready",
@@ -1981,7 +2008,7 @@
           "strategyDrawerTitle": "LinkedIn analysis & recommendations",
           "strategyDrawerHint": "Optional: recommended path and 3 themes based on your recent posts.",
           "decisionMatrixTitle": "Which path should you pick?",
-          "decisionMatrixHint": "Three intents, three paths — the brief adapts to how much detail you need.",
+          "decisionMatrixHint": "Four intents, four paths — the brief adapts to how much detail you need.",
           "guide": {
             "title": "Not sure where to start?",
             "subtitle": "Pick the intent that fits you : we’ll highlight the right path.",
@@ -2057,6 +2084,10 @@
             "inspiration": {
               "when": "You repurpose existing content",
               "outcome": "Paste, link, library, or document · distinct angle."
+            },
+            "interview": {
+              "when": "You have lived experience to extract",
+              "outcome": "Guided questions · raw matter → brief → draft + next angles."
             }
           },
           "modes": {
@@ -2068,6 +2099,16 @@
                 "Quick topic or full brief",
                 "Persona & objectives",
                 "Quality Panel"
+              ]
+            },
+            "interview": {
+              "title": "Interview / extraction",
+              "desc": "Answer a few text questions: we extract your lived experience, fill the brief, then draft in your voice.",
+              "badge": "Extraction",
+              "outputs": [
+                "6 guided questions",
+                "Auto brief + tips",
+                "Next angles"
               ]
             },
             "news": {
@@ -2293,7 +2334,8 @@
           "contextArticle": "Your idea",
           "briefing": "Brief",
           "result": "Result",
-          "generation": "Generating…"
+          "generation": "Generating…",
+          "contextInterview": "Interview"
         },
         "intentSummary": {
           "label": "Path:",
@@ -2302,7 +2344,38 @@
             "profile": "Expertise & angle",
             "news": "From the news",
             "inspiration": "External source or document",
-            "article": "Expertise & angle"
+            "article": "Expertise & angle",
+            "interview": "Interview / extraction"
+          }
+        },
+        "interview": {
+          "eyebrow": "Extraction",
+          "title": "Guided interview",
+          "hint": "Answer at least 2 questions (ideally all) with concrete details: situations, decisions, numbers. The AI invents nothing — it structures your material.",
+          "loadingQuestions": "Preparing questions from your Persona…",
+          "noQuestions": "Could not load questions right now.",
+          "reloadQuestions": "Reload questions",
+          "questionLabel": "Question {n}",
+          "answerPlaceholder": "Write as you’d speak — details, dates, tension…",
+          "extractCta": "Extract the brief",
+          "extracting": "Extracting…",
+          "filledHint": "{count} answer(s) · minimum {min}",
+          "questionsFailed": "Could not generate interview questions.",
+          "extractFailed": "Could not extract a brief from your answers.",
+          "matterLabel": "Extracted material",
+          "pack": {
+            "eyebrow": "Session pack",
+            "title": "Tips & next angles",
+            "hint": "From this interview — publish better today and know what to write next.",
+            "matterLabel": "What we kept",
+            "tipsLabel": "Storytelling tips",
+            "anglesLabel": "Next angles",
+            "useAngle": "Use this angle",
+            "pillar": {
+              "market": "Market pillar",
+              "expertise": "Expertise pillar",
+              "build_in_public": "Build-in-public pillar"
+            }
           }
         }
       },
@@ -3510,7 +3583,11 @@
       "preview": "Preview with sample data",
       "resetDefaults": "Restore default template",
       "placeholdersHint": "Available variables:",
-      "locales": { "fr": "Français", "en": "English", "es": "Español" }
+      "locales": {
+        "fr": "Français",
+        "en": "English",
+        "es": "Español"
+      }
     }
   },
   "adminSupportQuotes": {
@@ -3561,7 +3638,11 @@
       "sentOk": "Quote emailed to the client.",
       "saving": "Saving…",
       "sendLocale": "Client email language",
-      "locales": { "fr": "Français", "en": "English", "es": "Español" },
+      "locales": {
+        "fr": "Français",
+        "en": "English",
+        "es": "Español"
+      },
       "fields": {
         "subject": "Email subject",
         "rhythm": "Rhythm (summary)",
@@ -3592,7 +3673,9 @@
     "editorHint": "Review content, adjust if needed, then mark ready or send directly.",
     "scheduledHint": "With status Ready to send, delivery runs on the hourly cron when due.",
     "saving": "Saving…",
-    "filters": { "all": "All" },
+    "filters": {
+      "all": "All"
+    },
     "columns": {
       "period": "Period",
       "user": "Client",

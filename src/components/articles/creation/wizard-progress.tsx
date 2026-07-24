@@ -7,6 +7,7 @@ export type WizardPhaseId = "intent" | "context" | "briefing" | "generation" | "
 
 function flowForMode(mode: WizardCreationMode | null): WizardPhaseId[] {
   if (mode === "profile" || mode === "article") return ["intent", "briefing", "result"];
+  if (mode === "interview") return ["intent", "context", "briefing", "result"];
   return ["intent", "context", "briefing", "result"];
 }
 
@@ -19,6 +20,7 @@ export function resolveWizardProgressStep(
   if (step === "draft-done") return "result";
   if (step === "brief") return "briefing";
   if (
+    step === "interview" ||
     step === "news" ||
     step === "paste" ||
     step === "inspiration-input" ||
@@ -57,9 +59,11 @@ export function WizardProgress({ mode, activeStep }: Props) {
         ? t("contextNews")
         : mode === "inspiration"
           ? t("contextInspiration")
-          : mode === "article"
-            ? t("contextArticle")
-            : t("contextProfile"),
+          : mode === "interview"
+            ? t("contextInterview")
+            : mode === "article"
+              ? t("contextArticle")
+              : t("contextProfile"),
     briefing: t("briefing"),
     result: t("result"),
     generation: t("generation"),

@@ -4,6 +4,8 @@ import { ArticleLibraryCard } from "@/components/articles/article-library-card";
 import { ArticlesLibraryBatches, BatchScopeMix } from "@/components/articles/articles-library-batches";
 import { ArticlesLibraryToolbar } from "@/components/articles/articles-library-toolbar";
 import { DashboardAgentRecommendation } from "@/components/dashboard/dashboard-agent-recommendation";
+import { DashboardEditorialCyclePanel } from "@/components/dashboard/dashboard-editorial-cycle-panel";
+import { DashboardNextAnglesGrid } from "@/components/dashboard/dashboard-next-angles-grid";
 import { DashboardQuotaStats } from "@/components/dashboard/dashboard-quota-stats";
 import { DashboardValidatedTable } from "@/components/dashboard/dashboard-validated-table";
 import { DashboardPageHero, DashboardPageShell } from "@/components/layout/dashboard-page";
@@ -203,6 +205,10 @@ export function DashboardHub() {
           inspirationSourcesCount={inspirationSourcesCount}
           author={author}
         />
+
+        <DashboardEditorialCyclePanel />
+
+        <DashboardNextAnglesGrid />
 
         <DashboardValidatedTable articles={validatedArticles} />
 

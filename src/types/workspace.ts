@@ -225,6 +225,38 @@ export interface CreationStrategyCache {
  steering?: string;
 }
 
+export type EditorialCycleObjective =
+  | "authority"
+  | "launch"
+  | "conversion"
+  | "reposition";
+
+export type EditorialCycleItemStatus = "queued" | "used" | "dismissed";
+
+export interface EditorialCycleItem {
+  id: string;
+  title: string;
+  angle: string;
+  rationale?: string;
+  suggestedMode?: ArticleCreationMode;
+  status: EditorialCycleItemStatus;
+}
+
+export interface EditorialCyclePhase {
+  id: string;
+  label: string;
+  intent: string;
+  items: EditorialCycleItem[];
+}
+
+export interface EditorialCycle {
+  objective: EditorialCycleObjective;
+  status: "active" | "completed" | "dismissed";
+  createdAt: string;
+  summary?: string;
+  phases: EditorialCyclePhase[];
+}
+
 export type LinkedInDeliveryMode = "agency_publish" | "client_copy_paste";
 
 export interface AuthorProfile {
@@ -247,6 +279,8 @@ export interface AuthorProfile {
  creationStrategyCache?: CreationStrategyCache;
  /** Optional angle / keywords to steer the next strategy analysis. */
   creationStrategySteering?: string;
+  /** Active business-objective editorial cycle (4 phases). */
+  editorialCycle?: EditorialCycle | null;
   /** Support Total: agency publishes vs client copy-pastes on LinkedIn. */
   linkedInDeliveryMode?: LinkedInDeliveryMode;
   linkedInPublishAccessNotes?: string;

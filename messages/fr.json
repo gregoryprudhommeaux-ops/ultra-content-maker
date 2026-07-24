@@ -747,6 +747,33 @@
         "profileDefault": "Pour continuer à asseoir votre expertise, un post « {mode} » est un bon choix."
       }
     },
+    "nextAngles": {
+      "eyebrow": "File éditoriale",
+      "title": "Prochains angles",
+      "hint": "Issus de vos interviews — équilibrés marché / expertise / build in public. Cliquez pour démarrer un brief.",
+      "useCta": "Écrire cet angle",
+      "dismiss": "Retirer"
+    },
+    "editorialCycle": {
+      "eyebrow": "Cycle business",
+      "title": "Cycle éditorial (4 phases)",
+      "hint": "Choisissez un objectif business : Alchie-style léger — 4 phases, 1–2 angles chacune, ancrées dans votre Persona.",
+      "generateCta": "Générer mon cycle",
+      "generating": "Génération du cycle…",
+      "regenerate": "Régénérer",
+      "dismiss": "Archiver le cycle",
+      "generateFailed": "Impossible de générer le cycle pour l’instant.",
+      "personaRequired": "Validez votre Persona avant de générer un cycle.",
+      "phaseLabel": "Phase {n}",
+      "useCta": "Écrire cet angle",
+      "used": "Déjà lancé",
+      "objectives": {
+        "authority": "Autorité",
+        "launch": "Lancement",
+        "conversion": "Conversion",
+        "reposition": "Repositionnement"
+      }
+    },
     "validatedTable": {
       "title": "Posts validés",
       "description": "Tous les posts prêts pour LinkedIn, avec leur type de création et leurs caractéristiques.",
@@ -1972,7 +1999,7 @@
         "modePicker": {
           "heroEyebrow": "Assistant de création",
           "heroTitle": "Votre prochain post LinkedIn, en quelques minutes",
-          "heroSubtitle": "Trois parcours, une même promesse : un brouillon dans votre voix, prêt à affiner et publier.",
+          "heroSubtitle": "Quatre parcours, une même promesse : un brouillon dans votre voix, prêt à affiner et publier.",
           "heroPill1": "Persona & brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Prêt pour LinkedIn",
@@ -1982,7 +2009,7 @@
           "strategyDrawerTitle": "Analyse LinkedIn & recommandations",
           "strategyDrawerHint": "Optionnel : parcours recommandé et 3 thématiques basées sur vos posts récents.",
           "decisionMatrixTitle": "Quel parcours choisir ?",
-          "decisionMatrixHint": "Trois intentions, trois chemins — le brief s’adapte ensuite à votre niveau de détail.",
+          "decisionMatrixHint": "Quatre intentions, quatre chemins — le brief s’adapte ensuite à votre niveau de détail.",
           "guide": {
             "title": "Pas sûr par où commencer ?",
             "subtitle": "Choisissez l’intention qui vous ressemble, nous mettons en avant le bon parcours.",
@@ -2051,6 +2078,10 @@
               "when": "Vous partez de votre expertise",
               "outcome": "Sujet rapide ou brief structuré · 1 brouillon dans votre voix."
             },
+            "interview": {
+              "when": "Vous avez du vécu à extraire",
+              "outcome": "Questions guidées · matière brute → brief → brouillon + angles suivants."
+            },
             "news": {
               "when": "Vous réagissez à l’actualité",
               "outcome": "4 actus scannées · 1 post commenté avec source."
@@ -2069,6 +2100,16 @@
                 "Sujet rapide ou brief complet",
                 "Persona & objectifs",
                 "Quality Panel"
+              ]
+            },
+            "interview": {
+              "title": "Interview / extraction",
+              "desc": "Répondez à quelques questions (texte) : on extrait votre vécu, on remplit le brief, puis un brouillon dans votre voix.",
+              "badge": "Extraction",
+              "outputs": [
+                "6 questions guidées",
+                "Brief auto + tips",
+                "Angles suivants"
               ]
             },
             "news": {
@@ -2291,16 +2332,48 @@
           "contextProfile": "Profil",
           "contextNews": "Actu",
           "contextInspiration": "Référence",
+          "contextInterview": "Interview",
           "contextArticle": "Votre idée",
           "briefing": "Brief",
           "result": "Résultat",
           "generation": "Génération en cours…"
+        },
+        "interview": {
+          "eyebrow": "Extraction",
+          "title": "Interview guidée",
+          "hint": "Répondez à au moins 2 questions (idéalement toutes) avec des détails concrets : situations, décisions, chiffres. L’IA n’invente rien — elle structure votre matière.",
+          "loadingQuestions": "Préparation des questions à partir de votre Persona…",
+          "noQuestions": "Impossible de charger les questions pour l’instant.",
+          "reloadQuestions": "Relancer les questions",
+          "questionLabel": "Question {n}",
+          "answerPlaceholder": "Écrivez comme vous parleriez — détails, dates, tension…",
+          "extractCta": "Extraire le brief",
+          "extracting": "Extraction…",
+          "filledHint": "{count} réponse(s) · minimum {min}",
+          "questionsFailed": "Impossible de générer les questions d’interview.",
+          "extractFailed": "Impossible d’extraire le brief depuis vos réponses.",
+          "matterLabel": "Matière extraite",
+          "pack": {
+            "eyebrow": "Pack session",
+            "title": "Tips & prochains angles",
+            "hint": "Issus de cette interview — pour publier mieux aujourd’hui et savoir quoi écrire ensuite.",
+            "matterLabel": "Ce qu’on a retenu",
+            "tipsLabel": "Tips storytelling",
+            "anglesLabel": "Angles suivants",
+            "useAngle": "Utiliser cet angle",
+            "pillar": {
+              "market": "Pilier marché",
+              "expertise": "Pilier expertise",
+              "build_in_public": "Pilier build in public"
+            }
+          }
         },
         "intentSummary": {
           "label": "Parcours :",
           "change": "Changer d’intention",
           "modes": {
             "profile": "Expertise & angle",
+            "interview": "Interview / extraction",
             "news": "Depuis l’actualité",
             "inspiration": "Source externe ou document",
             "article": "Expertise & angle"

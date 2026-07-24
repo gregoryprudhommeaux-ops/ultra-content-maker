@@ -25,6 +25,7 @@ export function isFreshCreationRequest(
 
 export type WizardSessionStep =
  | "mode"
+ | "interview"
  | "news"
  | "inspiration-input"
  | "paste"
@@ -55,13 +56,15 @@ function isWizardMode(v: unknown): v is WizardCreationMode {
  v === "profile" ||
  v === "news" ||
  v === "inspiration" ||
- v === "article"
+ v === "article" ||
+ v === "interview"
  );
 }
 
 function isWizardStep(v: unknown): v is WizardSessionStep {
  return (
  v === "mode" ||
+ v === "interview" ||
  v === "news" ||
  v === "inspiration-input" ||
  v === "paste" ||

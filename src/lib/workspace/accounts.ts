@@ -281,6 +281,7 @@ const MIGRATION_MULTI_COLLECTIONS = [
   "ctas",
   "newsArchive",
   "bioDocuments",
+  "editorialAngles",
 ] as const;
 
 const MIGRATION_SINGLETON_DOCS: ReadonlyArray<[string, string]> = [

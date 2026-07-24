@@ -25,6 +25,7 @@ type ModeConfig = {
 
 const MODES: ModeConfig[] = [
   { id: "profile", accent: "lime", featured: true },
+  { id: "interview", accent: "amber" },
   { id: "news", accent: "sky" },
   { id: "inspiration", accent: "violet" },
 ];
@@ -102,6 +103,23 @@ function ModeIcon({ mode, className }: { mode: ModeId; className?: string }) {
           strokeWidth="1.75"
           strokeLinecap="round"
           strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+  if (mode === "interview") {
+    return (
+      <svg className={cn} viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path
+          d="M12 3a4 4 0 0 1 4 4v4a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"
+          stroke="currentColor"
+          strokeWidth="1.75"
+        />
+        <path
+          d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
         />
       </svg>
     );
@@ -218,8 +236,8 @@ export function CreationModePicker({
       <section className="hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:block md:p-6">
         <h3 className={SECTION_TITLE}>{t("decisionMatrixTitle")}</h3>
         <p className="mt-1 text-sm text-ns-secondary">{t("decisionMatrixHint")}</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          {(["profile", "news", "inspiration"] as const).map((modeId) => (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {(["profile", "interview", "news", "inspiration"] as const).map((modeId) => (
             <div
               key={modeId}
               className="flex min-h-[8.5rem] flex-col rounded-xl border border-gray-100 bg-ns-brand-light/30 px-4 py-3"
@@ -238,7 +256,7 @@ export function CreationModePicker({
 
       <div>
         <p className={`mb-3 ${META_LABEL}`}>{t("modesSectionLabel")}</p>
-        <div className="flex flex-col gap-2 md:grid md:grid-cols-3 md:gap-4">
+        <div className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4 xl:grid-cols-4">
           {MODES.map((config) => (
             <ModeCard
               key={config.id}

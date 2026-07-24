@@ -16,6 +16,10 @@ import { ArticleEditor } from "@/components/articles/article-editor";
 import { ArticleTopicBriefForm, enrichArticleTopicBriefForGeneration } from "@/components/articles/creation/article-topic-brief-form";
 import { CreationIntentSummary } from "@/components/articles/creation/creation-intent-summary";
 import { CreationModePicker } from "@/components/articles/creation/creation-mode-picker";
+import {
+  InterviewSessionPackPanel,
+  InterviewStep,
+} from "@/components/articles/creation/interview-step";
 import { InspirationComposerStep } from "@/components/articles/creation/inspiration-composer-step";
 import { InspirationDocumentStep } from "@/components/articles/creation/inspiration-document-step";
 import { ProfileBriefVariantToggle, type ProfileBriefVariant } from "@/components/articles/creation/profile-brief-variant-toggle";
@@ -69,6 +73,15 @@ import {
   type WizardCreationMode,
 } from "@/lib/prompts/post-brief";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
+import type {
+  InterviewAnswer,
+  InterviewQuestion,
+  InterviewSessionPack,
+} from "@/lib/prompts/interview-extract";
+import {
+  enqueueEditorialAnglesFromInterview,
+  markEditorialAngleUsed,
+} from "@/lib/workspace/editorial-angles";
 import { getAudienceProfile, saveAudienceProfile } from "@/lib/workspace/audience";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getProfileEnrichment } from "@/lib/workspace/enrichment";
@@ -106,6 +119,7 @@ import type {
   InspirationInputKind,
   NewsSuggestion,
   PostBrief,
+  RankedPostObjective,
   SourceLink,
 } from "@/types/workspace";
 import { INPUT_CLASS, LABEL_CLASS } from "@/types/workspace";
@@ -115,6 +129,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 type CreationMode = WizardCreationMode;
 type Step =
   | "mode"
+  | "interview"
   | "news"
   | "inspiration-input"
   | "paste"
@@ -187,6 +202,11 @@ export function ArticleCreationWizard() {
     null,
   );
   const [inspirationLibrary, setInspirationLibrary] = useState<SourceLink[]>([]);
+  const [interviewQuestions, setInterviewQuestions] = useState<InterviewQuestion[]>([]);
+  const [interviewLoading, setInterviewLoading] = useState(false);
+  const [interviewExtracting, setInterviewExtracting] = useState(false);
+  const [interviewPack, setInterviewPack] = useState<InterviewSessionPack | null>(null);
+  const [interviewMatterSummary, setInterviewMatterSummary] = useState("");
   const [targetScope, setTargetScope] = useState<ArticleScope>("niche");
   const [authorProfile, setAuthorProfile] = useState<AuthorProfile | null>(null);
   const [profileEnrichment, setProfileEnrichment] = useState<Record<string, GapAnswerValue>>({});
@@ -500,8 +520,191 @@ export function ArticleCreationWizard() {
     [user, workspaceOwnerId, scope, personaText, locale, newsInterestQuery, tArticles, tNews, mapNewsLoadError, formatError],
   );
 
+  const loadInterviewQuestions = useCallback(async () => {
+    if (!user || !personaText.trim()) return;
+    setInterviewLoading(true);
+    setErrorInfo(null);
+    try {
+      const auth = getClientAuth();
+      const token = auth ? await auth.currentUser?.getIdToken() : null;
+      const llmProfile = await getUserLlmProfile(user.uid);
+      const [author, authorSteering] = await Promise.all([
+        getAuthorProfile(workspaceOwnerId),
+        gatherAuthorSteeringPayload(user.uid, {
+          newsInterestQuery: newsInterestQuery.trim() || undefined,
+          scope,
+        }),
+      ]);
+      if (!token) {
+        setErrorInfo(
+          formatError({
+            errorCode: "Unauthorized",
+            fallbackMessage: t("interview.questionsFailed"),
+          }),
+        );
+        return;
+      }
+      const res = await fetch("/api/articles/interview", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phase: "questions",
+          contentLanguage: author?.contentLanguage ?? locale,
+          personaPromptText: personaText,
+          contentNiche: contentNiche.trim() || undefined,
+          authorSteering,
+          llm: llmPayloadForTier(llmProfile, access?.effectiveTier),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorInfo(
+          formatError({
+            errorCode: typeof data.error === "string" ? data.error : "llm_request_failed",
+            detail: typeof data.detail === "string" ? data.detail : "",
+            fallbackMessage: t("interview.questionsFailed"),
+          }),
+        );
+        setInterviewQuestions([]);
+        return;
+      }
+      setInterviewQuestions(Array.isArray(data.questions) ? data.questions : []);
+    } catch {
+      setErrorInfo(
+        formatError({
+          errorCode: "llm_request_failed",
+          fallbackMessage: t("interview.questionsFailed"),
+        }),
+      );
+    } finally {
+      setInterviewLoading(false);
+    }
+  }, [
+    user,
+    personaText,
+    workspaceOwnerId,
+    newsInterestQuery,
+    scope,
+    locale,
+    contentNiche,
+    access?.effectiveTier,
+    formatError,
+    t,
+  ]);
+
+  const extractInterview = useCallback(
+    async (answers: InterviewAnswer[]) => {
+      if (!user || !personaText.trim()) return;
+      setInterviewExtracting(true);
+      setErrorInfo(null);
+      try {
+        const auth = getClientAuth();
+        const token = auth ? await auth.currentUser?.getIdToken() : null;
+        const llmProfile = await getUserLlmProfile(user.uid);
+        const [author, authorSteering] = await Promise.all([
+          getAuthorProfile(workspaceOwnerId),
+          gatherAuthorSteeringPayload(user.uid, {
+            newsInterestQuery: newsInterestQuery.trim() || undefined,
+            scope,
+          }),
+        ]);
+        if (!token) {
+          setErrorInfo(
+            formatError({
+              errorCode: "Unauthorized",
+              fallbackMessage: t("interview.extractFailed"),
+            }),
+          );
+          return;
+        }
+        const res = await fetch("/api/articles/interview", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            phase: "extract",
+            contentLanguage: author?.contentLanguage ?? locale,
+            personaPromptText: personaText,
+            contentNiche: contentNiche.trim() || undefined,
+            answers,
+            authorSteering,
+            llm: llmPayloadForTier(llmProfile, access?.effectiveTier),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setErrorInfo(
+            formatError({
+              errorCode: typeof data.error === "string" ? data.error : "llm_request_failed",
+              detail: typeof data.detail === "string" ? data.detail : "",
+              fallbackMessage: t("interview.extractFailed"),
+            }),
+          );
+          return;
+        }
+        if (data.brief) {
+          setPostBrief(normalizePostBrief(data.brief));
+          briefSuggestedRef.current = true;
+        }
+        if (data.sessionPack) {
+          setInterviewPack(data.sessionPack as InterviewSessionPack);
+          const nextAngles = (data.sessionPack as InterviewSessionPack).nextAngles ?? [];
+          if (nextAngles.length > 0) {
+            void enqueueEditorialAnglesFromInterview(workspaceOwnerId, nextAngles).catch(
+              () => undefined,
+            );
+          }
+        }
+        if (typeof data.matterSummary === "string") {
+          setInterviewMatterSummary(data.matterSummary);
+        }
+        setProfileBriefVariant("full");
+        setStep("brief");
+      } catch {
+        setErrorInfo(
+          formatError({
+            errorCode: "llm_request_failed",
+            fallbackMessage: t("interview.extractFailed"),
+          }),
+        );
+      } finally {
+        setInterviewExtracting(false);
+      }
+    },
+    [
+      user,
+      personaText,
+      workspaceOwnerId,
+      newsInterestQuery,
+      scope,
+      locale,
+      contentNiche,
+      access?.effectiveTier,
+      formatError,
+      t,
+    ],
+  );
+
+  useEffect(() => {
+    if (step !== "interview" || !loaded || !personaText.trim()) return;
+    if (interviewQuestions.length > 0 || interviewLoading) return;
+    void loadInterviewQuestions();
+  }, [
+    step,
+    loaded,
+    personaText,
+    interviewQuestions.length,
+    interviewLoading,
+    loadInterviewQuestions,
+  ]);
+
   const suggestBrief = useCallback(async () => {
-    if (!user || !mode || mode === "profile") return;
+    if (!user || !mode || mode === "profile" || mode === "interview") return;
     if (mode === "news" && !selectedNews) return;
     if (mode === "inspiration" && !isWizardInspirationContextReady(inspirationCtx, selectedLibrarySource)) {
       return;
@@ -589,7 +792,7 @@ export function ArticleCreationWizard() {
   ]);
 
   useEffect(() => {
-    if (step !== "brief" || !mode || mode === "profile" || mode === "article") return;
+    if (step !== "brief" || !mode || mode === "profile" || mode === "article" || mode === "interview") return;
     if (briefSuggestedRef.current) return;
     briefSuggestedRef.current = true;
     void suggestBrief();
@@ -841,6 +1044,8 @@ export function ArticleCreationWizard() {
       profileVariant = "quick";
     } else if (next === "profile") {
       profileVariant = briefSeed ? "full" : "quick";
+    } else if (next === "interview") {
+      profileVariant = "full";
     }
     setProfileBriefVariant(profileVariant);
     setMode(next);
@@ -857,7 +1062,12 @@ export function ArticleCreationWizard() {
         : DEFAULT_POST_BRIEF;
     setPostBrief(normalizePostBrief({ ...briefDefaults, ...briefSeed }));
     setInspirationCtx(null);
-    if (next === "profile") {
+    setInterviewPack(null);
+    setInterviewMatterSummary("");
+    if (next === "interview") {
+      setInterviewQuestions([]);
+      setStep("interview");
+    } else if (next === "profile") {
       setStep("brief");
     } else if (next === "news") {
       setStep("news");
@@ -891,6 +1101,9 @@ export function ArticleCreationWizard() {
     setTargetScope("generalist");
     setErrorInfo(null);
     setNicheCheck(null);
+    setInterviewQuestions([]);
+    setInterviewPack(null);
+    setInterviewMatterSummary("");
     briefSuggestedRef.current = false;
   }
 
@@ -1056,7 +1269,37 @@ export function ArticleCreationWizard() {
       return;
     }
 
-    if (modeParam === "profile" || modeParam === "news" || modeParam === "inspiration" || modeParam === "article") {
+    const problemParam = searchParams.get("problem")?.trim();
+    const pointOfViewParam = searchParams.get("pointOfView")?.trim();
+    const angleIdParam = searchParams.get("angleId")?.trim();
+    const cycleItemIdParam = searchParams.get("cycleItemId")?.trim();
+    const objectiveParam = searchParams.get("objective")?.trim();
+    if (
+      (modeParam === "profile" || !modeParam) &&
+      (problemParam || pointOfViewParam) &&
+      (angleIdParam || cycleItemIdParam)
+    ) {
+      initialModeFromUrl.current = true;
+      const objectiveSeed: RankedPostObjective[] =
+        objectiveParam === "awareness" ||
+        objectiveParam === "credibility" ||
+        objectiveParam === "conversation" ||
+        objectiveParam === "leads"
+          ? [{ objective: objectiveParam, priority: 1 }]
+          : [{ objective: "credibility", priority: 1 }];
+      pickMode("profile", {
+        objectives: objectiveSeed,
+        problem: problemParam?.slice(0, 280) ?? "",
+        pointOfView: pointOfViewParam?.slice(0, 500) ?? "",
+        proof: "",
+      });
+      if (angleIdParam) {
+        void markEditorialAngleUsed(workspaceOwnerId, angleIdParam).catch(() => undefined);
+      }
+      return;
+    }
+
+    if (modeParam === "profile" || modeParam === "news" || modeParam === "inspiration" || modeParam === "article" || modeParam === "interview") {
       initialModeFromUrl.current = true;
       pickMode(modeParam);
       return;
@@ -1076,6 +1319,7 @@ export function ArticleCreationWizard() {
     setErrorInfo(null);
     if (step === "brief") {
       if (mode === "profile") setStep("mode");
+      else if (mode === "interview") setStep("interview");
       else if (mode === "news") setStep("news");
       else if (inspirationCtx?.kind === "paste") setStep("paste");
       else if (inspirationCtx?.kind === "url") setStep("inspiration-url");
@@ -1083,6 +1327,8 @@ export function ArticleCreationWizard() {
       else if (inspirationCtx?.kind === "library") setStep("inspiration-library");
       else setStep("inspiration-input");
       briefSuggestedRef.current = false;
+    } else if (step === "interview") {
+      resetToIntent();
     } else if (
       step === "paste" ||
       step === "inspiration-url" ||
@@ -1164,6 +1410,19 @@ export function ArticleCreationWizard() {
             onApplyTheme={applyStrategyTheme}
           />
         </div>
+      )}
+
+      {step === "interview" && (
+        <InterviewStep
+          questions={interviewQuestions}
+          loadingQuestions={interviewLoading}
+          extracting={interviewExtracting}
+          onReloadQuestions={() => {
+            setInterviewQuestions([]);
+            void loadInterviewQuestions();
+          }}
+          onExtract={(answers) => void extractInterview(answers)}
+        />
       )}
 
       {step === "news" && (
@@ -1331,6 +1590,12 @@ export function ArticleCreationWizard() {
               </p>
             </div>
           )}
+          {mode === "interview" && interviewMatterSummary.trim() ? (
+            <div className="rounded-lg border border-amber-200/80 bg-amber-50/70 px-4 py-3 text-sm">
+              <p className="text-xs font-medium text-ns-secondary">{t("interview.matterLabel")}</p>
+              <p className="mt-1 text-ns-tertiary whitespace-pre-wrap">{interviewMatterSummary}</p>
+            </div>
+          ) : null}
           {mode === "profile" && (
             <ProfileBriefVariantToggle
               value={profileBriefVariant}
@@ -1436,6 +1701,25 @@ export function ArticleCreationWizard() {
               {isRegenerating ? t("regeneratingDraft") : t("regenerateDraft")}
             </button>
           </div>
+          {mode === "interview" && interviewPack ? (
+            <InterviewSessionPackPanel
+              pack={interviewPack}
+              matterSummary={interviewMatterSummary}
+              onUseAngle={(title, angle) => {
+                setPostBrief(
+                  normalizePostBrief({
+                    objectives: [{ objective: "credibility", priority: 1 }],
+                    problem: title,
+                    pointOfView: angle,
+                    proof: "",
+                  }),
+                );
+                setDraftArticleId(null);
+                setProfileBriefVariant("full");
+                setStep("brief");
+              }}
+            />
+          ) : null}
           {isRegenerating && (
             <GeneratingIndicator
               label={tArticles("generating")}

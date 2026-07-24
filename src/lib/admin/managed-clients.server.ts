@@ -40,6 +40,7 @@ const LEGACY_COLLECTIONS = [
   "ctas",
   "newsArchive",
   "bioDocuments",
+  "editorialAngles",
 ] as const;
 
 function normalizeEmail(email: string): string {

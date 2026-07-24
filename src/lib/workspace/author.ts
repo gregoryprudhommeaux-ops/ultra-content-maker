@@ -4,6 +4,7 @@ import type {
   AuthorReferenceUrl,
   ContentLanguage,
   CreationStrategyCache,
+  EditorialCycle,
 } from "@/types/workspace";
 import {
   legacyAuthorUrlFieldsFromSources,
@@ -100,6 +101,7 @@ export async function getAuthorProfile(userId: string): Promise<AuthorProfile | 
       | CreationStrategyCache
       | undefined,
     creationStrategySteering: d.creationStrategySteering as string | undefined,
+    editorialCycle: (d.editorialCycle as EditorialCycle | null | undefined) ?? null,
     websiteUrl: legacy.websiteUrl,
     blogUrl: legacy.blogUrl,
     webSources,
@@ -145,6 +147,10 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
         input.creationStrategyCache ?? prev?.creationStrategyCache ?? null,
       creationStrategySteering:
         input.creationStrategySteering ?? prev?.creationStrategySteering ?? null,
+      editorialCycle:
+        input.editorialCycle !== undefined
+          ? input.editorialCycle
+          : (prev?.editorialCycle ?? null),
       webSources: webSources.length > 0 ? webSources : null,
       websiteUrl: legacy.websiteUrl ?? null,
       blogUrl: legacy.blogUrl ?? null,

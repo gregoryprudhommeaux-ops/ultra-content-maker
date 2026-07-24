@@ -10,6 +10,7 @@ const MULTI_COLLECTIONS = [
   "ctas",
   "newsArchive",
   "bioDocuments",
+  "editorialAngles",
 ] as const;
 
 /** Singleton docs: collectionId / documentId */

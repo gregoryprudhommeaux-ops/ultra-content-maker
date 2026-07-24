@@ -791,6 +791,33 @@
         "brain": "Content Brain",
         "generations": "Generaciones"
       }
+    },
+    "nextAngles": {
+      "eyebrow": "Cola editorial",
+      "title": "Siguientes ángulos",
+      "hint": "De tus entrevistas — equilibrados mercado / expertise / build in public. Haz clic para empezar un brief.",
+      "useCta": "Escribir este ángulo",
+      "dismiss": "Quitar"
+    },
+    "editorialCycle": {
+      "eyebrow": "Ciclo business",
+      "title": "Ciclo editorial (4 fases)",
+      "hint": "Elige un objetivo de negocio: plan ligero estilo Alchie — 4 fases, 1–2 ángulos cada una, ancladas en tu Persona.",
+      "generateCta": "Generar mi ciclo",
+      "generating": "Generando ciclo…",
+      "regenerate": "Regenerar",
+      "dismiss": "Archivar ciclo",
+      "generateFailed": "No se pudo generar el ciclo ahora.",
+      "personaRequired": "Valida tu Persona antes de generar un ciclo.",
+      "phaseLabel": "Fase {n}",
+      "useCta": "Escribir este ángulo",
+      "used": "Ya iniciado",
+      "objectives": {
+        "authority": "Autoridad",
+        "launch": "Lanzamiento",
+        "conversion": "Conversión",
+        "reposition": "Reposicionamiento"
+      }
     }
   },
   "settings": {
@@ -1971,7 +1998,7 @@
         "modePicker": {
           "heroEyebrow": "Asistente de creación",
           "heroTitle": "Tu próximo post de LinkedIn, en minutos",
-          "heroSubtitle": "Tres recorridos, una misma promesa: un borrador con tu voz, listo para afinar y publicar.",
+          "heroSubtitle": "Cuatro recorridos, una misma promesa: un borrador con tu voz, listo para afinar y publicar.",
           "heroPill1": "Persona y brief",
           "heroPill2": "Quality Panel",
           "heroPill3": "Listo para LinkedIn",
@@ -1981,7 +2008,7 @@
           "strategyDrawerTitle": "Análisis LinkedIn y recomendaciones",
           "strategyDrawerHint": "Opcional: recorrido recomendado y 3 temas basados en tus posts recientes.",
           "decisionMatrixTitle": "¿Qué recorrido elegir?",
-          "decisionMatrixHint": "Tres intenciones, tres caminos — el brief se adapta al nivel de detalle que necesites.",
+          "decisionMatrixHint": "Cuatro intenciones, cuatro caminos — el brief se adapta al nivel de detalle que necesites.",
           "guide": {
             "title": "¿No sabes por dónde empezar?",
             "subtitle": "Elige la intención que te encaje : resaltamos el recorrido adecuado.",
@@ -2057,6 +2084,10 @@
             "inspiration": {
               "when": "Adaptas un contenido existente",
               "outcome": "Pegar, enlace, biblioteca o documento · ángulo distinto."
+            },
+            "interview": {
+              "when": "Tienes experiencia vivida que extraer",
+              "outcome": "Preguntas guiadas · materia prima → brief → borrador + siguientes ángulos."
             }
           },
           "modes": {
@@ -2068,6 +2099,16 @@
                 "Tema rápido o brief completo",
                 "Persona y objetivos",
                 "Quality Panel"
+              ]
+            },
+            "interview": {
+              "title": "Entrevista / extracción",
+              "desc": "Responde unas preguntas (texto): extraemos tu vivencia, rellenamos el brief y generamos un borrador con tu voz.",
+              "badge": "Extracción",
+              "outputs": [
+                "6 preguntas guiadas",
+                "Brief auto + tips",
+                "Siguientes ángulos"
               ]
             },
             "news": {
@@ -2293,7 +2334,8 @@
           "contextArticle": "Tu idea",
           "briefing": "Brief",
           "result": "Resultado",
-          "generation": "Generando…"
+          "generation": "Generando…",
+          "contextInterview": "Entrevista"
         },
         "intentSummary": {
           "label": "Recorrido:",
@@ -2302,7 +2344,38 @@
             "profile": "Experiencia y ángulo",
             "news": "Desde la actualidad",
             "inspiration": "Fuente externa o documento",
-            "article": "Experiencia y ángulo"
+            "article": "Experiencia y ángulo",
+            "interview": "Entrevista / extracción"
+          }
+        },
+        "interview": {
+          "eyebrow": "Extracción",
+          "title": "Entrevista guiada",
+          "hint": "Responde al menos 2 preguntas (idealmente todas) con detalles concretos: situaciones, decisiones, cifras. La IA no inventa — estructura tu materia.",
+          "loadingQuestions": "Preparando preguntas a partir de tu Persona…",
+          "noQuestions": "No se pudieron cargar las preguntas ahora.",
+          "reloadQuestions": "Recargar preguntas",
+          "questionLabel": "Pregunta {n}",
+          "answerPlaceholder": "Escribe como hablarías — detalles, fechas, tensión…",
+          "extractCta": "Extraer el brief",
+          "extracting": "Extrayendo…",
+          "filledHint": "{count} respuesta(s) · mínimo {min}",
+          "questionsFailed": "No se pudieron generar las preguntas de entrevista.",
+          "extractFailed": "No se pudo extraer el brief desde tus respuestas.",
+          "matterLabel": "Materia extraída",
+          "pack": {
+            "eyebrow": "Pack de sesión",
+            "title": "Tips y siguientes ángulos",
+            "hint": "De esta entrevista — publica mejor hoy y sabe qué escribir después.",
+            "matterLabel": "Lo que retuvimos",
+            "tipsLabel": "Tips de storytelling",
+            "anglesLabel": "Siguientes ángulos",
+            "useAngle": "Usar este ángulo",
+            "pillar": {
+              "market": "Pilar mercado",
+              "expertise": "Pilar expertise",
+              "build_in_public": "Pilar build in public"
+            }
           }
         }
       },
@@ -2807,8 +2880,6 @@
         "needRefinement": "Responde al menos una pregunta, activa el tono contrario, añade un comentario o indica la noticia si eliges Sí.",
         "validateFailed": "No se pudo validar el post.",
         "validateFailedHint": "Comprueba la clave API si hace falta e inténtalo de nuevo. Validar prepara el texto para LinkedIn sin reescribir todo el post.",
-        "validateNotFound": "Post no encontrado en este espacio. Recarga la página o comprueba la cuenta activa.",
-        "validateForbidden": "No tienes acceso para validar este post en este espacio.",
         "validateNotFound": "Post no encontrado en este espacio. Recarga la página o comprueba la cuenta activa.",
         "validateForbidden": "No tienes acceso para validar este post en este espacio.",
         "ctaTitle": "Firma / CTA",
@@ -3512,7 +3583,11 @@
       "preview": "Vista previa con datos de ejemplo",
       "resetDefaults": "Restaurar plantilla por defecto",
       "placeholdersHint": "Variables disponibles:",
-      "locales": { "fr": "Français", "en": "English", "es": "Español" }
+      "locales": {
+        "fr": "Français",
+        "en": "English",
+        "es": "Español"
+      }
     }
   },
   "adminSupportQuotes": {
@@ -3563,7 +3638,11 @@
       "sentOk": "Presupuesto enviado por email al cliente.",
       "saving": "Guardando…",
       "sendLocale": "Idioma del email al cliente",
-      "locales": { "fr": "Français", "en": "English", "es": "Español" },
+      "locales": {
+        "fr": "Français",
+        "en": "English",
+        "es": "Español"
+      },
       "fields": {
         "subject": "Asunto del email",
         "rhythm": "Ritmo (resumen)",
@@ -3594,7 +3673,9 @@
     "editorHint": "Revise el contenido, ajústelo si hace falta, luego marque para enviar o envíe directamente.",
     "scheduledHint": "Con estado «A enviar», el cron horario enviará a la fecha programada.",
     "saving": "Guardando…",
-    "filters": { "all": "Todas" },
+    "filters": {
+      "all": "Todas"
+    },
     "columns": {
       "period": "Período",
       "user": "Cliente",

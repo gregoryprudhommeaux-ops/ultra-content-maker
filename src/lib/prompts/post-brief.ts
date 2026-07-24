@@ -102,7 +102,12 @@ export function isPostBriefComplete(brief: PostBrief): boolean {
  );
 }
 
-export type WizardCreationMode = "profile" | "news" | "inspiration" | "article";
+export type WizardCreationMode =
+  | "profile"
+  | "news"
+  | "inspiration"
+  | "article"
+  | "interview";
 
 export function isArticleTopicBriefComplete(brief: PostBrief): boolean {
  const normalized = normalizePostBrief(brief);
