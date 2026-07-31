@@ -2633,6 +2633,15 @@
         "copyComment": "Copiar comentario",
         "copied": "Copiado"
       },
+      "signaturePs": {
+        "title": "Firma / PD (opcional)",
+        "hint": "Añade una línea de identidad al final del post solo si quieres. Ya no se genera automáticamente.",
+        "toggle": "Añadir un PD",
+        "textLabel": "Texto del PD",
+        "placeholder": "PD: Tu nombre, rol. Producto o contexto en una frase.",
+        "apply": "Aplicar al post",
+        "saving": "Guardando…"
+      },
       "translate": {
         "title": "Traducciones",
         "subtitle": "Produce una versión en el idioma objetivo : respetando longitud y saltos de línea de LinkedIn.",
@@ -2978,6 +2987,9 @@
         "goToValidation": "Validar el post →",
         "validationStepTitle": "Validación",
         "validationStepHint": "Genera la copia final con hashtags, lista para pegar en LinkedIn.",
+        "validateVersionLabel": "Versión a validar para LinkedIn",
+        "validateVersionHint": "Hay una traducción disponible. Elige la versión original o la traducida para publicar en LinkedIn.",
+        "validateVersionOriginal": "Versión original",
         "validateNoCtaReminder": "Ningún CTA seleccionado — es opcional.",
         "customizeCtaLink": "Personalizar una firma / CTA",
         "revising": "Revisando…",

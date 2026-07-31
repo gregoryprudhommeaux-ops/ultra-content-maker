@@ -111,6 +111,7 @@ export async function getAuthorProfile(userId: string): Promise<AuthorProfile | 
     contentArchetype: d.contentArchetype as AuthorProfile["contentArchetype"] | undefined,
     linkedInDeliveryMode: d.linkedInDeliveryMode as AuthorProfile["linkedInDeliveryMode"] | undefined,
     linkedInPublishAccessNotes: d.linkedInPublishAccessNotes as string | undefined,
+    signaturePs: typeof d.signaturePs === "string" ? d.signaturePs : undefined,
     status: (d.status as AuthorProfile["status"]) ?? "not_started",
     updatedAt: toDate(d.updatedAt),
   };
@@ -161,6 +162,10 @@ export async function saveAuthorProfile(userId: string, input: SaveAuthorInput) 
       linkedInDeliveryMode: input.linkedInDeliveryMode ?? prev?.linkedInDeliveryMode ?? null,
       linkedInPublishAccessNotes:
         input.linkedInPublishAccessNotes ?? prev?.linkedInPublishAccessNotes ?? null,
+      signaturePs:
+        input.signaturePs !== undefined
+          ? input.signaturePs.trim() || null
+          : (prev?.signaturePs ?? null),
       status,
       updatedAt: serverTimestamp(),
     },

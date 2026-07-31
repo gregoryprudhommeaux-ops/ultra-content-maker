@@ -1,4 +1,5 @@
 import { buildContentNichePromptBlock, resolveContentNicheFromSteering } from "@/lib/articles/content-niche";
+import { NO_LLM_SIGNATURE_PS_RULE } from "@/lib/articles/signature-ps";
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
 import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import {
@@ -45,7 +46,8 @@ ${languageOnlyRule(contentLanguage)}
 Write exactly 1 LinkedIn post in ${lang} inspired by the reference material in the user message.
 - ${scopeLine}
 - Do NOT paraphrase or copy sentences from the reference · create a distinct angle, structure, and hook for the author's ICP.
-- Strong hook (1-2 lines), body with line breaks, optional short PS (no hard-sell CTA block).
+- Strong hook (1-2 lines), body with line breaks (no hard-sell CTA block).
+${NO_LLM_SIGNATURE_PS_RULE}
 - Never paste external https:// URLs in hook, body, or PS.
 - Emoji rule (non-negotiable): ${emoji}
 - Add exactly ${LINKEDIN_HASHTAG_COUNT} hashtags (strings without #).
@@ -53,7 +55,7 @@ Write exactly 1 LinkedIn post in ${lang} inspired by the reference material in t
 Return JSON only:
 {
  "articles": [
- { "hook": string, "body": string, "ps": string or empty string, "scope": "${targetScope}", "hashtags": string[] }
+ { "hook": string, "body": string, "ps": "", "scope": "${targetScope}", "hashtags": string[] }
  ]
 }`;
 }

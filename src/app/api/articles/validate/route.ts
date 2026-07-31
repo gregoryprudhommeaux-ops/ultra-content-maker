@@ -11,12 +11,28 @@ import { registerPublishedTopicFromArticleServer } from "@/lib/workspace/publish
 import { isPlatformAdminUid } from "@/lib/workspace/platform-admin";
 import { canWriteWorkspace } from "@/lib/workspace/require-workspace-write.server";
 import { resolveWorkspaceScopeForUser } from "@/lib/workspace/resolve-workspace-scope.server";
-import type { CtaIntensity } from "@/types/workspace";
+import type {
+  ArticleTranslationLocale,
+  ArticleTranslations,
+  ContentLanguage,
+  CtaIntensity,
+} from "@/types/workspace";
 import { FieldValue } from "firebase-admin/firestore";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const VALIDATION_LOCALES = new Set([
+  "original",
+  "fr",
+  "es-mx",
+  "es",
+  "en-gb",
+  "en-us",
+]);
+
+const CONTENT_LANGUAGES = new Set<ContentLanguage>(["fr", "en", "es"]);
 
 type ValidateBody = {
   articleId: string;
@@ -31,6 +47,9 @@ type ValidateBody = {
   hook?: string;
   body?: string;
   ps?: string;
+  contentLanguage?: ContentLanguage;
+  translations?: ArticleTranslations;
+  validatedLocale?: "original" | ArticleTranslationLocale;
 };
 
 export async function POST(request: Request) {
@@ -109,6 +128,15 @@ export async function POST(request: Request) {
   if (body.hook?.trim()) patch.hook = body.hook.trim();
   if (body.body?.trim()) patch.body = body.body.trim();
   if (body.ps !== undefined) patch.ps = body.ps?.trim() || null;
+  if (body.contentLanguage && CONTENT_LANGUAGES.has(body.contentLanguage)) {
+    patch.contentLanguage = body.contentLanguage;
+  }
+  if (body.translations && typeof body.translations === "object") {
+    patch.translations = body.translations;
+  }
+  if (body.validatedLocale && VALIDATION_LOCALES.has(body.validatedLocale)) {
+    patch.validatedLocale = body.validatedLocale;
+  }
 
   await resolved.ref.update(patch);
 

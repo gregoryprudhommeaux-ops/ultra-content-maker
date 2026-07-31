@@ -1,5 +1,6 @@
 import { buildContentNichePromptBlock, resolveContentNicheFromSteering } from "@/lib/articles/content-niche";
 import { resolveLinkedInHashtagCount } from "@/lib/articles/editorial-os";
+import { NO_LLM_SIGNATURE_PS_RULE } from "@/lib/articles/signature-ps";
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
 import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import {
@@ -141,7 +142,8 @@ ${languageOnlyRule(contentLanguage)}
 
 Write exactly ${count} distinct LinkedIn posts in ${lang} · mandatory mix: ${mix} (no other ratio).
 ${systemLines}
-- Each post: strong hook (1-2 lines), body with line breaks for LinkedIn readability, optional short PS before CTA (user adds CTA later · do NOT include newsletter links or hard sell CTA blocks).
+- Each post: strong hook (1-2 lines), body with line breaks for LinkedIn readability (user adds CTA later · do NOT include newsletter links or hard sell CTA blocks).
+${NO_LLM_SIGNATURE_PS_RULE}
 - Never paste https://www.linkedin.com/ or other generic LinkedIn platform URLs in hook, body, or PS (no homepage / feed links).
 - When objective is conversation: end body with a specific question for the target ICP (not engagement bait). Do not write a full signature CTA or duplicate conditional opener · a separate CTA block is added later; leave room for one clear next step.
 - Emoji rule (non-negotiable): ${emoji}
@@ -152,7 +154,7 @@ ${systemLines}
 Return JSON only:
 {
  "articles": [
- { "hook": string, "body": string, "ps": string or empty string, "scope": "generalist" | "niche", "hashtags": string[]${pillarJsonField} }
+ { "hook": string, "body": string, "ps": "", "scope": "generalist" | "niche", "hashtags": string[]${pillarJsonField} }
  ]
 }`;
 }

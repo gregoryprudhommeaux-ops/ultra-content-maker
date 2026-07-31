@@ -65,6 +65,8 @@ describe("editorial OS", () => {
     assert.match(block, /la_mesa_dinners/);
     assert.match(block, /Hashtags: exactly 2/);
     assert.match(block, /business cards|tarjetas/i);
+    assert.match(block, /Do NOT add a bio\/identity PS/i);
+    assert.doesNotMatch(block, /Mandatory short PS/);
   });
 
   it("flags obsolete business-card metaphor as blocking", () => {

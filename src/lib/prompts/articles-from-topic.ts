@@ -1,5 +1,6 @@
 import { parseArticleTopicFields } from "@/lib/articles/article-topic-fields";
 import { isPersonalArticleWritingStyle } from "@/lib/articles/article-writing-style";
+import { NO_LLM_SIGNATURE_PS_RULE } from "@/lib/articles/signature-ps";
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
 import { LINKEDIN_LENGTH_PROMPT_RULE } from "@/lib/linkedin/fit-linkedin-post";
 import {
@@ -48,12 +49,13 @@ ${languageOnlyRule(contentLanguage)}
 ${PERSONAL_VOICE_RULES}
 - Emoji rule: ${emoji}
 - Return exactly ONE post. scope: "generalist".
+${NO_LLM_SIGNATURE_PS_RULE}
 - Add ${LINKEDIN_HASHTAG_COUNT} relevant hashtags (strings without #) · understated, not spammy.
 
 Return JSON only:
 {
  "articles": [
- { "hook": string, "body": string, "ps": string or empty string, "scope": "generalist", "hashtags": string[] }
+ { "hook": string, "body": string, "ps": "", "scope": "generalist", "hashtags": string[] }
  ]
 }`;
  }
@@ -67,14 +69,15 @@ ${languageOnlyRule(contentLanguage)}
 Write exactly 1 LinkedIn post in ${lang} from the user's topic brief.
 - Anchor on their topic and core message; use Persona for voice and ICP alignment only.
 - scope: "generalist" unless the brief clearly targets a narrow ICP.
-- Strong hook (1-2 lines), body with line breaks, optional short PS.
+- Strong hook (1-2 lines), body with line breaks.
+${NO_LLM_SIGNATURE_PS_RULE}
 - Emoji rule: ${emoji}
 - Add exactly ${LINKEDIN_HASHTAG_COUNT} hashtags (strings without #).
 
 Return JSON only:
 {
  "articles": [
- { "hook": string, "body": string, "ps": string or empty string, "scope": "generalist" | "niche", "hashtags": string[] }
+ { "hook": string, "body": string, "ps": "", "scope": "generalist" | "niche", "hashtags": string[] }
  ]
 }`;
 }

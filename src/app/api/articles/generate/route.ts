@@ -103,9 +103,8 @@ function parseArticlesFromResponse(raw: string, postBrief?: PostBrief) {
  .map((a) => {
  const hook = stripGenericLinkedInUrlsFromText(a.hook!.trim());
  const body = stripGenericLinkedInUrlsFromText(a.body!.trim());
- const ps = a.ps?.trim()
- ? stripGenericLinkedInUrlsFromText(a.ps.trim()) || undefined
- : undefined;
+ // Signature PS is opt-in in the editor — never persist an LLM-generated PS.
+ const ps = undefined as string | undefined;
  const editorialPillarId =
  typeof a.editorialPillarId === "string" ? a.editorialPillarId.trim() : undefined;
  return {
@@ -401,7 +400,8 @@ export async function POST(request: Request) {
  articles = articles.map((a, i) => {
    const h = humanized.articles[i];
    if (!h) return a;
-   return { ...a, hook: h.hook, body: h.body, ps: h.ps };
+   // Keep ps empty after generation even if humanizer invents one.
+   return { ...a, hook: h.hook, body: h.body, ps: undefined as string | undefined };
  });
  articles = enforceLinkedInLengthOnArticles(articles);
 

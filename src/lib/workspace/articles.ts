@@ -145,6 +145,12 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     translations: normalizeArticleTranslations(
       d.translations as ArticleTranslations | undefined,
     ),
+    validatedLocale:
+      d.validatedLocale === "original" ||
+      (typeof d.validatedLocale === "string" &&
+        ["fr", "es-mx", "es", "en-gb", "en-us"].includes(d.validatedLocale))
+        ? (d.validatedLocale as ArticleDoc["validatedLocale"])
+        : undefined,
     createdAt: toDate(d.createdAt),
     updatedAt: toDate(d.updatedAt),
     validatedAt: d.validatedAt ? toDate(d.validatedAt) : undefined,
@@ -483,6 +489,9 @@ export async function updateArticleContent(
     ps?: string;
     scope?: ArticleScope;
     hashtags?: string[];
+    contentLanguage?: ContentLanguage;
+    translations?: ArticleTranslations;
+    validatedLocale?: "original" | ArticleTranslationLocale;
   },
 ) {
   await updateDoc(articleDocRef(userId, articleId), {
@@ -491,6 +500,9 @@ export async function updateArticleContent(
     ps: data.ps ?? null,
     scope: data.scope ?? null,
     hashtags: data.hashtags?.length ? data.hashtags : null,
+    ...(data.contentLanguage ? { contentLanguage: data.contentLanguage } : {}),
+    ...(data.translations ? { translations: data.translations } : {}),
+    ...(data.validatedLocale ? { validatedLocale: data.validatedLocale } : {}),
     updatedAt: serverTimestamp(),
   });
 }
@@ -563,7 +575,15 @@ export async function validateArticleWithCta(
     linkUrl?: string;
   } | null,
   hashtags?: string[],
-  opts?: { idToken?: string; hook?: string; body?: string; ps?: string },
+  opts?: {
+    idToken?: string;
+    hook?: string;
+    body?: string;
+    ps?: string;
+    contentLanguage?: ContentLanguage;
+    translations?: ArticleTranslations;
+    validatedLocale?: "original" | ArticleTranslationLocale;
+  },
 ) {
   const token = opts?.idToken;
   if (token) {
@@ -581,6 +601,9 @@ export async function validateArticleWithCta(
         hook: opts.hook,
         body: opts.body,
         ps: opts.ps,
+        contentLanguage: opts.contentLanguage,
+        translations: opts.translations,
+        validatedLocale: opts.validatedLocale,
       }),
     });
     const data = (await res.json().catch(() => ({}))) as {
@@ -605,6 +628,12 @@ export async function validateArticleWithCta(
     status: "validated",
     validatedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
+    ...(opts?.hook?.trim() ? { hook: opts.hook.trim() } : {}),
+    ...(opts?.body?.trim() ? { body: opts.body.trim() } : {}),
+    ...(opts?.ps !== undefined ? { ps: opts.ps?.trim() || null } : {}),
+    ...(opts?.contentLanguage ? { contentLanguage: opts.contentLanguage } : {}),
+    ...(opts?.translations ? { translations: opts.translations } : {}),
+    ...(opts?.validatedLocale ? { validatedLocale: opts.validatedLocale } : {}),
   });
   const hook = opts?.hook ?? "";
   const bodyText = opts?.body ?? "";

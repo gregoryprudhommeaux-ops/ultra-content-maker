@@ -1,5 +1,6 @@
 import { buildContentNichePromptBlock, resolveContentNicheFromSteering } from "@/lib/articles/content-niche";
 import { buildHumanWritingRules } from "@/lib/articles/human-writing";
+import { NO_LLM_SIGNATURE_PS_RULE } from "@/lib/articles/signature-ps";
 import { LINKEDIN_HASHTAG_COUNT } from "@/lib/linkedin/hashtags";
 import { resolveContentArchetype } from "@/lib/persona/content-archetype";
 import { buildPostBriefPromptContext } from "@/lib/persona/company-enrichment";
@@ -61,7 +62,8 @@ Hard rules:
 - Do NOT invent new anecdotes, metrics, clients, or quotes.
 - Do NOT pivot to a "distinct new angle" as if the draft were an external inspiration source.
 - Improve clarity, punch, and human asperity · keep length within about ±20% of the draft.
-- Strong hook (1-2 lines), body with line breaks, optional short PS (no hard-sell CTA block).
+- Strong hook (1-2 lines), body with line breaks (no hard-sell CTA block).
+${NO_LLM_SIGNATURE_PS_RULE}
 - Never paste external https:// URLs in hook, body, or PS.
 - Emoji rule (non-negotiable): ${emoji}
 - Add exactly ${LINKEDIN_HASHTAG_COUNT} hashtags (strings without #).
@@ -69,7 +71,7 @@ Hard rules:
 Return JSON only:
 {
  "articles": [
- { "hook": string, "body": string, "ps": string or empty string, "scope": "${targetScope}", "hashtags": string[] }
+ { "hook": string, "body": string, "ps": "", "scope": "${targetScope}", "hashtags": string[] }
  ]
 }`;
 }

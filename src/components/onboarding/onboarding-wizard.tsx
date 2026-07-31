@@ -7,6 +7,7 @@ import {
  updateClientOnboardingStatus,
 } from "@/lib/clients/firestore";
 import { loadAllOnboardingSteps, saveOnboardingStep } from "@/lib/onboarding/firestore";
+import { saveAuthorProfile } from "@/lib/workspace/author";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { Client } from "@/types/client";
 import {
@@ -119,6 +120,10 @@ export function OnboardingWizard({ clientId }: Props) {
  step,
  payloads[step] as Parameters<typeof saveOnboardingStep>[3],
  );
+
+ if (step === 3 && s3.psRule.trim()) {
+  await saveAuthorProfile(user.uid, { signaturePs: s3.psRule.trim() });
+ }
 
  if (step === 1 && client?.onboardingStatus === "not_started") {
  await updateClientOnboardingStatus(user.uid, clientId, "in_progress");

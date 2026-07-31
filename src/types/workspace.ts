@@ -284,6 +284,11 @@ export interface AuthorProfile {
   /** Support Total: agency publishes vs client copy-pastes on LinkedIn. */
   linkedInDeliveryMode?: LinkedInDeliveryMode;
   linkedInPublishAccessNotes?: string;
+  /**
+   * Optional identity / signature PS the user can append to posts.
+   * Never auto-injected by generation — opt-in in the editor.
+   */
+  signaturePs?: string;
   status: AuthorStatus;
   updatedAt: Date;
 }
@@ -713,6 +718,11 @@ export interface ArticleDoc {
  performanceSignals?: ArticlePerformanceSignals;
  slopAnalysis?: SlopAnalysis;
  translations?: ArticleTranslations;
+  /**
+   * Language version chosen at validation for LinkedIn export.
+   * `"original"` = main fields at validation time; otherwise a stored translation locale.
+   */
+  validatedLocale?: "original" | ArticleTranslationLocale;
  createdAt: Date;
  updatedAt: Date;
   validatedAt?: Date;

@@ -43,6 +43,8 @@ export function resolveLinkedInHashtagCount(
 }
 
 export function requiresGregoryPs(brief?: PostBrief | null): boolean {
+  // Kept for callers that still check channel ownership.
+  // Signature PS is no longer mandatory in generation — user opt-in in the editor.
   return brief?.channelOwner === "gregory";
 }
 
@@ -73,11 +75,11 @@ export function buildEditorialOsPromptBlock(brief: PostBrief): string {
     lines.push(`CHANNEL OWNER: ${brief.channelOwner}`);
     if (brief.channelOwner === "gregory") {
       lines.push(
-        "- Voice: Gregory personal LinkedIn (Charles rules). Mandatory short PS (who/where/what) at the end of every post. Do not write as LA MESA brand voice.",
+        "- Voice: Gregory personal LinkedIn (Charles rules). Do NOT add a bio/identity PS (who/where/what) — the user may append a signature separately. Do not write as LA MESA brand voice.",
       );
     } else if (brief.channelOwner === "la_mesa") {
       lines.push(
-        "- Voice: LA MESA brand / member-facing (Lucy rules). Sign as LA MESA or founder context — not a NextStep market-entry consulting pitch.",
+        "- Voice: LA MESA brand / member-facing (Lucy rules). Do NOT add a bio/identity PS block — user may append a signature separately. Sign as LA MESA only in body voice when natural — not a NextStep market-entry consulting pitch.",
       );
     }
   }

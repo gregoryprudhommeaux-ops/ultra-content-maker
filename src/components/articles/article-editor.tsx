@@ -1,6 +1,7 @@
 "use client";
 
 import { ArticleFormatPanel } from "@/components/articles/article-format-panel";
+import { ArticleSignaturePsPanel } from "@/components/articles/article-signature-ps-panel";
 import { ArticleDraftReviewLinkButton } from "@/components/admin/article-draft-review-link-button";
 import { EditorBlockHeader } from "@/components/articles/editor-block-header";
 import { EditorCollapsibleSection } from "@/components/articles/editor-collapsible-section";
@@ -11,6 +12,13 @@ import {
  type ReviseIntent,
 } from "@/lib/prompts/revise-intent-prompts";
 import { primaryPostObjective } from "@/lib/articles/post-brief-objectives";
+import {
+  contentLanguageToSourceLocale,
+  listStoredTranslationLocales,
+  resolveArticleValidationContent,
+  withOriginalStashed,
+  type ValidationVersionId,
+} from "@/lib/articles/validation-version";
 import { bodyContainsExternalLink } from "@/lib/linkedin/body-links";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
 import { ToneEdgePicker } from "@/components/articles/tone-edge-picker";
@@ -40,6 +48,7 @@ import {
  runCredibilityChecklist,
 } from "@/lib/articles/credibility-checklist";
 import { getPersona } from "@/lib/workspace/persona";
+import { getAuthorProfile, saveAuthorProfile } from "@/lib/workspace/author";
 import { hasClientLlmAccess, llmPayloadForAccess } from "@/lib/llm/client-payload";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import {
@@ -83,6 +92,8 @@ import type {
  ArticleQualityScores,
  ArticleRefinement,
  ArticleScope,
+ ArticleTranslationLocale,
+ AuthorProfile,
  CtaIntensity,
  CtaSuggestion,
  EmojiLevel,
@@ -156,6 +167,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const isWizard = variant === "wizard";
  const t = useTranslations("setup.articles.detail");
  const tArticles = useTranslations("setup.articles");
+ const tTranslate = useTranslations("setup.articles.translate");
  const tRef = useTranslations("setup.articles.refinement");
  const tCta = useTranslations("setup.articles.cta");
  const tDetailHelp = useTranslations("setup.articles.detail.help");
@@ -167,6 +179,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const { access: subscriptionAccess, refresh: refreshSubscription } = useSubscription();
  const { openUpgradeModal } = useUpgradeModal();
  const [article, setArticle] = useState<ArticleDoc | null>(null);
+ const [authorProfile, setAuthorProfile] = useState<AuthorProfile | null>(null);
  const [personaText, setPersonaText] = useState("");
  const [ctaSuggestions, setCtaSuggestions] = useState<CtaSuggestion[]>([]);
  const [selectedCtaStyle, setSelectedCtaStyle] = useState<CtaIntensity | null>(
@@ -202,6 +215,28 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  const [alternativeHooks, setAlternativeHooks] = useState<string[]>([]);
  const [qualityCritique, setQualityCritique] = useState<string | null>(null);
  const [showValidationNudge, setShowValidationNudge] = useState(false);
+ const [validateVersionId, setValidateVersionId] =
+  useState<ValidationVersionId>("original");
+
+ const storedTranslationLocales = useMemo(
+  () => listStoredTranslationLocales(article?.translations),
+  [article?.translations],
+ );
+ const hasValidationVersionChoice = storedTranslationLocales.length > 0;
+
+ useEffect(() => {
+  if (!hasValidationVersionChoice) {
+   setValidateVersionId("original");
+   return;
+  }
+  setValidateVersionId((prev) => {
+   if (prev === "original") return prev;
+   if (storedTranslationLocales.includes(prev as ArticleTranslationLocale)) {
+    return prev;
+   }
+   return "original";
+  });
+ }, [article?.id, hasValidationVersionChoice, storedTranslationLocales]);
 
  const loadCtaSuggestions = useCallback(async () => {
  if (!user || !article || !personaText) return;
@@ -366,10 +401,11 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
 
  const load = useCallback(async () => {
  if (!user) return;
- const [a, p, steering] = await Promise.all([
+ const [a, p, steering, author] = await Promise.all([
  getArticle(user.uid, articleId),
  getPersona(user.uid),
  gatherAuthorSteeringPayload(user.uid).catch(() => null),
+ getAuthorProfile(user.uid).catch(() => null),
  ]);
  setArticle(
  a
@@ -379,6 +415,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  }
  : null,
  );
+ setAuthorProfile(author);
  setPersonaText(p?.promptText ?? "");
  if (a?.selectedCtaStyle) setSelectedCtaStyle(a.selectedCtaStyle);
  setIllustration(a?.illustration ?? null);
@@ -901,7 +938,21 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  return;
  }
 
- let hashtags = article.hashtags ?? [];
+ const versionContent = resolveArticleValidationContent(
+  article,
+  hasValidationVersionChoice ? validateVersionId : "original",
+ );
+ const validatedLocale: ValidationVersionId = versionContent.isTranslation
+  ? (versionContent.locale ?? "original")
+  : "original";
+ let translationsForSave = article.translations;
+ if (versionContent.isTranslation) {
+  translationsForSave = withOriginalStashed(article);
+ }
+
+ let hashtags = versionContent.hashtags?.length
+  ? versionContent.hashtags
+  : (article.hashtags ?? []);
  const llmPayload = llmPayloadForAccess(llmProfile, subscriptionAccess);
  if (hasClientLlmAccess(subscriptionAccess, llmPayload)) {
  const tagRes = await fetch("/api/articles/hashtags", {
@@ -912,10 +963,10 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  },
  body: JSON.stringify({
  personaPromptText: personaText,
- contentLanguage: article.contentLanguage,
- hook: article.hook,
- body: article.body,
- ps: article.ps,
+ contentLanguage: versionContent.contentLanguage,
+ hook: versionContent.hook,
+ body: versionContent.body,
+ ps: versionContent.ps,
  ...(chosen?.text ? { ctaText: chosen.text } : {}),
  authorSteering,
  llm: llmPayload,
@@ -943,9 +994,9 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  }
 
  let closingForExport = chosen?.text ?? "";
- let hookForExport = article.hook;
- let bodyForExport = article.body;
- let psForExport = article.ps;
+ let hookForExport = versionContent.hook;
+ let bodyForExport = versionContent.body;
+ let psForExport = versionContent.ps;
 
  if (chosen && hasClientLlmAccess(subscriptionAccess, llmPayload)) {
  const intRes = await fetch("/api/articles/integrate-cta", {
@@ -955,12 +1006,12 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  "Content-Type": "application/json",
  },
  body: JSON.stringify({
- hook: article.hook,
- body: article.body,
- ps: article.ps,
+ hook: versionContent.hook,
+ body: versionContent.body,
+ ps: versionContent.ps,
  ctaDraft: chosen.text,
  ctaStyle: chosen.style,
- contentLanguage: article.contentLanguage,
+ contentLanguage: versionContent.contentLanguage,
  llm: llmPayload,
  }),
  });
@@ -976,12 +1027,12 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  "Content-Type": "application/json",
  },
  body: JSON.stringify({
- hook: article.hook,
- body: article.body,
- ps: article.ps,
+ hook: versionContent.hook,
+ body: versionContent.body,
+ ps: versionContent.ps,
  closingBlock: closingForExport,
  ctaStyle: chosen.style,
- contentLanguage: article.contentLanguage,
+ contentLanguage: versionContent.contentLanguage,
  llm: llmPayload,
  }),
  });
@@ -992,7 +1043,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  closingBlock?: string;
  };
  if (unifyRes.ok && unifyData.body?.trim() && unifyData.closingBlock?.trim()) {
- hookForExport = unifyData.hook?.trim() || article.hook;
+ hookForExport = unifyData.hook?.trim() || versionContent.hook;
  bodyForExport = unifyData.body.trim();
  psForExport = unifyData.ps?.trim() || undefined;
  closingForExport = unifyData.closingBlock.trim();
@@ -1020,6 +1071,10 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  hook: fitted.hook,
  body: fitted.body,
  ps: fitted.ps,
+ hashtags,
+ contentLanguage: versionContent.contentLanguage,
+ translations: translationsForSave,
+ validatedLocale,
  });
  await validateArticleWithCta(
  user.uid,
@@ -1038,6 +1093,9 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  hook: fitted.hook,
  body: fitted.body,
  ps: fitted.ps,
+ contentLanguage: versionContent.contentLanguage,
+ translations: translationsForSave,
+ validatedLocale,
  },
  );
  try {
@@ -1045,7 +1103,7 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  user.uid,
  article.id,
  getMergedRefinement() ?? mergeRefinementWithDefaults(article.refinement),
- article.contentLanguage,
+ versionContent.contentLanguage,
  chosen?.style ?? null,
  );
  } catch {
@@ -1930,6 +1988,37 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  )}
 
  {!isValidated && (
+ <div className="mb-6 space-y-4 sm:mb-8">
+ <ArticleSignaturePsPanel
+  contentLanguage={article.contentLanguage}
+  currentPs={article.ps}
+  author={authorProfile}
+  displayName={user?.displayName ?? undefined}
+  disabled={isBusy}
+  onChange={async (ps) => {
+   if (!user || !article) return;
+   await updateArticleContent(user.uid, article.id, {
+    hook: article.hook,
+    body: article.body,
+    ps,
+    scope: article.scope,
+    hashtags: article.hashtags,
+   });
+   setArticle((prev) => (prev ? { ...prev, ps } : prev));
+   notifyArticlesChanged();
+  }}
+  onSaveTemplate={async (signaturePs) => {
+   if (!user) return;
+   await saveAuthorProfile(user.uid, { signaturePs });
+   setAuthorProfile((prev) =>
+    prev ? { ...prev, signaturePs } : prev,
+   );
+  }}
+ />
+ </div>
+ )}
+
+ {!isValidated && (
  <div
  ref={validationActionsRef}
  className="scroll-mt-6 mb-6 rounded-xl border border-ns-alternate/70 bg-white p-4 shadow-sm sm:mb-8 sm:p-5"
@@ -1941,6 +2030,59 @@ export function ArticleEditor({ articleId, variant = "page" }: Props) {
  />
 
  <div className="mt-4 space-y-4">
+ {hasValidationVersionChoice && (
+  <fieldset className="space-y-2">
+   <legend className={`${LABEL_CLASS} mb-1`}>
+    {t("validateVersionLabel")}
+   </legend>
+   <p className="text-xs leading-relaxed text-ns-tertiary/70">
+    {t("validateVersionHint")}
+   </p>
+   <div className="grid gap-2 sm:grid-cols-2">
+    <button
+     type="button"
+     onClick={() => setValidateVersionId("original")}
+     className={[
+      "rounded-lg border px-3 py-2.5 text-left text-xs font-semibold transition-colors",
+      validateVersionId === "original"
+       ? "border-ns-primary bg-ns-primary/15 text-ns-tertiary"
+       : "border-gray-200 bg-white text-ns-tertiary hover:border-ns-primary/50",
+     ].join(" ")}
+    >
+     <span className="block">{t("validateVersionOriginal")}</span>
+     <span className="mt-0.5 block text-[11px] font-medium text-ns-tertiary/60">
+      {tTranslate(`locales.${contentLanguageToSourceLocale(article.contentLanguage)}`)}
+     </span>
+    </button>
+    {storedTranslationLocales.map((locale) => {
+     const variant = article.translations?.[locale];
+     const modeLabel =
+      variant?.mode === "localized"
+       ? tTranslate("localized")
+       : tTranslate("literal");
+     return (
+      <button
+       key={locale}
+       type="button"
+       onClick={() => setValidateVersionId(locale)}
+       className={[
+        "rounded-lg border px-3 py-2.5 text-left text-xs font-semibold transition-colors",
+        validateVersionId === locale
+         ? "border-ns-primary bg-ns-primary/15 text-ns-tertiary"
+         : "border-gray-200 bg-white text-ns-tertiary hover:border-ns-primary/50",
+       ].join(" ")}
+      >
+       <span className="block">{tTranslate(`locales.${locale}`)}</span>
+       <span className="mt-0.5 block text-[11px] font-medium text-ns-tertiary/60">
+        {modeLabel}
+       </span>
+      </button>
+     );
+    })}
+   </div>
+  </fieldset>
+ )}
+
  {showOrgMode && organizationProfile && user && (
  <ArticleCredibilityChecklistLazy
  compact

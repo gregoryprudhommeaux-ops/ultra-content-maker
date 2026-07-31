@@ -2634,6 +2634,15 @@
         "copyComment": "Copier le commentaire",
         "copied": "Copié"
       },
+      "signaturePs": {
+        "title": "Signature / PS (optionnel)",
+        "hint": "Ajoutez une ligne d’identité en fin de post seulement si vous le souhaitez. Elle n’est plus générée automatiquement.",
+        "toggle": "Ajouter un PS",
+        "textLabel": "Texte du PS",
+        "placeholder": "PS : Votre nom, rôle. Produit ou contexte en une phrase.",
+        "apply": "Appliquer au post",
+        "saving": "Enregistrement…"
+      },
       "translate": {
         "title": "Traductions",
         "subtitle": "Produisez une version dans la langue cible : respect du format LinkedIn (longueur, sauts de ligne).",
@@ -2979,6 +2988,9 @@
         "goToValidation": "Valider le post →",
         "validationStepTitle": "Validation",
         "validationStepHint": "Génère la copie finale avec hashtags, prête à coller sur LinkedIn.",
+        "validateVersionLabel": "Version à valider pour LinkedIn",
+        "validateVersionHint": "Une traduction est disponible. Choisissez la version originale ou la version traduite à pousser sur LinkedIn.",
+        "validateVersionOriginal": "Version originale",
         "validateNoCtaReminder": "Aucun CTA sélectionné — c’est optionnel.",
         "customizeCtaLink": "Personnaliser une signature / CTA",
         "revising": "Révision en cours…",
@@ -3220,7 +3232,7 @@
         "wordsToAvoid": "Mots ou thèmes à éviter",
         "largeNiche": "Ratio Large / Niche",
         "cta": "CTA préférés",
-        "ps": "Règle PS / signature (optionnel)"
+        "ps": "Signature / PS template (optional · used only when you opt in on a post)"
       },
       "4": {
         "title": "Langue du contenu",

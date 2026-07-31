@@ -17,7 +17,7 @@ export function buildAntiAiHumanizerSystemPrompt(
 ): string {
   const register = REGISTER[contentLanguage] ?? REGISTER.en;
   const format = options.jsonFields
-    ? `Reply with a single valid JSON object only: { "hook": string, "body": string, "ps": string }. No commentary.`
+    ? `Reply with a single valid JSON object only: { "hook": string, "body": string, "ps": string }. No commentary. If input ps is empty, keep "ps" as "" — never invent a bio/identity signature PS.`
     : `Return only the rewritten text. No commentary, no preamble.`;
   const voiceBlock = options.voiceFingerprintBlock?.trim()
     ? `\n${options.voiceFingerprintBlock.trim()}\n`

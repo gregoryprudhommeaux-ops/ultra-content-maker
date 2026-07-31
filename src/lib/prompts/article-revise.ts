@@ -1,5 +1,6 @@
 import { buildHumanWritingRules } from "@/lib/articles/human-writing";
 import { isCorrosiveToneEdge } from "@/lib/articles/refinement";
+import { NO_LLM_SIGNATURE_PS_RULE } from "@/lib/articles/signature-ps";
 import { buildAntiAiHumanizerGenerationHints } from "@/lib/prompts/anti-ai-humanizer";
 import { buildAntiLinkedInSlopRules } from "@/lib/prompts/anti-linkedin-slop";
 import { buildToneEdgeInstruction } from "@/lib/prompts/tone-edge";
@@ -58,6 +59,8 @@ Emoji rule (non-negotiable): ${emoji}
 If emojiLevel is light or heavy, the revised post MUST contain visible Unicode emojis.
 
 Closing: end the body so a signature CTA can follow naturally · avoid repeating the same conditional opener the CTA will use; do not paste a hard-sell CTA block into the body.
+${NO_LLM_SIGNATURE_PS_RULE}
+If the input article already has a non-empty "ps", preserve it unchanged unless the user feedback explicitly asks to remove or rewrite it.
 
 CRITICAL: Reply with a single valid JSON object only · no markdown fences, no commentary before or after.
 

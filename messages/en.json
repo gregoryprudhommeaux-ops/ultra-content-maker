@@ -2633,6 +2633,15 @@
         "copyComment": "Copy comment",
         "copied": "Copied"
       },
+      "signaturePs": {
+        "title": "Signature / PS (optional)",
+        "hint": "Add an identity line at the end of the post only if you want one. It is no longer generated automatically.",
+        "toggle": "Add a PS",
+        "textLabel": "PS text",
+        "placeholder": "PS: Your name, role. Product or context in one line.",
+        "apply": "Apply to post",
+        "saving": "Saving…"
+      },
       "translate": {
         "title": "Translations",
         "subtitle": "Produce a version in your target language. LinkedIn length and line breaks respected.",
@@ -2978,6 +2987,9 @@
         "goToValidation": "Validate post →",
         "validationStepTitle": "Validation",
         "validationStepHint": "Generates the final copy with hashtags, ready to paste on LinkedIn.",
+        "validateVersionLabel": "Version to validate for LinkedIn",
+        "validateVersionHint": "A translation is available. Choose the original or the translated version to push to LinkedIn.",
+        "validateVersionOriginal": "Original version",
         "validateNoCtaReminder": "No CTA selected — that's optional.",
         "customizeCtaLink": "Customize a signature / CTA",
         "revising": "Revising…",
