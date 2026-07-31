@@ -105,6 +105,8 @@ function mapArticle(id: string, d: DocumentData): ArticleDoc {
     scope: normalizeArticleScope(d.scope),
     editorialPillarId:
       typeof d.editorialPillarId === "string" ? d.editorialPillarId.trim() : undefined,
+    contentProjectId:
+      typeof d.contentProjectId === "string" ? d.contentProjectId.trim() : undefined,
     hashtags: d.hashtags
       ? normalizeHashtags(d.hashtags as string[])
       : undefined,
@@ -273,6 +275,7 @@ export async function createArticleBatch(
   newsSource?: ArticleNewsSource,
   postBrief?: PostBrief,
   inspirationSource?: ArticleInspirationSource,
+  opts?: { contentProjectId?: string },
 ): Promise<string[]> {
   const refinement = { ...createDefaultRefinement(), emojiLevel };
   const ids: string[] = [];
@@ -286,6 +289,7 @@ export async function createArticleBatch(
       ps: items[i].ps ?? null,
       scope: items[i].scope ?? (i < 2 ? "generalist" : "niche"),
       editorialPillarId: items[i].editorialPillarId ?? null,
+      contentProjectId: opts?.contentProjectId?.trim() || null,
       hashtags: items[i].hashtags?.length ? items[i].hashtags : null,
       newsSource: newsSource ?? null,
       inspirationSource: inspirationSource ?? null,

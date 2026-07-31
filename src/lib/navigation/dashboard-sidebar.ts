@@ -2,6 +2,7 @@ import {
   CREATE_FRESH_HREF,
   CREATE_HUB_PATH,
   DASHBOARD_HUB_PATH,
+  PROJECTS_HUB_PATH,
 } from "@/lib/navigation/dashboard-nav";
 import { normalizeDashboardPathname } from "@/lib/navigation/dashboard-nav";
 
@@ -10,6 +11,7 @@ export const UPDATE_VOICE_HREF = "/setup/author";
 
 export type SidebarQuickLinkKey =
   | "createNewPost"
+  | "projects"
   | "dashboard"
   | "libraryDrafts"
   | "updateVoice";
@@ -27,6 +29,14 @@ export const SIDEBAR_QUICK_LINKS: readonly SidebarQuickLink[] = [
     isActive: (pathname) => {
       const path = normalizeDashboardPathname(pathname);
       return path === CREATE_HUB_PATH || path?.startsWith(`${CREATE_HUB_PATH}/`) === true;
+    },
+  },
+  {
+    key: "projects",
+    href: PROJECTS_HUB_PATH,
+    isActive: (pathname) => {
+      const path = normalizeDashboardPathname(pathname);
+      return path === PROJECTS_HUB_PATH || path?.startsWith(`${PROJECTS_HUB_PATH}/`) === true;
     },
   },
   {

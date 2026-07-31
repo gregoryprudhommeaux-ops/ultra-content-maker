@@ -678,7 +678,51 @@ export interface ArticleIllustration {
  visualConcept?: string;
  overlayTitle?: string;
  overlaySubtitle?: string;
- canvaPrompt?: string;
+  canvaPrompt?: string;
+}
+
+/** Chat turn inside a thematic content project (Lucy UCM). */
+export type ContentProjectChatRole = "user" | "assistant";
+
+export type ContentProjectChatMessage = {
+  id: string;
+  role: ContentProjectChatRole;
+  content: string;
+  createdAt: string;
+};
+
+/** Shortlisted angle / idea inside a project (★★★–★★★★★). */
+export type ContentProjectIdeaHit = {
+  id: string;
+  title: string;
+  stars: number;
+  reason: string;
+  source?: "news" | "manual" | "lucy" | "inspiration";
+};
+
+/**
+ * Thematic editorial project (LA MESA, Dev international, IA, CCI…).
+ * Pattern adapted from database-perso CrmProject: focused chat + brief + shortlist,
+ * with awareness of sibling projects for optional bridges.
+ */
+export interface ContentProject {
+  id: string;
+  name: string;
+  emoji?: string;
+  /** Editorial focus: ICP, messages, what this line is / is not. */
+  brief: string;
+  channelOwner?: ChannelOwner;
+  productFrame?: ProductFrame;
+  contentLanguage?: ContentLanguage;
+  /** Preferred editorial job for generation from this project. */
+  contentJob?: ContentJob;
+  chat: ContentProjectChatMessage[];
+  ideas: ContentProjectIdeaHit[];
+  /** Articles created from this project (soft links). */
+  articleIds?: string[];
+  colorIndex?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ArticleDoc {
@@ -697,6 +741,8 @@ export interface ArticleDoc {
  scope?: ArticleScope;
  /** Editorial pillar slug when org mode pillars are configured. */
  editorialPillarId?: string;
+ /** Thematic content project this article belongs to (Lucy hub). */
+ contentProjectId?: string;
  /** Up to 4 LinkedIn hashtags (without #), appended on export */
  hashtags?: string[];
  exportText?: string;

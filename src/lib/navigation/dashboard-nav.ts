@@ -2,12 +2,14 @@ import type { OnboardingProgress } from "@/lib/workspace/onboarding-progress";
 import { CREATION_FRESH_PARAM } from "@/lib/articles/creation-wizard-session";
 
 export const DASHBOARD_HUB_PATH = "/dashboard";
+export const PROJECTS_HUB_PATH = "/projects";
 
 export const CREATE_HUB_PATH = "/articles/new";
 export const CREATE_FRESH_HREF = `${CREATE_HUB_PATH}?${CREATION_FRESH_PARAM}=1`;
 
 export type DashboardNavKey =
  | "create"
+ | "projects"
  | "library"
  | "profile"
  | "settings"
@@ -35,6 +37,12 @@ export const DASHBOARD_NAV: readonly DashboardNavItem[] = [
  href: CREATE_FRESH_HREF,
  labelKey: "create",
  match: [CREATE_HUB_PATH],
+ },
+ {
+ key: "projects",
+ href: PROJECTS_HUB_PATH,
+ labelKey: "projects",
+ match: [PROJECTS_HUB_PATH],
  },
  {
  key: "library",
