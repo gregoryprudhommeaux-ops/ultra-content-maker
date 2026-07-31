@@ -169,8 +169,8 @@
             },
             "inspiration": {
               "title": "Source ou document",
-              "hint": "Vous partez d’un lien ou d’un doc",
-              "outcome": "Coller, lien, bibliothèque ou PDF · angle distinct."
+              "hint": "Vous avez un brouillon, un lien ou un doc",
+              "outcome": "Coller brouillon · lien · PDF · révision dans votre voix."
             }
           }
         },
@@ -2117,8 +2117,8 @@
               "outcome": "4 actus scannées · post commenté avec source."
             },
             "inspiration": {
-              "when": "Vous partez d’un lien ou d’un doc",
-              "outcome": "Coller, lien, bibliothèque ou PDF · angle distinct."
+              "when": "Vous avez un brouillon, un lien ou un doc",
+              "outcome": "Coller brouillon · lien · PDF · révision dans votre voix."
             }
           },
           "modes": {
@@ -2151,11 +2151,11 @@
             },
             "inspiration": {
               "title": "Source ou document",
-              "desc": "À partir d’un texte, lien ou document : un brouillon réécrit avec un angle distinct, sans copier la source.",
+              "desc": "Coller votre brouillon à réviser, ou partir d’un lien / PDF : un post réécrit dans votre voix.",
               "badge": "Source",
               "outputs": [
-                "Coller · URL · Doc",
-                "Angle anti-plagiat"
+                "Brouillon · URL · Doc",
+                "Révision anti-slop"
               ]
             },
             "article": {
@@ -2260,11 +2260,15 @@
         },
         "inspiration": {
           "inputTitle": "Comment fournir la référence ?",
-          "inputSubtitle": "L’IA s’inspire de la structure et du ton, sans recopier le texte source. Collez, liez, importez un document ou réutilisez votre bibliothèque.",
-          "referenceRequired": "Complétez la référence (texte, URL + extrait, document ou inspiration enregistrée).",
+          "inputSubtitle": "Collez votre brouillon pour le faire réviser, ou apportez une source (lien, PDF, bibliothèque) pour un angle distinct.",
+          "referenceRequired": "Complétez la référence (brouillon, texte, URL + extrait, document ou inspiration enregistrée).",
           "manageLibrary": "Gérer vos inspirations :",
           "manageLibraryLink": "page Inspirations",
           "input": {
+            "draft": {
+              "title": "Coller mon brouillon",
+              "desc": "Vous avez déjà écrit un post : on le révise dans votre voix (anti-slop), sans republier tel quel."
+            },
             "paste": {
               "title": "Combiner plusieurs sources",
               "desc": "Texte collé + lien récupéré + PDF/document + bibliothèque, dans un seul contenu de référence."
@@ -2283,6 +2287,15 @@
               "desc": "PDF, DOCX ou lien Google Doc — réutilisez vos notes, études ou articles sources."
             }
           },
+          "draftTitle": "Coller mon brouillon",
+          "draftSubtitle": "Révision dans votre voix · anti-slop LinkedIn",
+          "draftIntro": "Collez le texte tel que vous l’avez écrit. L’app le réécrit avec votre Persona et les garde-fous anti-slop — ce n’est pas une simple relecture orthographique.",
+          "draftLabel": "Votre brouillon",
+          "draftPlaceholder": "Collez ici votre post LinkedIn (accroche + corps)…",
+          "draftHint": "{count} caractères · minimum {min}",
+          "draftContinue": "Continuer vers le brief",
+          "draftPreviewLabel": "Votre brouillon à réviser",
+          "draftPreviewHint": "On conserve votre thèse et vos faits · on retire le slop LinkedIn / IA.",
           "documentTitle": "Choisir ou importer un document",
           "documentSubtitle": "Sélectionnez un document déjà importé dans votre profil, ou en ajoutez un nouveau.",
           "documentUpload": "Importer un fichier",
@@ -2344,6 +2357,7 @@
         "personaRequired": "Validez votre Persona avant de générer.",
         "personaRequiredHint": "Aller au Persona →",
         "generateDraft": "Générer le brouillon",
+        "reviseDraftCta": "Réviser mon brouillon",
         "draftDoneTitle": "Votre brouillon",
         "draftDoneHint": "Relisez le titre et le texte, réorientez l’angle si besoin, choisissez un CTA puis validez : comme dans l’éditeur complet.",
         "regenerateDraft": "Regénérer le brouillon",
@@ -2362,7 +2376,8 @@
           "contextArticle": "Votre idée",
           "briefing": "Brief",
           "result": "Résultat",
-          "generation": "Génération en cours…"
+          "generation": "Génération en cours…",
+          "goToPhase": "Revenir à : {phase}"
         },
         "interview": {
           "eyebrow": "Extraction",

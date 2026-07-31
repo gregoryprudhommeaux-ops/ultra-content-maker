@@ -16,6 +16,7 @@ type Props = {
   extracting: boolean;
   onReloadQuestions: () => void;
   onExtract: (answers: InterviewAnswer[]) => void;
+  onBack?: () => void;
 };
 
 export function InterviewStep({
@@ -24,8 +25,10 @@ export function InterviewStep({
   extracting,
   onReloadQuestions,
   onExtract,
+  onBack,
 }: Props) {
   const t = useTranslations("setup.articles.create.interview");
+  const tCreate = useTranslations("setup.articles.create");
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
   const filledCount = useMemo(
@@ -37,10 +40,21 @@ export function InterviewStep({
 
   return (
     <div className="space-y-5">
-      <div>
-        <p className={META_LABEL}>{t("eyebrow")}</p>
-        <h2 className={`mt-1 ${FORM_SECTION_TITLE}`}>{t("title")}</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ns-secondary">{t("hint")}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className={META_LABEL}>{t("eyebrow")}</p>
+          <h2 className={`mt-1 ${FORM_SECTION_TITLE}`}>{t("title")}</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ns-secondary">{t("hint")}</p>
+        </div>
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex shrink-0 items-center rounded-lg border border-ns-alternate bg-white px-3 py-1.5 text-sm font-medium text-ns-secondary hover:bg-ns-brand-light/50"
+          >
+            {tCreate("backShort")}
+          </button>
+        ) : null}
       </div>
 
       {loadingQuestions ? (

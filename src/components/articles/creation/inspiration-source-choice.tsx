@@ -8,17 +8,26 @@ import { useTranslations } from "next-intl";
 type Props = {
   onSelect: (kind: InspirationInputKind) => void;
   libraryCount: number;
+  onBack?: () => void;
 };
 
-export function InspirationSourceChoice({ onSelect, libraryCount }: Props) {
+export function InspirationSourceChoice({ onSelect, libraryCount, onBack }: Props) {
   const t = useTranslations("setup.articles.create.inspiration");
+  const tCreate = useTranslations("setup.articles.create");
 
   const options: {
     id: InspirationInputKind;
     title: string;
     desc: string;
     disabled?: boolean;
+    highlight?: boolean;
   }[] = [
+    {
+      id: "draft",
+      title: t("input.draft.title"),
+      desc: t("input.draft.desc"),
+      highlight: true,
+    },
     {
       id: "paste",
       title: t("input.paste.title"),
@@ -47,9 +56,20 @@ export function InspirationSourceChoice({ onSelect, libraryCount }: Props) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className={FORM_SECTION_TITLE}>{t("inputTitle")}</h2>
-        <p className="mt-1 text-sm text-ns-secondary">{t("inputSubtitle")}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className={FORM_SECTION_TITLE}>{t("inputTitle")}</h2>
+          <p className="mt-1 text-sm text-ns-secondary">{t("inputSubtitle")}</p>
+        </div>
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex shrink-0 items-center rounded-lg border border-ns-alternate bg-white px-3 py-1.5 text-sm font-medium text-ns-secondary hover:bg-ns-brand-light/50"
+          >
+            {tCreate("backShort")}
+          </button>
+        ) : null}
       </div>
       <div className="grid gap-3">
         {options.map((opt) => (
@@ -58,7 +78,11 @@ export function InspirationSourceChoice({ onSelect, libraryCount }: Props) {
             type="button"
             disabled={opt.disabled}
             onClick={() => onSelect(opt.id)}
-            className="rounded-xl border border-gray-100 bg-white p-4 text-left shadow-sm transition-colors hover:border-ns-primary hover:bg-ns-brand-light/30 disabled:cursor-not-allowed disabled:opacity-50"
+            className={
+              opt.highlight
+                ? "rounded-xl border-2 border-violet-300 bg-violet-50/50 p-4 text-left shadow-sm transition-colors hover:border-violet-500 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50"
+                : "rounded-xl border border-gray-100 bg-white p-4 text-left shadow-sm transition-colors hover:border-ns-primary hover:bg-ns-brand-light/30 disabled:cursor-not-allowed disabled:opacity-50"
+            }
           >
             <p className="font-semibold text-ns-tertiary">{opt.title}</p>
             <p className="mt-1 text-sm text-ns-secondary">{opt.desc}</p>

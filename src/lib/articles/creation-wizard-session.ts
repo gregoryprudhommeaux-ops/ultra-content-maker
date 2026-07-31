@@ -29,6 +29,7 @@ export type WizardSessionStep =
  | "news"
  | "inspiration-input"
  | "paste"
+ | "draft"
  | "inspiration-url"
  | "inspiration-library"
  | "inspiration-document"
@@ -68,6 +69,7 @@ function isWizardStep(v: unknown): v is WizardSessionStep {
  v === "news" ||
  v === "inspiration-input" ||
  v === "paste" ||
+ v === "draft" ||
  v === "inspiration-url" ||
  v === "inspiration-library" ||
  v === "inspiration-document" ||

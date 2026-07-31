@@ -8,6 +8,7 @@ import { SetupReadyBanner } from "@/components/articles/creation/setup-ready-ban
 import {
   WizardProgress,
   resolveWizardProgressStep,
+  type WizardPhaseId,
 } from "@/components/articles/creation/wizard-progress";
 import { WizardStepActions, WizardStepCard } from "@/components/articles/creation/wizard-step-card";
 import { InspirationLibraryStep } from "@/components/articles/creation/inspiration-library-step";
@@ -21,6 +22,7 @@ import {
   InterviewStep,
 } from "@/components/articles/creation/interview-step";
 import { InspirationComposerStep } from "@/components/articles/creation/inspiration-composer-step";
+import { InspirationDraftStep } from "@/components/articles/creation/inspiration-draft-step";
 import { InspirationDocumentStep } from "@/components/articles/creation/inspiration-document-step";
 import { ProfileBriefVariantToggle, type ProfileBriefVariant } from "@/components/articles/creation/profile-brief-variant-toggle";
 import { EmojiLevelPicker } from "@/components/articles/emoji-level-picker";
@@ -136,6 +138,7 @@ type Step =
   | "news"
   | "inspiration-input"
   | "paste"
+  | "draft"
   | "inspiration-url"
   | "inspiration-library"
   | "inspiration-document"
@@ -148,6 +151,7 @@ function isInspirationFlowStep(mode: CreationMode | null, step: Step): boolean {
   return (
     step === "inspiration-input" ||
     step === "paste" ||
+    step === "draft" ||
     step === "inspiration-url" ||
     step === "inspiration-library" ||
     step === "inspiration-document" ||
@@ -1159,7 +1163,8 @@ export function ArticleCreationWizard() {
   function pickInspirationInput(kind: InspirationInputKind) {
     setInspirationCtx({ kind, excerpt: "" });
     setErrorInfo(null);
-    if (kind === "paste") setStep("paste");
+    if (kind === "draft") setStep("draft");
+    else if (kind === "paste") setStep("paste");
     else if (kind === "url") setStep("inspiration-url");
     else if (kind === "document") setStep("inspiration-document");
     else setStep("inspiration-library");
@@ -1338,6 +1343,7 @@ export function ArticleCreationWizard() {
       if (mode === "profile") setStep("mode");
       else if (mode === "interview") setStep("interview");
       else if (mode === "news") setStep("news");
+      else if (inspirationCtx?.kind === "draft") setStep("draft");
       else if (inspirationCtx?.kind === "paste") setStep("paste");
       else if (inspirationCtx?.kind === "url") setStep("inspiration-url");
       else if (inspirationCtx?.kind === "document") setStep("inspiration-document");
@@ -1348,6 +1354,7 @@ export function ArticleCreationWizard() {
       resetToIntent();
     } else if (
       step === "paste" ||
+      step === "draft" ||
       step === "inspiration-url" ||
       step === "inspiration-library" ||
       step === "inspiration-document"
@@ -1360,6 +1367,33 @@ export function ArticleCreationWizard() {
       router.push("/articles");
     } else {
       setStep("mode");
+    }
+  }
+
+  function goToPhase(phase: WizardPhaseId) {
+    setErrorInfo(null);
+    if (phase === "intent") {
+      resetToIntent();
+      return;
+    }
+    if (phase === "context") {
+      if (mode === "interview") setStep("interview");
+      else if (mode === "news") setStep("news");
+      else if (mode === "inspiration") {
+        if (inspirationCtx?.kind === "draft") setStep("draft");
+        else if (inspirationCtx?.kind === "paste") setStep("paste");
+        else if (inspirationCtx?.kind === "url") setStep("inspiration-url");
+        else if (inspirationCtx?.kind === "document") setStep("inspiration-document");
+        else if (inspirationCtx?.kind === "library") setStep("inspiration-library");
+        else setStep("inspiration-input");
+      } else {
+        setStep("mode");
+      }
+      briefSuggestedRef.current = false;
+      return;
+    }
+    if (phase === "briefing") {
+      setStep("brief");
     }
   }
 
@@ -1387,7 +1421,11 @@ export function ArticleCreationWizard() {
       )}
 
       {step !== "generating" && step !== "draft-done" && (
-        <WizardProgress mode={mode} activeStep={progressStep} />
+        <WizardProgress
+          mode={mode}
+          activeStep={progressStep}
+          onNavigatePhase={step === "mode" ? undefined : goToPhase}
+        />
       )}
 
       {mode &&
@@ -1434,6 +1472,7 @@ export function ArticleCreationWizard() {
           questions={interviewQuestions}
           loadingQuestions={interviewLoading}
           extracting={interviewExtracting}
+          onBack={goBack}
           onReloadQuestions={() => {
             setInterviewQuestions([]);
             void loadInterviewQuestions();
@@ -1444,7 +1483,16 @@ export function ArticleCreationWizard() {
 
       {step === "news" && (
         <div className="space-y-4">
-          <p className="text-sm text-ns-secondary">{t("newsIntro")}</p>
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm text-ns-secondary">{t("newsIntro")}</p>
+            <button
+              type="button"
+              onClick={goBack}
+              className="inline-flex shrink-0 items-center rounded-lg border border-ns-alternate bg-white px-3 py-1.5 text-sm font-medium text-ns-secondary hover:bg-ns-brand-light/50"
+            >
+              {t("backShort")}
+            </button>
+          </div>
           <p className="text-xs text-ns-secondary">
             <Link href="/news/archive" className="font-medium underline">
               {t("browseArchive")}
@@ -1492,6 +1540,21 @@ export function ArticleCreationWizard() {
         <InspirationSourceChoice
           libraryCount={inspirationLibrary.length}
           onSelect={pickInspirationInput}
+          onBack={goBack}
+        />
+      )}
+
+      {step === "draft" && (
+        <InspirationDraftStep
+          excerpt={inspirationCtx?.excerpt ?? ""}
+          onBack={goBack}
+          onContinue={goToBriefFromInspiration}
+          onExcerptChange={(excerpt) =>
+            setInspirationCtx({
+              kind: "draft",
+              excerpt,
+            })
+          }
         />
       )}
 
@@ -1583,14 +1646,19 @@ export function ArticleCreationWizard() {
           {mode === "inspiration" && inspirationReferenceText.length >= 40 && (
             <div className="rounded-lg border border-gray-100 bg-ns-brand-light/50 px-4 py-3 text-sm">
               <p className="text-xs font-medium text-ns-secondary">
-                {inspirationCtx?.kind === "library"
-                  ? t("inspiration.libraryPreviewLabel")
-                  : inspirationCtx?.kind === "url"
-                    ? t("inspiration.urlPreviewLabel")
-                    : inspirationCtx?.kind === "document"
-                      ? t("inspiration.documentPreviewLabel")
-                      : t("pastedPreviewLabel")}
+                {inspirationCtx?.kind === "draft"
+                  ? t("inspiration.draftPreviewLabel")
+                  : inspirationCtx?.kind === "library"
+                    ? t("inspiration.libraryPreviewLabel")
+                    : inspirationCtx?.kind === "url"
+                      ? t("inspiration.urlPreviewLabel")
+                      : inspirationCtx?.kind === "document"
+                        ? t("inspiration.documentPreviewLabel")
+                        : t("pastedPreviewLabel")}
               </p>
+              {inspirationCtx?.kind === "draft" ? (
+                <p className="mt-1 text-xs text-violet-900">{t("inspiration.draftPreviewHint")}</p>
+              ) : null}
               {selectedLibrarySource && (
                 <a
                   href={selectedLibrarySource.url}
@@ -1688,7 +1756,9 @@ export function ArticleCreationWizard() {
             onClick={() => void runGenerate()}
             className={`${BTN_PRIMARY} disabled:opacity-50`}
           >
-            {t("generateDraft")}
+            {inspirationCtx?.kind === "draft"
+              ? t("reviseDraftCta")
+              : t("generateDraft")}
           </button>
         </div>
       )}

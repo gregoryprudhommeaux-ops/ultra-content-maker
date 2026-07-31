@@ -23,6 +23,7 @@ export function resolveWizardProgressStep(
     step === "interview" ||
     step === "news" ||
     step === "paste" ||
+    step === "draft" ||
     step === "inspiration-input" ||
     step === "inspiration-url" ||
     step === "inspiration-library" ||
@@ -36,9 +37,11 @@ export function resolveWizardProgressStep(
 type Props = {
   mode: WizardCreationMode | null;
   activeStep: WizardPhaseId;
+  /** Completed phases become clickable breadcrumbs back to that page. */
+  onNavigatePhase?: (phase: WizardPhaseId) => void;
 };
 
-export function WizardProgress({ mode, activeStep }: Props) {
+export function WizardProgress({ mode, activeStep, onNavigatePhase }: Props) {
   const t = useTranslations("setup.articles.create.progress");
 
   if (activeStep === "generation") {
@@ -75,6 +78,8 @@ export function WizardProgress({ mode, activeStep }: Props) {
         {flow.map((id, i) => {
           const done = current >= 0 && i < current;
           const active = i === current;
+          const clickable = Boolean(onNavigatePhase) && done && id !== "result";
+
           return (
             <li key={id} className="flex items-center gap-2">
               {i > 0 && (
@@ -82,17 +87,29 @@ export function WizardProgress({ mode, activeStep }: Props) {
                   →
                 </span>
               )}
-              <span
-                className={
-                  active
-                    ? "rounded-full bg-ns-primary/20 px-2.5 py-1 text-ns-tertiary"
-                    : done
-                      ? "text-ns-secondary"
-                      : "text-ns-secondary/50"
-                }
-              >
-                {labels[id]}
-              </span>
+              {clickable ? (
+                <button
+                  type="button"
+                  onClick={() => onNavigatePhase?.(id)}
+                  className="rounded-full px-2.5 py-1 text-ns-secondary underline decoration-ns-alternate underline-offset-2 transition-colors hover:bg-ns-brand-light/60 hover:text-ns-tertiary"
+                  title={t("goToPhase", { phase: labels[id] })}
+                >
+                  {labels[id]}
+                </button>
+              ) : (
+                <span
+                  className={
+                    active
+                      ? "rounded-full bg-ns-primary/20 px-2.5 py-1 text-ns-tertiary"
+                      : done
+                        ? "text-ns-secondary"
+                        : "text-ns-secondary/50"
+                  }
+                  aria-current={active ? "step" : undefined}
+                >
+                  {labels[id]}
+                </span>
+              )}
             </li>
           );
         })}

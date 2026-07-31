@@ -649,7 +649,7 @@ export interface ArticleNewsSource {
  sourceName?: string;
 }
 
-export type InspirationInputKind = "paste" | "url" | "library" | "document";
+export type InspirationInputKind = "draft" | "paste" | "url" | "library" | "document";
 
 /** Traceability when a post was generated from the inspiration wizard */
 export interface ArticleInspirationSource {

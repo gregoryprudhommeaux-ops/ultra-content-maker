@@ -169,8 +169,8 @@
             },
             "inspiration": {
               "title": "Fuente o documento",
-              "hint": "Partes de un enlace o documento",
-              "outcome": "Pegar, enlace, biblioteca o PDF · ángulo distinto."
+              "hint": "Tienes un borrador, enlace o documento",
+              "outcome": "Pegar borrador · enlace · PDF · revisión en tu voz."
             }
           }
         },
@@ -2116,8 +2116,8 @@
               "outcome": "4 noticias escaneadas · post comentado con fuente."
             },
             "inspiration": {
-              "when": "Partes de un enlace o documento",
-              "outcome": "Pegar, enlace, biblioteca o PDF · ángulo distinto."
+              "when": "Tienes un borrador, enlace o documento",
+              "outcome": "Pegar borrador · enlace · PDF · revisión en tu voz."
             }
           },
           "modes": {
@@ -2150,11 +2150,11 @@
             },
             "inspiration": {
               "title": "Fuente o documento",
-              "desc": "A partir de un texto, enlace o documento: un borrador reescrito con ángulo distinto, sin copiar la fuente.",
+              "desc": "Pega tu borrador para revisarlo, o parte de un enlace / PDF: un post reescrito en tu voz.",
               "badge": "Fuente",
               "outputs": [
-                "Pegar · URL · Doc",
-                "Ángulo anti-plagio"
+                "Borrador · URL · Doc",
+                "Revisión anti-slop"
               ]
             },
             "article": {
@@ -2259,11 +2259,15 @@
         },
         "inspiration": {
           "inputTitle": "¿Cómo quieres aportar la referencia?",
-          "inputSubtitle": "La IA se inspira en la estructura y el tono sin copiar el texto fuente. Pega, enlaza, importa un documento o reutiliza tu biblioteca.",
-          "referenceRequired": "Completa la referencia (texto, URL + extracto, documento o inspiración guardada).",
+          "inputSubtitle": "Pega tu borrador para revisarlo, o aporta una fuente (enlace, PDF, biblioteca) para un ángulo distinto.",
+          "referenceRequired": "Completa la referencia (borrador, texto, URL + extracto, documento o inspiración guardada).",
           "manageLibrary": "Gestiona tus inspiraciones:",
           "manageLibraryLink": "página Inspiraciones",
           "input": {
+            "draft": {
+              "title": "Pegar mi borrador",
+              "desc": "Ya escribiste un post: lo revisamos en tu voz (anti-slop), sin republicarlo tal cual."
+            },
             "paste": {
               "title": "Combinar varias fuentes",
               "desc": "Texto pegado + enlace recuperado + PDF/documento + biblioteca, en una sola referencia."
@@ -2282,6 +2286,15 @@
               "desc": "PDF, DOCX o enlace Google Doc — reutiliza notas, estudios o artículos fuente."
             }
           },
+          "draftTitle": "Pegar mi borrador",
+          "draftSubtitle": "Revisión en tu voz · anti-slop LinkedIn",
+          "draftIntro": "Pega el texto tal como lo escribiste. La app lo reescribe con tu Persona y las reglas anti-slop — no es un simple corrector.",
+          "draftLabel": "Tu borrador",
+          "draftPlaceholder": "Pega aquí tu post de LinkedIn (gancho + cuerpo)…",
+          "draftHint": "{count} caracteres · mínimo {min}",
+          "draftContinue": "Continuar al brief",
+          "draftPreviewLabel": "Tu borrador a revisar",
+          "draftPreviewHint": "Conservamos tu tesis y tus hechos · quitamos el slop LinkedIn / IA.",
           "documentTitle": "Elegir o importar un documento",
           "documentSubtitle": "Selecciona un documento ya importado en tu perfil o añade uno nuevo.",
           "documentUpload": "Importar archivo",
@@ -2343,6 +2356,7 @@
         "personaRequired": "Valida tu Persona antes de generar.",
         "personaRequiredHint": "Ir al Persona →",
         "generateDraft": "Generar borrador",
+        "reviseDraftCta": "Revisar mi borrador",
         "draftDoneTitle": "Tu borrador",
         "draftDoneHint": "Revisa título y texto, reorienta el ángulo si hace falta, elige un CTA y valida : como en el editor completo.",
         "regenerateDraft": "Regenerar borrador",
@@ -2361,7 +2375,8 @@
           "briefing": "Brief",
           "result": "Resultado",
           "generation": "Generando…",
-          "contextInterview": "Entrevista"
+          "contextInterview": "Entrevista",
+          "goToPhase": "Volver a: {phase}"
         },
         "intentSummary": {
           "label": "Recorrido:",

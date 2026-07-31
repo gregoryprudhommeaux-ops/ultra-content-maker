@@ -14,6 +14,10 @@ import {
  buildInspirationArticleUserPayload,
 } from "@/lib/prompts/articles-from-inspiration";
 import {
+ buildAuthorDraftReviseSystemPrompt,
+ buildAuthorDraftReviseUserPayload,
+} from "@/lib/prompts/articles-from-author-draft";
+import {
  buildArticlesSystemPromptWithCount,
  buildArticlesUserPromptWithCount,
  type ArticleGenerateCount,
@@ -207,6 +211,7 @@ export async function POST(request: Request) {
 
  try {
  const isInspiration = !!body.inspirationText?.trim();
+ const isAuthorDraftRevise = body.inspirationSource?.kind === "draft";
  const authorSteering = resolveAuthorSteering({
  authorSteering: body.authorSteering,
  author: body.author,
@@ -231,6 +236,23 @@ export async function POST(request: Request) {
  contentLanguage,
  postBrief,
  emojiLevel,
+ authorSteering,
+ )}`;
+ } else if (isInspiration && isAuthorDraftRevise) {
+ systemContent = buildAuthorDraftReviseSystemPrompt(
+ contentLanguage,
+ targetScope,
+ emojiLevel,
+ body.profileEnrichment,
+ authorSteering,
+ );
+ userContent = `${body.personaPromptText}\n\n---\n\n${buildAuthorDraftReviseUserPayload(
+ body.personaPromptText,
+ contentLanguage,
+ body.inspirationText!,
+ targetScope,
+ postBrief,
+ body.profileEnrichment,
  authorSteering,
  )}`;
  } else if (isInspiration) {

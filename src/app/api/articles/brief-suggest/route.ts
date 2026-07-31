@@ -71,10 +71,18 @@ export async function POST(request: Request) {
   });
 
   try {
+    const authorDraftRevise =
+      body.mode === "inspiration" &&
+      body.inspirationMeta &&
+      typeof body.inspirationMeta === "object" &&
+      (body.inspirationMeta as { kind?: string }).kind === "draft";
+
     const raw = await chatCompletionJson(llm, [
       {
         role: "system",
-        content: buildBriefSuggestSystemPrompt(contentLanguage),
+        content: buildBriefSuggestSystemPrompt(contentLanguage, {
+          authorDraftRevise,
+        }),
       },
       {
         role: "user",

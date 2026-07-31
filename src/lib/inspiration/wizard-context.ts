@@ -5,7 +5,7 @@ import type {
  SourceLink,
 } from "@/types/workspace";
 
-export type InspirationInputKind = "paste" | "url" | "library" | "document";
+export type InspirationInputKind = "draft" | "paste" | "url" | "library" | "document";
 
 export type WizardInspirationContext = {
  kind: InspirationInputKind;
@@ -55,7 +55,7 @@ export function buildWizardInspirationReferenceText(
  ctx: WizardInspirationContext,
  librarySource?: SourceLink | null,
 ): string {
- if (ctx.kind === "paste") {
+ if (ctx.kind === "paste" || ctx.kind === "draft") {
  return ctx.excerpt.trim();
  }
  if (ctx.kind === "document") {
@@ -101,6 +101,16 @@ export function toArticleInspirationSource(
  sourceId: id,
  url: `ucm://author-document/${id}`,
  label: ctx.label,
+ };
+ }
+
+ if (ctx.kind === "draft" || ctx.kind === "paste") {
+ const excerpt = ctx.excerpt.trim();
+ if (excerpt.length < 40) return undefined;
+ return {
+ kind: ctx.kind,
+ url: ctx.kind === "draft" ? "ucm://author-draft" : "ucm://pasted-reference",
+ label: ctx.label ?? (ctx.kind === "draft" ? "Author draft" : "Pasted reference"),
  };
  }
 

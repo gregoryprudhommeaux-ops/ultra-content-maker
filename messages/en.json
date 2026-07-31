@@ -169,8 +169,8 @@
             },
             "inspiration": {
               "title": "Source or document",
-              "hint": "You start from a link or document",
-              "outcome": "Paste, link, library, or PDF · distinct angle."
+              "hint": "You have a draft, link, or document",
+              "outcome": "Paste draft · link · PDF · revision in your voice."
             }
           }
         },
@@ -2116,8 +2116,8 @@
               "outcome": "4 stories scanned · commented post with source."
             },
             "inspiration": {
-              "when": "You start from a link or document",
-              "outcome": "Paste, link, library, or PDF · distinct angle."
+              "when": "You have a draft, link, or document",
+              "outcome": "Paste draft · link · PDF · revision in your voice."
             }
           },
           "modes": {
@@ -2150,11 +2150,11 @@
             },
             "inspiration": {
               "title": "Source or document",
-              "desc": "From pasted text, a link, or a document: one rewritten draft with a distinct angle, without copying the source.",
+              "desc": "Paste your draft to revise, or start from a link / PDF: one rewritten post in your voice.",
               "badge": "Source",
               "outputs": [
-                "Paste · URL · Doc",
-                "Anti-plagiarism angle"
+                "Draft · URL · Doc",
+                "Anti-slop revision"
               ]
             },
             "article": {
@@ -2259,11 +2259,15 @@
         },
         "inspiration": {
           "inputTitle": "How do you want to provide the reference?",
-          "inputSubtitle": "The AI draws on structure and tone without copying the source. Paste, link, upload a document, or reuse your library.",
-          "referenceRequired": "Complete the reference (text, URL + excerpt, document, or saved inspiration).",
+          "inputSubtitle": "Paste your draft for revision, or bring a source (link, PDF, library) for a distinct angle.",
+          "referenceRequired": "Complete the reference (draft, text, URL + excerpt, document, or saved inspiration).",
           "manageLibrary": "Manage your inspirations:",
           "manageLibraryLink": "Inspirations page",
           "input": {
+            "draft": {
+              "title": "Paste my draft",
+              "desc": "You already wrote a post: we revise it in your voice (anti-slop), without republishing it as-is."
+            },
             "paste": {
               "title": "Combine multiple sources",
               "desc": "Pasted text + fetched link + PDF/document + library, in one reference."
@@ -2282,6 +2286,15 @@
               "desc": "PDF, DOCX, or Google Doc link — reuse notes, studies, or source articles."
             }
           },
+          "draftTitle": "Paste my draft",
+          "draftSubtitle": "Revision in your voice · LinkedIn anti-slop",
+          "draftIntro": "Paste the text as you wrote it. The app rewrites it with your Persona and anti-slop guards — not a simple spellcheck.",
+          "draftLabel": "Your draft",
+          "draftPlaceholder": "Paste your LinkedIn post here (hook + body)…",
+          "draftHint": "{count} characters · minimum {min}",
+          "draftContinue": "Continue to brief",
+          "draftPreviewLabel": "Your draft to revise",
+          "draftPreviewHint": "We keep your thesis and facts · we strip LinkedIn / AI slop.",
           "documentTitle": "Choose or upload a document",
           "documentSubtitle": "Select a document already imported in your profile, or add a new one.",
           "documentUpload": "Upload a file",
@@ -2343,6 +2356,7 @@
         "personaRequired": "Validate your Persona before generating.",
         "personaRequiredHint": "Go to Persona →",
         "generateDraft": "Generate draft",
+        "reviseDraftCta": "Revise my draft",
         "draftDoneTitle": "Your draft",
         "draftDoneHint": "Review the title and body, adjust the angle if needed, pick a CTA, then validate, same as the full editor.",
         "regenerateDraft": "Regenerate draft",
@@ -2361,7 +2375,8 @@
           "briefing": "Brief",
           "result": "Result",
           "generation": "Generating…",
-          "contextInterview": "Interview"
+          "contextInterview": "Interview",
+          "goToPhase": "Go back to: {phase}"
         },
         "intentSummary": {
           "label": "Path:",

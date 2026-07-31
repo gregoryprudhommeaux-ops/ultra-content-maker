@@ -20,8 +20,37 @@ const LANGUAGE_LABELS: Record<ContentLanguage, string> = {
  es: "Spanish",
 };
 
-export function buildBriefSuggestSystemPrompt(contentLanguage: ContentLanguage): string {
+export function buildBriefSuggestSystemPrompt(
+ contentLanguage: ContentLanguage,
+ options?: { authorDraftRevise?: boolean },
+): string {
  const lang = languageLabel(contentLanguage);
+ const authorDraftRevise = options?.authorDraftRevise === true;
+
+ if (authorDraftRevise) {
+ return `You draft a LinkedIn post brief (${lang}) to support REVISING the author's own pasted draft (not inventing a new post from an external source).
+
+${languageOnlyRule(contentLanguage)}
+${buildAntiLinkedInSlopRules(contentLanguage)}
+
+Return JSON only:
+{
+ "objectives": [
+ { "objective": "credibility" | "conversation" | "awareness" | "leads", "priority": 1 },
+ { "objective": "...", "priority": 2 }
+ ],
+ "problem": string,
+ "pointOfView": string,
+ "proof": string
+}
+
+Rules:
+- objectives: 1 to 3 items, unique objectives, priorities 1 (primary) then 2–3 if relevant
+- Extract problem / pointOfView / proof FROM the author's draft · do not invent a competing thesis
+- Preserve the author's claim; clarify stakes and proof already present or implied
+- Do NOT propose a "new distinct angle" as if referencePost were third-party inspiration
+- Align with Persona / authorSteering · never invent fake metrics or clients`;
+ }
 
  return `You draft a LinkedIn post brief (${lang}) for a B2B author based on context (news story or pasted reference post).
 
@@ -58,13 +87,20 @@ export function buildBriefSuggestUserPrompt(input: {
  inspirationMeta?: Record<string, unknown>;
  authorSteering?: AuthorSteeringPayload | null;
 }): string {
+ const isAuthorDraft =
+ input.inspirationMeta &&
+ typeof input.inspirationMeta === "object" &&
+ (input.inspirationMeta as { kind?: string }).kind === "draft";
+
  return JSON.stringify(
  injectAuthorSteering(
  {
  mode: input.mode,
+ job: isAuthorDraft ? "BRIEF_FOR_AUTHOR_DRAFT_REVISE" : undefined,
  personaExcerpt: input.personaExcerpt.slice(0, 6000),
  news: input.newsSource ?? null,
- referencePost: input.inspirationText?.trim().slice(0, 8000) ?? null,
+ referencePost: inspirationTextSafe(input.inspirationText),
+ authorDraft: isAuthorDraft ? inspirationTextSafe(input.inspirationText) : undefined,
  inspirationMeta: input.inspirationMeta ?? null,
  },
  input.authorSteering,
@@ -72,6 +108,10 @@ export function buildBriefSuggestUserPrompt(input: {
  null,
  2,
  );
+}
+
+function inspirationTextSafe(text?: string): string | null {
+ return text?.trim().slice(0, 8000) ?? null;
 }
 
 function parseSuggestedObjectives(raw: {
