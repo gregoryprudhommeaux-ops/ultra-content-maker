@@ -803,7 +803,16 @@
     "profileGate": "Pour proposer une actu pertinente, complète d’abord ton Persona / profil.",
     "goPersona": "Aller au Persona →",
     "linkedArticles": "Posts liés",
-    "noLinkedArticles": "Aucun post généré depuis ce projet."
+    "noLinkedArticles": "Aucun post généré depuis ce projet.",
+    "emptyTitle": "Aucun projet pour l’instant",
+    "emptyHint": "Crée une ligne éditoriale (ex. LA MESA, Dev international, IA), remplis le brief, puis discute avec Lucy.",
+    "chatSendHint": "⌘/Ctrl + Entrée pour envoyer",
+    "quickNews": "Scanner les actus",
+    "quickGenerate": "Générer",
+    "ideaManualReason": "Ajouté manuellement",
+    "ideaNewsReason": "Actu shortlistée",
+    "generateFromIdea": "Angle : {title}",
+    "generateFromNews": "Actu : {title}"
   },
   "dashboard": {
     "eyebrow": "Vue d’ensemble",

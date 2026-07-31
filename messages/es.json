@@ -803,7 +803,16 @@
     "profileGate": "Para proponer una actualidad útil, completa primero tu Persona / perfil.",
     "goPersona": "Ir a Persona →",
     "linkedArticles": "Posts vinculados",
-    "noLinkedArticles": "Aún no hay posts generados desde este proyecto."
+    "noLinkedArticles": "Aún no hay posts generados desde este proyecto.",
+    "emptyTitle": "Aún no hay proyectos",
+    "emptyHint": "Crea una línea editorial (ej. LA MESA, desarrollo internacional, IA), completa el brief y habla con Lucy.",
+    "chatSendHint": "⌘/Ctrl + Enter para enviar",
+    "quickNews": "Escanear actualidad",
+    "quickGenerate": "Generar",
+    "ideaManualReason": "Añadido manualmente",
+    "ideaNewsReason": "Actualidad en shortlist",
+    "generateFromIdea": "Ángulo: {title}",
+    "generateFromNews": "Actualidad: {title}"
   },
   "dashboard": {
     "eyebrow": "Resumen",

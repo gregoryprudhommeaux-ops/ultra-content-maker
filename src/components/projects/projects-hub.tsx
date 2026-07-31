@@ -13,11 +13,12 @@ import {
 import { BTN_PRIMARY, META_LABEL, SECTION_TITLE } from "@/lib/ui/nextstep";
 import type { ContentProject } from "@/types/workspace";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 export function ProjectsHub() {
   const t = useTranslations("projects");
+  const locale = useLocale();
   const { user } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState<ContentProject[]>([]);
@@ -110,6 +111,15 @@ export function ProjectsHub() {
             {t("createCard")}
           </button>
 
+          {projects.length === 0 && (
+            <div className="flex min-h-[140px] flex-col justify-center rounded-2xl border border-ns-alternate/60 bg-white px-4 py-6 sm:col-span-1 lg:col-span-2">
+              <p className="text-sm font-semibold text-ns-tertiary">{t("emptyTitle")}</p>
+              <p className="mt-1 text-xs leading-relaxed text-ns-secondary">
+                {t("emptyHint")}
+              </p>
+            </div>
+          )}
+
           {projects.map((project) => {
             const tone = contentProjectCardTone(project.colorIndex);
             const ideaCount = project.ideas?.length ?? 0;
@@ -134,14 +144,14 @@ export function ProjectsHub() {
                   <button
                     type="button"
                     onClick={() => void onDelete(project.id)}
-                    className="rounded-md px-2 py-1 text-xs font-medium text-ns-secondary hover:bg-black/5 hover:text-ns-tertiary"
+                    className="rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-ns-secondary hover:bg-black/5 hover:text-red-700"
                     aria-label={t("delete")}
                   >
-                    ···
+                    {t("delete")}
                   </button>
                 </div>
                 <p className={`mt-auto pt-4 text-xs ${tone.accent} opacity-70`}>
-                  {formatContentProjectDate(project.updatedAt)}
+                  {formatContentProjectDate(project.updatedAt, locale)}
                   {" · "}
                   {t("metaIdeas", { count: ideaCount })}
                   {" · "}

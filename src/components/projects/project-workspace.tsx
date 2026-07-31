@@ -107,6 +107,17 @@ export function ProjectWorkspace({ projectId }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [project?.chat?.length]);
 
+  useEffect(() => {
+    if (!project?.ideas?.length) {
+      setSelectedIdeaId(null);
+      return;
+    }
+    setSelectedIdeaId((prev) => {
+      if (prev && project.ideas.some((i) => i.id === prev)) return prev;
+      return resolveGenerateIdea(project.ideas)?.id ?? null;
+    });
+  }, [project?.ideas]);
+
   async function persist(
     patch: Parameters<typeof updateContentProject>[2],
     nextLocal?: ContentProject,
@@ -151,11 +162,12 @@ export function ProjectWorkspace({ projectId }: Props) {
 
   async function addIdea() {
     if (!project || !ideaDraft.trim()) return;
+    setError(null);
     const idea: ContentProjectIdeaHit = {
       id: newContentProjectMessageId(),
       title: ideaDraft.trim(),
       stars: 4,
-      reason: "Ajouté manuellement",
+      reason: t("ideaManualReason"),
       source: "manual",
     };
     const ideas = sortIdeasByStars([...(project.ideas ?? []), idea]);
@@ -173,7 +185,9 @@ export function ProjectWorkspace({ projectId }: Props) {
       setError(t("newsAlreadyAdded"));
       return;
     }
-    const idea = ideaHitFromNewsSuggestion(news);
+    setError(null);
+    const idea = ideaHitFromNewsSuggestion(news, 4);
+    idea.reason = idea.reason || t("ideaNewsReason");
     const ideas = sortIdeasByStars([...(project.ideas ?? []), idea]);
     setSelectedIdeaId(idea.id);
     setNewsPreview((prev) => prev.filter((n) => n.id !== news.id));
@@ -381,10 +395,8 @@ export function ProjectWorkspace({ projectId }: Props) {
           emojiLevel,
           postBrief,
           targetScope: "niche",
-          // Topic path when no news; news path when shortlisted news idea
-          ...(newsSource
-            ? { newsSource }
-            : { creationMode: "article" as const }),
+          // Standard generate path (not creationMode:article) so publishedTopics avoidance applies.
+          ...(newsSource ? { newsSource } : {}),
           authorSteering,
           newsInterestQuery: interest || undefined,
           llm: llmPayload,
@@ -464,6 +476,7 @@ export function ProjectWorkspace({ projectId }: Props) {
   }
 
   const ideas = sortIdeasByStars(project.ideas ?? []);
+  const selectedIdeaForUi = resolveGenerateIdea(ideas, selectedIdeaId);
 
   return (
     <div className="mx-auto grid max-w-5xl gap-6 px-4 py-8 lg:grid-cols-[minmax(0,1fr)_320px] sm:px-6">
@@ -539,6 +552,12 @@ export function ProjectWorkspace({ projectId }: Props) {
             placeholder={t("chatPlaceholder")}
             className={`${INPUT_CLASS} flex-1`}
             disabled={chatBusy}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !e.shiftKey) {
+                e.preventDefault();
+                void sendMessage();
+              }
+            }}
           />
           <button
             type="button"
@@ -549,14 +568,43 @@ export function ProjectWorkspace({ projectId }: Props) {
             {chatBusy ? t("sending") : t("send")}
           </button>
         </div>
+        <p className="text-[10px] text-ns-secondary">{t("chatSendHint")}</p>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={!profileReadyForNews || newsBusy || chatBusy || generating}
+            onClick={() => void scanNews()}
+            className="rounded-lg border border-ns-alternate bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-ns-tertiary hover:bg-ns-surface disabled:opacity-50"
+          >
+            {newsBusy ? t("newsScanning") : t("quickNews")}
+          </button>
+          <button
+            type="button"
+            disabled={generating || chatBusy || newsBusy}
+            onClick={() => void generateDraft()}
+            className="rounded-lg border border-ns-tertiary/30 bg-ns-tertiary/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-ns-tertiary hover:bg-ns-tertiary/15 disabled:opacity-50"
+          >
+            {t("quickGenerate")}
+          </button>
+        </div>
 
         <button
           type="button"
           disabled={generating || chatBusy || newsBusy}
           onClick={() => void generateDraft()}
-          className="inline-flex w-full items-center justify-center rounded-sm bg-ns-tertiary px-4 py-3 text-xs font-black uppercase tracking-widest text-white hover:bg-ns-tertiary/90 disabled:opacity-50"
+          className="inline-flex w-full flex-col items-center justify-center gap-1 rounded-sm bg-ns-tertiary px-4 py-3 text-white hover:bg-ns-tertiary/90 disabled:opacity-50"
         >
-          {generating ? t("generating") : t("generateDraft")}
+          <span className="text-xs font-black uppercase tracking-widest">
+            {generating ? t("generating") : t("generateDraft")}
+          </span>
+          {!generating && selectedIdeaForUi && (
+            <span className="max-w-full truncate text-[10px] font-medium text-white/80">
+              {selectedIdeaForUi.source === "news"
+                ? t("generateFromNews", { title: selectedIdeaForUi.title })
+                : t("generateFromIdea", { title: selectedIdeaForUi.title })}
+            </span>
+          )}
         </button>
       </div>
 

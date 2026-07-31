@@ -90,9 +90,12 @@ export function appendContentProjectChat(
   return { ...project, chat: nextChat, updatedAt: new Date(at) };
 }
 
-export function formatContentProjectDate(date: Date): string {
+export function formatContentProjectDate(
+  date: Date,
+  locale: string = "en-US",
+): string {
   try {
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
       year: "numeric",

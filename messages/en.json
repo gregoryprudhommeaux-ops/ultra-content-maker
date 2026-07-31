@@ -803,7 +803,16 @@
     "profileGate": "To suggest relevant news, complete your Persona / profile first.",
     "goPersona": "Go to Persona →",
     "linkedArticles": "Linked posts",
-    "noLinkedArticles": "No posts generated from this project yet."
+    "noLinkedArticles": "No posts generated from this project yet.",
+    "emptyTitle": "No projects yet",
+    "emptyHint": "Create an editorial line (e.g. LA MESA, international growth, AI), fill the brief, then chat with Lucy.",
+    "chatSendHint": "⌘/Ctrl + Enter to send",
+    "quickNews": "Scan news",
+    "quickGenerate": "Generate",
+    "ideaManualReason": "Added manually",
+    "ideaNewsReason": "Shortlisted news",
+    "generateFromIdea": "Angle: {title}",
+    "generateFromNews": "News: {title}"
   },
   "dashboard": {
     "eyebrow": "Overview",
