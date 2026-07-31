@@ -142,11 +142,14 @@ describe("content-project helpers", () => {
         label: "Langue FR",
       },
       suggestedIdea: { title: "Nearshoring", reason: "fit", stars: 5 },
+      choices: ["  Oui, FR ", "Plutôt EN", "Oui, FR", "", 42],
     });
     assert.ok(parsed);
     assert.equal(parsed?.pendingProposal?.field, "contentLanguage");
     assert.equal(parsed?.suggestedIdea?.title, "Nearshoring");
+    assert.deepEqual(parsed?.choices, ["Oui, FR", "Plutôt EN"]);
     assert.equal(parseLucyPendingProposal({ field: "nope", value: "x", label: "y" }), undefined);
+    assert.equal(parseLucyChatResponse({ reply: "hi" })?.choices, undefined);
   });
 
   it("applies proposals and builds chips", () => {

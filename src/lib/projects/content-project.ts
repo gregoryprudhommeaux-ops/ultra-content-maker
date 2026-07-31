@@ -58,7 +58,27 @@ export type LucyChatResponse = {
   reply: string;
   pendingProposal?: LucyPendingProposal;
   suggestedIdea?: LucySuggestedIdea;
+  /** Short clickable quick replies to answer Lucy's current question in one tap. */
+  choices?: string[];
 };
+
+/** Parse Lucy's clickable quick-reply options (short strings). */
+export function parseLucyChoices(raw: unknown): string[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of raw) {
+    const label = typeof item === "string" ? item.trim().replace(/\s+/g, " ") : "";
+    if (!label) continue;
+    const clipped = label.slice(0, 80);
+    const key = clipped.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(clipped);
+    if (out.length >= 6) break;
+  }
+  return out.length ? out : undefined;
+}
 
 const PROPOSAL_FIELDS = new Set<string>([
   "contentLanguage",
@@ -318,6 +338,7 @@ export function parseLucyChatResponse(raw: unknown): LucyChatResponse | null {
     reply,
     pendingProposal: parseLucyPendingProposal(o.pendingProposal),
     suggestedIdea: parseLucySuggestedIdea(o.suggestedIdea),
+    choices: parseLucyChoices(o.choices),
   };
 }
 

@@ -124,6 +124,7 @@ export async function POST(request: Request) {
       reply: parsed.reply,
       pendingProposal: parsed.pendingProposal ?? null,
       suggestedIdea: parsed.suggestedIdea ?? null,
+      choices: parsed.choices ?? null,
     });
   } catch (err) {
     return llmErrorResponse(err);

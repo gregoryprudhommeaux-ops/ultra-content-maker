@@ -87,6 +87,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     null,
   );
   const [liveDraft, setLiveDraft] = useState<LiveDraft | null>(null);
+  const [pendingChoices, setPendingChoices] = useState<string[]>([]);
   const [newsPreview, setNewsPreview] = useState<NewsSuggestion[]>([]);
   const [error, setError] = useState<string | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
@@ -468,6 +469,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     if (!user || !project || !pendingProposal) return;
     const proposal = pendingProposal;
     setPendingProposal(null);
+    setPendingChoices([]);
 
     if (proposal.field === "newsScan") {
       await appendAck(t("ackValidated", { label: proposal.label }));
@@ -527,6 +529,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     setDraft(t("modifyPrefill", { label: pendingProposal.label }));
     setPendingProposal(null);
     setPendingSuggestedIdea(null);
+    setPendingChoices([]);
   }
 
   async function addNewsAsIdea(news: NewsSuggestion) {
@@ -544,14 +547,16 @@ export function ProjectWorkspace({ projectId }: Props) {
     await persist({ ideas }, { ...project, ideas, updatedAt: new Date() });
   }
 
-  async function sendMessage() {
-    if (!user || !project || !draft.trim() || chatBusy) return;
-    const userMessage = draft.trim();
-    setDraft("");
+  async function sendMessage(override?: string) {
+    const text = (override ?? draft).trim();
+    if (!user || !project || !text || chatBusy) return;
+    const userMessage = text;
+    if (!override) setDraft("");
     setChatBusy(true);
     setError(null);
     setPendingProposal(null);
     setPendingSuggestedIdea(null);
+    setPendingChoices([]);
 
     const withUser = appendContentProjectChat(project, [
       { role: "user", content: userMessage },
@@ -614,6 +619,7 @@ export function ProjectWorkspace({ projectId }: Props) {
         reply?: string;
         pendingProposal?: LucyPendingProposal | null;
         suggestedIdea?: LucySuggestedIdea | null;
+        choices?: string[] | null;
         error?: string;
         detail?: string;
       };
@@ -643,6 +649,9 @@ export function ProjectWorkspace({ projectId }: Props) {
       if (data.suggestedIdea?.title) {
         setPendingSuggestedIdea(data.suggestedIdea);
       }
+      if (Array.isArray(data.choices) && data.choices.length > 0) {
+        setPendingChoices(data.choices.slice(0, 6));
+      }
     } catch {
       setError(t("chatFailed"));
     } finally {
@@ -653,6 +662,7 @@ export function ProjectWorkspace({ projectId }: Props) {
   function reopenChip(field: string, label: string) {
     setDraft(t("reopenChipPrefill", { label }));
     setPendingProposal(null);
+    setPendingChoices([]);
   }
 
   if (loading) {
@@ -816,6 +826,22 @@ export function ProjectWorkspace({ projectId }: Props) {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {pendingChoices.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {pendingChoices.map((choice) => (
+              <button
+                key={choice}
+                type="button"
+                disabled={busy}
+                onClick={() => void sendMessage(choice)}
+                className="rounded-full border border-ns-primary/50 bg-ns-primary/10 px-3 py-1.5 text-xs font-semibold text-ns-tertiary transition-colors hover:bg-ns-primary/20 disabled:opacity-50"
+              >
+                {choice}
+              </button>
+            ))}
           </div>
         )}
 
