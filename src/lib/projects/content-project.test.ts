@@ -165,6 +165,14 @@ describe("content-project helpers", () => {
     assert.equal(p.contentJob, "teaser");
     const chips = buildValidatedChips(p);
     assert.ok(chips.some((c) => c.field === "contentLanguage"));
+    assert.ok(!chips.some((c) => c.field === "emojiLevel"));
+    p = applyLucyProposalToProject(p, {
+      field: "emojiLevel",
+      value: "light",
+      label: "light",
+    });
+    assert.equal(p.emojiLevel, "light");
+    assert.ok(!buildValidatedChips(p).some((c) => c.field === "emojiLevel"));
     assert.ok(isRefineProposalField("refineHook"));
     assert.match(refineInstructionFromProposal({
       field: "refineHook",

@@ -163,7 +163,7 @@ export async function createContentProject(
     productFrame: draft.productFrame ?? null,
     contentLanguage: draft.contentLanguage ?? null,
     contentJob: draft.contentJob ?? null,
-    emojiLevel: "light",
+    emojiLevel: null,
     preferredCtaStyle: null,
     includeSignaturePs: false,
     newsInterestQuery: null,

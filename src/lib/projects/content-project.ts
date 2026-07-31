@@ -398,7 +398,6 @@ export function buildValidatedChips(
     | "contentJob"
     | "channelOwner"
     | "productFrame"
-    | "emojiLevel"
     | "preferredCtaStyle"
     | "includeSignaturePs"
     | "ideas"
@@ -420,9 +419,7 @@ export function buildValidatedChips(
   if (project.productFrame && project.productFrame !== "generic") {
     chips.push({ field: "productFrame", label: project.productFrame });
   }
-  if (project.emojiLevel) {
-    chips.push({ field: "emojiLevel", label: `emoji:${project.emojiLevel}` });
-  }
+  // emojiLevel stays chat-only with Lucy (no chip — avoid "validated" UI for a silent default).
   if (project.preferredCtaStyle) {
     chips.push({ field: "preferredCtaStyle", label: `cta:${project.preferredCtaStyle}` });
   }

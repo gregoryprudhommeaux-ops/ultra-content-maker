@@ -87,7 +87,8 @@ export function ProjectWorkspace({ projectId }: Props) {
   const [liveDraft, setLiveDraft] = useState<LiveDraft | null>(null);
   const [newsPreview, setNewsPreview] = useState<NewsSuggestion[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const chatScrollRef = useRef<HTMLDivElement | null>(null);
+  const lastChatCountRef = useRef<number | null>(null);
 
   const profileReadyForNews = Boolean(
     progress?.completion.hasPersonaValidated && progress?.completion.hasProfileMinimum,
@@ -132,9 +133,16 @@ export function ProjectWorkspace({ projectId }: Props) {
     void load();
   }, [load]);
 
+  // Keep the conversation pinned to its latest turn without scrolling the page.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [project?.chat?.length, pendingProposal]);
+    const el = chatScrollRef.current;
+    if (!el) return;
+    const count = project?.chat?.length ?? 0;
+    const isFirstRun = lastChatCountRef.current === null;
+    const grew = !isFirstRun && count > (lastChatCountRef.current ?? 0);
+    lastChatCountRef.current = count;
+    el.scrollTo({ top: el.scrollHeight, behavior: grew ? "smooth" : "auto" });
+  }, [project?.chat?.length]);
 
   useEffect(() => {
     if (!project?.ideas?.length) {
@@ -714,7 +722,10 @@ export function ProjectWorkspace({ projectId }: Props) {
           </p>
         )}
 
-        <div className="flex max-h-[56vh] min-h-[280px] flex-col gap-3 overflow-y-auto rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm">
+        <div
+          ref={chatScrollRef}
+          className="flex max-h-[56vh] min-h-[280px] flex-col gap-3 overflow-y-auto rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm"
+        >
           {project.chat.length === 0 && (
             <p className="text-sm leading-relaxed text-ns-secondary">{t("chatEmpty")}</p>
           )}
@@ -733,7 +744,6 @@ export function ProjectWorkspace({ projectId }: Props) {
               <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
             </div>
           ))}
-          <div ref={bottomRef} />
         </div>
 
         {pendingProposal && (
