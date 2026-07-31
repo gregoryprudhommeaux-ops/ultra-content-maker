@@ -25,6 +25,8 @@ import type {
   ContentProject,
   ContentProjectChatMessage,
   ContentProjectIdeaHit,
+  CtaIntensity,
+  EmojiLevel,
   ProductFrame,
 } from "@/types/workspace";
 
@@ -68,6 +70,10 @@ function parseIdeas(raw: unknown): ContentProjectIdeaHit[] {
         stars: typeof m.stars === "number" ? m.stars : 3,
         reason: String(m.reason ?? ""),
         source,
+        url: typeof m.url === "string" ? m.url : undefined,
+        sourceName: typeof m.sourceName === "string" ? m.sourceName : undefined,
+        summary: typeof m.summary === "string" ? m.summary : undefined,
+        publishedAt: typeof m.publishedAt === "string" ? m.publishedAt : undefined,
       };
     })
     .filter((m) => m.id && m.title);
@@ -83,6 +89,11 @@ function fromFirestore(id: string, d: DocumentData): ContentProject {
     productFrame: d.productFrame as ProductFrame | undefined,
     contentLanguage: d.contentLanguage as ContentLanguage | undefined,
     contentJob: d.contentJob as ContentJob | undefined,
+    emojiLevel: d.emojiLevel as EmojiLevel | undefined,
+    preferredCtaStyle: d.preferredCtaStyle as CtaIntensity | undefined,
+    includeSignaturePs: d.includeSignaturePs === true,
+    newsInterestQuery:
+      typeof d.newsInterestQuery === "string" ? d.newsInterestQuery : undefined,
     chat: parseChat(d.chat).slice(-MAX_CONTENT_PROJECT_CHAT_MESSAGES),
     ideas: parseIdeas(d.ideas),
     articleIds: Array.isArray(d.articleIds)
@@ -110,6 +121,27 @@ export async function getContentProject(
   return fromFirestore(snap.id, snap.data());
 }
 
+export type ContentProjectPatch = Partial<
+  Pick<
+    ContentProject,
+    | "name"
+    | "emoji"
+    | "brief"
+    | "channelOwner"
+    | "productFrame"
+    | "contentLanguage"
+    | "contentJob"
+    | "emojiLevel"
+    | "preferredCtaStyle"
+    | "includeSignaturePs"
+    | "newsInterestQuery"
+    | "chat"
+    | "ideas"
+    | "articleIds"
+    | "colorIndex"
+  >
+>;
+
 export async function createContentProject(
   userId: string,
   opts?: {
@@ -131,6 +163,10 @@ export async function createContentProject(
     productFrame: draft.productFrame ?? null,
     contentLanguage: draft.contentLanguage ?? null,
     contentJob: draft.contentJob ?? null,
+    emojiLevel: "light",
+    preferredCtaStyle: null,
+    includeSignaturePs: false,
+    newsInterestQuery: null,
     chat: [],
     ideas: [],
     articleIds: [],
@@ -148,22 +184,7 @@ export async function createContentProject(
 export async function updateContentProject(
   userId: string,
   projectId: string,
-  patch: Partial<
-    Pick<
-      ContentProject,
-      | "name"
-      | "emoji"
-      | "brief"
-      | "channelOwner"
-      | "productFrame"
-      | "contentLanguage"
-      | "contentJob"
-      | "chat"
-      | "ideas"
-      | "articleIds"
-      | "colorIndex"
-    >
-  >,
+  patch: ContentProjectPatch,
 ): Promise<void> {
   const payload: Record<string, unknown> = {
     updatedAt: serverTimestamp(),
@@ -177,6 +198,16 @@ export async function updateContentProject(
     payload.contentLanguage = patch.contentLanguage ?? null;
   }
   if (patch.contentJob !== undefined) payload.contentJob = patch.contentJob ?? null;
+  if (patch.emojiLevel !== undefined) payload.emojiLevel = patch.emojiLevel ?? null;
+  if (patch.preferredCtaStyle !== undefined) {
+    payload.preferredCtaStyle = patch.preferredCtaStyle ?? null;
+  }
+  if (patch.includeSignaturePs !== undefined) {
+    payload.includeSignaturePs = Boolean(patch.includeSignaturePs);
+  }
+  if (patch.newsInterestQuery !== undefined) {
+    payload.newsInterestQuery = patch.newsInterestQuery?.trim() || null;
+  }
   if (patch.chat !== undefined) {
     payload.chat = patch.chat.slice(-MAX_CONTENT_PROJECT_CHAT_MESSAGES);
   }

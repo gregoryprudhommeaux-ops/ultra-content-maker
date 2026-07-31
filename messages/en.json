@@ -753,6 +753,32 @@
     "prefChannel": "Voice / channel",
     "prefProduct": "Product frame",
     "prefJob": "Editorial job",
+    "prefEmoji": "Emojis",
+    "prefCta": "CTA style (editor)",
+    "prefSignaturePs": "Include signature PS on generate",
+    "prefSignaturePsHint": "Uses the text saved on your author profile.",
+    "emoji": {
+      "none": "None",
+      "light": "Light",
+      "heavy": "Heavy"
+    },
+    "cta": {
+      "soft": "Soft",
+      "medium": "Medium",
+      "pushy": "Direct",
+      "unset": "Unset"
+    },
+    "newsTitle": "Filtered news",
+    "newsHint": "Scan aligned to this project’s brief / keywords (profile required).",
+    "newsKeywords": "News keywords (project)",
+    "newsKeywordsPlaceholder": "E.g. private dinners · Guadalajara · LatAm B2B",
+    "newsScan": "Scan news",
+    "newsScanning": "Scanning…",
+    "newsFailed": "Could not load news.",
+    "newsEmpty": "No recent news for these keywords.",
+    "newsAddIdea": "+ Shortlist",
+    "newsAlreadyAdded": "This story is already shortlisted.",
+    "ideaFromNews": "From news",
     "channel": {
       "gregory": "Personal (Gregory)",
       "la_mesa": "LA MESA",

@@ -753,6 +753,32 @@
     "prefChannel": "Voix / canal",
     "prefProduct": "Cadre produit",
     "prefJob": "Job éditorial",
+    "prefEmoji": "Emojis",
+    "prefCta": "Style CTA (éditeur)",
+    "prefSignaturePs": "Inclure le PS signature à la génération",
+    "prefSignaturePsHint": "Utilise le texte enregistré dans ton profil auteur.",
+    "emoji": {
+      "none": "Aucun",
+      "light": "Léger",
+      "heavy": "Soutenu"
+    },
+    "cta": {
+      "soft": "Soft",
+      "medium": "Medium",
+      "pushy": "Direct",
+      "unset": "Non défini"
+    },
+    "newsTitle": "Actus filtrées",
+    "newsHint": "Scan aligné sur le brief / mots-clés du projet (profil requis).",
+    "newsKeywords": "Mots-clés actus (projet)",
+    "newsKeywordsPlaceholder": "Ex. dîners privés · Guadalajara · B2B LatAm",
+    "newsScan": "Scanner les actus",
+    "newsScanning": "Scan…",
+    "newsFailed": "Impossible de charger les actus.",
+    "newsEmpty": "Aucune actu récente pour ces mots-clés.",
+    "newsAddIdea": "+ Shortlister",
+    "newsAlreadyAdded": "Cette actu est déjà dans la shortlist.",
+    "ideaFromNews": "Depuis une actu",
     "channel": {
       "gregory": "Perso (Gregory)",
       "la_mesa": "LA MESA",

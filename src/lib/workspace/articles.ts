@@ -275,7 +275,7 @@ export async function createArticleBatch(
   newsSource?: ArticleNewsSource,
   postBrief?: PostBrief,
   inspirationSource?: ArticleInspirationSource,
-  opts?: { contentProjectId?: string },
+  opts?: { contentProjectId?: string; selectedCtaStyle?: CtaIntensity },
 ): Promise<string[]> {
   const refinement = { ...createDefaultRefinement(), emojiLevel };
   const ids: string[] = [];
@@ -299,7 +299,7 @@ export async function createArticleBatch(
       qualityCritique: null,
       exportText: null,
       selectedCtaId: null,
-      selectedCtaStyle: null,
+      selectedCtaStyle: opts?.selectedCtaStyle ?? null,
       selectedCtaText: null,
       contentLanguage,
       refinement,

@@ -698,6 +698,11 @@ export type ContentProjectIdeaHit = {
   stars: number;
   reason: string;
   source?: "news" | "manual" | "lucy" | "inspiration";
+  /** When source is news · used to generate with newsSource. */
+  url?: string;
+  sourceName?: string;
+  summary?: string;
+  publishedAt?: string;
 };
 
 /**
@@ -716,6 +721,12 @@ export interface ContentProject {
   contentLanguage?: ContentLanguage;
   /** Preferred editorial job for generation from this project. */
   contentJob?: ContentJob;
+  emojiLevel?: EmojiLevel;
+  preferredCtaStyle?: CtaIntensity;
+  /** Opt-in identity PS on generate (uses author.signaturePs). */
+  includeSignaturePs?: boolean;
+  /** Extra keywords for project-scoped news scan. */
+  newsInterestQuery?: string;
   chat: ContentProjectChatMessage[];
   ideas: ContentProjectIdeaHit[];
   /** Articles created from this project (soft links). */

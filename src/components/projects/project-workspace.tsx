@@ -5,14 +5,21 @@ import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import { useSubscription } from "@/contexts/subscription-context";
 import {
   appendContentProjectChat,
+  buildProjectNewsInterestQuery,
+  ideaHitFromNewsSuggestion,
   newContentProjectMessageId,
+  newsSourceFromIdeaHit,
+  resolveGenerateIdea,
   sortIdeasByStars,
 } from "@/lib/projects/content-project";
 import { getClientAuth } from "@/lib/firebase/client";
 import { hasClientLlmAccess, llmPayloadForAccess, llmPayloadForTier } from "@/lib/llm/client-payload";
 import { buildPostBriefFromContentProject } from "@/lib/prompts/lucy-project-chat";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
+import { buildDefaultSignaturePs } from "@/lib/articles/signature-ps";
+import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getPersona } from "@/lib/workspace/persona";
+import { getAuthorProfile } from "@/lib/workspace/author";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
 import { createArticleBatch } from "@/lib/workspace/articles";
 import { notifyArticlesChangedDeferred } from "@/lib/workspace/articles-events";
@@ -28,6 +35,9 @@ import type {
   ContentLanguage,
   ContentProject,
   ContentProjectIdeaHit,
+  CtaIntensity,
+  EmojiLevel,
+  NewsSuggestion,
   ProductFrame,
 } from "@/types/workspace";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
@@ -43,6 +53,8 @@ const LANGUAGES: ContentLanguage[] = ["fr", "en", "es"];
 const CHANNELS: ChannelOwner[] = ["gregory", "la_mesa", "generic"];
 const PRODUCTS: ProductFrame[] = ["la_mesa_dinners", "nextstep_market_entry", "generic"];
 const JOBS: Array<ContentJob | ""> = ["", "teaser", "explain", "convert"];
+const EMOJI_LEVELS: EmojiLevel[] = ["none", "light", "heavy"];
+const CTA_STYLES: Array<CtaIntensity | ""> = ["", "soft", "medium", "pushy"];
 
 export function ProjectWorkspace({ projectId }: Props) {
   const t = useTranslations("projects");
@@ -56,8 +68,11 @@ export function ProjectWorkspace({ projectId }: Props) {
   const [savingBrief, setSavingBrief] = useState(false);
   const [chatBusy, setChatBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [newsBusy, setNewsBusy] = useState(false);
+  const [newsPreview, setNewsPreview] = useState<NewsSuggestion[]>([]);
   const [draft, setDraft] = useState("");
   const [ideaDraft, setIdeaDraft] = useState("");
+  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -119,11 +134,17 @@ export function ProjectWorkspace({ projectId }: Props) {
     channelOwner?: ChannelOwner;
     productFrame?: ProductFrame;
     contentJob?: ContentJob | null;
+    emojiLevel?: EmojiLevel;
+    preferredCtaStyle?: CtaIntensity | null;
+    includeSignaturePs?: boolean;
+    newsInterestQuery?: string;
   }) {
     if (!project) return;
     const normalized = {
       ...patch,
       contentJob: patch.contentJob === null ? undefined : patch.contentJob,
+      preferredCtaStyle:
+        patch.preferredCtaStyle === null ? undefined : patch.preferredCtaStyle,
     };
     await persist(normalized as Parameters<typeof updateContentProject>[2]);
   }
@@ -139,6 +160,23 @@ export function ProjectWorkspace({ projectId }: Props) {
     };
     const ideas = sortIdeasByStars([...(project.ideas ?? []), idea]);
     setIdeaDraft("");
+    setSelectedIdeaId(idea.id);
+    await persist({ ideas }, { ...project, ideas, updatedAt: new Date() });
+  }
+
+  async function addNewsAsIdea(news: NewsSuggestion) {
+    if (!project) return;
+    const already = (project.ideas ?? []).some(
+      (i) => i.url && i.url === news.url,
+    );
+    if (already) {
+      setError(t("newsAlreadyAdded"));
+      return;
+    }
+    const idea = ideaHitFromNewsSuggestion(news);
+    const ideas = sortIdeasByStars([...(project.ideas ?? []), idea]);
+    setSelectedIdeaId(idea.id);
+    setNewsPreview((prev) => prev.filter((n) => n.id !== news.id));
     await persist({ ideas }, { ...project, ideas, updatedAt: new Date() });
   }
 
@@ -149,7 +187,61 @@ export function ProjectWorkspace({ projectId }: Props) {
         .map((i) => (i.id === ideaId ? { ...i, stars } : i))
         .filter((i) => i.stars >= 3),
     );
+    if (selectedIdeaId === ideaId && stars < 3) setSelectedIdeaId(null);
     await persist({ ideas }, { ...project, ideas, updatedAt: new Date() });
+  }
+
+  async function scanNews() {
+    if (!user || !project || newsBusy) return;
+    if (!profileReadyForNews) {
+      setError(t("profileGate"));
+      return;
+    }
+    setNewsBusy(true);
+    setError(null);
+    try {
+      const auth = getClientAuth();
+      const token = auth ? await auth.currentUser?.getIdToken() : null;
+      const [persona, llmProfile, authorSteering] = await Promise.all([
+        getPersona(user.uid),
+        getUserLlmProfile(user.uid),
+        gatherAuthorSteeringPayload(user.uid, {
+          newsInterestQuery: buildProjectNewsInterestQuery(project),
+        }),
+      ]);
+      const llmPayload = llmPayloadForTier(llmProfile, access?.effectiveTier);
+      if (!token || !persona?.promptText?.trim() || !hasClientLlmAccess(access, llmPayload)) {
+        setError(t("needLlm"));
+        return;
+      }
+
+      const res = await fetch("/api/news/suggestions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          personaExcerpt: persona.promptText,
+          contentLanguage: project.contentLanguage ?? "fr",
+          authorSteering,
+          newsInterestQuery: buildProjectNewsInterestQuery(project),
+          llm: llmPayload,
+        }),
+      });
+      const data = (await res.json()) as { news?: NewsSuggestion[]; error?: string };
+      if (!res.ok) {
+        setError(t("newsFailed"));
+        setNewsPreview([]);
+        return;
+      }
+      setNewsPreview(data.news ?? []);
+      if (!(data.news?.length)) setError(t("newsEmpty"));
+    } catch {
+      setError(t("newsFailed"));
+    } finally {
+      setNewsBusy(false);
+    }
   }
 
   async function sendMessage() {
@@ -241,9 +333,14 @@ export function ProjectWorkspace({ projectId }: Props) {
     try {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const [persona, llmProfile] = await Promise.all([
+      const interest = buildProjectNewsInterestQuery(project);
+      const [persona, llmProfile, author, authorSteering] = await Promise.all([
         getPersona(user.uid),
         getUserLlmProfile(user.uid),
+        getAuthorProfile(user.uid),
+        gatherAuthorSteeringPayload(user.uid, {
+          newsInterestQuery: interest || undefined,
+        }),
       ]);
       const llmPayload = llmPayloadForTier(llmProfile, access?.effectiveTier);
       if (!token || !hasClientLlmAccess(access, llmPayload)) {
@@ -252,7 +349,23 @@ export function ProjectWorkspace({ projectId }: Props) {
       }
 
       const contentLanguage = project.contentLanguage ?? "fr";
-      const postBrief = normalizePostBrief(buildPostBriefFromContentProject(project));
+      const emojiLevel = project.emojiLevel ?? "light";
+      const selectedIdea = resolveGenerateIdea(project.ideas, selectedIdeaId);
+      const postBrief = normalizePostBrief(
+        buildPostBriefFromContentProject(project, {
+          selectedIdeaId: selectedIdea?.id ?? selectedIdeaId,
+        }),
+      );
+      const newsSource = newsSourceFromIdeaHit(selectedIdea);
+      const signaturePs =
+        project.includeSignaturePs === true
+          ? buildDefaultSignaturePs({
+              contentLanguage,
+              roleTitle: author?.roleTitle,
+              positioningLine: author?.positioningLine,
+              savedSignaturePs: author?.signaturePs,
+            }).trim() || undefined
+          : undefined;
 
       const res = await fetch("/api/articles/generate", {
         method: "POST",
@@ -264,10 +377,16 @@ export function ProjectWorkspace({ projectId }: Props) {
           personaPromptText: persona?.promptText ?? "",
           contentLanguage,
           count: 1,
-          emojiLevel: "light",
+          articleCount: 1,
+          emojiLevel,
           postBrief,
           targetScope: "niche",
-          creationMode: "article",
+          // Topic path when no news; news path when shortlisted news idea
+          ...(newsSource
+            ? { newsSource }
+            : { creationMode: "article" as const }),
+          authorSteering,
+          newsInterestQuery: interest || undefined,
           llm: llmPayload,
         }),
       });
@@ -290,13 +409,22 @@ export function ProjectWorkspace({ projectId }: Props) {
       const ids = await createArticleBatch(
         user.uid,
         batchId,
-        [{ ...item, scope: "niche" }],
+        [
+          {
+            ...item,
+            ps: signaturePs ?? item.ps,
+            scope: "niche",
+          },
+        ],
         contentLanguage,
-        "light",
-        undefined,
+        emojiLevel,
+        newsSource,
         postBrief,
         undefined,
-        { contentProjectId: project.id },
+        {
+          contentProjectId: project.id,
+          selectedCtaStyle: project.preferredCtaStyle,
+        },
       );
       const articleId = ids[0];
       if (!articleId) {
@@ -424,7 +552,7 @@ export function ProjectWorkspace({ projectId }: Props) {
 
         <button
           type="button"
-          disabled={generating || chatBusy}
+          disabled={generating || chatBusy || newsBusy}
           onClick={() => void generateDraft()}
           className="inline-flex w-full items-center justify-center rounded-sm bg-ns-tertiary px-4 py-3 text-xs font-black uppercase tracking-widest text-white hover:bg-ns-tertiary/90 disabled:opacity-50"
         >
@@ -517,6 +645,109 @@ export function ProjectWorkspace({ projectId }: Props) {
               ))}
             </select>
           </label>
+          <label className="block text-xs font-semibold text-ns-tertiary">
+            {t("prefEmoji")}
+            <select
+              className={`${INPUT_CLASS} mt-1`}
+              value={project.emojiLevel ?? "light"}
+              onChange={(e) =>
+                void savePrefs({ emojiLevel: e.target.value as EmojiLevel })
+              }
+            >
+              {EMOJI_LEVELS.map((level) => (
+                <option key={level} value={level}>
+                  {t(`emoji.${level}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-xs font-semibold text-ns-tertiary">
+            {t("prefCta")}
+            <select
+              className={`${INPUT_CLASS} mt-1`}
+              value={project.preferredCtaStyle ?? ""}
+              onChange={(e) => {
+                const v = e.target.value as CtaIntensity | "";
+                void savePrefs({ preferredCtaStyle: v ? v : null });
+              }}
+            >
+              {CTA_STYLES.map((s) => (
+                <option key={s || "unset"} value={s}>
+                  {s ? t(`cta.${s}`) : t("cta.unset")}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-start gap-2 text-xs font-semibold text-ns-tertiary">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={project.includeSignaturePs === true}
+              onChange={(e) =>
+                void savePrefs({ includeSignaturePs: e.target.checked })
+              }
+            />
+            <span>
+              {t("prefSignaturePs")}
+              <span className="mt-0.5 block font-normal text-ns-secondary">
+                {t("prefSignaturePsHint")}
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div className="rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm space-y-3">
+          <div>
+            <p className={LABEL_CLASS}>{t("newsTitle")}</p>
+            <p className="text-xs text-ns-secondary">{t("newsHint")}</p>
+          </div>
+          <label className="block text-xs font-semibold text-ns-tertiary">
+            {t("newsKeywords")}
+            <ImeSafeInput
+              value={project.newsInterestQuery ?? ""}
+              onValueChange={(newsInterestQuery) =>
+                setProject({ ...project, newsInterestQuery })
+              }
+              onBlur={() =>
+                void savePrefs({
+                  newsInterestQuery: project.newsInterestQuery ?? "",
+                })
+              }
+              placeholder={t("newsKeywordsPlaceholder")}
+              className={`${INPUT_CLASS} mt-1`}
+              disabled={!profileReadyForNews}
+            />
+          </label>
+          <button
+            type="button"
+            disabled={!profileReadyForNews || newsBusy || chatBusy}
+            onClick={() => void scanNews()}
+            className="w-full rounded-lg border border-ns-alternate px-3 py-2 text-xs font-bold uppercase tracking-wide text-ns-tertiary hover:bg-ns-surface disabled:opacity-50"
+          >
+            {newsBusy ? t("newsScanning") : t("newsScan")}
+          </button>
+          {newsPreview.length > 0 && (
+            <ul className="space-y-2">
+              {newsPreview.slice(0, 6).map((n) => (
+                <li
+                  key={n.id}
+                  className="rounded-lg border border-ns-alternate/50 bg-ns-surface/50 px-2.5 py-2"
+                >
+                  <p className="text-sm font-semibold text-ns-tertiary">{n.title}</p>
+                  <p className="mt-0.5 line-clamp-2 text-[11px] text-ns-secondary">
+                    {n.summary}
+                  </p>
+                  <button
+                    type="button"
+                    className="mt-1.5 text-[10px] font-bold uppercase tracking-wide text-ns-primary underline"
+                    onClick={() => void addNewsAsIdea(n)}
+                  >
+                    {t("newsAddIdea")}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm space-y-3">
@@ -528,33 +759,51 @@ export function ProjectWorkspace({ projectId }: Props) {
             <p className="text-xs text-ns-secondary">{t("ideasEmpty")}</p>
           ) : (
             <ul className="space-y-2">
-              {ideas.map((idea) => (
-                <li
-                  key={idea.id}
-                  className="rounded-lg border border-ns-alternate/50 bg-ns-surface/50 px-2.5 py-2"
-                >
-                  <p className="text-sm font-semibold text-ns-tertiary">{idea.title}</p>
-                  <div className="mt-1 flex items-center gap-1">
-                    {[3, 4, 5].map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        className={`text-xs ${idea.stars >= n ? "text-amber-500" : "text-gray-300"}`}
-                        onClick={() => void setIdeaStars(idea.id, n)}
-                      >
-                        ★
-                      </button>
-                    ))}
+              {ideas.map((idea) => {
+                const selected = selectedIdeaId === idea.id;
+                return (
+                  <li
+                    key={idea.id}
+                    className={`rounded-lg border px-2.5 py-2 ${
+                      selected
+                        ? "border-ns-primary bg-ns-primary/10"
+                        : "border-ns-alternate/50 bg-ns-surface/50"
+                    }`}
+                  >
                     <button
                       type="button"
-                      className="ml-auto text-[10px] text-ns-secondary underline"
-                      onClick={() => void setIdeaStars(idea.id, 0)}
+                      className="w-full text-left"
+                      onClick={() => setSelectedIdeaId(idea.id)}
                     >
-                      ×
+                      <p className="text-sm font-semibold text-ns-tertiary">{idea.title}</p>
+                      {idea.source === "news" && (
+                        <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+                          {t("ideaFromNews")}
+                        </p>
+                      )}
                     </button>
-                  </div>
-                </li>
-              ))}
+                    <div className="mt-1 flex items-center gap-1">
+                      {[3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          className={`text-xs ${idea.stars >= n ? "text-amber-500" : "text-gray-300"}`}
+                          onClick={() => void setIdeaStars(idea.id, n)}
+                        >
+                          ★
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        className="ml-auto text-[10px] text-ns-secondary underline"
+                        onClick={() => void setIdeaStars(idea.id, 0)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
           <div className="flex gap-2">

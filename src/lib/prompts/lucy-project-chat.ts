@@ -1,3 +1,7 @@
+import {
+  ctaPreferenceHint,
+  resolveGenerateIdea,
+} from "@/lib/projects/content-project";
 import type {
   ContentLanguage,
   ContentProject,
@@ -107,18 +111,30 @@ export function buildLucyProjectChatUserPayload(input: {
 export function buildPostBriefFromContentProject(
   project: Pick<
     ContentProject,
-    "name" | "brief" | "channelOwner" | "productFrame" | "contentJob" | "ideas"
+    | "name"
+    | "brief"
+    | "channelOwner"
+    | "productFrame"
+    | "contentJob"
+    | "ideas"
+    | "preferredCtaStyle"
   >,
+  opts?: { selectedIdeaId?: string | null },
 ): PostBrief {
-  const topIdea = [...(project.ideas ?? [])].sort((a, b) => b.stars - a.stars)[0];
+  const topIdea = resolveGenerateIdea(project.ideas, opts?.selectedIdeaId);
   const problem =
     project.brief.trim().slice(0, 400) ||
     `Contenu LinkedIn pour le projet « ${project.name} ».`;
   const pointOfView = topIdea
     ? `${topIdea.title}. ${topIdea.reason}`.trim().slice(0, 300)
     : `Angle aligné sur le projet « ${project.name} ».`;
-  const proof =
-    "S’appuyer sur le Persona et les faits fournis dans le brief projet — ne rien inventer.";
+  const ctaHint = ctaPreferenceHint(project.preferredCtaStyle);
+  const proof = [
+    "S’appuyer sur le Persona et les faits fournis dans le brief projet — ne rien inventer.",
+    ctaHint,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return {
     objectives: [{ objective: "credibility", priority: 1 }],
