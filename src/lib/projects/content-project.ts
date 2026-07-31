@@ -7,6 +7,7 @@ import type {
   ContentProjectChatMessage,
   ContentProjectIdeaHit,
   CtaIntensity,
+  EmojiLevel,
   NewsSuggestion,
   ProductFrame,
 } from "@/types/workspace";
@@ -22,6 +23,58 @@ export const CONTENT_PROJECT_CARD_TONES = [
 ] as const;
 
 export const MAX_CONTENT_PROJECT_CHAT_MESSAGES = 80;
+export const MIN_PROJECT_BRIEF_CHARS = 40;
+
+export type LucyProposalField =
+  | "contentLanguage"
+  | "contentJob"
+  | "channelOwner"
+  | "productFrame"
+  | "emojiLevel"
+  | "preferredCtaStyle"
+  | "includeSignaturePs"
+  | "angle"
+  | "newsScan"
+  | "readyToGenerate"
+  | "refineHook"
+  | "refineCta"
+  | "refinePs"
+  | "refineTone";
+
+export type LucyPendingProposal = {
+  field: LucyProposalField;
+  value: string | boolean;
+  label: string;
+};
+
+export type LucySuggestedIdea = {
+  title: string;
+  reason: string;
+  stars?: number;
+};
+
+export type LucyChatResponse = {
+  reply: string;
+  pendingProposal?: LucyPendingProposal;
+  suggestedIdea?: LucySuggestedIdea;
+};
+
+const PROPOSAL_FIELDS = new Set<string>([
+  "contentLanguage",
+  "contentJob",
+  "channelOwner",
+  "productFrame",
+  "emojiLevel",
+  "preferredCtaStyle",
+  "includeSignaturePs",
+  "angle",
+  "newsScan",
+  "readyToGenerate",
+  "refineHook",
+  "refineCta",
+  "refinePs",
+  "refineTone",
+]);
 
 export function newContentProjectMessageId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -191,4 +244,230 @@ export function resolveGenerateIdea(
 export function ctaPreferenceHint(style: CtaIntensity | undefined): string | undefined {
   if (!style) return undefined;
   return CTA_HINT[style];
+}
+
+/** Min frame for first draft: language + job + (idea or brief). */
+export function isProjectFrameReady(
+  project: Pick<ContentProject, "contentLanguage" | "contentJob" | "brief" | "ideas">,
+): boolean {
+  if (!project.contentLanguage) return false;
+  if (!project.contentJob) return false;
+  const hasIdea = (project.ideas?.length ?? 0) > 0;
+  const hasBrief = project.brief.trim().length >= MIN_PROJECT_BRIEF_CHARS;
+  return hasIdea || hasBrief;
+}
+
+export function parseLucyPendingProposal(raw: unknown): LucyPendingProposal | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const o = raw as Record<string, unknown>;
+  const field = typeof o.field === "string" ? o.field : "";
+  if (!PROPOSAL_FIELDS.has(field)) return undefined;
+  const label = typeof o.label === "string" ? o.label.trim() : "";
+  if (!label) return undefined;
+  const value = o.value;
+  if (typeof value !== "string" && typeof value !== "boolean") return undefined;
+  if (typeof value === "string" && !value.trim() && field !== "newsScan" && field !== "readyToGenerate") {
+    return undefined;
+  }
+  return {
+    field: field as LucyProposalField,
+    value: typeof value === "string" ? value.trim() : value,
+    label: label.slice(0, 120),
+  };
+}
+
+export function parseLucySuggestedIdea(raw: unknown): LucySuggestedIdea | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const o = raw as Record<string, unknown>;
+  const title = typeof o.title === "string" ? o.title.trim() : "";
+  if (!title) return undefined;
+  const reason = typeof o.reason === "string" ? o.reason.trim() : "";
+  const stars =
+    typeof o.stars === "number" && o.stars >= 3 && o.stars <= 5 ? o.stars : 4;
+  return { title: title.slice(0, 200), reason: reason.slice(0, 280), stars };
+}
+
+export function parseLucyChatResponse(raw: unknown): LucyChatResponse | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const reply = typeof o.reply === "string" ? o.reply.trim() : "";
+  if (!reply) return null;
+  return {
+    reply,
+    pendingProposal: parseLucyPendingProposal(o.pendingProposal),
+    suggestedIdea: parseLucySuggestedIdea(o.suggestedIdea),
+  };
+}
+
+/** Apply a validated frame proposal onto project fields (no side effects). */
+export function applyLucyProposalToProject(
+  project: ContentProject,
+  proposal: LucyPendingProposal,
+): ContentProject {
+  const next = { ...project, updatedAt: new Date() };
+  switch (proposal.field) {
+    case "contentLanguage": {
+      const v = String(proposal.value);
+      if (v === "fr" || v === "en" || v === "es") next.contentLanguage = v;
+      break;
+    }
+    case "contentJob": {
+      const v = String(proposal.value);
+      if (v === "teaser" || v === "explain" || v === "convert") next.contentJob = v;
+      break;
+    }
+    case "channelOwner": {
+      const v = String(proposal.value);
+      if (v === "gregory" || v === "la_mesa" || v === "generic") next.channelOwner = v;
+      break;
+    }
+    case "productFrame": {
+      const v = String(proposal.value);
+      if (v === "la_mesa_dinners" || v === "nextstep_market_entry" || v === "generic") {
+        next.productFrame = v;
+      }
+      break;
+    }
+    case "emojiLevel": {
+      const v = String(proposal.value);
+      if (v === "none" || v === "light" || v === "heavy") next.emojiLevel = v;
+      break;
+    }
+    case "preferredCtaStyle": {
+      const v = String(proposal.value);
+      if (v === "soft" || v === "medium" || v === "pushy") next.preferredCtaStyle = v;
+      break;
+    }
+    case "includeSignaturePs":
+      next.includeSignaturePs = Boolean(proposal.value);
+      break;
+    case "angle": {
+      const title = String(proposal.value).trim() || proposal.label;
+      if (!title) break;
+      const idea: ContentProjectIdeaHit = {
+        id: newContentProjectMessageId(),
+        title: title.slice(0, 200),
+        stars: 4,
+        reason: proposal.label.slice(0, 280),
+        source: "lucy",
+      };
+      next.ideas = sortIdeasByStars([...(next.ideas ?? []), idea]);
+      break;
+    }
+    default:
+      break;
+  }
+  return next;
+}
+
+export function isRefineProposalField(field: LucyProposalField): boolean {
+  return (
+    field === "refineHook" ||
+    field === "refineCta" ||
+    field === "refinePs" ||
+    field === "refineTone"
+  );
+}
+
+export function refineInstructionFromProposal(proposal: LucyPendingProposal): string {
+  const detail = typeof proposal.value === "string" ? proposal.value : proposal.label;
+  switch (proposal.field) {
+    case "refineHook":
+      return `Rewrite the hook only. Instruction: ${detail}`;
+    case "refineCta":
+      return `Adjust the closing / CTA intention only. Instruction: ${detail}`;
+    case "refinePs":
+      return `Adjust the PS line only (identity PS only if user opted in). Instruction: ${detail}`;
+    case "refineTone":
+      return `Adjust tone across the post. Instruction: ${detail}`;
+    default:
+      return detail;
+  }
+}
+
+export type ProjectValidatedChip = {
+  field: LucyProposalField;
+  label: string;
+};
+
+/** Build chips from currently persisted project prefs (for display under chat). */
+export function buildValidatedChips(
+  project: Pick<
+    ContentProject,
+    | "contentLanguage"
+    | "contentJob"
+    | "channelOwner"
+    | "productFrame"
+    | "emojiLevel"
+    | "preferredCtaStyle"
+    | "includeSignaturePs"
+    | "ideas"
+  >,
+): ProjectValidatedChip[] {
+  const chips: ProjectValidatedChip[] = [];
+  if (project.contentLanguage) {
+    chips.push({
+      field: "contentLanguage",
+      label: project.contentLanguage.toUpperCase(),
+    });
+  }
+  if (project.contentJob) {
+    chips.push({ field: "contentJob", label: project.contentJob });
+  }
+  if (project.channelOwner && project.channelOwner !== "generic") {
+    chips.push({ field: "channelOwner", label: project.channelOwner });
+  }
+  if (project.productFrame && project.productFrame !== "generic") {
+    chips.push({ field: "productFrame", label: project.productFrame });
+  }
+  if (project.emojiLevel) {
+    chips.push({ field: "emojiLevel", label: `emoji:${project.emojiLevel}` });
+  }
+  if (project.preferredCtaStyle) {
+    chips.push({ field: "preferredCtaStyle", label: `cta:${project.preferredCtaStyle}` });
+  }
+  if (project.includeSignaturePs) {
+    chips.push({ field: "includeSignaturePs", label: "PS signature" });
+  }
+  const top = sortIdeasByStars(project.ideas ?? [])[0];
+  if (top) {
+    chips.push({ field: "angle", label: top.title.slice(0, 40) });
+  }
+  return chips;
+}
+
+export type ContentProjectPatchFromProposal = Partial<
+  Pick<
+    ContentProject,
+    | "contentLanguage"
+    | "contentJob"
+    | "channelOwner"
+    | "productFrame"
+    | "emojiLevel"
+    | "preferredCtaStyle"
+    | "includeSignaturePs"
+    | "ideas"
+  >
+>;
+
+export function contentProjectPatchFromApplied(
+  before: ContentProject,
+  after: ContentProject,
+): ContentProjectPatchFromProposal {
+  const patch: ContentProjectPatchFromProposal = {};
+  if (before.contentLanguage !== after.contentLanguage) {
+    patch.contentLanguage = after.contentLanguage;
+  }
+  if (before.contentJob !== after.contentJob) patch.contentJob = after.contentJob;
+  if (before.channelOwner !== after.channelOwner) patch.channelOwner = after.channelOwner;
+  if (before.productFrame !== after.productFrame) patch.productFrame = after.productFrame;
+  if (before.emojiLevel !== after.emojiLevel) patch.emojiLevel = after.emojiLevel;
+  if (before.preferredCtaStyle !== after.preferredCtaStyle) {
+    patch.preferredCtaStyle = after.preferredCtaStyle;
+  }
+  if (before.includeSignaturePs !== after.includeSignaturePs) {
+    patch.includeSignaturePs = after.includeSignaturePs;
+  }
+  if (before.ideas !== after.ideas) patch.ideas = after.ideas;
+  return patch;
 }

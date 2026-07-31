@@ -2,12 +2,19 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   appendContentProjectChat,
+  applyLucyProposalToProject,
   buildNewContentProject,
   buildProjectNewsInterestQuery,
+  buildValidatedChips,
   ctaPreferenceHint,
   formatSiblingProjectsSummary,
   ideaHitFromNewsSuggestion,
+  isProjectFrameReady,
+  isRefineProposalField,
   newsSourceFromIdeaHit,
+  parseLucyChatResponse,
+  parseLucyPendingProposal,
+  refineInstructionFromProposal,
   resolveGenerateIdea,
   sortIdeasByStars,
 } from "./content-project";
@@ -94,5 +101,75 @@ describe("content-project helpers", () => {
     assert.equal(resolveGenerateIdea(ideas, "2")?.id, "2");
     assert.equal(resolveGenerateIdea(ideas)?.id, "1");
     assert.ok(ctaPreferenceHint("soft")?.includes("soft"));
+  });
+
+  it("isProjectFrameReady requires language + job + brief or idea", () => {
+    assert.equal(
+      isProjectFrameReady({
+        contentLanguage: "fr",
+        contentJob: "teaser",
+        brief: "short",
+        ideas: [],
+      }),
+      false,
+    );
+    assert.equal(
+      isProjectFrameReady({
+        contentLanguage: "fr",
+        contentJob: "teaser",
+        brief: "x".repeat(50),
+        ideas: [],
+      }),
+      true,
+    );
+    assert.equal(
+      isProjectFrameReady({
+        contentLanguage: "fr",
+        contentJob: "teaser",
+        brief: "",
+        ideas: [{ id: "1", title: "Angle", stars: 4, reason: "" }],
+      }),
+      true,
+    );
+  });
+
+  it("parses Lucy chat proposal payload", () => {
+    const parsed = parseLucyChatResponse({
+      reply: "On part en FR ?",
+      pendingProposal: {
+        field: "contentLanguage",
+        value: "fr",
+        label: "Langue FR",
+      },
+      suggestedIdea: { title: "Nearshoring", reason: "fit", stars: 5 },
+    });
+    assert.ok(parsed);
+    assert.equal(parsed?.pendingProposal?.field, "contentLanguage");
+    assert.equal(parsed?.suggestedIdea?.title, "Nearshoring");
+    assert.equal(parseLucyPendingProposal({ field: "nope", value: "x", label: "y" }), undefined);
+  });
+
+  it("applies proposals and builds chips", () => {
+    let p = { ...buildNewContentProject("p"), id: "p" };
+    p = applyLucyProposalToProject(p, {
+      field: "contentLanguage",
+      value: "fr",
+      label: "FR",
+    });
+    p = applyLucyProposalToProject(p, {
+      field: "contentJob",
+      value: "teaser",
+      label: "teaser",
+    });
+    assert.equal(p.contentLanguage, "fr");
+    assert.equal(p.contentJob, "teaser");
+    const chips = buildValidatedChips(p);
+    assert.ok(chips.some((c) => c.field === "contentLanguage"));
+    assert.ok(isRefineProposalField("refineHook"));
+    assert.match(refineInstructionFromProposal({
+      field: "refineHook",
+      value: "plus punchy",
+      label: "hook",
+    }), /hook/i);
   });
 });

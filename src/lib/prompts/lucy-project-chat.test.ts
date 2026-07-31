@@ -14,7 +14,17 @@ describe("lucy-project-chat", () => {
     const open = buildLucyProjectChatSystemPrompt("fr", {
       profileReadyForNews: true,
     });
-    assert.match(open, /AVAILABLE/i);
+    assert.match(open, /AVAILABLE|newsScan/i);
+  });
+
+  it("asks for pendingProposal and forbids writing the post in chat", () => {
+    const prompt = buildLucyProjectChatSystemPrompt("fr", {
+      profileReadyForNews: true,
+      hasDraft: false,
+      frameReady: false,
+    });
+    assert.match(prompt, /pendingProposal/);
+    assert.match(prompt, /NEVER write the LinkedIn post/i);
   });
 
   it("builds a post brief from project fields", () => {

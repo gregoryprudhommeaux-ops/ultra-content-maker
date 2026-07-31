@@ -3,6 +3,7 @@ import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
 import { llmErrorResponse } from "@/lib/llm/llm-route-error";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
+import { isProjectFrameReady, parseLucyChatResponse } from "@/lib/projects/content-project";
 import {
   buildLucyProjectChatSystemPrompt,
   buildLucyProjectChatUserPayload,
@@ -29,6 +30,10 @@ type Body = {
     | "productFrame"
     | "contentLanguage"
     | "contentJob"
+    | "emojiLevel"
+    | "preferredCtaStyle"
+    | "includeSignaturePs"
+    | "ideas"
   >;
   ideas?: ContentProjectIdeaHit[];
   siblings?: Pick<ContentProject, "id" | "name" | "brief">[];
@@ -36,6 +41,7 @@ type Body = {
   userMessage: string;
   personaExcerpt?: string;
   profileReadyForNews?: boolean;
+  hasDraft?: boolean;
   contentLanguage?: ContentLanguage;
   llm?: {
     provider: LlmProvider;
@@ -63,6 +69,14 @@ export async function POST(request: Request) {
   const contentLanguage: ContentLanguage =
     body.contentLanguage ?? body.project.contentLanguage ?? "fr";
   const profileReadyForNews = Boolean(body.profileReadyForNews);
+  const ideas = body.ideas ?? body.project.ideas ?? [];
+  const hasDraft = Boolean(body.hasDraft);
+  const frameReady = isProjectFrameReady({
+    contentLanguage: body.project.contentLanguage,
+    contentJob: body.project.contentJob,
+    brief: body.project.brief,
+    ideas,
+  });
 
   try {
     const llm = await resolveContentRouteLlm(userId, body.llm);
@@ -76,34 +90,41 @@ export async function POST(request: Request) {
           role: "system",
           content: buildLucyProjectChatSystemPrompt(contentLanguage, {
             profileReadyForNews,
+            hasDraft,
+            frameReady,
           }),
         },
         {
           role: "user",
           content: buildLucyProjectChatUserPayload({
             project: body.project,
-            ideas: body.ideas ?? [],
+            ideas,
             siblings: body.siblings ?? [],
             projectId: body.projectId,
             history: body.history ?? [],
             userMessage: body.userMessage,
             personaExcerpt: body.personaExcerpt,
             profileReadyForNews,
+            hasDraft,
           }),
         },
       ],
       mergeUsageLog(userId, "projects/lucy-chat", {
         temperature: 0.4,
-        maxTokens: 700,
+        maxTokens: 900,
       }),
     );
 
-    const parsed = parseLlmJson<{ reply?: string }>(raw);
-    const reply = parsed.reply?.trim();
-    if (!reply) {
+    const parsedRaw = parseLlmJson<Record<string, unknown>>(raw);
+    const parsed = parseLucyChatResponse(parsedRaw);
+    if (!parsed) {
       return NextResponse.json({ error: "empty_reply" }, { status: 502 });
     }
-    return NextResponse.json({ reply });
+    return NextResponse.json({
+      reply: parsed.reply,
+      pendingProposal: parsed.pendingProposal ?? null,
+      suggestedIdea: parsed.suggestedIdea ?? null,
+    });
   } catch (err) {
     return llmErrorResponse(err);
   }

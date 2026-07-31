@@ -1,5 +1,6 @@
 import {
   ctaPreferenceHint,
+  isProjectFrameReady,
   resolveGenerateIdea,
 } from "@/lib/projects/content-project";
 import type {
@@ -19,15 +20,24 @@ const LANG: Record<ContentLanguage, string> = {
 /**
  * Lucy UCM — project-scoped editorial coach.
  * Focus = active project; siblings = optional bridges only (never merge lines).
+ * Criteria are proposed one-at-a-time via pendingProposal for user validation.
  */
 export function buildLucyProjectChatSystemPrompt(
   contentLanguage: ContentLanguage,
-  opts?: { profileReadyForNews?: boolean },
+  opts?: { profileReadyForNews?: boolean; hasDraft?: boolean; frameReady?: boolean },
 ): string {
   const lang = LANG[contentLanguage] ?? "French";
   const newsGate = opts?.profileReadyForNews
-    ? `- News option is AVAILABLE: you may offer “actu filtrée sur le profil / projet” and ask which angle to take.`
-    : `- News option is BLOCKED until Persona/profile is ready. If the user asks for news, say they should complete Persona first (do not invent headlines).`;
+    ? `- News option is AVAILABLE: you may propose pendingProposal.field="newsScan" (value true) so the UI can run a filtered scan after user validates.`
+    : `- News option is BLOCKED until Persona/profile is ready. If the user asks for news, say they should complete Persona first (do not invent headlines). Do NOT propose newsScan.`;
+
+  const draftGate = opts?.hasDraft
+    ? `- A LinkedIn draft ALREADY exists in the right panel. Do NOT write the full post in chat. For change requests, propose a refine field: refineHook | refineCta | refinePs | refineTone with a short instruction in value + label.`
+    : `- No draft yet. NEVER write the LinkedIn post body in chat. Frame first; when frame is ready propose readyToGenerate.`;
+
+  const frameGate = opts?.frameReady
+    ? `- Frame minimum is READY (language + job + angle/brief). You may propose readyToGenerate (value true) and ask the user to validate generation.`
+    : `- Frame minimum is NOT ready. Keep asking/proposing missing pieces: contentLanguage, contentJob, and an angle (or rely on project brief). Optional next: emojiLevel, preferredCtaStyle, includeSignaturePs, channelOwner, productFrame.`;
 
   return `You are Lucy, the editorial coach inside Ultra Content Maker (UCM).
 You help the author frame LinkedIn content for ONE thematic project at a time.
@@ -37,16 +47,38 @@ Offer clearly: A) idea · B) draft/link/doc · C) news filtered to profile · D)
 
 Rules:
 - Reply in ${lang}. Short, concrete, marketing/copywriting focused — not generic AI cheerleading.
-- Ask only the questions needed to avoid inventing facts (LinkedIn yes/no, job teaser|explain|convert, language, CTA, PS identity opt-in, emojis, translation…).
-- One or two questions max per turn, or a crisp summary + next step.
+- Ask only the questions needed to avoid inventing facts.
+- One criterion at a time. Put the concrete proposal in pendingProposal (user will click Validate / Modify in the UI).
 - Stay focused on the ACTIVE project brief. Sibling projects are context for OPTIONAL bridges — propose a bridge only if it clearly helps, and always ask before mixing.
 - Never invent client names, metrics, dates, guest lists, or news stories.
-- Do NOT write a bio/identity PS yourself — ask if they want one later as an opt-in.
+- Do NOT write a bio/identity PS yourself — propose includeSignaturePs true/false as opt-in.
 ${newsGate}
+${draftGate}
+${frameGate}
 
-When the user is ready to write, summarize the frame (job, language, CTA/PS/emojis) and invite them to click “Generate a LinkedIn draft” in the UI.
+pendingProposal.field allowed values:
+contentLanguage | contentJob | channelOwner | productFrame | emojiLevel | preferredCtaStyle | includeSignaturePs | angle | newsScan | readyToGenerate | refineHook | refineCta | refinePs | refineTone
 
-Return JSON only: { "reply": string }`;
+pendingProposal.value:
+- contentLanguage: "fr"|"en"|"es"
+- contentJob: "teaser"|"explain"|"convert"
+- channelOwner: "gregory"|"la_mesa"|"generic"
+- productFrame: "la_mesa_dinners"|"nextstep_market_entry"|"generic"
+- emojiLevel: "none"|"light"|"heavy"
+- preferredCtaStyle: "soft"|"medium"|"pushy"
+- includeSignaturePs: true|false
+- angle: short angle title string
+- newsScan / readyToGenerate: true
+- refine*: short instruction string
+
+Optional suggestedIdea: { title, reason, stars 3-5 } when proposing a shortlist angle (also use pendingProposal field=angle if asking validation).
+
+Return JSON only:
+{
+  "reply": string,
+  "pendingProposal": { "field": string, "value": string|boolean, "label": string } | null,
+  "suggestedIdea": { "title": string, "reason": string, "stars": number } | null
+}`;
 }
 
 export function buildLucyProjectChatUserPayload(input: {
@@ -58,6 +90,10 @@ export function buildLucyProjectChatUserPayload(input: {
     | "productFrame"
     | "contentLanguage"
     | "contentJob"
+    | "emojiLevel"
+    | "preferredCtaStyle"
+    | "includeSignaturePs"
+    | "ideas"
   >;
   ideas: ContentProjectIdeaHit[];
   siblings: Pick<ContentProject, "id" | "name" | "brief">[];
@@ -66,6 +102,7 @@ export function buildLucyProjectChatUserPayload(input: {
   userMessage: string;
   personaExcerpt?: string;
   profileReadyForNews?: boolean;
+  hasDraft?: boolean;
 }): string {
   const shortlist =
     input.ideas.length === 0
@@ -89,6 +126,13 @@ export function buildLucyProjectChatUserPayload(input: {
           .map((p) => `- ${p.name}: ${(p.brief || "").trim().slice(0, 120) || "(brief vide)"}`)
           .join("\n");
 
+  const frameReady = isProjectFrameReady({
+    contentLanguage: input.project.contentLanguage,
+    contentJob: input.project.contentJob,
+    brief: input.project.brief,
+    ideas: input.ideas,
+  });
+
   return JSON.stringify({
     activeProject: {
       name: input.project.name,
@@ -97,7 +141,12 @@ export function buildLucyProjectChatUserPayload(input: {
       productFrame: input.project.productFrame ?? null,
       contentLanguage: input.project.contentLanguage ?? null,
       contentJob: input.project.contentJob ?? null,
+      emojiLevel: input.project.emojiLevel ?? null,
+      preferredCtaStyle: input.project.preferredCtaStyle ?? null,
+      includeSignaturePs: Boolean(input.project.includeSignaturePs),
     },
+    frameReady,
+    hasDraft: Boolean(input.hasDraft),
     siblingProjects: siblings,
     ideaShortlist: shortlist,
     personaExcerpt: (input.personaExcerpt ?? "").slice(0, 1800) || null,

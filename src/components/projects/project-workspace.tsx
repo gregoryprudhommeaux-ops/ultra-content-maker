@@ -5,23 +5,36 @@ import { useOnboardingProgress } from "@/contexts/onboarding-progress-context";
 import { useSubscription } from "@/contexts/subscription-context";
 import {
   appendContentProjectChat,
+  applyLucyProposalToProject,
   buildProjectNewsInterestQuery,
+  buildValidatedChips,
+  contentProjectPatchFromApplied,
   ideaHitFromNewsSuggestion,
+  isProjectFrameReady,
+  isRefineProposalField,
   newContentProjectMessageId,
   newsSourceFromIdeaHit,
+  refineInstructionFromProposal,
   resolveGenerateIdea,
   sortIdeasByStars,
+  type LucyPendingProposal,
+  type LucySuggestedIdea,
 } from "@/lib/projects/content-project";
 import { getClientAuth } from "@/lib/firebase/client";
 import { hasClientLlmAccess, llmPayloadForAccess, llmPayloadForTier } from "@/lib/llm/client-payload";
 import { buildPostBriefFromContentProject } from "@/lib/prompts/lucy-project-chat";
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
+import { createDefaultRefinement } from "@/lib/articles/refinement";
 import { buildDefaultSignaturePs } from "@/lib/articles/signature-ps";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getPersona } from "@/lib/workspace/persona";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
-import { createArticleBatch } from "@/lib/workspace/articles";
+import {
+  createArticleBatch,
+  getArticle,
+  updateArticleContent,
+} from "@/lib/workspace/articles";
 import { notifyArticlesChangedDeferred } from "@/lib/workspace/articles-events";
 import {
   getContentProject,
@@ -30,18 +43,12 @@ import {
 } from "@/lib/workspace/content-projects";
 import { BTN_PRIMARY, INPUT_CLASS, LABEL_CLASS, META_LABEL } from "@/lib/ui/nextstep";
 import type {
-  ChannelOwner,
-  ContentJob,
-  ContentLanguage,
   ContentProject,
   ContentProjectIdeaHit,
-  CtaIntensity,
-  EmojiLevel,
   NewsSuggestion,
-  ProductFrame,
 } from "@/types/workspace";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -49,30 +56,36 @@ type Props = {
   projectId: string;
 };
 
-const LANGUAGES: ContentLanguage[] = ["fr", "en", "es"];
-const CHANNELS: ChannelOwner[] = ["gregory", "la_mesa", "generic"];
-const PRODUCTS: ProductFrame[] = ["la_mesa_dinners", "nextstep_market_entry", "generic"];
-const JOBS: Array<ContentJob | ""> = ["", "teaser", "explain", "convert"];
-const EMOJI_LEVELS: EmojiLevel[] = ["none", "light", "heavy"];
-const CTA_STYLES: Array<CtaIntensity | ""> = ["", "soft", "medium", "pushy"];
+type LiveDraft = {
+  articleId: string;
+  hook: string;
+  body: string;
+  ps?: string;
+  hashtags?: string[];
+};
 
 export function ProjectWorkspace({ projectId }: Props) {
   const t = useTranslations("projects");
   const { user } = useAuth();
   const { access } = useSubscription();
   const { progress } = useOnboardingProgress();
-  const router = useRouter();
   const [project, setProject] = useState<ContentProject | null>(null);
   const [siblings, setSiblings] = useState<ContentProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingBrief, setSavingBrief] = useState(false);
+  const [briefOpen, setBriefOpen] = useState(true);
   const [chatBusy, setChatBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [refining, setRefining] = useState(false);
   const [newsBusy, setNewsBusy] = useState(false);
-  const [newsPreview, setNewsPreview] = useState<NewsSuggestion[]>([]);
   const [draft, setDraft] = useState("");
-  const [ideaDraft, setIdeaDraft] = useState("");
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
+  const [pendingProposal, setPendingProposal] = useState<LucyPendingProposal | null>(null);
+  const [pendingSuggestedIdea, setPendingSuggestedIdea] = useState<LucySuggestedIdea | null>(
+    null,
+  );
+  const [liveDraft, setLiveDraft] = useState<LiveDraft | null>(null);
+  const [newsPreview, setNewsPreview] = useState<NewsSuggestion[]>([]);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -91,7 +104,23 @@ export function ProjectWorkspace({ projectId }: Props) {
       ]);
       setProject(p);
       setSiblings(all);
-      if (!p) setError(t("notFound"));
+      if (!p) {
+        setError(t("notFound"));
+        return;
+      }
+      const lastId = p.articleIds?.[p.articleIds.length - 1];
+      if (lastId) {
+        const article = await getArticle(user.uid, lastId);
+        if (article) {
+          setLiveDraft({
+            articleId: article.id,
+            hook: article.hook,
+            body: article.body,
+            ps: article.ps,
+            hashtags: article.hashtags,
+          });
+        }
+      }
     } catch {
       setError(t("loadFailed"));
     } finally {
@@ -105,7 +134,7 @@ export function ProjectWorkspace({ projectId }: Props) {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [project?.chat?.length]);
+  }, [project?.chat?.length, pendingProposal]);
 
   useEffect(() => {
     if (!project?.ideas?.length) {
@@ -140,73 +169,19 @@ export function ProjectWorkspace({ projectId }: Props) {
     await persist(next);
   }
 
-  async function savePrefs(patch: {
-    contentLanguage?: ContentLanguage;
-    channelOwner?: ChannelOwner;
-    productFrame?: ProductFrame;
-    contentJob?: ContentJob | null;
-    emojiLevel?: EmojiLevel;
-    preferredCtaStyle?: CtaIntensity | null;
-    includeSignaturePs?: boolean;
-    newsInterestQuery?: string;
-  }) {
-    if (!project) return;
-    const normalized = {
-      ...patch,
-      contentJob: patch.contentJob === null ? undefined : patch.contentJob,
-      preferredCtaStyle:
-        patch.preferredCtaStyle === null ? undefined : patch.preferredCtaStyle,
-    };
-    await persist(normalized as Parameters<typeof updateContentProject>[2]);
+  async function appendAck(message: string, base?: ContentProject) {
+    if (!user) return;
+    const src = base ?? project;
+    if (!src) return;
+    const withAck = appendContentProjectChat(src, [
+      { role: "assistant", content: message },
+    ]);
+    await updateContentProject(user.uid, src.id, { chat: withAck.chat });
+    setProject(withAck);
   }
 
-  async function addIdea() {
-    if (!project || !ideaDraft.trim()) return;
-    setError(null);
-    const idea: ContentProjectIdeaHit = {
-      id: newContentProjectMessageId(),
-      title: ideaDraft.trim(),
-      stars: 4,
-      reason: t("ideaManualReason"),
-      source: "manual",
-    };
-    const ideas = sortIdeasByStars([...(project.ideas ?? []), idea]);
-    setIdeaDraft("");
-    setSelectedIdeaId(idea.id);
-    await persist({ ideas }, { ...project, ideas, updatedAt: new Date() });
-  }
-
-  async function addNewsAsIdea(news: NewsSuggestion) {
-    if (!project) return;
-    const already = (project.ideas ?? []).some(
-      (i) => i.url && i.url === news.url,
-    );
-    if (already) {
-      setError(t("newsAlreadyAdded"));
-      return;
-    }
-    setError(null);
-    const idea = ideaHitFromNewsSuggestion(news, 4);
-    idea.reason = idea.reason || t("ideaNewsReason");
-    const ideas = sortIdeasByStars([...(project.ideas ?? []), idea]);
-    setSelectedIdeaId(idea.id);
-    setNewsPreview((prev) => prev.filter((n) => n.id !== news.id));
-    await persist({ ideas }, { ...project, ideas, updatedAt: new Date() });
-  }
-
-  async function setIdeaStars(ideaId: string, stars: number) {
-    if (!project) return;
-    const ideas = sortIdeasByStars(
-      (project.ideas ?? [])
-        .map((i) => (i.id === ideaId ? { ...i, stars } : i))
-        .filter((i) => i.stars >= 3),
-    );
-    if (selectedIdeaId === ideaId && stars < 3) setSelectedIdeaId(null);
-    await persist({ ideas }, { ...project, ideas, updatedAt: new Date() });
-  }
-
-  async function scanNews() {
-    if (!user || !project || newsBusy) return;
+  async function scanNews(active: ContentProject) {
+    if (!user || newsBusy) return;
     if (!profileReadyForNews) {
       setError(t("profileGate"));
       return;
@@ -220,7 +195,7 @@ export function ProjectWorkspace({ projectId }: Props) {
         getPersona(user.uid),
         getUserLlmProfile(user.uid),
         gatherAuthorSteeringPayload(user.uid, {
-          newsInterestQuery: buildProjectNewsInterestQuery(project),
+          newsInterestQuery: buildProjectNewsInterestQuery(active),
         }),
       ]);
       const llmPayload = llmPayloadForTier(llmProfile, access?.effectiveTier);
@@ -237,9 +212,9 @@ export function ProjectWorkspace({ projectId }: Props) {
         },
         body: JSON.stringify({
           personaExcerpt: persona.promptText,
-          contentLanguage: project.contentLanguage ?? "fr",
+          contentLanguage: active.contentLanguage ?? "fr",
           authorSteering,
-          newsInterestQuery: buildProjectNewsInterestQuery(project),
+          newsInterestQuery: buildProjectNewsInterestQuery(active),
           llm: llmPayload,
         }),
       });
@@ -249,8 +224,17 @@ export function ProjectWorkspace({ projectId }: Props) {
         setNewsPreview([]);
         return;
       }
-      setNewsPreview(data.news ?? []);
-      if (!(data.news?.length)) setError(t("newsEmpty"));
+      const news = data.news ?? [];
+      setNewsPreview(news);
+      if (!news.length) {
+        await appendAck(t("newsEmpty"), active);
+        return;
+      }
+      const lines = news
+        .slice(0, 5)
+        .map((n, i) => `${i + 1}. ${n.title}`)
+        .join("\n");
+      await appendAck(`${t("newsScanResult")}\n${lines}\n\n${t("newsScanHint")}`, active);
     } catch {
       setError(t("newsFailed"));
     } finally {
@@ -258,88 +242,10 @@ export function ProjectWorkspace({ projectId }: Props) {
     }
   }
 
-  async function sendMessage() {
-    if (!user || !project || !draft.trim() || chatBusy) return;
-    const userMessage = draft.trim();
-    setDraft("");
-    setChatBusy(true);
-    setError(null);
-
-    const withUser = appendContentProjectChat(project, [
-      { role: "user", content: userMessage },
-    ]);
-    setProject(withUser);
-
-    try {
-      await updateContentProject(user.uid, project.id, { chat: withUser.chat });
-
-      const auth = getClientAuth();
-      const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const [persona, llmProfile] = await Promise.all([
-        getPersona(user.uid),
-        getUserLlmProfile(user.uid),
-      ]);
-      const llmPayload = llmPayloadForAccess(llmProfile, access);
-
-      if (!token || !hasClientLlmAccess(access, llmPayload)) {
-        setError(t("needLlm"));
-        setChatBusy(false);
-        return;
-      }
-
-      const res = await fetch("/api/projects/chat", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          projectId: project.id,
-          project: {
-            name: withUser.name,
-            brief: withUser.brief,
-            channelOwner: withUser.channelOwner,
-            productFrame: withUser.productFrame,
-            contentLanguage: withUser.contentLanguage,
-            contentJob: withUser.contentJob,
-          },
-          ideas: withUser.ideas,
-          siblings: siblings.map((s) => ({
-            id: s.id,
-            name: s.name,
-            brief: s.brief,
-          })),
-          history: withUser.chat,
-          userMessage,
-          personaExcerpt: persona?.promptText?.slice(0, 1800),
-          profileReadyForNews,
-          contentLanguage: withUser.contentLanguage ?? "fr",
-          llm: llmPayload,
-        }),
-      });
-      const data = (await res.json()) as { reply?: string; error?: string };
-      if (!res.ok || !data.reply?.trim()) {
-        setError(t("chatFailed"));
-        setChatBusy(false);
-        return;
-      }
-
-      const withLucy = appendContentProjectChat(withUser, [
-        { role: "assistant", content: data.reply.trim() },
-      ]);
-      await updateContentProject(user.uid, project.id, { chat: withLucy.chat });
-      setProject(withLucy);
-    } catch {
-      setError(t("chatFailed"));
-    } finally {
-      setChatBusy(false);
-    }
-  }
-
-  async function generateDraft() {
-    if (!user || !project || generating) return;
-    if (!project.brief.trim() && !(project.ideas?.length)) {
-      setError(t("briefHint"));
+  async function generateDraft(active: ContentProject) {
+    if (!user || generating) return;
+    if (!isProjectFrameReady(active)) {
+      setError(t("frameIncomplete"));
       return;
     }
     setGenerating(true);
@@ -347,7 +253,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     try {
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
-      const interest = buildProjectNewsInterestQuery(project);
+      const interest = buildProjectNewsInterestQuery(active);
       const [persona, llmProfile, author, authorSteering] = await Promise.all([
         getPersona(user.uid),
         getUserLlmProfile(user.uid),
@@ -362,17 +268,17 @@ export function ProjectWorkspace({ projectId }: Props) {
         return;
       }
 
-      const contentLanguage = project.contentLanguage ?? "fr";
-      const emojiLevel = project.emojiLevel ?? "light";
-      const selectedIdea = resolveGenerateIdea(project.ideas, selectedIdeaId);
+      const contentLanguage = active.contentLanguage ?? "fr";
+      const emojiLevel = active.emojiLevel ?? "light";
+      const selectedIdea = resolveGenerateIdea(active.ideas, selectedIdeaId);
       const postBrief = normalizePostBrief(
-        buildPostBriefFromContentProject(project, {
+        buildPostBriefFromContentProject(active, {
           selectedIdeaId: selectedIdea?.id ?? selectedIdeaId,
         }),
       );
       const newsSource = newsSourceFromIdeaHit(selectedIdea);
       const signaturePs =
-        project.includeSignaturePs === true
+        active.includeSignaturePs === true
           ? buildDefaultSignaturePs({
               contentLanguage,
               roleTitle: author?.roleTitle,
@@ -390,12 +296,10 @@ export function ProjectWorkspace({ projectId }: Props) {
         body: JSON.stringify({
           personaPromptText: persona?.promptText ?? "",
           contentLanguage,
-          count: 1,
           articleCount: 1,
           emojiLevel,
           postBrief,
           targetScope: "niche",
-          // Standard generate path (not creationMode:article) so publishedTopics avoidance applies.
           ...(newsSource ? { newsSource } : {}),
           authorSteering,
           newsInterestQuery: interest || undefined,
@@ -434,8 +338,8 @@ export function ProjectWorkspace({ projectId }: Props) {
         postBrief,
         undefined,
         {
-          contentProjectId: project.id,
-          selectedCtaStyle: project.preferredCtaStyle,
+          contentProjectId: active.id,
+          selectedCtaStyle: active.preferredCtaStyle,
         },
       );
       const articleId = ids[0];
@@ -444,16 +348,277 @@ export function ProjectWorkspace({ projectId }: Props) {
         return;
       }
 
-      const articleIds = [...(project.articleIds ?? []), articleId];
-      await updateContentProject(user.uid, project.id, { articleIds });
-      setProject({ ...project, articleIds, updatedAt: new Date() });
+      const articleIds = [...(active.articleIds ?? []), articleId];
+      await updateContentProject(user.uid, active.id, { articleIds });
+      const nextProject = { ...active, articleIds, updatedAt: new Date() };
+      setProject(nextProject);
+      setLiveDraft({
+        articleId,
+        hook: item.hook,
+        body: item.body,
+        ps: signaturePs ?? item.ps,
+        hashtags: item.hashtags,
+      });
       notifyArticlesChangedDeferred();
-      router.push(`/articles/${articleId}`);
+      await appendAck(t("draftReadyAck"), nextProject);
     } catch {
       setError(t("generateFailed"));
     } finally {
       setGenerating(false);
     }
+  }
+
+  async function refineDraft(active: ContentProject, proposal: LucyPendingProposal) {
+    if (!user || !liveDraft || refining) return;
+    setRefining(true);
+    setError(null);
+    try {
+      const auth = getClientAuth();
+      const token = auth ? await auth.currentUser?.getIdToken() : null;
+      const [persona, llmProfile, authorSteering] = await Promise.all([
+        getPersona(user.uid),
+        getUserLlmProfile(user.uid),
+        gatherAuthorSteeringPayload(user.uid),
+      ]);
+      const llmPayload = llmPayloadForAccess(llmProfile, access);
+      if (!token || !hasClientLlmAccess(access, llmPayload)) {
+        setError(t("needLlm"));
+        return;
+      }
+
+      const refinement = {
+        ...createDefaultRefinement(),
+        emojiLevel: active.emojiLevel ?? "light",
+        globalComment: refineInstructionFromProposal(proposal),
+      };
+
+      const article = await getArticle(user.uid, liveDraft.articleId);
+      const res = await fetch("/api/articles/revise", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          personaPromptText: persona?.promptText ?? "",
+          contentLanguage: active.contentLanguage ?? article?.contentLanguage ?? "fr",
+          article: {
+            hook: liveDraft.hook,
+            body: liveDraft.body,
+            ps: liveDraft.ps,
+            hashtags: liveDraft.hashtags,
+          },
+          newsSource: article?.newsSource,
+          refinement,
+          postBrief: article?.postBrief,
+          authorSteering,
+          llm: llmPayload,
+        }),
+      });
+      const data = (await res.json()) as {
+        hook?: string;
+        body?: string;
+        ps?: string;
+        hashtags?: string[];
+        error?: string;
+      };
+      if (!res.ok || !data.body?.trim()) {
+        setError(t("refineFailed"));
+        return;
+      }
+      const revised = {
+        hook: data.hook?.trim() ?? liveDraft.hook,
+        body: data.body.trim(),
+        ps: data.ps?.trim() || undefined,
+        hashtags: Array.isArray(data.hashtags) ? data.hashtags : liveDraft.hashtags,
+      };
+      await updateArticleContent(user.uid, liveDraft.articleId, revised);
+      setLiveDraft({ ...liveDraft, ...revised });
+      notifyArticlesChangedDeferred();
+      await appendAck(t("refineReadyAck"), active);
+    } catch {
+      setError(t("refineFailed"));
+    } finally {
+      setRefining(false);
+    }
+  }
+
+  async function validateProposal() {
+    if (!user || !project || !pendingProposal) return;
+    const proposal = pendingProposal;
+    setPendingProposal(null);
+
+    if (proposal.field === "newsScan") {
+      await appendAck(t("ackValidated", { label: proposal.label }));
+      await scanNews(project);
+      return;
+    }
+
+    if (proposal.field === "readyToGenerate") {
+      await appendAck(t("ackValidated", { label: proposal.label }));
+      await generateDraft(project);
+      return;
+    }
+
+    if (isRefineProposalField(proposal.field)) {
+      await appendAck(t("ackValidated", { label: proposal.label }));
+      await refineDraft(project, proposal);
+      return;
+    }
+
+    let working = project;
+    if (pendingSuggestedIdea && proposal.field === "angle") {
+      const idea: ContentProjectIdeaHit = {
+        id: newContentProjectMessageId(),
+        title: pendingSuggestedIdea.title,
+        stars: pendingSuggestedIdea.stars ?? 4,
+        reason: pendingSuggestedIdea.reason || proposal.label,
+        source: "lucy",
+      };
+      const ideas = sortIdeasByStars([...(working.ideas ?? []), idea]);
+      working = { ...working, ideas, updatedAt: new Date() };
+      setSelectedIdeaId(idea.id);
+      setPendingSuggestedIdea(null);
+      await updateContentProject(user.uid, working.id, { ideas });
+      setProject(working);
+      await appendAck(t("ackValidated", { label: proposal.label }), working);
+      return;
+    }
+
+    const after = applyLucyProposalToProject(working, proposal);
+    const patch = contentProjectPatchFromApplied(working, after);
+    if (Object.keys(patch).length > 0) {
+      await updateContentProject(user.uid, after.id, patch);
+    }
+    setProject(after);
+    if (proposal.field === "angle") {
+      const top = resolveGenerateIdea(after.ideas)?.id ?? null;
+      setSelectedIdeaId(top);
+    }
+    await appendAck(t("ackValidated", { label: proposal.label }), after);
+  }
+
+  function modifyProposal() {
+    if (!pendingProposal) return;
+    setDraft(t("modifyPrefill", { label: pendingProposal.label }));
+    setPendingProposal(null);
+    setPendingSuggestedIdea(null);
+  }
+
+  async function addNewsAsIdea(news: NewsSuggestion) {
+    if (!project) return;
+    const already = (project.ideas ?? []).some((i) => i.url && i.url === news.url);
+    if (already) {
+      setError(t("newsAlreadyAdded"));
+      return;
+    }
+    setError(null);
+    const idea = ideaHitFromNewsSuggestion(news, 4);
+    const ideas = sortIdeasByStars([...(project.ideas ?? []), idea]);
+    setSelectedIdeaId(idea.id);
+    setNewsPreview((prev) => prev.filter((n) => n.id !== news.id));
+    await persist({ ideas }, { ...project, ideas, updatedAt: new Date() });
+  }
+
+  async function sendMessage() {
+    if (!user || !project || !draft.trim() || chatBusy) return;
+    const userMessage = draft.trim();
+    setDraft("");
+    setChatBusy(true);
+    setError(null);
+    setPendingProposal(null);
+    setPendingSuggestedIdea(null);
+
+    const withUser = appendContentProjectChat(project, [
+      { role: "user", content: userMessage },
+    ]);
+    setProject(withUser);
+
+    try {
+      await updateContentProject(user.uid, project.id, { chat: withUser.chat });
+
+      const auth = getClientAuth();
+      const token = auth ? await auth.currentUser?.getIdToken() : null;
+      const [persona, llmProfile] = await Promise.all([
+        getPersona(user.uid),
+        getUserLlmProfile(user.uid),
+      ]);
+      const llmPayload = llmPayloadForAccess(llmProfile, access);
+
+      if (!token || !hasClientLlmAccess(access, llmPayload)) {
+        setError(t("needLlm"));
+        setChatBusy(false);
+        return;
+      }
+
+      const res = await fetch("/api/projects/chat", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectId: project.id,
+          project: {
+            name: withUser.name,
+            brief: withUser.brief,
+            channelOwner: withUser.channelOwner,
+            productFrame: withUser.productFrame,
+            contentLanguage: withUser.contentLanguage,
+            contentJob: withUser.contentJob,
+            emojiLevel: withUser.emojiLevel,
+            preferredCtaStyle: withUser.preferredCtaStyle,
+            includeSignaturePs: withUser.includeSignaturePs,
+            ideas: withUser.ideas,
+          },
+          ideas: withUser.ideas,
+          siblings: siblings.map((s) => ({
+            id: s.id,
+            name: s.name,
+            brief: s.brief,
+          })),
+          history: withUser.chat,
+          userMessage,
+          personaExcerpt: persona?.promptText?.slice(0, 1800),
+          profileReadyForNews,
+          hasDraft: Boolean(liveDraft),
+          contentLanguage: withUser.contentLanguage ?? "fr",
+          llm: llmPayload,
+        }),
+      });
+      const data = (await res.json()) as {
+        reply?: string;
+        pendingProposal?: LucyPendingProposal | null;
+        suggestedIdea?: LucySuggestedIdea | null;
+        error?: string;
+      };
+      if (!res.ok || !data.reply?.trim()) {
+        setError(t("chatFailed"));
+        setChatBusy(false);
+        return;
+      }
+
+      const withLucy = appendContentProjectChat(withUser, [
+        { role: "assistant", content: data.reply.trim() },
+      ]);
+      await updateContentProject(user.uid, project.id, { chat: withLucy.chat });
+      setProject(withLucy);
+      if (data.pendingProposal?.field && data.pendingProposal.label) {
+        setPendingProposal(data.pendingProposal);
+      }
+      if (data.suggestedIdea?.title) {
+        setPendingSuggestedIdea(data.suggestedIdea);
+      }
+    } catch {
+      setError(t("chatFailed"));
+    } finally {
+      setChatBusy(false);
+    }
+  }
+
+  function reopenChip(field: string, label: string) {
+    setDraft(t("reopenChipPrefill", { label }));
+    setPendingProposal(null);
   }
 
   if (loading) {
@@ -475,11 +640,13 @@ export function ProjectWorkspace({ projectId }: Props) {
     );
   }
 
-  const ideas = sortIdeasByStars(project.ideas ?? []);
-  const selectedIdeaForUi = resolveGenerateIdea(ideas, selectedIdeaId);
+  const chips = buildValidatedChips(project);
+  const frameReady = isProjectFrameReady(project);
+  const busy = chatBusy || generating || refining || newsBusy;
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-6 px-4 py-8 lg:grid-cols-[minmax(0,1fr)_320px] sm:px-6">
+    <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] sm:px-6">
+      {/* —— Chat column —— */}
       <div className="min-w-0 space-y-4">
         <Link
           href="/projects"
@@ -507,6 +674,31 @@ export function ProjectWorkspace({ projectId }: Props) {
           </div>
         </div>
 
+        <div className="rounded-2xl border border-ns-alternate/70 bg-white shadow-sm">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between px-4 py-2.5 text-left"
+            onClick={() => setBriefOpen((o) => !o)}
+          >
+            <span className={LABEL_CLASS}>{t("briefLabel")}</span>
+            <span className="text-xs text-ns-secondary">{briefOpen ? "−" : "+"}</span>
+          </button>
+          {briefOpen && (
+            <div className="border-t border-ns-alternate/50 px-4 pb-3 pt-2">
+              <p className="mb-2 text-xs text-ns-secondary">{t("briefHint")}</p>
+              <ImeSafeTextarea
+                rows={4}
+                value={project.brief}
+                onValueChange={(brief) => setProject({ ...project, brief })}
+                onBlur={() => void saveBrief({ brief: project.brief })}
+                className={INPUT_CLASS}
+                placeholder={t("briefPlaceholder")}
+                disabled={savingBrief}
+              />
+            </div>
+          )}
+        </div>
+
         {!profileReadyForNews && (
           <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-950">
             {t("profileGate")}{" "}
@@ -522,7 +714,7 @@ export function ProjectWorkspace({ projectId }: Props) {
           </p>
         )}
 
-        <div className="flex max-h-[48vh] flex-col gap-3 overflow-y-auto rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm">
+        <div className="flex max-h-[46vh] flex-col gap-3 overflow-y-auto rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm">
           {project.chat.length === 0 && (
             <p className="text-sm leading-relaxed text-ns-secondary">{t("chatEmpty")}</p>
           )}
@@ -543,6 +735,73 @@ export function ProjectWorkspace({ projectId }: Props) {
           ))}
           <div ref={bottomRef} />
         </div>
+
+        {pendingProposal && (
+          <div className="rounded-xl border border-ns-primary/40 bg-ns-primary/10 px-3 py-3">
+            <p className="text-xs font-semibold text-ns-tertiary">
+              {t("proposalLabel")}: {pendingProposal.label}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void validateProposal()}
+                className={`${BTN_PRIMARY} disabled:opacity-50`}
+              >
+                {t("validate")}
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={modifyProposal}
+                className="rounded-lg border border-ns-alternate px-3 py-2 text-xs font-bold uppercase tracking-wide text-ns-tertiary disabled:opacity-50"
+              >
+                {t("modify")}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {chips.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            <span className="w-full text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+              {t("chipsTitle")}
+            </span>
+            {chips.map((chip) => (
+              <button
+                key={`${chip.field}-${chip.label}`}
+                type="button"
+                onClick={() => reopenChip(chip.field, chip.label)}
+                className="rounded-full border border-ns-alternate bg-white px-2.5 py-1 text-[11px] font-semibold text-ns-tertiary hover:border-ns-primary/50"
+                title={t("chipReopenHint")}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {newsPreview.length > 0 && (
+          <div className="space-y-2 rounded-xl border border-ns-alternate/60 bg-ns-surface/40 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+              {t("newsTitle")}
+            </p>
+            <ul className="space-y-2">
+              {newsPreview.slice(0, 5).map((n) => (
+                <li key={n.id} className="rounded-lg bg-white px-2.5 py-2">
+                  <p className="text-sm font-semibold text-ns-tertiary">{n.title}</p>
+                  <button
+                    type="button"
+                    className="mt-1 text-[10px] font-bold uppercase tracking-wide text-ns-primary underline"
+                    onClick={() => void addNewsAsIdea(n)}
+                  >
+                    {t("newsAddIdea")}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="flex gap-2">
           <ImeSafeTextarea
@@ -570,341 +829,20 @@ export function ProjectWorkspace({ projectId }: Props) {
         </div>
         <p className="text-[10px] text-ns-secondary">{t("chatSendHint")}</p>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={!profileReadyForNews || newsBusy || chatBusy || generating}
-            onClick={() => void scanNews()}
-            className="rounded-lg border border-ns-alternate bg-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-ns-tertiary hover:bg-ns-surface disabled:opacity-50"
-          >
-            {newsBusy ? t("newsScanning") : t("quickNews")}
-          </button>
-          <button
-            type="button"
-            disabled={generating || chatBusy || newsBusy}
-            onClick={() => void generateDraft()}
-            className="rounded-lg border border-ns-tertiary/30 bg-ns-tertiary/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-ns-tertiary hover:bg-ns-tertiary/15 disabled:opacity-50"
-          >
-            {t("quickGenerate")}
-          </button>
-        </div>
-
-        <button
-          type="button"
-          disabled={generating || chatBusy || newsBusy}
-          onClick={() => void generateDraft()}
-          className="inline-flex w-full flex-col items-center justify-center gap-1 rounded-sm bg-ns-tertiary px-4 py-3 text-white hover:bg-ns-tertiary/90 disabled:opacity-50"
-        >
-          <span className="text-xs font-black uppercase tracking-widest">
-            {generating ? t("generating") : t("generateDraft")}
-          </span>
-          {!generating && selectedIdeaForUi && (
-            <span className="max-w-full truncate text-[10px] font-medium text-white/80">
-              {selectedIdeaForUi.source === "news"
-                ? t("generateFromNews", { title: selectedIdeaForUi.title })
-                : t("generateFromIdea", { title: selectedIdeaForUi.title })}
-            </span>
-          )}
-        </button>
-      </div>
-
-      <aside className="space-y-4">
-        <div className="rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm">
-          <label className={LABEL_CLASS}>{t("briefLabel")}</label>
-          <p className="mb-2 text-xs text-ns-secondary">{t("briefHint")}</p>
-          <ImeSafeTextarea
-            rows={6}
-            value={project.brief}
-            onValueChange={(brief) => setProject({ ...project, brief })}
-            onBlur={() => void saveBrief({ brief: project.brief })}
-            className={INPUT_CLASS}
-            placeholder={t("briefPlaceholder")}
-            disabled={savingBrief}
-          />
-        </div>
-
-        <div className="rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm space-y-3">
-          <div>
-            <p className={LABEL_CLASS}>{t("prefsTitle")}</p>
-            <p className="text-xs text-ns-secondary">{t("prefsHint")}</p>
-          </div>
-          <label className="block text-xs font-semibold text-ns-tertiary">
-            {t("prefLanguage")}
-            <select
-              className={`${INPUT_CLASS} mt-1`}
-              value={project.contentLanguage ?? "fr"}
-              onChange={(e) =>
-                void savePrefs({ contentLanguage: e.target.value as ContentLanguage })
-              }
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l} value={l}>
-                  {l.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-xs font-semibold text-ns-tertiary">
-            {t("prefChannel")}
-            <select
-              className={`${INPUT_CLASS} mt-1`}
-              value={project.channelOwner ?? "generic"}
-              onChange={(e) =>
-                void savePrefs({ channelOwner: e.target.value as ChannelOwner })
-              }
-            >
-              {CHANNELS.map((c) => (
-                <option key={c} value={c}>
-                  {t(`channel.${c}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-xs font-semibold text-ns-tertiary">
-            {t("prefProduct")}
-            <select
-              className={`${INPUT_CLASS} mt-1`}
-              value={project.productFrame ?? "generic"}
-              onChange={(e) =>
-                void savePrefs({ productFrame: e.target.value as ProductFrame })
-              }
-            >
-              {PRODUCTS.map((p) => (
-                <option key={p} value={p}>
-                  {t(`product.${p}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-xs font-semibold text-ns-tertiary">
-            {t("prefJob")}
-            <select
-              className={`${INPUT_CLASS} mt-1`}
-              value={project.contentJob ?? ""}
-              onChange={(e) => {
-                const v = e.target.value as ContentJob | "";
-                void savePrefs({ contentJob: v ? v : null });
-              }}
-            >
-              {JOBS.map((j) => (
-                <option key={j || "unset"} value={j}>
-                  {j ? t(`job.${j}`) : t("job.unset")}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-xs font-semibold text-ns-tertiary">
-            {t("prefEmoji")}
-            <select
-              className={`${INPUT_CLASS} mt-1`}
-              value={project.emojiLevel ?? "light"}
-              onChange={(e) =>
-                void savePrefs({ emojiLevel: e.target.value as EmojiLevel })
-              }
-            >
-              {EMOJI_LEVELS.map((level) => (
-                <option key={level} value={level}>
-                  {t(`emoji.${level}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-xs font-semibold text-ns-tertiary">
-            {t("prefCta")}
-            <select
-              className={`${INPUT_CLASS} mt-1`}
-              value={project.preferredCtaStyle ?? ""}
-              onChange={(e) => {
-                const v = e.target.value as CtaIntensity | "";
-                void savePrefs({ preferredCtaStyle: v ? v : null });
-              }}
-            >
-              {CTA_STYLES.map((s) => (
-                <option key={s || "unset"} value={s}>
-                  {s ? t(`cta.${s}`) : t("cta.unset")}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex items-start gap-2 text-xs font-semibold text-ns-tertiary">
-            <input
-              type="checkbox"
-              className="mt-0.5"
-              checked={project.includeSignaturePs === true}
-              onChange={(e) =>
-                void savePrefs({ includeSignaturePs: e.target.checked })
-              }
-            />
-            <span>
-              {t("prefSignaturePs")}
-              <span className="mt-0.5 block font-normal text-ns-secondary">
-                {t("prefSignaturePsHint")}
-              </span>
-            </span>
-          </label>
-        </div>
-
-        <div className="rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm space-y-3">
-          <div>
-            <p className={LABEL_CLASS}>{t("newsTitle")}</p>
-            <p className="text-xs text-ns-secondary">{t("newsHint")}</p>
-          </div>
-          <label className="block text-xs font-semibold text-ns-tertiary">
-            {t("newsKeywords")}
-            <ImeSafeInput
-              value={project.newsInterestQuery ?? ""}
-              onValueChange={(newsInterestQuery) =>
-                setProject({ ...project, newsInterestQuery })
-              }
-              onBlur={() =>
-                void savePrefs({
-                  newsInterestQuery: project.newsInterestQuery ?? "",
-                })
-              }
-              placeholder={t("newsKeywordsPlaceholder")}
-              className={`${INPUT_CLASS} mt-1`}
-              disabled={!profileReadyForNews}
-            />
-          </label>
-          <button
-            type="button"
-            disabled={!profileReadyForNews || newsBusy || chatBusy}
-            onClick={() => void scanNews()}
-            className="w-full rounded-lg border border-ns-alternate px-3 py-2 text-xs font-bold uppercase tracking-wide text-ns-tertiary hover:bg-ns-surface disabled:opacity-50"
-          >
-            {newsBusy ? t("newsScanning") : t("newsScan")}
-          </button>
-          {newsPreview.length > 0 && (
-            <ul className="space-y-2">
-              {newsPreview.slice(0, 6).map((n) => (
-                <li
-                  key={n.id}
-                  className="rounded-lg border border-ns-alternate/50 bg-ns-surface/50 px-2.5 py-2"
-                >
-                  <p className="text-sm font-semibold text-ns-tertiary">{n.title}</p>
-                  <p className="mt-0.5 line-clamp-2 text-[11px] text-ns-secondary">
-                    {n.summary}
-                  </p>
-                  <button
-                    type="button"
-                    className="mt-1.5 text-[10px] font-bold uppercase tracking-wide text-ns-primary underline"
-                    onClick={() => void addNewsAsIdea(n)}
-                  >
-                    {t("newsAddIdea")}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm space-y-3">
-          <div>
-            <p className={LABEL_CLASS}>{t("ideasTitle")}</p>
-            <p className="text-xs text-ns-secondary">{t("ideasHint")}</p>
-          </div>
-          {ideas.length === 0 ? (
-            <p className="text-xs text-ns-secondary">{t("ideasEmpty")}</p>
-          ) : (
-            <ul className="space-y-2">
-              {ideas.map((idea) => {
-                const selected = selectedIdeaId === idea.id;
-                return (
-                  <li
-                    key={idea.id}
-                    className={`rounded-lg border px-2.5 py-2 ${
-                      selected
-                        ? "border-ns-primary bg-ns-primary/10"
-                        : "border-ns-alternate/50 bg-ns-surface/50"
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      className="w-full text-left"
-                      onClick={() => setSelectedIdeaId(idea.id)}
-                    >
-                      <p className="text-sm font-semibold text-ns-tertiary">{idea.title}</p>
-                      {idea.source === "news" && (
-                        <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
-                          {t("ideaFromNews")}
-                        </p>
-                      )}
-                    </button>
-                    <div className="mt-1 flex items-center gap-1">
-                      {[3, 4, 5].map((n) => (
-                        <button
-                          key={n}
-                          type="button"
-                          className={`text-xs ${idea.stars >= n ? "text-amber-500" : "text-gray-300"}`}
-                          onClick={() => void setIdeaStars(idea.id, n)}
-                        >
-                          ★
-                        </button>
-                      ))}
-                      <button
-                        type="button"
-                        className="ml-auto text-[10px] text-ns-secondary underline"
-                        onClick={() => void setIdeaStars(idea.id, 0)}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          <div className="flex gap-2">
-            <ImeSafeInput
-              value={ideaDraft}
-              onValueChange={setIdeaDraft}
-              placeholder={t("ideaTitlePlaceholder")}
-              className={`${INPUT_CLASS} flex-1`}
-            />
-            <button
-              type="button"
-              disabled={!ideaDraft.trim()}
-              onClick={() => void addIdea()}
-              className="rounded-lg border border-ns-alternate px-2 text-xs font-semibold disabled:opacity-50"
-            >
-              {t("addIdea")}
-            </button>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-ns-alternate/70 bg-ns-surface/60 p-4">
-          <p className={LABEL_CLASS}>{t("linkedArticles")}</p>
-          {(project.articleIds?.length ?? 0) === 0 ? (
-            <p className="text-xs text-ns-secondary">{t("noLinkedArticles")}</p>
-          ) : (
-            <ul className="mt-2 space-y-1">
-              {(project.articleIds ?? []).slice(-8).reverse().map((id) => (
-                <li key={id}>
-                  <Link
-                    href={`/articles/${id}`}
-                    className="text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary"
-                  >
-                    {id.slice(0, 8)}…
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
         {siblings.filter((s) => s.id !== project.id).length > 0 && (
-          <div className="rounded-2xl border border-ns-alternate/70 bg-ns-surface/60 p-4">
-            <p className={LABEL_CLASS}>{t("siblingsTitle")}</p>
-            <p className="mb-2 text-xs text-ns-secondary">{t("siblingsHint")}</p>
-            <ul className="space-y-2">
+          <div className="pt-2">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+              {t("siblingsTitle")}
+            </p>
+            <ul className="mt-1 flex flex-wrap gap-2">
               {siblings
                 .filter((s) => s.id !== project.id)
-                .slice(0, 8)
+                .slice(0, 6)
                 .map((s) => (
                   <li key={s.id}>
                     <Link
                       href={`/projects/${s.id}`}
-                      className="text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary"
+                      className="text-xs font-semibold text-ns-tertiary underline hover:text-ns-primary"
                     >
                       {s.emoji || "🎯"} {s.name}
                     </Link>
@@ -913,13 +851,108 @@ export function ProjectWorkspace({ projectId }: Props) {
             </ul>
           </div>
         )}
+      </div>
 
-        <Link
-          href="/articles/new"
-          className="block rounded-xl border border-ns-primary/40 bg-ns-primary/10 px-4 py-3 text-center text-sm font-bold text-ns-tertiary hover:bg-ns-primary/20"
-        >
-          {t("goCreatePost")}
-        </Link>
+      {/* —— Article live column —— */}
+      <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
+        <div className="rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <p className={LABEL_CLASS}>{t("draftPanelTitle")}</p>
+            {!frameReady && (
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+                {t("frameIncompleteBadge")}
+              </span>
+            )}
+          </div>
+
+          {!liveDraft ? (
+            <div className="rounded-xl border border-dashed border-ns-alternate bg-ns-surface/40 px-4 py-10 text-center">
+              <p className="text-sm text-ns-secondary">{t("draftEmpty")}</p>
+              <p className="mt-2 text-xs text-ns-secondary">{t("draftEmptyHint")}</p>
+              {frameReady && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void generateDraft(project)}
+                  className={`${BTN_PRIMARY} mt-4 disabled:opacity-50`}
+                >
+                  {generating ? t("generating") : t("generateDraft")}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+                  Hook
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-sm font-semibold text-ns-tertiary">
+                  {liveDraft.hook}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+                  Body
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-ns-tertiary">
+                  {liveDraft.body}
+                </p>
+              </div>
+              {liveDraft.ps?.trim() && (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-ns-secondary">
+                    PS
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-ns-secondary">
+                    {liveDraft.ps}
+                  </p>
+                </div>
+              )}
+              {(generating || refining) && (
+                <p className="text-xs font-semibold text-ns-primary">
+                  {generating ? t("generating") : t("refining")}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Link
+                  href={`/articles/${liveDraft.articleId}`}
+                  className={`${BTN_PRIMARY} inline-flex`}
+                >
+                  {t("openEditor")}
+                </Link>
+                <button
+                  type="button"
+                  disabled={busy || !frameReady}
+                  onClick={() => void generateDraft(project)}
+                  className="rounded-lg border border-ns-alternate px-3 py-2 text-xs font-bold uppercase tracking-wide text-ns-tertiary disabled:opacity-50"
+                >
+                  {t("regenerate")}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {(project.articleIds?.length ?? 0) > 0 && (
+          <div className="rounded-2xl border border-ns-alternate/70 bg-ns-surface/60 p-4">
+            <p className={LABEL_CLASS}>{t("linkedArticles")}</p>
+            <ul className="mt-2 space-y-1">
+              {(project.articleIds ?? [])
+                .slice(-6)
+                .reverse()
+                .map((id) => (
+                  <li key={id}>
+                    <Link
+                      href={`/articles/${id}`}
+                      className="text-sm font-semibold text-ns-tertiary underline hover:text-ns-primary"
+                    >
+                      {id.slice(0, 8)}…
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
       </aside>
     </div>
   );
