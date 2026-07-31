@@ -12,6 +12,7 @@ import {
   ideaHitFromNewsSuggestion,
   isProjectFrameReady,
   isRefineProposalField,
+  MIN_PROJECT_BRIEF_CHARS,
   newContentProjectMessageId,
   newsSourceFromIdeaHit,
   refineInstructionFromProposal,
@@ -26,6 +27,7 @@ import { buildPostBriefFromContentProject } from "@/lib/prompts/lucy-project-cha
 import { normalizePostBrief } from "@/lib/articles/post-brief-objectives";
 import { createDefaultRefinement } from "@/lib/articles/refinement";
 import { buildDefaultSignaturePs } from "@/lib/articles/signature-ps";
+import { useFormatUserError } from "@/hooks/use-format-user-error";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
 import { getPersona } from "@/lib/workspace/persona";
 import { getAuthorProfile } from "@/lib/workspace/author";
@@ -73,7 +75,7 @@ export function ProjectWorkspace({ projectId }: Props) {
   const [siblings, setSiblings] = useState<ContentProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingBrief, setSavingBrief] = useState(false);
-  const [briefOpen, setBriefOpen] = useState(true);
+  const [briefOpen, setBriefOpen] = useState(false);
   const [chatBusy, setChatBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [refining, setRefining] = useState(false);
@@ -89,6 +91,7 @@ export function ProjectWorkspace({ projectId }: Props) {
   const [error, setError] = useState<string | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
   const lastChatCountRef = useRef<number | null>(null);
+  const formatUserError = useFormatUserError();
 
   const profileReadyForNews = Boolean(
     progress?.completion.hasPersonaValidated && progress?.completion.hasProfileMinimum,
@@ -109,6 +112,7 @@ export function ProjectWorkspace({ projectId }: Props) {
         setError(t("notFound"));
         return;
       }
+      setBriefOpen(p.brief.trim().length < MIN_PROJECT_BRIEF_CHARS);
       const lastId = p.articleIds?.[p.articleIds.length - 1];
       if (lastId) {
         const article = await getArticle(user.uid, lastId);
@@ -132,6 +136,12 @@ export function ProjectWorkspace({ projectId }: Props) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // After project data mounts, pin the window to the top (chat has its own scroller).
+  useEffect(() => {
+    if (loading) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [loading, projectId]);
 
   // Keep the conversation pinned to its latest turn without scrolling the page.
   useEffect(() => {
@@ -175,6 +185,9 @@ export function ProjectWorkspace({ projectId }: Props) {
   async function saveBrief(next: { name?: string; brief?: string; emoji?: string }) {
     if (!project) return;
     await persist(next);
+    if (typeof next.brief === "string" && next.brief.trim().length >= MIN_PROJECT_BRIEF_CHARS) {
+      setBriefOpen(false);
+    }
   }
 
   async function appendAck(message: string, base?: ContentProject) {
@@ -499,6 +512,9 @@ export function ProjectWorkspace({ projectId }: Props) {
       await updateContentProject(user.uid, after.id, patch);
     }
     setProject(after);
+    if (proposal.field === "brief") {
+      setBriefOpen(false);
+    }
     if (proposal.field === "angle") {
       const top = resolveGenerateIdea(after.ideas)?.id ?? null;
       setSelectedIdeaId(top);
@@ -599,9 +615,19 @@ export function ProjectWorkspace({ projectId }: Props) {
         pendingProposal?: LucyPendingProposal | null;
         suggestedIdea?: LucySuggestedIdea | null;
         error?: string;
+        detail?: string;
       };
       if (!res.ok || !data.reply?.trim()) {
-        setError(t("chatFailed"));
+        if (data.error === "no_llm_key") {
+          setError(t("needLlm"));
+        } else {
+          const info = formatUserError({
+            errorCode: data.error,
+            detail: data.detail,
+            fallbackMessage: t("chatFailed"),
+          });
+          setError(info.technical ? `${info.message} · ${info.technical}` : info.message);
+        }
         setChatBusy(false);
         return;
       }
@@ -653,9 +679,9 @@ export function ProjectWorkspace({ projectId }: Props) {
   const busy = chatBusy || generating || refining || newsBusy;
 
   return (
-    <div className="mx-auto grid w-full max-w-[1680px] gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-8 xl:px-10">
+    <div className="mx-auto grid w-full max-w-[1680px] gap-6 px-4 py-8 [overflow-anchor:none] sm:px-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-8 xl:px-10">
       {/* —— Chat column —— */}
-      <div className="min-w-0 space-y-4">
+      <div className="min-w-0 space-y-4 [overflow-anchor:none]">
         <Link
           href="/projects"
           className="text-xs font-semibold uppercase tracking-wide text-ns-secondary hover:text-ns-tertiary"
@@ -680,31 +706,6 @@ export function ProjectWorkspace({ projectId }: Props) {
               className="mt-1 w-full border-0 bg-transparent p-0 text-2xl font-black tracking-tight text-ns-tertiary outline-none focus:ring-0"
             />
           </div>
-        </div>
-
-        <div className="rounded-2xl border border-ns-alternate/70 bg-white shadow-sm">
-          <button
-            type="button"
-            className="flex w-full items-center justify-between px-4 py-2.5 text-left"
-            onClick={() => setBriefOpen((o) => !o)}
-          >
-            <span className={LABEL_CLASS}>{t("briefLabel")}</span>
-            <span className="text-xs text-ns-secondary">{briefOpen ? "−" : "+"}</span>
-          </button>
-          {briefOpen && (
-            <div className="border-t border-ns-alternate/50 px-4 pb-3 pt-2">
-              <p className="mb-2 text-xs text-ns-secondary">{t("briefHint")}</p>
-              <ImeSafeTextarea
-                rows={4}
-                value={project.brief}
-                onValueChange={(brief) => setProject({ ...project, brief })}
-                onBlur={() => void saveBrief({ brief: project.brief })}
-                className={INPUT_CLASS}
-                placeholder={t("briefPlaceholder")}
-                disabled={savingBrief}
-              />
-            </div>
-          )}
         </div>
 
         {!profileReadyForNews && (
@@ -751,6 +752,11 @@ export function ProjectWorkspace({ projectId }: Props) {
             <p className="text-xs font-semibold text-ns-tertiary">
               {t("proposalLabel")}: {pendingProposal.label}
             </p>
+            {pendingProposal.field === "brief" && typeof pendingProposal.value === "string" && (
+              <p className="mt-2 max-h-32 overflow-y-auto whitespace-pre-wrap rounded-lg border border-ns-primary/20 bg-white/70 px-2.5 py-2 text-xs leading-relaxed text-ns-tertiary">
+                {pendingProposal.value}
+              </p>
+            )}
             <div className="mt-2 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -865,6 +871,39 @@ export function ProjectWorkspace({ projectId }: Props) {
 
       {/* —— Article live column —— */}
       <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
+        <div className="rounded-2xl border border-ns-alternate/70 bg-white shadow-sm">
+          <button
+            type="button"
+            className="flex w-full items-start justify-between gap-3 px-4 py-2.5 text-left"
+            onClick={() => setBriefOpen((o) => !o)}
+            aria-expanded={briefOpen}
+          >
+            <span className="min-w-0 flex-1">
+              <span className={LABEL_CLASS}>{t("briefLabel")}</span>
+              {!briefOpen && project.brief.trim() && (
+                <span className="mt-1 block truncate text-xs text-ns-secondary">
+                  {project.brief.trim()}
+                </span>
+              )}
+            </span>
+            <span className="shrink-0 text-xs text-ns-secondary">{briefOpen ? "−" : "+"}</span>
+          </button>
+          {briefOpen && (
+            <div className="border-t border-ns-alternate/50 px-4 pb-3 pt-2">
+              <p className="mb-2 text-xs text-ns-secondary">{t("briefHint")}</p>
+              <ImeSafeTextarea
+                rows={4}
+                value={project.brief}
+                onValueChange={(brief) => setProject({ ...project, brief })}
+                onBlur={() => void saveBrief({ brief: project.brief })}
+                className={INPUT_CLASS}
+                placeholder={t("briefPlaceholder")}
+                disabled={savingBrief}
+              />
+            </div>
+          )}
+        </div>
+
         <div className="rounded-2xl border border-ns-alternate/70 bg-white p-4 shadow-sm">
           <div className="mb-3 flex items-center justify-between gap-2">
             <p className={LABEL_CLASS}>{t("draftPanelTitle")}</p>

@@ -54,6 +54,16 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     setMenuOpen(false);
   }, [pathname]);
 
+  // Dashboard pages share window scroll (no inner overflow pane). Reset on every
+  // client navigation so reopening a tall page never restores a mid-page offset.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+
   useEffect(() => {
     if (!menuOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -109,6 +119,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 
   const isAdminRoute = pathname?.includes("/admin");
+  const isProjectsRoute = pathname?.includes("/projects");
   const isAgencyManagedContext = useAgencyManagedContext();
 
   return (
@@ -298,7 +309,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
       <main
         className={`mx-auto w-full flex-1 px-3 py-4 sm:px-4 sm:py-8 md:px-6 ${
-          isAdminRoute ? "max-w-[1400px]" : "max-w-5xl"
+          isAdminRoute
+            ? "max-w-[1400px]"
+            : isProjectsRoute
+              ? "max-w-[1680px]"
+              : "max-w-5xl"
         }`}
       >
         <AgencyWorkspaceBanner />

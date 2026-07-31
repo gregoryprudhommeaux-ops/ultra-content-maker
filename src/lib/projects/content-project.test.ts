@@ -173,6 +173,13 @@ describe("content-project helpers", () => {
     });
     assert.equal(p.emojiLevel, "light");
     assert.ok(!buildValidatedChips(p).some((c) => c.field === "emojiLevel"));
+    p = applyLucyProposalToProject(p, {
+      field: "brief",
+      value:
+        "Dîners privés GDL · 14–16 places · désirabilité sans hard sell · ICP founders MX",
+      label: "Brief enrichi",
+    });
+    assert.match(p.brief, /founders MX/);
     assert.ok(isRefineProposalField("refineHook"));
     assert.match(refineInstructionFromProposal({
       field: "refineHook",

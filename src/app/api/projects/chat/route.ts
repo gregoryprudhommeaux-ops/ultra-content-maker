@@ -111,7 +111,7 @@ export async function POST(request: Request) {
       ],
       mergeUsageLog(userId, "projects/lucy-chat", {
         temperature: 0.4,
-        maxTokens: 900,
+        maxTokens: 1400,
       }),
     );
 

@@ -33,6 +33,7 @@ export type LucyProposalField =
   | "emojiLevel"
   | "preferredCtaStyle"
   | "includeSignaturePs"
+  | "brief"
   | "angle"
   | "newsScan"
   | "readyToGenerate"
@@ -67,6 +68,7 @@ const PROPOSAL_FIELDS = new Set<string>([
   "emojiLevel",
   "preferredCtaStyle",
   "includeSignaturePs",
+  "brief",
   "angle",
   "newsScan",
   "readyToGenerate",
@@ -75,6 +77,18 @@ const PROPOSAL_FIELDS = new Set<string>([
   "refinePs",
   "refineTone",
 ]);
+
+/** Cap living brief length when Lucy proposes an update. */
+export const MAX_PROJECT_BRIEF_CHARS = 2000;
+
+export function normalizeProposedBrief(raw: string): string | null {
+  const text = raw
+    .trim()
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n");
+  if (text.length < MIN_PROJECT_BRIEF_CHARS) return null;
+  return text.slice(0, MAX_PROJECT_BRIEF_CHARS);
+}
 
 export function newContentProjectMessageId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -269,9 +283,17 @@ export function parseLucyPendingProposal(raw: unknown): LucyPendingProposal | un
   if (typeof value === "string" && !value.trim() && field !== "newsScan" && field !== "readyToGenerate") {
     return undefined;
   }
+  if (field === "brief" && typeof value === "string" && !normalizeProposedBrief(value)) {
+    return undefined;
+  }
   return {
     field: field as LucyProposalField,
-    value: typeof value === "string" ? value.trim() : value,
+    value:
+      field === "brief" && typeof value === "string"
+        ? (normalizeProposedBrief(value) as string)
+        : typeof value === "string"
+          ? value.trim()
+          : value,
     label: label.slice(0, 120),
   };
 }
@@ -341,6 +363,11 @@ export function applyLucyProposalToProject(
     case "includeSignaturePs":
       next.includeSignaturePs = Boolean(proposal.value);
       break;
+    case "brief": {
+      const brief = normalizeProposedBrief(String(proposal.value));
+      if (brief) next.brief = brief;
+      break;
+    }
     case "angle": {
       const title = String(proposal.value).trim() || proposal.label;
       if (!title) break;
@@ -443,6 +470,7 @@ export type ContentProjectPatchFromProposal = Partial<
     | "emojiLevel"
     | "preferredCtaStyle"
     | "includeSignaturePs"
+    | "brief"
     | "ideas"
   >
 >;
@@ -465,6 +493,7 @@ export function contentProjectPatchFromApplied(
   if (before.includeSignaturePs !== after.includeSignaturePs) {
     patch.includeSignaturePs = after.includeSignaturePs;
   }
+  if (before.brief !== after.brief) patch.brief = after.brief;
   if (before.ideas !== after.ideas) patch.ideas = after.ideas;
   return patch;
 }

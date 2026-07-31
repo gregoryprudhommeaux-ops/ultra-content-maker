@@ -25,6 +25,8 @@ describe("lucy-project-chat", () => {
     });
     assert.match(prompt, /pendingProposal/);
     assert.match(prompt, /NEVER write the LinkedIn post/i);
+    assert.match(prompt, /Living brief/i);
+    assert.match(prompt, /\bbrief\b/);
   });
 
   it("builds a post brief from project fields", () => {
