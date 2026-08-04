@@ -826,6 +826,8 @@
     "draftEmptyHint": "Primero enmarca con Lucy (idioma, job, ángulo). Cuando esté listo, valida « Generar ».",
     "frameIncomplete": "Marco incompleto: idioma + job + brief o idea ★.",
     "frameIncompleteBadge": "Marco incompleto",
+    "frameIncompleteDetail": "Marco incompleto — falta: {missing}. Estos campos deben Validarse (no solo escribirse en el chat).",
+    "frameStillIncompleteAck": "El marco aún no está guardado ({missing}). Pídeme proponer idioma / job / ángulo a Validar, o vuelve a pulsar listo-para-generar con un framePatch.",
     "openEditor": "Abrir editor",
     "regenerate": "Regenerar",
     "refining": "Afinando…",

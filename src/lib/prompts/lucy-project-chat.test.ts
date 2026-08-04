@@ -29,6 +29,8 @@ describe("lucy-project-chat", () => {
     assert.match(prompt, /\bbrief\b/);
     assert.match(prompt, /choices/);
     assert.match(prompt, /clickable/i);
+    assert.match(prompt, /framePatch/);
+    assert.match(prompt, /Persistence rule/i);
   });
 
   it("builds a post brief from project fields", () => {

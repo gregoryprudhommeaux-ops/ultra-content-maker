@@ -826,6 +826,8 @@
     "draftEmptyHint": "Frame with Lucy first (language, job, angle). When ready, validate “Generate”.",
     "frameIncomplete": "Frame incomplete: language + job + brief or ★ idea.",
     "frameIncompleteBadge": "Frame incomplete",
+    "frameIncompleteDetail": "Frame incomplete — missing: {missing}. These fields must be Validated (not only written in chat).",
+    "frameStillIncompleteAck": "Frame is not saved yet ({missing}). Ask me to propose language / job / angle to Validate, or re-click ready-to-generate with a framePatch.",
     "openEditor": "Open editor",
     "regenerate": "Regenerate",
     "refining": "Refining…",

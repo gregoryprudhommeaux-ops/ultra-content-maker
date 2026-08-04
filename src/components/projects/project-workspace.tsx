@@ -6,18 +6,21 @@ import { useSubscription } from "@/contexts/subscription-context";
 import {
   appendContentProjectChat,
   applyLucyProposalToProject,
+  applyLucyFramePatch,
   buildProjectNewsInterestQuery,
   buildValidatedChips,
   contentProjectPatchFromApplied,
   ideaHitFromNewsSuggestion,
   isProjectFrameReady,
   isRefineProposalField,
+  missingProjectFrameFields,
   MIN_PROJECT_BRIEF_CHARS,
   newContentProjectMessageId,
   newsSourceFromIdeaHit,
   refineInstructionFromProposal,
   resolveGenerateIdea,
   sortIdeasByStars,
+  type LucyFramePatch,
   type LucyPendingProposal,
   type LucySuggestedIdea,
 } from "@/lib/projects/content-project";
@@ -88,6 +91,7 @@ export function ProjectWorkspace({ projectId }: Props) {
   );
   const [liveDraft, setLiveDraft] = useState<LiveDraft | null>(null);
   const [pendingChoices, setPendingChoices] = useState<string[]>([]);
+  const [pendingFramePatch, setPendingFramePatch] = useState<LucyFramePatch | null>(null);
   const [newsPreview, setNewsPreview] = useState<NewsSuggestion[]>([]);
   const [error, setError] = useState<string | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
@@ -267,7 +271,8 @@ export function ProjectWorkspace({ projectId }: Props) {
   async function generateDraft(active: ContentProject) {
     if (!user || generating) return;
     if (!isProjectFrameReady(active)) {
-      setError(t("frameIncomplete"));
+      const missing = missingProjectFrameFields(active).join(", ");
+      setError(t("frameIncompleteDetail", { missing }));
       return;
     }
     setGenerating(true);
@@ -478,8 +483,28 @@ export function ProjectWorkspace({ projectId }: Props) {
     }
 
     if (proposal.field === "readyToGenerate") {
-      await appendAck(t("ackValidated", { label: proposal.label }));
-      await generateDraft(project);
+      let working = project;
+      if (pendingFramePatch) {
+        working = applyLucyFramePatch(working, pendingFramePatch);
+        const patch = contentProjectPatchFromApplied(project, working);
+        if (Object.keys(patch).length > 0) {
+          await updateContentProject(user.uid, working.id, patch);
+        }
+        setProject(working);
+        setPendingFramePatch(null);
+        if (pendingFramePatch.angle) {
+          const top = resolveGenerateIdea(working.ideas)?.id ?? null;
+          setSelectedIdeaId(top);
+        }
+      }
+      if (!isProjectFrameReady(working)) {
+        const missing = missingProjectFrameFields(working).join(", ");
+        setError(t("frameIncompleteDetail", { missing }));
+        await appendAck(t("frameStillIncompleteAck", { missing }), working);
+        return;
+      }
+      await appendAck(t("ackValidated", { label: proposal.label }), working);
+      await generateDraft(working);
       return;
     }
 
@@ -530,6 +555,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     setPendingProposal(null);
     setPendingSuggestedIdea(null);
     setPendingChoices([]);
+    setPendingFramePatch(null);
   }
 
   async function addNewsAsIdea(news: NewsSuggestion) {
@@ -557,6 +583,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     setPendingProposal(null);
     setPendingSuggestedIdea(null);
     setPendingChoices([]);
+    setPendingFramePatch(null);
 
     const withUser = appendContentProjectChat(project, [
       { role: "user", content: userMessage },
@@ -620,6 +647,7 @@ export function ProjectWorkspace({ projectId }: Props) {
         pendingProposal?: LucyPendingProposal | null;
         suggestedIdea?: LucySuggestedIdea | null;
         choices?: string[] | null;
+        framePatch?: LucyFramePatch | null;
         error?: string;
         detail?: string;
       };
@@ -652,6 +680,9 @@ export function ProjectWorkspace({ projectId }: Props) {
       if (Array.isArray(data.choices) && data.choices.length > 0) {
         setPendingChoices(data.choices.slice(0, 6));
       }
+      if (data.framePatch && typeof data.framePatch === "object") {
+        setPendingFramePatch(data.framePatch);
+      }
     } catch {
       setError(t("chatFailed"));
     } finally {
@@ -663,6 +694,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     setDraft(t("reopenChipPrefill", { label }));
     setPendingProposal(null);
     setPendingChoices([]);
+    setPendingFramePatch(null);
   }
 
   if (loading) {

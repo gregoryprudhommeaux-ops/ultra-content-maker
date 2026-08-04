@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   appendContentProjectChat,
+  applyLucyFramePatch,
   applyLucyProposalToProject,
   buildNewContentProject,
   buildProjectNewsInterestQuery,
@@ -11,8 +12,12 @@ import {
   ideaHitFromNewsSuggestion,
   isProjectFrameReady,
   isRefineProposalField,
+  missingProjectFrameFields,
   newsSourceFromIdeaHit,
+  normalizeContentJob,
+  normalizeContentLanguage,
   parseLucyChatResponse,
+  parseLucyFramePatch,
   parseLucyPendingProposal,
   refineInstructionFromProposal,
   resolveGenerateIdea,
@@ -150,6 +155,29 @@ describe("content-project helpers", () => {
     assert.deepEqual(parsed?.choices, ["Oui, FR", "Plutôt EN"]);
     assert.equal(parseLucyPendingProposal({ field: "nope", value: "x", label: "y" }), undefined);
     assert.equal(parseLucyChatResponse({ reply: "hi" })?.choices, undefined);
+  });
+
+  it("normalizes ES-MX and applies framePatch for readyToGenerate", () => {
+    assert.equal(normalizeContentLanguage("ES-MX"), "es");
+    assert.equal(normalizeContentLanguage("fr-FR"), "fr");
+    assert.equal(normalizeContentJob("convert"), "convert");
+    let p = { ...buildNewContentProject("p"), id: "p", brief: "x".repeat(50) };
+    assert.equal(isProjectFrameReady(p), false);
+    assert.deepEqual(missingProjectFrameFields(p), ["contentLanguage", "contentJob"]);
+    const patch = parseLucyFramePatch({
+      contentLanguage: "ES-MX",
+      contentJob: "convert",
+      emojiLevel: "none",
+      preferredCtaStyle: "medium",
+      angle: "Dirigeants sans temps pour le networking de masse",
+    });
+    assert.ok(patch);
+    p = applyLucyFramePatch(p, patch!);
+    assert.equal(p.contentLanguage, "es");
+    assert.equal(p.contentJob, "convert");
+    assert.equal(p.emojiLevel, "none");
+    assert.ok(isProjectFrameReady(p));
+    assert.ok((p.ideas ?? []).some((i) => /networking/i.test(i.title)));
   });
 
   it("applies proposals and builds chips", () => {

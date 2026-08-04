@@ -60,6 +60,8 @@ export type LucyChatResponse = {
   suggestedIdea?: LucySuggestedIdea;
   /** Short clickable quick replies to answer Lucy's current question in one tap. */
   choices?: string[];
+  /** Locked frame snapshot · applied when user validates readyToGenerate. */
+  framePatch?: LucyFramePatch;
 };
 
 /** Parse Lucy's clickable quick-reply options (short strings). */
@@ -108,6 +110,109 @@ export function normalizeProposedBrief(raw: string): string | null {
     .replace(/\n{3,}/g, "\n\n");
   if (text.length < MIN_PROJECT_BRIEF_CHARS) return null;
   return text.slice(0, MAX_PROJECT_BRIEF_CHARS);
+}
+
+/** Map Lucy locale variants (ES-MX, fr-FR, spanish…) onto ContentLanguage. */
+export function normalizeContentLanguage(raw: unknown): ContentLanguage | undefined {
+  if (typeof raw !== "string") return undefined;
+  const v = raw.trim().toLowerCase().replace(/_/g, "-");
+  if (v === "fr" || v.startsWith("fr-") || v.startsWith("fran")) return "fr";
+  if (v === "en" || v.startsWith("en-") || v.startsWith("eng")) return "en";
+  if (v === "es" || v.startsWith("es-") || v.startsWith("spa") || v.includes("castell")) {
+    return "es";
+  }
+  return undefined;
+}
+
+export function normalizeContentJob(raw: unknown): ContentJob | undefined {
+  if (typeof raw !== "string") return undefined;
+  const v = raw.trim().toLowerCase();
+  if (v === "teaser" || v === "explain" || v === "convert") return v;
+  return undefined;
+}
+
+export type LucyFramePatch = {
+  contentLanguage?: ContentLanguage;
+  contentJob?: ContentJob;
+  channelOwner?: ChannelOwner;
+  productFrame?: ProductFrame;
+  emojiLevel?: EmojiLevel;
+  preferredCtaStyle?: CtaIntensity;
+  includeSignaturePs?: boolean;
+  /** Angle title → stored as a Lucy idea when provided. */
+  angle?: string;
+};
+
+export function parseLucyFramePatch(raw: unknown): LucyFramePatch | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const o = raw as Record<string, unknown>;
+  const patch: LucyFramePatch = {};
+  const lang = normalizeContentLanguage(o.contentLanguage);
+  if (lang) patch.contentLanguage = lang;
+  const job = normalizeContentJob(o.contentJob);
+  if (job) patch.contentJob = job;
+  const channel = typeof o.channelOwner === "string" ? o.channelOwner.trim() : "";
+  if (channel === "gregory" || channel === "la_mesa" || channel === "generic") {
+    patch.channelOwner = channel;
+  }
+  const product = typeof o.productFrame === "string" ? o.productFrame.trim() : "";
+  if (
+    product === "la_mesa_dinners" ||
+    product === "nextstep_market_entry" ||
+    product === "generic"
+  ) {
+    patch.productFrame = product;
+  }
+  const emoji = typeof o.emojiLevel === "string" ? o.emojiLevel.trim() : "";
+  if (emoji === "none" || emoji === "light" || emoji === "heavy") patch.emojiLevel = emoji;
+  const cta = typeof o.preferredCtaStyle === "string" ? o.preferredCtaStyle.trim() : "";
+  if (cta === "soft" || cta === "medium" || cta === "pushy") patch.preferredCtaStyle = cta;
+  if (typeof o.includeSignaturePs === "boolean") patch.includeSignaturePs = o.includeSignaturePs;
+  if (typeof o.angle === "string" && o.angle.trim()) {
+    patch.angle = o.angle.trim().slice(0, 200);
+  }
+  return Object.keys(patch).length > 0 ? patch : undefined;
+}
+
+export function applyLucyFramePatch(
+  project: ContentProject,
+  patch: LucyFramePatch,
+): ContentProject {
+  const next: ContentProject = { ...project, updatedAt: new Date() };
+  if (patch.contentLanguage) next.contentLanguage = patch.contentLanguage;
+  if (patch.contentJob) next.contentJob = patch.contentJob;
+  if (patch.channelOwner) next.channelOwner = patch.channelOwner;
+  if (patch.productFrame) next.productFrame = patch.productFrame;
+  if (patch.emojiLevel) next.emojiLevel = patch.emojiLevel;
+  if (patch.preferredCtaStyle) next.preferredCtaStyle = patch.preferredCtaStyle;
+  if (typeof patch.includeSignaturePs === "boolean") {
+    next.includeSignaturePs = patch.includeSignaturePs;
+  }
+  if (patch.angle?.trim()) {
+    const title = patch.angle.trim();
+    const idea: ContentProjectIdeaHit = {
+      id: newContentProjectMessageId(),
+      title: title.slice(0, 200),
+      stars: 4,
+      reason: title.slice(0, 280),
+      source: "lucy",
+    };
+    next.ideas = sortIdeasByStars([...(next.ideas ?? []), idea]);
+  }
+  return next;
+}
+
+/** Human-readable list of missing frame keys for UI errors. */
+export function missingProjectFrameFields(
+  project: Pick<ContentProject, "contentLanguage" | "contentJob" | "brief" | "ideas">,
+): string[] {
+  const missing: string[] = [];
+  if (!project.contentLanguage) missing.push("contentLanguage");
+  if (!project.contentJob) missing.push("contentJob");
+  const hasIdea = (project.ideas?.length ?? 0) > 0;
+  const hasBrief = project.brief.trim().length >= MIN_PROJECT_BRIEF_CHARS;
+  if (!hasIdea && !hasBrief) missing.push("brief|idea");
+  return missing;
 }
 
 export function newContentProjectMessageId(): string {
@@ -339,6 +444,7 @@ export function parseLucyChatResponse(raw: unknown): LucyChatResponse | null {
     pendingProposal: parseLucyPendingProposal(o.pendingProposal),
     suggestedIdea: parseLucySuggestedIdea(o.suggestedIdea),
     choices: parseLucyChoices(o.choices),
+    framePatch: parseLucyFramePatch(o.framePatch),
   };
 }
 
@@ -350,13 +456,13 @@ export function applyLucyProposalToProject(
   const next = { ...project, updatedAt: new Date() };
   switch (proposal.field) {
     case "contentLanguage": {
-      const v = String(proposal.value);
-      if (v === "fr" || v === "en" || v === "es") next.contentLanguage = v;
+      const lang = normalizeContentLanguage(proposal.value);
+      if (lang) next.contentLanguage = lang;
       break;
     }
     case "contentJob": {
-      const v = String(proposal.value);
-      if (v === "teaser" || v === "explain" || v === "convert") next.contentJob = v;
+      const job = normalizeContentJob(proposal.value);
+      if (job) next.contentJob = job;
       break;
     }
     case "channelOwner": {

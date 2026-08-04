@@ -826,6 +826,8 @@
     "draftEmptyHint": "Cadre d’abord avec Lucy (langue, job, angle). Quand c’est prêt, valide « Générer ».",
     "frameIncomplete": "Cadre incomplet : langue + job + brief ou idée ★.",
     "frameIncompleteBadge": "Cadre incomplet",
+    "frameIncompleteDetail": "Cadre incomplet — manque : {missing}. Ces champs doivent être Validés (pas seulement écrits dans le chat).",
+    "frameStillIncompleteAck": "Le cadre n’est pas encore enregistré ({missing}). Dis-moi de proposer langue / job / angle à Valider, ou reclique « prêt à générer » avec un framePatch.",
     "openEditor": "Ouvrir l’éditeur",
     "regenerate": "Regénérer",
     "refining": "Affinage…",

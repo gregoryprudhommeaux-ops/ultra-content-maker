@@ -120,11 +120,44 @@ export async function POST(request: Request) {
     if (!parsed) {
       return NextResponse.json({ error: "empty_reply" }, { status: 502 });
     }
+
+    // Guard: never hand the UI a readyToGenerate when the persisted frame (or the
+    // accompanying framePatch) still cannot unlock generation.
+    let pendingProposal = parsed.pendingProposal ?? null;
+    const framePatch = parsed.framePatch ?? null;
+    if (pendingProposal?.field === "readyToGenerate" && !frameReady) {
+      const projected = framePatch
+        ? {
+            contentLanguage:
+              framePatch.contentLanguage ?? body.project.contentLanguage,
+            contentJob: framePatch.contentJob ?? body.project.contentJob,
+            brief: body.project.brief,
+            ideas: framePatch.angle
+              ? [
+                  ...(ideas ?? []),
+                  {
+                    id: "projected",
+                    title: framePatch.angle,
+                    stars: 4 as const,
+                    reason: "",
+                    source: "lucy" as const,
+                  },
+                ]
+              : ideas,
+          }
+        : null;
+      const wouldBeReady = projected ? isProjectFrameReady(projected) : false;
+      if (!wouldBeReady) {
+        pendingProposal = null;
+      }
+    }
+
     return NextResponse.json({
       reply: parsed.reply,
-      pendingProposal: parsed.pendingProposal ?? null,
+      pendingProposal,
       suggestedIdea: parsed.suggestedIdea ?? null,
       choices: parsed.choices ?? null,
+      framePatch,
     });
   } catch (err) {
     return llmErrorResponse(err);
