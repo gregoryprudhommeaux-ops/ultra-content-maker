@@ -833,6 +833,7 @@
     "refining": "Refining…",
     "refineFailed": "Could not refine. Try again.",
     "draftReadyAck": "Draft ready on the right. Tell me what to refine (hook, CTA, tone…).",
+    "generatingToPanelAck": "Generating the draft in the right-hand panel — not in chat.",
     "refineReadyAck": "Draft updated on the right.",
     "newsScanResult": "News found:",
     "newsScanHint": "Shortlist the ones that fit (button under each title)."

@@ -32,8 +32,8 @@ export function buildLucyProjectChatSystemPrompt(
     : `- News option is BLOCKED until Persona/profile is ready. If the user asks for news, say they should complete Persona first (do not invent headlines). Do NOT propose newsScan.`;
 
   const draftGate = opts?.hasDraft
-    ? `- A LinkedIn draft ALREADY exists in the right panel. Do NOT write the full post in chat. For change requests, propose a refine field: refineHook | refineCta | refinePs | refineTone with a short instruction in value + label.`
-    : `- No draft yet. NEVER write the LinkedIn post body in chat. Frame first; when frame is ready propose readyToGenerate.`;
+    ? `- A LinkedIn draft ALREADY exists in the RIGHT PANEL. Do NOT write or paste the full post in chat. For change requests, propose a refine field: refineHook | refineCta | refinePs | refineTone with a short instruction in value + label.`
+    : `- No draft yet in the right panel. HARD BAN: NEVER write, draft, or paste the LinkedIn post body (hook/body/CTA) in "reply". The post is generated ONLY into the right panel via pendingProposal.field="readyToGenerate" (+ framePatch). If the user says "génère / generate / crée le post", reply in 1–2 short sentences confirming generation will appear on the right, set pendingProposal to readyToGenerate (value true), and include framePatch with locked fields — do NOT invent the post text yourself.`;
 
   const frameGate = opts?.frameReady
     ? `- Frame minimum is technically READY in the project payload (language + job + angle/brief are non-null). Do NOT rush to a draft: only propose readyToGenerate AFTER you have explicitly confirmed, one step at a time, at least: (1) the precise angle, (2) the target reader + their intent, (3) the single key takeaway/thesis, and (4) the content job. When these are locked and the user signals they are ready, THEN propose readyToGenerate (value true) AND always include framePatch with the locked fields (contentLanguage must be exactly "fr"|"en"|"es" — never "ES-MX"; use "es" for Mexican Spanish). Writing a summary in reply text does NOT persist anything.`

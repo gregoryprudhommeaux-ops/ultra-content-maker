@@ -24,7 +24,8 @@ describe("lucy-project-chat", () => {
       frameReady: false,
     });
     assert.match(prompt, /pendingProposal/);
-    assert.match(prompt, /NEVER write the LinkedIn post/i);
+    assert.match(prompt, /HARD BAN/i);
+    assert.match(prompt, /NEVER write.*LinkedIn post/i);
     assert.match(prompt, /Living brief/i);
     assert.match(prompt, /\bbrief\b/);
     assert.match(prompt, /choices/);

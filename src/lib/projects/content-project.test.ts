@@ -10,6 +10,7 @@ import {
   ctaPreferenceHint,
   formatSiblingProjectsSummary,
   ideaHitFromNewsSuggestion,
+  isGenerateIntent,
   isProjectFrameReady,
   isRefineProposalField,
   missingProjectFrameFields,
@@ -19,6 +20,7 @@ import {
   parseLucyChatResponse,
   parseLucyFramePatch,
   parseLucyPendingProposal,
+  redirectDraftAwayFromChatReply,
   refineInstructionFromProposal,
   resolveGenerateIdea,
   sortIdeasByStars,
@@ -178,6 +180,28 @@ describe("content-project helpers", () => {
     assert.equal(p.emojiLevel, "none");
     assert.ok(isProjectFrameReady(p));
     assert.ok((p.ideas ?? []).some((i) => /networking/i.test(i.title)));
+  });
+
+  it("detects generate intent and redirects dumped posts out of chat", () => {
+    assert.equal(isGenerateIntent("OK, génère le post maintenant"), true);
+    assert.equal(isGenerateIntent("Quelle langue ?"), false);
+    const dumped = redirectDraftAwayFromChatReply(
+      [
+        "Voici un premier jet en ES-MX:",
+        "",
+        "El networking moderno promete conexiones.",
+        "",
+        "Pero la mayoría de eventos son ruido.",
+        "",
+        "LA MESA cambia el formato: 14–16 lugares, por invitación.",
+        "",
+        "Si quieres entrar a la waitlist, escríbeme.",
+      ].join("\n"),
+      "fr",
+    );
+    assert.equal(dumped.redirected, true);
+    assert.match(dumped.reply, /panneau de droite/i);
+    assert.doesNotMatch(dumped.reply, /waitlist/i);
   });
 
   it("applies proposals and builds chips", () => {

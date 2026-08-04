@@ -833,6 +833,7 @@
     "refining": "Afinando…",
     "refineFailed": "No se pudo afinar. Reintenta.",
     "draftReadyAck": "Borrador listo a la derecha. Dime qué afinar (hook, CTA, tono…).",
+    "generatingToPanelAck": "Genero el borrador en el panel derecho — no en el chat.",
     "refineReadyAck": "Borrador actualizado a la derecha.",
     "newsScanResult": "Actualidad encontrada:",
     "newsScanHint": "Pon en shortlist las que encajen (botón bajo cada título)."

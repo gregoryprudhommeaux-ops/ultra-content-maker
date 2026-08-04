@@ -833,6 +833,7 @@
     "refining": "Affinage…",
     "refineFailed": "Affinage impossible. Réessayez.",
     "draftReadyAck": "Brouillon prêt à droite. Dis-moi ce qu’on affine (hook, CTA, ton…).",
+    "generatingToPanelAck": "Je génère le brouillon dans le panneau de droite — pas dans le chat.",
     "refineReadyAck": "Brouillon mis à jour à droite.",
     "newsScanResult": "Actus trouvées :",
     "newsScanHint": "Shortliste celles qui collent (bouton sous chaque titre)."

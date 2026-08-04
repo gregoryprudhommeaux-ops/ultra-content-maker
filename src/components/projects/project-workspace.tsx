@@ -11,6 +11,7 @@ import {
   buildValidatedChips,
   contentProjectPatchFromApplied,
   ideaHitFromNewsSuggestion,
+  isGenerateIntent,
   isProjectFrameReady,
   isRefineProposalField,
   missingProjectFrameFields,
@@ -470,6 +471,34 @@ export function ProjectWorkspace({ projectId }: Props) {
     }
   }
 
+  async function applyFrameAndGenerate(
+    base: ContentProject,
+    framePatch: LucyFramePatch | null | undefined,
+  ): Promise<ContentProject | null> {
+    if (!user) return null;
+    let working = base;
+    if (framePatch) {
+      working = applyLucyFramePatch(working, framePatch);
+      const patch = contentProjectPatchFromApplied(base, working);
+      if (Object.keys(patch).length > 0) {
+        await updateContentProject(user.uid, working.id, patch);
+      }
+      setProject(working);
+      if (framePatch.angle) {
+        const top = resolveGenerateIdea(working.ideas)?.id ?? null;
+        setSelectedIdeaId(top);
+      }
+    }
+    if (!isProjectFrameReady(working)) {
+      const missing = missingProjectFrameFields(working).join(", ");
+      setError(t("frameIncompleteDetail", { missing }));
+      await appendAck(t("frameStillIncompleteAck", { missing }), working);
+      return null;
+    }
+    await generateDraft(working);
+    return working;
+  }
+
   async function validateProposal() {
     if (!user || !project || !pendingProposal) return;
     const proposal = pendingProposal;
@@ -483,28 +512,12 @@ export function ProjectWorkspace({ projectId }: Props) {
     }
 
     if (proposal.field === "readyToGenerate") {
-      let working = project;
-      if (pendingFramePatch) {
-        working = applyLucyFramePatch(working, pendingFramePatch);
-        const patch = contentProjectPatchFromApplied(project, working);
-        if (Object.keys(patch).length > 0) {
-          await updateContentProject(user.uid, working.id, patch);
-        }
-        setProject(working);
-        setPendingFramePatch(null);
-        if (pendingFramePatch.angle) {
-          const top = resolveGenerateIdea(working.ideas)?.id ?? null;
-          setSelectedIdeaId(top);
-        }
+      const patch = pendingFramePatch;
+      setPendingFramePatch(null);
+      const working = await applyFrameAndGenerate(project, patch);
+      if (working) {
+        await appendAck(t("ackValidated", { label: proposal.label }), working);
       }
-      if (!isProjectFrameReady(working)) {
-        const missing = missingProjectFrameFields(working).join(", ");
-        setError(t("frameIncompleteDetail", { missing }));
-        await appendAck(t("frameStillIncompleteAck", { missing }), working);
-        return;
-      }
-      await appendAck(t("ackValidated", { label: proposal.label }), working);
-      await generateDraft(working);
       return;
     }
 
@@ -593,6 +606,19 @@ export function ProjectWorkspace({ projectId }: Props) {
     try {
       await updateContentProject(user.uid, project.id, { chat: withUser.chat });
 
+      // User asked to generate and the frame is already locked → skip Lucy prose,
+      // write a short ack and fill the right-hand draft panel.
+      if (isGenerateIntent(userMessage) && isProjectFrameReady(withUser)) {
+        const withAck = appendContentProjectChat(withUser, [
+          { role: "assistant", content: t("generatingToPanelAck") },
+        ]);
+        await updateContentProject(user.uid, withAck.id, { chat: withAck.chat });
+        setProject(withAck);
+        setChatBusy(false);
+        await generateDraft(withUser);
+        return;
+      }
+
       const auth = getClientAuth();
       const token = auth ? await auth.currentUser?.getIdToken() : null;
       const [persona, llmProfile] = await Promise.all([
@@ -648,6 +674,7 @@ export function ProjectWorkspace({ projectId }: Props) {
         suggestedIdea?: LucySuggestedIdea | null;
         choices?: string[] | null;
         framePatch?: LucyFramePatch | null;
+        autoGenerate?: boolean;
         error?: string;
         detail?: string;
       };
@@ -671,6 +698,23 @@ export function ProjectWorkspace({ projectId }: Props) {
       ]);
       await updateContentProject(user.uid, project.id, { chat: withLucy.chat });
       setProject(withLucy);
+
+      // User asked to generate → apply framePatch and fill the right panel immediately.
+      if (
+        data.autoGenerate &&
+        data.pendingProposal?.field === "readyToGenerate"
+      ) {
+        setPendingProposal(null);
+        setPendingFramePatch(null);
+        setPendingChoices([]);
+        setChatBusy(false);
+        const working = await applyFrameAndGenerate(withLucy, data.framePatch);
+        if (working) {
+          await appendAck(t("draftReadyAck"), working);
+        }
+        return;
+      }
+
       if (data.pendingProposal?.field && data.pendingProposal.label) {
         setPendingProposal(data.pendingProposal);
       }

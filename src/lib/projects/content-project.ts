@@ -215,6 +215,51 @@ export function missingProjectFrameFields(
   return missing;
 }
 
+/** User asks to generate / launch the LinkedIn draft now. */
+export function isGenerateIntent(message: string): boolean {
+  const m = message.trim().toLowerCase();
+  if (!m) return false;
+  return /(?:g[eé]n[eè]re|genera(?:te|r)?|cr[eé]e(?:r)?\s+le\s+post|lance\s+(?:le\s+)?(?:brouillon|post|g[eé]n)|pr[eê]t\s+[aà]\s+g[eé]n|ok[,.]?\s*g[eé]n)/i.test(
+    m,
+  );
+}
+
+/**
+ * Detect when Lucy dumped a full LinkedIn draft into the chat reply
+ * (should live in the right-hand panel instead).
+ */
+export function looksLikeLinkedInPostInChat(reply: string): boolean {
+  const text = reply.trim();
+  if (text.length < 180) return false;
+  const paragraphs = text.split(/\n\s*\n/).filter((p) => p.trim().length > 0);
+  const questionMarks = (text.match(/\?/g) ?? []).length;
+  const newlines = (text.match(/\n/g) ?? []).length;
+  // Multi-paragraph draft dump (coach intros are usually 1 short block).
+  if (paragraphs.length >= 3 && text.length >= 180 && questionMarks <= 1) return true;
+  if (paragraphs.length >= 2 && text.length >= 400 && questionMarks <= 1) return true;
+  return text.length >= 500 && newlines >= 4 && questionMarks <= 1;
+}
+
+const DRAFT_REDIRECT: Record<ContentLanguage, string> = {
+  fr: "Le brouillon ne s’écrit pas dans le chat — il apparaît dans le panneau de droite. Je prépare la génération là-bas (valide « prêt à générer » si demandé).",
+  en: "The draft doesn’t belong in chat — it appears in the right-hand panel. I’ll prepare generation there (validate “ready to generate” if asked).",
+  es: "El borrador no va en el chat — aparece en el panel derecho. Preparo la generación allí (valida « listo para generar » si se pide).",
+};
+
+/** Replace a dumped LinkedIn post in chat with a short redirect to the draft panel. */
+export function redirectDraftAwayFromChatReply(
+  reply: string,
+  lang: ContentLanguage = "fr",
+): { reply: string; redirected: boolean } {
+  if (!looksLikeLinkedInPostInChat(reply)) return { reply, redirected: false };
+  const redirect = DRAFT_REDIRECT[lang] ?? DRAFT_REDIRECT.fr;
+  const first = reply.trim().split(/\n\s*\n/)[0]?.trim() ?? "";
+  if (first.length > 0 && first.length <= 180 && !looksLikeLinkedInPostInChat(first)) {
+    return { reply: `${first}\n\n${redirect}`, redirected: true };
+  }
+  return { reply: redirect, redirected: true };
+}
+
 export function newContentProjectMessageId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();

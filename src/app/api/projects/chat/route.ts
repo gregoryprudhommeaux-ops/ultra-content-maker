@@ -3,7 +3,12 @@ import { chatCompletionJson, mergeUsageLog } from "@/lib/llm/chat";
 import { llmErrorResponse } from "@/lib/llm/llm-route-error";
 import { parseLlmJson } from "@/lib/llm/parse-json";
 import { resolveContentRouteLlm } from "@/lib/llm/resolve-content-route-llm";
-import { isProjectFrameReady, parseLucyChatResponse } from "@/lib/projects/content-project";
+import {
+  isGenerateIntent,
+  isProjectFrameReady,
+  parseLucyChatResponse,
+  redirectDraftAwayFromChatReply,
+} from "@/lib/projects/content-project";
 import {
   buildLucyProjectChatSystemPrompt,
   buildLucyProjectChatUserPayload,
@@ -121,10 +126,61 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "empty_reply" }, { status: 502 });
     }
 
+    const wantsGenerate = isGenerateIntent(body.userMessage);
+    const sanitized = redirectDraftAwayFromChatReply(parsed.reply, contentLanguage);
+    let reply = sanitized.reply;
+    let pendingProposal = parsed.pendingProposal ?? null;
+    let framePatch = parsed.framePatch ?? null;
+
+    // If Lucy dumped a post in chat (or the user asked to generate), steer to the
+    // right-panel flow via readyToGenerate + framePatch instead of chat prose.
+    if (sanitized.redirected || wantsGenerate) {
+      if (!pendingProposal || pendingProposal.field !== "readyToGenerate") {
+        pendingProposal = {
+          field: "readyToGenerate",
+          value: true,
+          label:
+            contentLanguage === "es"
+              ? "Listo para generar"
+              : contentLanguage === "en"
+                ? "Ready to generate"
+                : "Prêt à générer",
+        };
+      }
+      if (!framePatch) {
+        framePatch = {
+          ...(body.project.contentLanguage
+            ? { contentLanguage: body.project.contentLanguage }
+            : {}),
+          ...(body.project.contentJob ? { contentJob: body.project.contentJob } : {}),
+          ...(body.project.emojiLevel ? { emojiLevel: body.project.emojiLevel } : {}),
+          ...(body.project.preferredCtaStyle
+            ? { preferredCtaStyle: body.project.preferredCtaStyle }
+            : {}),
+          ...(typeof body.project.includeSignaturePs === "boolean"
+            ? { includeSignaturePs: body.project.includeSignaturePs }
+            : {}),
+          ...(body.project.channelOwner
+            ? { channelOwner: body.project.channelOwner }
+            : {}),
+          ...(body.project.productFrame
+            ? { productFrame: body.project.productFrame }
+            : {}),
+        };
+        if (Object.keys(framePatch).length === 0) framePatch = null;
+      }
+      if (sanitized.redirected && wantsGenerate) {
+        reply =
+          contentLanguage === "es"
+            ? "El borrador se genera en el panel derecho — valida « listo para generar »."
+            : contentLanguage === "en"
+              ? "The draft will be generated in the right panel — validate “ready to generate”."
+              : "Le brouillon se génère dans le panneau de droite — valide « prêt à générer ».";
+      }
+    }
+
     // Guard: never hand the UI a readyToGenerate when the persisted frame (or the
     // accompanying framePatch) still cannot unlock generation.
-    let pendingProposal = parsed.pendingProposal ?? null;
-    const framePatch = parsed.framePatch ?? null;
     if (pendingProposal?.field === "readyToGenerate" && !frameReady) {
       const projected = framePatch
         ? {
@@ -138,7 +194,7 @@ export async function POST(request: Request) {
                   {
                     id: "projected",
                     title: framePatch.angle,
-                    stars: 4 as const,
+                    stars: 4,
                     reason: "",
                     source: "lucy" as const,
                   },
@@ -153,11 +209,35 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({
-      reply: parsed.reply,
+      reply,
       pendingProposal,
       suggestedIdea: parsed.suggestedIdea ?? null,
       choices: parsed.choices ?? null,
       framePatch,
+      autoGenerate: Boolean(
+        wantsGenerate &&
+          pendingProposal?.field === "readyToGenerate" &&
+          (frameReady ||
+            (framePatch &&
+              isProjectFrameReady({
+                contentLanguage:
+                  framePatch.contentLanguage ?? body.project.contentLanguage,
+                contentJob: framePatch.contentJob ?? body.project.contentJob,
+                brief: body.project.brief,
+                ideas: framePatch.angle
+                  ? [
+                      ...(ideas ?? []),
+                      {
+                        id: "projected",
+                        title: framePatch.angle,
+                        stars: 4,
+                        reason: "",
+                        source: "lucy" as const,
+                      },
+                    ]
+                  : ideas,
+              }))),
+      ),
     });
   } catch (err) {
     return llmErrorResponse(err);
