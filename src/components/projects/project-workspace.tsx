@@ -22,6 +22,7 @@ import {
   resolveGenerateIdea,
   sortIdeasByStars,
   type LucyFramePatch,
+  type LucyNewProjectSeed,
   type LucyPendingProposal,
   type LucySuggestedIdea,
 } from "@/lib/projects/content-project";
@@ -43,19 +44,21 @@ import {
 } from "@/lib/workspace/articles";
 import { notifyArticlesChangedDeferred } from "@/lib/workspace/articles-events";
 import {
+  createContentProject,
   getContentProject,
   listContentProjects,
   updateContentProject,
 } from "@/lib/workspace/content-projects";
 import { BTN_PRIMARY, INPUT_CLASS, LABEL_CLASS, META_LABEL } from "@/lib/ui/nextstep";
 import type {
+  ContentLanguage,
   ContentProject,
   ContentProjectIdeaHit,
   NewsSuggestion,
 } from "@/types/workspace";
 import { ImeSafeInput, ImeSafeTextarea } from "@/components/ui/ime-safe-field";
-import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -72,9 +75,13 @@ type LiveDraft = {
 
 export function ProjectWorkspace({ projectId }: Props) {
   const t = useTranslations("projects");
+  const locale = useLocale();
+  const chatLanguage: ContentLanguage =
+    locale === "en" || locale === "es" || locale === "fr" ? locale : "fr";
   const { user } = useAuth();
   const { access } = useSubscription();
   const { progress } = useOnboardingProgress();
+  const router = useRouter();
   const [project, setProject] = useState<ContentProject | null>(null);
   const [siblings, setSiblings] = useState<ContentProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +100,9 @@ export function ProjectWorkspace({ projectId }: Props) {
   const [liveDraft, setLiveDraft] = useState<LiveDraft | null>(null);
   const [pendingChoices, setPendingChoices] = useState<string[]>([]);
   const [pendingFramePatch, setPendingFramePatch] = useState<LucyFramePatch | null>(null);
+  const [pendingNewProjectSeed, setPendingNewProjectSeed] = useState<LucyNewProjectSeed | null>(
+    null,
+  );
   const [newsPreview, setNewsPreview] = useState<NewsSuggestion[]>([]);
   const [error, setError] = useState<string | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
@@ -502,8 +512,10 @@ export function ProjectWorkspace({ projectId }: Props) {
   async function validateProposal() {
     if (!user || !project || !pendingProposal) return;
     const proposal = pendingProposal;
+    const newProjectSeed = pendingNewProjectSeed;
     setPendingProposal(null);
     setPendingChoices([]);
+    setPendingNewProjectSeed(null);
 
     if (proposal.field === "newsScan") {
       await appendAck(t("ackValidated", { label: proposal.label }));
@@ -517,6 +529,47 @@ export function ProjectWorkspace({ projectId }: Props) {
       const working = await applyFrameAndGenerate(project, patch);
       if (working) {
         await appendAck(t("ackValidated", { label: proposal.label }), working);
+      }
+      return;
+    }
+
+    if (proposal.field === "newProject") {
+      const seed = newProjectSeed;
+      const name =
+        (typeof proposal.value === "string" && proposal.value.trim()) ||
+        seed?.name?.trim() ||
+        proposal.label.trim();
+      if (!name) {
+        setError(t("newProjectFailed"));
+        return;
+      }
+      try {
+        const created = await createContentProject(user.uid, {
+          name,
+          brief: seed?.brief || undefined,
+          emoji: seed?.emoji || undefined,
+          contentLanguage: seed?.contentLanguage ?? project.contentLanguage,
+          contentJob: seed?.contentJob,
+          channelOwner: seed?.channelOwner ?? project.channelOwner,
+          productFrame: seed?.productFrame ?? project.productFrame,
+        });
+        if (seed?.angle?.trim()) {
+          const idea: ContentProjectIdeaHit = {
+            id: newContentProjectMessageId(),
+            title: seed.angle.trim().slice(0, 200),
+            stars: 4,
+            reason: proposal.label.slice(0, 280),
+            source: "lucy",
+          };
+          await updateContentProject(user.uid, created.id, { ideas: [idea] });
+        }
+        await appendAck(
+          t("newProjectCreatedAck", { name: created.name }),
+          project,
+        );
+        router.push(`/projects/${created.id}`);
+      } catch {
+        setError(t("newProjectFailed"));
       }
       return;
     }
@@ -569,6 +622,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     setPendingSuggestedIdea(null);
     setPendingChoices([]);
     setPendingFramePatch(null);
+    setPendingNewProjectSeed(null);
   }
 
   async function addNewsAsIdea(news: NewsSuggestion) {
@@ -597,6 +651,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     setPendingSuggestedIdea(null);
     setPendingChoices([]);
     setPendingFramePatch(null);
+    setPendingNewProjectSeed(null);
 
     const withUser = appendContentProjectChat(project, [
       { role: "user", content: userMessage },
@@ -664,6 +719,7 @@ export function ProjectWorkspace({ projectId }: Props) {
           personaExcerpt: persona?.promptText?.slice(0, 1800),
           profileReadyForNews,
           hasDraft: Boolean(liveDraft),
+          chatLanguage,
           contentLanguage: withUser.contentLanguage ?? "fr",
           llm: llmPayload,
         }),
@@ -674,6 +730,8 @@ export function ProjectWorkspace({ projectId }: Props) {
         suggestedIdea?: LucySuggestedIdea | null;
         choices?: string[] | null;
         framePatch?: LucyFramePatch | null;
+        newProjectSeed?: LucyNewProjectSeed | null;
+        briefPatch?: string | null;
         autoGenerate?: boolean;
         error?: string;
         detail?: string;
@@ -693,10 +751,21 @@ export function ProjectWorkspace({ projectId }: Props) {
         return;
       }
 
-      const withLucy = appendContentProjectChat(withUser, [
+      let withLucy = appendContentProjectChat(withUser, [
         { role: "assistant", content: data.reply.trim() },
       ]);
-      await updateContentProject(user.uid, project.id, { chat: withLucy.chat });
+      const briefFromLucy =
+        typeof data.briefPatch === "string" ? data.briefPatch.trim() : "";
+      if (briefFromLucy.length >= MIN_PROJECT_BRIEF_CHARS) {
+        withLucy = { ...withLucy, brief: briefFromLucy };
+        await updateContentProject(user.uid, project.id, {
+          chat: withLucy.chat,
+          brief: briefFromLucy,
+        });
+        setBriefOpen(false);
+      } else {
+        await updateContentProject(user.uid, project.id, { chat: withLucy.chat });
+      }
       setProject(withLucy);
 
       // User asked to generate → apply framePatch and fill the right panel immediately.
@@ -727,6 +796,9 @@ export function ProjectWorkspace({ projectId }: Props) {
       if (data.framePatch && typeof data.framePatch === "object") {
         setPendingFramePatch(data.framePatch);
       }
+      if (data.newProjectSeed && typeof data.newProjectSeed === "object") {
+        setPendingNewProjectSeed(data.newProjectSeed);
+      }
     } catch {
       setError(t("chatFailed"));
     } finally {
@@ -739,6 +811,7 @@ export function ProjectWorkspace({ projectId }: Props) {
     setPendingProposal(null);
     setPendingChoices([]);
     setPendingFramePatch(null);
+    setPendingNewProjectSeed(null);
   }
 
   if (loading) {
@@ -841,6 +914,19 @@ export function ProjectWorkspace({ projectId }: Props) {
             {pendingProposal.field === "brief" && typeof pendingProposal.value === "string" && (
               <p className="mt-2 max-h-32 overflow-y-auto whitespace-pre-wrap rounded-lg border border-ns-primary/20 bg-white/70 px-2.5 py-2 text-xs leading-relaxed text-ns-tertiary">
                 {pendingProposal.value}
+              </p>
+            )}
+            {pendingProposal.field === "newProject" && (
+              <p className="mt-2 text-xs leading-relaxed text-ns-secondary">
+                {t("newProjectHint", {
+                  name:
+                    (typeof pendingProposal.value === "string" && pendingProposal.value) ||
+                    pendingNewProjectSeed?.name ||
+                    pendingProposal.label,
+                })}
+                {pendingNewProjectSeed?.angle
+                  ? ` · ${pendingNewProjectSeed.angle}`
+                  : ""}
               </p>
             )}
             <div className="mt-2 flex flex-wrap gap-2">

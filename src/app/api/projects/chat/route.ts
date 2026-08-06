@@ -47,6 +47,9 @@ type Body = {
   personaExcerpt?: string;
   profileReadyForNews?: boolean;
   hasDraft?: boolean;
+  /** UI / conversation language (reply + choices). Independent from post production language. */
+  chatLanguage?: ContentLanguage;
+  /** @deprecated Use chatLanguage for conversation; project.contentLanguage for production. */
   contentLanguage?: ContentLanguage;
   llm?: {
     provider: LlmProvider;
@@ -54,6 +57,15 @@ type Body = {
     model?: string;
   };
 };
+
+function normalizeChatLanguage(raw: unknown): ContentLanguage {
+  if (raw === "en" || raw === "es" || raw === "fr") return raw;
+  if (typeof raw === "string") {
+    const v = raw.toLowerCase().slice(0, 2);
+    if (v === "en" || v === "es" || v === "fr") return v;
+  }
+  return "fr";
+}
 
 export async function POST(request: Request) {
   const userId = await verifyBearerUserId(request.headers.get("authorization"));
@@ -71,8 +83,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const contentLanguage: ContentLanguage =
-    body.contentLanguage ?? body.project.contentLanguage ?? "fr";
+  const chatLanguage = normalizeChatLanguage(body.chatLanguage ?? body.contentLanguage);
+  const productionLanguage: ContentLanguage | null =
+    body.project.contentLanguage ?? null;
   const profileReadyForNews = Boolean(body.profileReadyForNews);
   const ideas = body.ideas ?? body.project.ideas ?? [];
   const hasDraft = Boolean(body.hasDraft);
@@ -93,10 +106,11 @@ export async function POST(request: Request) {
       [
         {
           role: "system",
-          content: buildLucyProjectChatSystemPrompt(contentLanguage, {
+          content: buildLucyProjectChatSystemPrompt(chatLanguage, {
             profileReadyForNews,
             hasDraft,
             frameReady,
+            productionLanguage,
           }),
         },
         {
@@ -111,6 +125,7 @@ export async function POST(request: Request) {
             personaExcerpt: body.personaExcerpt,
             profileReadyForNews,
             hasDraft,
+            chatLanguage,
           }),
         },
       ],
@@ -127,22 +142,22 @@ export async function POST(request: Request) {
     }
 
     const wantsGenerate = isGenerateIntent(body.userMessage);
-    const sanitized = redirectDraftAwayFromChatReply(parsed.reply, contentLanguage);
+    const sanitized = redirectDraftAwayFromChatReply(parsed.reply, chatLanguage);
     let reply = sanitized.reply;
     let pendingProposal = parsed.pendingProposal ?? null;
     let framePatch = parsed.framePatch ?? null;
+    const briefPatch = parsed.briefPatch ?? null;
 
-    // If Lucy dumped a post in chat (or the user asked to generate), steer to the
-    // right-panel flow via readyToGenerate + framePatch instead of chat prose.
-    if (sanitized.redirected || wantsGenerate) {
+    // Only force generate flow when the user asked to generate, or Lucy dumped a real post.
+    if (wantsGenerate || sanitized.redirected) {
       if (!pendingProposal || pendingProposal.field !== "readyToGenerate") {
         pendingProposal = {
           field: "readyToGenerate",
           value: true,
           label:
-            contentLanguage === "es"
+            chatLanguage === "es"
               ? "Listo para generar"
-              : contentLanguage === "en"
+              : chatLanguage === "en"
                 ? "Ready to generate"
                 : "Prêt à générer",
         };
@@ -169,26 +184,111 @@ export async function POST(request: Request) {
         };
         if (Object.keys(framePatch).length === 0) framePatch = null;
       }
-      if (sanitized.redirected && wantsGenerate) {
+      if (wantsGenerate) {
         reply =
-          contentLanguage === "es"
+          chatLanguage === "es"
             ? "El borrador se genera en el panel derecho — valida « listo para generar »."
-            : contentLanguage === "en"
+            : chatLanguage === "en"
               ? "The draft will be generated in the right panel — validate “ready to generate”."
               : "Le brouillon se génère dans le panneau de droite — valide « prêt à générer ».";
       }
     }
 
-    // Guard: never hand the UI a readyToGenerate when the persisted frame (or the
-    // accompanying framePatch) still cannot unlock generation.
+    // Guard: never hand readyToGenerate when frame (incl. briefPatch) cannot unlock.
     if (pendingProposal?.field === "readyToGenerate" && !frameReady) {
-      const projected = framePatch
-        ? {
+      const projected = {
+        contentLanguage:
+          framePatch?.contentLanguage ?? body.project.contentLanguage,
+        contentJob: framePatch?.contentJob ?? body.project.contentJob,
+        brief: briefPatch ?? body.project.brief,
+        ideas: framePatch?.angle
+          ? [
+              ...(ideas ?? []),
+              {
+                id: "projected",
+                title: framePatch.angle,
+                stars: 4,
+                reason: "",
+                source: "lucy" as const,
+              },
+            ]
+          : ideas,
+      };
+      if (!isProjectFrameReady(projected)) {
+        if (!projected.contentLanguage) {
+          pendingProposal = {
+            field: "contentLanguage",
+            value: chatLanguage === "es" ? "es" : chatLanguage === "en" ? "en" : "fr",
+            label:
+              chatLanguage === "es"
+                ? "Idioma del post"
+                : chatLanguage === "en"
+                  ? "Post language"
+                  : "Langue du post",
+          };
+        } else if (!projected.contentJob) {
+          pendingProposal = {
+            field: "contentJob",
+            value: "teaser",
+            label: "Job · teaser",
+          };
+        } else {
+          // Language + job ok → need brief|idea. Offer a brief draft from chat facts.
+          const userBits = [
+            ...(body.history ?? []),
+            { role: "user" as const, content: body.userMessage },
+          ]
+            .filter((m) => m.role === "user")
+            .map((m) => m.content.trim())
+            .filter((c) => c.length >= 6 && c.length <= 220)
+            .slice(-5);
+          const draftBrief = [body.project.name, ...userBits]
+            .filter(Boolean)
+            .join(" · ")
+            .trim();
+          if (draftBrief.length >= 40) {
+            pendingProposal = {
+              field: "brief",
+              value: draftBrief.slice(0, 1200),
+              label:
+                chatLanguage === "es"
+                  ? "Brief del proyecto"
+                  : chatLanguage === "en"
+                    ? "Project brief"
+                    : "Brief du projet",
+            };
+          } else {
+            pendingProposal = null;
+          }
+        }
+        if (sanitized.redirected && !wantsGenerate) {
+          reply =
+            chatLanguage === "es"
+              ? "Aún falta encuadrar el post (idioma / job / brief). Sigamos con eso antes de generar."
+              : chatLanguage === "en"
+                ? "We still need to lock the frame (language / job / brief) before generating."
+                : "Il manque encore le cadre (langue / job / brief). On verrouille ça avant de générer.";
+        }
+      }
+    }
+
+    return NextResponse.json({
+      reply,
+      pendingProposal,
+      suggestedIdea: parsed.suggestedIdea ?? null,
+      choices: parsed.choices ?? null,
+      framePatch,
+      newProjectSeed: parsed.newProjectSeed ?? null,
+      briefPatch,
+      autoGenerate: Boolean(
+        wantsGenerate &&
+          pendingProposal?.field === "readyToGenerate" &&
+          isProjectFrameReady({
             contentLanguage:
-              framePatch.contentLanguage ?? body.project.contentLanguage,
-            contentJob: framePatch.contentJob ?? body.project.contentJob,
-            brief: body.project.brief,
-            ideas: framePatch.angle
+              framePatch?.contentLanguage ?? body.project.contentLanguage,
+            contentJob: framePatch?.contentJob ?? body.project.contentJob,
+            brief: briefPatch ?? body.project.brief,
+            ideas: framePatch?.angle
               ? [
                   ...(ideas ?? []),
                   {
@@ -200,43 +300,7 @@ export async function POST(request: Request) {
                   },
                 ]
               : ideas,
-          }
-        : null;
-      const wouldBeReady = projected ? isProjectFrameReady(projected) : false;
-      if (!wouldBeReady) {
-        pendingProposal = null;
-      }
-    }
-
-    return NextResponse.json({
-      reply,
-      pendingProposal,
-      suggestedIdea: parsed.suggestedIdea ?? null,
-      choices: parsed.choices ?? null,
-      framePatch,
-      autoGenerate: Boolean(
-        wantsGenerate &&
-          pendingProposal?.field === "readyToGenerate" &&
-          (frameReady ||
-            (framePatch &&
-              isProjectFrameReady({
-                contentLanguage:
-                  framePatch.contentLanguage ?? body.project.contentLanguage,
-                contentJob: framePatch.contentJob ?? body.project.contentJob,
-                brief: body.project.brief,
-                ideas: framePatch.angle
-                  ? [
-                      ...(ideas ?? []),
-                      {
-                        id: "projected",
-                        title: framePatch.angle,
-                        stars: 4,
-                        reason: "",
-                        source: "lucy" as const,
-                      },
-                    ]
-                  : ideas,
-              }))),
+          }),
       ),
     });
   } catch (err) {

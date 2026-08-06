@@ -34,6 +34,28 @@ describe("lucy-project-chat", () => {
     assert.match(prompt, /Persistence rule/i);
   });
 
+  it("keeps chat language independent from production language", () => {
+    const prompt = buildLucyProjectChatSystemPrompt("fr", {
+      profileReadyForNews: true,
+      hasDraft: true,
+      frameReady: true,
+      productionLanguage: "es",
+    });
+    assert.match(prompt, /Chat language is French/i);
+    assert.match(prompt, /production language for the right-panel draft: Spanish/i);
+    assert.match(prompt, /ALWAYS write "reply", "choices"/i);
+  });
+
+  it("offers newProject when a draft already exists", () => {
+    const withDraft = buildLucyProjectChatSystemPrompt("fr", {
+      profileReadyForNews: true,
+      hasDraft: true,
+      frameReady: true,
+    });
+    assert.match(withDraft, /newProject/);
+    assert.match(withDraft, /sibling/i);
+  });
+
   it("builds a post brief from project fields", () => {
     const brief = buildPostBriefFromContentProject({
       name: "LA MESA",

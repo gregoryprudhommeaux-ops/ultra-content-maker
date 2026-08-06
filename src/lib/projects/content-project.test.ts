@@ -19,6 +19,7 @@ import {
   normalizeContentLanguage,
   parseLucyChatResponse,
   parseLucyFramePatch,
+  parseLucyNewProjectSeed,
   parseLucyPendingProposal,
   redirectDraftAwayFromChatReply,
   refineInstructionFromProposal,
@@ -185,23 +186,81 @@ describe("content-project helpers", () => {
   it("detects generate intent and redirects dumped posts out of chat", () => {
     assert.equal(isGenerateIntent("OK, génère le post maintenant"), true);
     assert.equal(isGenerateIntent("Quelle langue ?"), false);
+    // Coaching / framing replies must NOT be treated as drafts.
+    const coaching = redirectDraftAwayFromChatReply(
+      [
+        "Ok — on mixe plusieurs angles.",
+        "",
+        "Avant de générer, je veux verrouiller le lecteur :",
+        "qui lit ce teaser, et pourquoi maintenant ?",
+        "",
+        "Quelques pistes : verticales d'investissement, types d'acteurs,",
+        "ou moments du deal au Mexique. Tu préfères quoi ?",
+      ].join("\n"),
+      "fr",
+    );
+    assert.equal(coaching.redirected, false);
+
     const dumped = redirectDraftAwayFromChatReply(
       [
-        "Voici un premier jet en ES-MX:",
+        "El networking moderno promete conexiones. Pero la mayoría de eventos son ruido puro,",
+        "calendarios llenos y cero profundidad real para cerrar algo útil.",
         "",
-        "El networking moderno promete conexiones.",
+        "LA MESA cambia el formato: 14–16 lugares, por invitación, con un tema concreto.",
+        "No es un afterwork. Es una mesa donde el FDI hacia México se discute entre pares.",
         "",
-        "Pero la mayoría de eventos son ruido.",
+        "Si quieres entrar a la waitlist de las próximas mesas en GDL, escríbeme.",
         "",
-        "LA MESA cambia el formato: 14–16 lugares, por invitación.",
+        "P.S. Trabajo con founders y fondos que construyen puentes reales.",
         "",
-        "Si quieres entrar a la waitlist, escríbeme.",
+        "#FDI #Mexico #LAMesa #networking",
       ].join("\n"),
       "fr",
     );
     assert.equal(dumped.redirected, true);
     assert.match(dumped.reply, /panneau de droite/i);
     assert.doesNotMatch(dumped.reply, /waitlist/i);
+  });
+
+  it("parses briefPatch from Lucy chat JSON", () => {
+    const brief =
+      "LA MESA · dîners privés GDL. Focus FDI vers le Mexique. ICP fonds & corporate. Pas un afterwork.";
+    const parsed = parseLucyChatResponse({
+      reply: "J’ai mis à jour le brief à droite.",
+      briefPatch: brief,
+    });
+    assert.equal(parsed?.briefPatch, brief);
+    assert.equal(
+      parseLucyChatResponse({ reply: "ok", briefPatch: "trop court" })?.briefPatch,
+      undefined,
+    );
+  });
+
+  it("parses newProject proposal and seed", () => {
+    const parsed = parseLucyChatResponse({
+      reply: "On ouvre une ligne séparée pour la waitlist ?",
+      pendingProposal: {
+        field: "newProject",
+        value: "LA MESA · tables & waitlist",
+        label: "Nouveau projet",
+      },
+      newProjectSeed: {
+        name: "LA MESA · tables & waitlist",
+        brief: "Idées de premières tables · besoin d’inscriptions waitlist pour lancer.",
+        angle: "Premières tables thématiques + waitlist",
+        contentLanguage: "es",
+        contentJob: "convert",
+      },
+    });
+    assert.equal(parsed?.pendingProposal?.field, "newProject");
+    assert.equal(parsed?.newProjectSeed?.name, "LA MESA · tables & waitlist");
+    assert.equal(parsed?.newProjectSeed?.contentLanguage, "es");
+    assert.ok(parseLucyNewProjectSeed({ name: "X" }));
+    assert.equal(parseLucyNewProjectSeed({}), undefined);
+    assert.equal(
+      parseLucyPendingProposal({ field: "newProject", value: "ab", label: "trop court" }),
+      undefined,
+    );
   });
 
   it("applies proposals and builds chips", () => {

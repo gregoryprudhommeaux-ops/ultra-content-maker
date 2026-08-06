@@ -37,6 +37,7 @@ export type LucyProposalField =
   | "angle"
   | "newsScan"
   | "readyToGenerate"
+  | "newProject"
   | "refineHook"
   | "refineCta"
   | "refinePs"
@@ -62,7 +63,62 @@ export type LucyChatResponse = {
   choices?: string[];
   /** Locked frame snapshot · applied when user validates readyToGenerate. */
   framePatch?: LucyFramePatch;
+  /** Seed for a sibling ContentProject when validating newProject. */
+  newProjectSeed?: LucyNewProjectSeed;
+  /**
+   * Living brief rewrite applied immediately (no Valider click) when Lucy
+   * has merged new chat facts into the project brief.
+   */
+  briefPatch?: string;
 };
+
+/** Seed fields when Lucy proposes starting a sibling project (history preserved). */
+export type LucyNewProjectSeed = {
+  name: string;
+  brief?: string;
+  emoji?: string;
+  contentLanguage?: ContentLanguage;
+  contentJob?: ContentJob;
+  channelOwner?: ChannelOwner;
+  productFrame?: ProductFrame;
+  angle?: string;
+};
+
+export function parseLucyNewProjectSeed(raw: unknown): LucyNewProjectSeed | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const o = raw as Record<string, unknown>;
+  const name =
+    typeof o.name === "string"
+      ? o.name.trim().slice(0, 120)
+      : typeof o.title === "string"
+        ? o.title.trim().slice(0, 120)
+        : "";
+  if (!name) return undefined;
+  const seed: LucyNewProjectSeed = { name };
+  const brief = typeof o.brief === "string" ? normalizeProposedBrief(o.brief) : null;
+  if (brief) seed.brief = brief;
+  if (typeof o.emoji === "string" && o.emoji.trim()) seed.emoji = o.emoji.trim().slice(0, 8);
+  const lang = normalizeContentLanguage(o.contentLanguage);
+  if (lang) seed.contentLanguage = lang;
+  const job = normalizeContentJob(o.contentJob);
+  if (job) seed.contentJob = job;
+  const channel = typeof o.channelOwner === "string" ? o.channelOwner.trim() : "";
+  if (channel === "gregory" || channel === "la_mesa" || channel === "generic") {
+    seed.channelOwner = channel;
+  }
+  const product = typeof o.productFrame === "string" ? o.productFrame.trim() : "";
+  if (
+    product === "la_mesa_dinners" ||
+    product === "nextstep_market_entry" ||
+    product === "generic"
+  ) {
+    seed.productFrame = product;
+  }
+  if (typeof o.angle === "string" && o.angle.trim()) {
+    seed.angle = o.angle.trim().slice(0, 200);
+  }
+  return seed;
+}
 
 /** Parse Lucy's clickable quick-reply options (short strings). */
 export function parseLucyChoices(raw: unknown): string[] | undefined {
@@ -94,6 +150,7 @@ const PROPOSAL_FIELDS = new Set<string>([
   "angle",
   "newsScan",
   "readyToGenerate",
+  "newProject",
   "refineHook",
   "refineCta",
   "refinePs",
@@ -227,17 +284,23 @@ export function isGenerateIntent(message: string): boolean {
 /**
  * Detect when Lucy dumped a full LinkedIn draft into the chat reply
  * (should live in the right-hand panel instead).
+ * Keep this STRICT — multi-paragraph coaching must NOT match.
  */
 export function looksLikeLinkedInPostInChat(reply: string): boolean {
   const text = reply.trim();
-  if (text.length < 180) return false;
+  if (text.length < 420) return false;
   const paragraphs = text.split(/\n\s*\n/).filter((p) => p.trim().length > 0);
   const questionMarks = (text.match(/\?/g) ?? []).length;
   const newlines = (text.match(/\n/g) ?? []).length;
-  // Multi-paragraph draft dump (coach intros are usually 1 short block).
-  if (paragraphs.length >= 3 && text.length >= 180 && questionMarks <= 1) return true;
-  if (paragraphs.length >= 2 && text.length >= 400 && questionMarks <= 1) return true;
-  return text.length >= 500 && newlines >= 4 && questionMarks <= 1;
+  // Strong LinkedIn-draft signals
+  const hasHashtags = /(?:^|\s)#[\p{L}\p{N}_]{2,}/u.test(text);
+  const hasPs = /\bP\.?\s*S\.?\b/i.test(text);
+  const hasHookBreaks = newlines >= 6 && paragraphs.length >= 3;
+  if (questionMarks > 2) return false; // coaching questions ≠ a post
+  if (hasHashtags && text.length >= 420) return true;
+  if (hasPs && text.length >= 420 && paragraphs.length >= 2) return true;
+  if (hasHookBreaks && text.length >= 550 && questionMarks <= 1) return true;
+  return false;
 }
 
 const DRAFT_REDIRECT: Record<ContentLanguage, string> = {
@@ -453,6 +516,9 @@ export function parseLucyPendingProposal(raw: unknown): LucyPendingProposal | un
   if (typeof value === "string" && !value.trim() && field !== "newsScan" && field !== "readyToGenerate") {
     return undefined;
   }
+  if (field === "newProject" && typeof value === "string" && value.trim().length < 3) {
+    return undefined;
+  }
   if (field === "brief" && typeof value === "string" && !normalizeProposedBrief(value)) {
     return undefined;
   }
@@ -462,7 +528,7 @@ export function parseLucyPendingProposal(raw: unknown): LucyPendingProposal | un
       field === "brief" && typeof value === "string"
         ? (normalizeProposedBrief(value) as string)
         : typeof value === "string"
-          ? value.trim()
+          ? value.trim().slice(0, field === "newProject" ? 120 : 2000)
           : value,
     label: label.slice(0, 120),
   };
@@ -490,6 +556,11 @@ export function parseLucyChatResponse(raw: unknown): LucyChatResponse | null {
     suggestedIdea: parseLucySuggestedIdea(o.suggestedIdea),
     choices: parseLucyChoices(o.choices),
     framePatch: parseLucyFramePatch(o.framePatch),
+    newProjectSeed: parseLucyNewProjectSeed(o.newProjectSeed),
+    briefPatch: (() => {
+      if (typeof o.briefPatch !== "string") return undefined;
+      return normalizeProposedBrief(o.briefPatch) ?? undefined;
+    })(),
   };
 }
 
