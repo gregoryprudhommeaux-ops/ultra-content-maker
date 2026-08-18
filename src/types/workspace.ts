@@ -473,9 +473,15 @@ export interface PostBrief {
  /** Editorial OS · gregory (Charles) | la_mesa (Lucy) | generic */
  channelOwner?: ChannelOwner;
  /** Editorial OS · dinners vs market-entry vs generic B2B */
- productFrame?: ProductFrame;
- /** Narrative structure · story / method / announce / decrypt (optional · AI chooses if unset). */
- narrativeFormat?: NarrativePostFormat;
+  productFrame?: ProductFrame;
+  /** Narrative structure · story / method / announce / decrypt (optional · AI chooses if unset). */
+  narrativeFormat?: NarrativePostFormat;
+  /**
+   * When set, generation is locked to this Lucy content project.
+   * Persona / author niche must not replace the project subject.
+   */
+  contentProjectName?: string;
+  contentProjectBrief?: string;
 }
 
 export interface ArticleQualityScores {
@@ -719,6 +725,11 @@ export interface ContentProject {
   channelOwner?: ChannelOwner;
   productFrame?: ProductFrame;
   contentLanguage?: ContentLanguage;
+  /**
+   * Language Lucy uses in this project's chat (user-spoken). Independent from
+   * contentLanguage, which is only the LinkedIn draft in the right panel.
+   */
+  chatLanguage?: ContentLanguage;
   /** Preferred editorial job for generation from this project. */
   contentJob?: ContentJob;
   emojiLevel?: EmojiLevel;

@@ -88,6 +88,7 @@ function fromFirestore(id: string, d: DocumentData): ContentProject {
     channelOwner: d.channelOwner as ChannelOwner | undefined,
     productFrame: d.productFrame as ProductFrame | undefined,
     contentLanguage: d.contentLanguage as ContentLanguage | undefined,
+    chatLanguage: d.chatLanguage as ContentLanguage | undefined,
     contentJob: d.contentJob as ContentJob | undefined,
     emojiLevel: d.emojiLevel as EmojiLevel | undefined,
     preferredCtaStyle: d.preferredCtaStyle as CtaIntensity | undefined,
@@ -130,6 +131,7 @@ export type ContentProjectPatch = Partial<
     | "channelOwner"
     | "productFrame"
     | "contentLanguage"
+    | "chatLanguage"
     | "contentJob"
     | "emojiLevel"
     | "preferredCtaStyle"
@@ -162,6 +164,7 @@ export async function createContentProject(
     channelOwner: draft.channelOwner ?? null,
     productFrame: draft.productFrame ?? null,
     contentLanguage: draft.contentLanguage ?? null,
+    chatLanguage: null,
     contentJob: draft.contentJob ?? null,
     emojiLevel: null,
     preferredCtaStyle: null,
@@ -196,6 +199,9 @@ export async function updateContentProject(
   if (patch.productFrame !== undefined) payload.productFrame = patch.productFrame ?? null;
   if (patch.contentLanguage !== undefined) {
     payload.contentLanguage = patch.contentLanguage ?? null;
+  }
+  if (patch.chatLanguage !== undefined) {
+    payload.chatLanguage = patch.chatLanguage ?? null;
   }
   if (patch.contentJob !== undefined) payload.contentJob = patch.contentJob ?? null;
   if (patch.emojiLevel !== undefined) payload.emojiLevel = patch.emojiLevel ?? null;

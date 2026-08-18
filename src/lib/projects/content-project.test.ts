@@ -24,6 +24,7 @@ import {
   redirectDraftAwayFromChatReply,
   refineInstructionFromProposal,
   resolveGenerateIdea,
+  resolveLucyChatLanguage,
   sortIdeasByStars,
 } from "./content-project";
 
@@ -220,6 +221,57 @@ describe("content-project helpers", () => {
     assert.equal(dumped.redirected, true);
     assert.match(dumped.reply, /panneau de droite/i);
     assert.doesNotMatch(dumped.reply, /waitlist/i);
+  });
+
+  it("sticks Lucy chat to the user's spoken language", () => {
+    assert.equal(
+      resolveLucyChatLanguage({
+        userMessage: "Principalmente FDI hacia México",
+        fallback: "fr",
+      }),
+      "es",
+    );
+    assert.equal(
+      resolveLucyChatLanguage({
+        userMessage: "Mixer plusieurs angles",
+        locked: "es",
+        fallback: "fr",
+      }),
+      "es",
+    );
+    assert.equal(
+      resolveLucyChatLanguage({
+        userMessage: "Responde en español por favor",
+        locked: "fr",
+        fallback: "fr",
+      }),
+      "es",
+    );
+    assert.equal(
+      resolveLucyChatLanguage({
+        userMessage: "Please reply in English from now on",
+        locked: "fr",
+        fallback: "fr",
+      }),
+      "en",
+    );
+    assert.equal(
+      resolveLucyChatLanguage({
+        userMessage: "ok",
+        history: [{ role: "user", content: "Principalmente FDI hacia México" }],
+        fallback: "fr",
+      }),
+      "es",
+    );
+    assert.equal(
+      resolveLucyChatLanguage({
+        userMessage:
+          "On va rester sur les dîners privés à GDL, pas un afterwork, et viser les fonds.",
+        locked: "es",
+        fallback: "fr",
+      }),
+      "fr",
+    );
   });
 
   it("parses briefPatch from Lucy chat JSON", () => {

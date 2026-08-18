@@ -281,6 +281,116 @@ export function isGenerateIntent(message: string): boolean {
   );
 }
 
+const CHAT_LANG_SWITCH: { lang: ContentLanguage; re: RegExp }[] = [
+  {
+    lang: "fr",
+    re: /(?:parle|r[eé]ponds?|écris|on\s+parle|passe).{0,32}fran[cç]ais|(?:en|in)\s+fran[cç]ais|\bin french\b/i,
+  },
+  {
+    lang: "en",
+    re: /(?:speak|reply|write|switch|answer).{0,32}english|(?:in|en)\s+english|\ben anglais\b|\ben ingl[eé]s\b/i,
+  },
+  {
+    lang: "es",
+    re: /(?:habla|responde|escribe|cambia).{0,32}espa[nñ]ol|(?:en|in)\s+espa[nñ]ol|\bin spanish\b|\ben espagnol\b/i,
+  },
+];
+
+const FR_CHAT_MARKERS =
+  /\b(?:je|tu|nous|vous|c['’]est|n['’]est|pas|pour|avec|dans|une|des|aux|sont|[eê]tre|pourquoi|plusieurs|brouillon|langue|projet|alors|donc|cette|aussi|vers|principalement|angles|mixer|g[eé]n[eè]re|valide|pr[eê]t|d[iî]ners?|priv[eé]s?)\b/gi;
+const ES_CHAT_MARKERS =
+  /\b(?:los|las|para|con|hacia|principalmente|quiero|est[aá]|este|esta|unas|tambi[eé]n|porque|generar|borrador|idioma|m[eé]xico|inversi[oó]n|del|por|m[aá]s|una|mesas?|fondos?)\b/gi;
+const EN_CHAT_MARKERS =
+  /\b(?:the|this|that|with|from|your|have|will|would|should|about|because|please|ready|generate|draft|language|waitlist)\b/gi;
+
+function countMatches(text: string, re: RegExp): number {
+  return text.match(re)?.length ?? 0;
+}
+
+function isSubstantialChatTurn(text: string): boolean {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  return words.length >= 5 || text.replace(/\s+/g, "").length >= 28;
+}
+
+/**
+ * Detect FR/EN/ES from a user turn. Returns null when the text is too short
+ * or ambiguous (pills, "ok", acronyms) so we can keep the locked language.
+ */
+export function detectUserChatLanguage(text: string): ContentLanguage | null {
+  const raw = text.trim();
+  if (!raw) return null;
+  for (const rule of CHAT_LANG_SWITCH) {
+    if (rule.re.test(raw)) return rule.lang;
+  }
+
+  const folded = raw.toLowerCase();
+  const fr =
+    countMatches(folded, FR_CHAT_MARKERS) +
+    (countMatches(raw, /[àâçèêëîïôùûœ]/g) > 0 ? 2 : 0);
+  const es =
+    countMatches(folded, ES_CHAT_MARKERS) +
+    (countMatches(raw, /[ñ¿¡áíóúü]/g) > 0 ? 2 : 0);
+  const en = countMatches(folded, EN_CHAT_MARKERS);
+
+  const ranked = [
+    { lang: "es" as const, score: es },
+    { lang: "fr" as const, score: fr },
+    { lang: "en" as const, score: en },
+  ].sort((a, b) => b.score - a.score);
+  const top = ranked[0];
+  const second = ranked[1];
+  if (!top || top.score < 2) return null;
+  if (second && top.score - second.score < 1) return null;
+  return top.lang;
+}
+
+/**
+ * Chat language Lucy must stick to: the user's spoken language, locked until
+ * they write a substantial turn in another language or explicitly ask to switch.
+ * Independent from LinkedIn production language (contentLanguage).
+ */
+export function resolveLucyChatLanguage(input: {
+  userMessage: string;
+  history?: Pick<ContentProjectChatMessage, "role" | "content">[];
+  locked?: ContentLanguage | null;
+  fallback: ContentLanguage;
+}): ContentLanguage {
+  const fallback =
+    input.fallback === "en" || input.fallback === "es" || input.fallback === "fr"
+      ? input.fallback
+      : "fr";
+  const current = detectUserChatLanguage(input.userMessage);
+  const explicitSwitch = CHAT_LANG_SWITCH.some((rule) => rule.re.test(input.userMessage));
+  if (current && explicitSwitch) return current;
+
+  const locked =
+    input.locked === "en" || input.locked === "es" || input.locked === "fr"
+      ? input.locked
+      : null;
+  if (locked) {
+    if (
+      current &&
+      current !== locked &&
+      isSubstantialChatTurn(input.userMessage)
+    ) {
+      return current;
+    }
+    return locked;
+  }
+
+  if (current) return current;
+
+  const recentUser = [...(input.history ?? [])]
+    .reverse()
+    .filter((m) => m.role === "user")
+    .slice(0, 6);
+  for (const m of recentUser) {
+    const guessed = detectUserChatLanguage(m.content);
+    if (guessed) return guessed;
+  }
+  return fallback;
+}
+
 /**
  * Detect when Lucy dumped a full LinkedIn draft into the chat reply
  * (should live in the right-hand panel instead).

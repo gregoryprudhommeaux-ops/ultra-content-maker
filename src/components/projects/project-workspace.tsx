@@ -20,6 +20,7 @@ import {
   newsSourceFromIdeaHit,
   refineInstructionFromProposal,
   resolveGenerateIdea,
+  resolveLucyChatLanguage,
   sortIdeasByStars,
   type LucyFramePatch,
   type LucyNewProjectSeed,
@@ -34,6 +35,7 @@ import { createDefaultRefinement } from "@/lib/articles/refinement";
 import { buildDefaultSignaturePs } from "@/lib/articles/signature-ps";
 import { useFormatUserError } from "@/hooks/use-format-user-error";
 import { gatherAuthorSteeringPayload } from "@/lib/profile/gather-author-steering";
+import { slimAuthorSteeringForProject } from "@/lib/profile/author-steering-context";
 import { getPersona } from "@/lib/workspace/persona";
 import { getAuthorProfile } from "@/lib/workspace/author";
 import { getUserLlmProfile } from "@/lib/workspace/llm-settings";
@@ -76,7 +78,7 @@ type LiveDraft = {
 export function ProjectWorkspace({ projectId }: Props) {
   const t = useTranslations("projects");
   const locale = useLocale();
-  const chatLanguage: ContentLanguage =
+  const uiLocale: ContentLanguage =
     locale === "en" || locale === "es" || locale === "fr" ? locale : "fr";
   const { user } = useAuth();
   const { access } = useSubscription();
@@ -339,7 +341,7 @@ export function ProjectWorkspace({ projectId }: Props) {
           postBrief,
           targetScope: "niche",
           ...(newsSource ? { newsSource } : {}),
-          authorSteering,
+          authorSteering: slimAuthorSteeringForProject(authorSteering),
           newsInterestQuery: interest || undefined,
           llm: llmPayload,
         }),
@@ -653,13 +655,27 @@ export function ProjectWorkspace({ projectId }: Props) {
     setPendingFramePatch(null);
     setPendingNewProjectSeed(null);
 
-    const withUser = appendContentProjectChat(project, [
+    const chatLanguage = resolveLucyChatLanguage({
+      userMessage,
+      history: project.chat,
+      locked: project.chatLanguage ?? null,
+      fallback: uiLocale,
+    });
+    let withUser = appendContentProjectChat(project, [
       { role: "user", content: userMessage },
     ]);
+    if (withUser.chatLanguage !== chatLanguage) {
+      withUser = { ...withUser, chatLanguage };
+    }
     setProject(withUser);
 
     try {
-      await updateContentProject(user.uid, project.id, { chat: withUser.chat });
+      await updateContentProject(user.uid, project.id, {
+        chat: withUser.chat,
+        ...(withUser.chatLanguage !== project.chatLanguage
+          ? { chatLanguage }
+          : {}),
+      });
 
       // User asked to generate and the frame is already locked → skip Lucy prose,
       // write a short ack and fill the right-hand draft panel.
@@ -707,6 +723,7 @@ export function ProjectWorkspace({ projectId }: Props) {
             preferredCtaStyle: withUser.preferredCtaStyle,
             includeSignaturePs: withUser.includeSignaturePs,
             ideas: withUser.ideas,
+            chatLanguage: withUser.chatLanguage,
           },
           ideas: withUser.ideas,
           siblings: siblings.map((s) => ({
@@ -732,6 +749,7 @@ export function ProjectWorkspace({ projectId }: Props) {
         framePatch?: LucyFramePatch | null;
         newProjectSeed?: LucyNewProjectSeed | null;
         briefPatch?: string | null;
+        chatLanguage?: ContentLanguage;
         autoGenerate?: boolean;
         error?: string;
         detail?: string;
@@ -754,18 +772,27 @@ export function ProjectWorkspace({ projectId }: Props) {
       let withLucy = appendContentProjectChat(withUser, [
         { role: "assistant", content: data.reply.trim() },
       ]);
+      if (
+        data.chatLanguage === "fr" ||
+        data.chatLanguage === "en" ||
+        data.chatLanguage === "es"
+      ) {
+        withLucy = { ...withLucy, chatLanguage: data.chatLanguage };
+      }
       const briefFromLucy =
         typeof data.briefPatch === "string" ? data.briefPatch.trim() : "";
+      const persistPatch: Parameters<typeof updateContentProject>[2] = {
+        chat: withLucy.chat,
+      };
+      if (withLucy.chatLanguage && withLucy.chatLanguage !== project.chatLanguage) {
+        persistPatch.chatLanguage = withLucy.chatLanguage;
+      }
       if (briefFromLucy.length >= MIN_PROJECT_BRIEF_CHARS) {
         withLucy = { ...withLucy, brief: briefFromLucy };
-        await updateContentProject(user.uid, project.id, {
-          chat: withLucy.chat,
-          brief: briefFromLucy,
-        });
+        persistPatch.brief = briefFromLucy;
         setBriefOpen(false);
-      } else {
-        await updateContentProject(user.uid, project.id, { chat: withLucy.chat });
       }
+      await updateContentProject(user.uid, project.id, persistPatch);
       setProject(withLucy);
 
       // User asked to generate → apply framePatch and fill the right panel immediately.

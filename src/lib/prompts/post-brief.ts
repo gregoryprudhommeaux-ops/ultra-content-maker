@@ -26,7 +26,8 @@ export type PostBriefPromptContext = {
  defaultProductFocus?: string;
 };
 
-function companyNameRule(companyName?: string): string {
+function companyNameRule(companyName?: string, isolatedProject?: boolean): string {
+ if (isolatedProject) return "";
  if (companyName?.trim()) {
  return ` Company name "${companyName.trim()}" MUST appear naturally in hook and/or body (at least once, ideally in the first third).`;
  }
@@ -37,6 +38,7 @@ function buildPostAngleBlock(
  brief: PostBrief,
  context?: PostBriefPromptContext,
 ): string {
+ const isolated = Boolean(brief.contentProjectName?.trim());
  const productFocus = brief.productFocus?.trim() || context?.defaultProductFocus?.trim();
  const companyName = context?.companyName;
 
@@ -44,14 +46,27 @@ function buildPostAngleBlock(
  const offerRule = productFocus
  ? ` Focus offer: "${productFocus}" — this product/offer name MUST appear at least once in hook and/or body.`
  : " Name the selected offer/product at least once when known from profile or brief.";
- return `- Post angle: PRODUCT / OFFER — lead with ICP problem and category POV · product is proof, not a brochure.${offerRule}${companyNameRule(companyName)} Do not center the post on the author's personal career or generic individual expertise · promote the company and its offer. No feature laundry list.`;
+ return `- Post angle: PRODUCT / OFFER — lead with ICP problem and category POV · product is proof, not a brochure.${offerRule}${companyNameRule(companyName, isolated)} Do not center the post on the author's personal career or generic individual expertise · promote the company and its offer. No feature laundry list.`;
  }
 
  if (brief.postAngle === "expertise") {
- return `- Post angle: COMPANY & EXPERTISE — promote the company's category vision, culture, or leadership POV · NOT a personal career memoir or generic thought-leadership about the author alone.${companyNameRule(companyName)} The company is the subject; the author speaks as its leader/representative. Do not frame the post as pure personal expertise unless the brief explicitly requires it.`;
+ return `- Post angle: COMPANY & EXPERTISE — promote the company's category vision, culture, or leadership POV · NOT a personal career memoir or generic thought-leadership about the author alone.${companyNameRule(companyName, isolated)} The company is the subject; the author speaks as its leader/representative. Do not frame the post as pure personal expertise unless the brief explicitly requires it.`;
  }
 
  return "";
+}
+
+function buildProjectIsolationBlock(brief: PostBrief): string {
+  const name = brief.contentProjectName?.trim();
+  if (!name) return "";
+  const projectBrief = (brief.contentProjectBrief ?? brief.problem).trim();
+  return `ACTIVE CONTENT PROJECT (hard wall · overrides Persona topic, audience niche, and authorSteering offers):
+- Project name: "${name}"
+- Project brief: ${projectBrief.slice(0, 2500)}
+- Write this LinkedIn post about THIS project only. The project name or its core subject MUST appear in hook and/or body.
+- Persona / author profile / global niche are VOICE only — they are NOT the topic.
+- Do NOT mention any company, product, city, dinner format, waitlist, or offer from Persona or authorSteering unless that exact fact also appears in this project's name or brief.
+- Sibling projects are out of scope. Do not borrow their stories.`;
 }
 
 function formatObjectivesBlock(brief: PostBrief): string {
@@ -79,9 +94,10 @@ export function buildPostBriefInstruction(
  const angleBlock = buildPostAngleBlock(normalized, context);
  const editorialOs = buildEditorialOsPromptBlock(normalized);
  const narrativeFormat = buildNarrativeFormatPromptBlock(normalized);
+ const isolation = buildProjectIsolationBlock(normalized);
 
  return `POST BRIEF (mandatory · all ${lang} posts in this batch must follow):
-${objectivesBlock}
+${isolation ? `${isolation}\n` : ""}${objectivesBlock}
 ${angleBlock ? `${angleBlock}\n` : ""}${editorialOs ? `${editorialOs}\n` : ""}${narrativeFormat ? `${narrativeFormat}\n` : ""}- Primary objective (priority 1) drives hook, body shape, and closing; secondary objectives may appear subtly but must not dilute the main intent.
 - Audience problem: ${normalized.problem.trim()}
 - Author point of view: ${normalized.pointOfView.trim()}

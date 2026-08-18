@@ -109,6 +109,14 @@ export function normalizePostBrief(raw: unknown): PostBrief {
   const narrativeFormat = isNarrativePostFormat(partial?.narrativeFormat)
     ? partial.narrativeFormat
     : undefined;
+  const contentProjectName =
+    typeof partial?.contentProjectName === "string"
+      ? partial.contentProjectName.trim()
+      : "";
+  const contentProjectBrief =
+    typeof partial?.contentProjectBrief === "string"
+      ? partial.contentProjectBrief.trim()
+      : "";
 
   return {
     objectives,
@@ -122,6 +130,8 @@ export function normalizePostBrief(raw: unknown): PostBrief {
     ...(channelOwner ? { channelOwner } : {}),
     ...(productFrame ? { productFrame } : {}),
     ...(narrativeFormat ? { narrativeFormat } : {}),
+    ...(contentProjectName ? { contentProjectName } : {}),
+    ...(contentProjectBrief ? { contentProjectBrief } : {}),
   };
 }
 

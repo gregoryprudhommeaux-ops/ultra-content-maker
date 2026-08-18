@@ -55,8 +55,9 @@ Opening (first turn or when stuck):
 Offer clearly: A) idea · B) draft/link/doc · C) news filtered to profile · D) “I don’t know — guide me”.
 
 Rules:
-- Chat language is ${chatLang}. ALWAYS write "reply", "choices" labels, and proposal labels in ${chatLang}. Never switch the conversation to another language because the LinkedIn post will be written in another language${productionLang ? ` (production language for the right-panel draft: ${productionLang})` : ""}.
-- Production language (project contentLanguage) controls ONLY the LinkedIn draft text in the right panel — NOT how you speak to the user. If the user clicks a choice or types a short phrase in another language, still answer in ${chatLang}.
+- Chat language is ${chatLang}. ALWAYS write "reply", "choices" labels, and proposal labels in ${chatLang} ONLY — one language per turn, no mixing. Stay in ${chatLang} until the user clearly writes a full message in another language or explicitly asks to switch (e.g. "en español", "in English", "en français").
+- Mirror the user: they are speaking ${chatLang}. Do NOT follow the UI locale, and do NOT follow the LinkedIn production language${productionLang ? ` (${productionLang} for the right-panel draft only)` : ""}.
+- Production language (project contentLanguage) controls ONLY the LinkedIn draft text in the right panel — NEVER how you speak in chat. Short taps / pills in another language are NOT a switch: still answer in ${chatLang}.
 - Short, concrete, marketing/copywriting focused — not generic AI cheerleading.
 - Ask only the questions needed to avoid inventing facts.
 - One criterion at a time. Put the concrete proposal in pendingProposal (user will click Validate / Modify in the UI).
@@ -64,7 +65,7 @@ Rules:
 - Go step by step. Take SEVERAL framing turns (angle → reader & intent → key takeaway → tone/format) before ever proposing a draft. Do not collapse multiple questions into one turn, and never jump straight to readyToGenerate.
 - Persistence rule: locked frame fields need pendingProposal (Validate) or framePatch (when validating readyToGenerate). briefPatch is the exception — it updates the right-panel brief immediately. A fact written only in "reply" is NOT locked. Before readyToGenerate, contentLanguage and contentJob MUST already be non-null in the project payload OR included in framePatch, AND the brief must be ≥40 chars (via briefPatch or already filled).
 - Living brief: the project brief (right panel) is a living document. On EVERY turn where the user reveals or confirms durable facts (ICP, offer, angle, geography, “what this is NOT”, waitlist goal, FDI/Mexico focus…), return "briefPatch" with the FULL rewritten brief (merge old + new; ≥40 chars; do not drop prior truths). briefPatch is applied immediately — no Valider click. Also use pendingProposal.field="brief" when you want explicit confirmation of a major rewrite. If the current brief is empty or very short, ALWAYS send briefPatch before proposing readyToGenerate. Never invent facts to pad the brief.
-- Stay focused on the ACTIVE project brief. Sibling projects are context for OPTIONAL bridges — propose a bridge only if it clearly helps, and always ask before mixing.
+- Stay focused on the ACTIVE project brief. Sibling projects are context only — NEVER mix their facts, offers, cities, or stories into this project's brief, frame, or draft. Do not propose channelOwner=la_mesa or productFrame=la_mesa_dinners unless the active project brief/name is actually about LA MESA / Guadalajara dinners. Default those fields to generic.
 - Never invent client names, metrics, dates, guest lists, or news stories.
 - Do NOT write a bio/identity PS yourself — propose includeSignaturePs true/false as opt-in.
 ${newsGate}
@@ -178,6 +179,8 @@ export function buildLucyProjectChatUserPayload(input: {
 
   return JSON.stringify({
     chatLanguage: input.chatLanguage ?? "fr",
+    chatLanguageRule:
+      "Write reply + choices + labels ONLY in chatLanguage. Do not mix languages. Production language is the LinkedIn draft only — never the chat.",
     productionLanguage: input.project.contentLanguage ?? null,
     activeProject: {
       name: input.project.name,
@@ -202,6 +205,20 @@ export function buildLucyProjectChatUserPayload(input: {
 }
 
 /** Build a minimal PostBrief from project fields for generation. */
+function projectHaystack(name: string, brief: string): string {
+  return `${name}\n${brief}`.toLowerCase();
+}
+
+function projectSupportsLaMesa(name: string, brief: string): boolean {
+  return /\bla\s*mesa\b/.test(projectHaystack(name, brief));
+}
+
+function projectSupportsNextstep(name: string, brief: string): boolean {
+  return /nextstep|market[-\s]?entry|d[ée]veloppement international/.test(
+    projectHaystack(name, brief),
+  );
+}
+
 export function buildPostBriefFromContentProject(
   project: Pick<
     ContentProject,
@@ -215,20 +232,31 @@ export function buildPostBriefFromContentProject(
   >,
   opts?: { selectedIdeaId?: string | null },
 ): PostBrief {
+  const name = project.name.trim() || "Projet";
+  const fullBrief = project.brief.trim();
   const topIdea = resolveGenerateIdea(project.ideas, opts?.selectedIdeaId);
   const problem =
-    project.brief.trim().slice(0, 400) ||
-    `Contenu LinkedIn pour le projet « ${project.name} ».`;
+    fullBrief.slice(0, 2500) || `LinkedIn content for project « ${name} ».`;
   const pointOfView = topIdea
     ? `${topIdea.title}. ${topIdea.reason}`.trim().slice(0, 300)
-    : `Angle aligné sur le projet « ${project.name} ».`;
+    : `Angle aligned on project « ${name} ».`;
   const ctaHint = ctaPreferenceHint(project.preferredCtaStyle);
   const proof = [
-    "S’appuyer sur le Persona et les faits fournis dans le brief projet — ne rien inventer.",
+    `Use only facts from the active project brief « ${name} ». Do not invent. Do not import other projects or offers.`,
     ctaHint,
   ]
     .filter(Boolean)
     .join(" ");
+
+  const mesaOk = projectSupportsLaMesa(name, fullBrief);
+  const nextstepOk = projectSupportsNextstep(name, fullBrief);
+  let channelOwner = project.channelOwner;
+  let productFrame = project.productFrame;
+  if (channelOwner === "la_mesa" && !mesaOk) channelOwner = "generic";
+  if (productFrame === "la_mesa_dinners" && !mesaOk) productFrame = "generic";
+  if (productFrame === "nextstep_market_entry" && !nextstepOk) {
+    productFrame = "generic";
+  }
 
   return {
     objectives: [{ objective: "credibility", priority: 1 }],
@@ -236,7 +264,9 @@ export function buildPostBriefFromContentProject(
     pointOfView,
     proof,
     contentJob: project.contentJob,
-    channelOwner: project.channelOwner,
-    productFrame: project.productFrame,
+    channelOwner,
+    productFrame,
+    contentProjectName: name,
+    contentProjectBrief: fullBrief.slice(0, 2500) || name,
   };
 }

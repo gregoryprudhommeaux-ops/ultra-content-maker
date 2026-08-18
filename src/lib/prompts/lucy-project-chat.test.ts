@@ -42,8 +42,10 @@ describe("lucy-project-chat", () => {
       productionLanguage: "es",
     });
     assert.match(prompt, /Chat language is French/i);
-    assert.match(prompt, /production language for the right-panel draft: Spanish/i);
+    assert.match(prompt, /Spanish for the right-panel draft only/i);
     assert.match(prompt, /ALWAYS write "reply", "choices"/i);
+    assert.match(prompt, /Stay in French/i);
+    assert.match(prompt, /Do NOT follow the UI locale/i);
   });
 
   it("offers newProject when a draft already exists", () => {
@@ -54,6 +56,7 @@ describe("lucy-project-chat", () => {
     });
     assert.match(withDraft, /newProject/);
     assert.match(withDraft, /sibling/i);
+    assert.match(withDraft, /NEVER mix/i);
   });
 
   it("builds a post brief from project fields", () => {
@@ -74,7 +77,28 @@ describe("lucy-project-chat", () => {
     });
     assert.equal(brief.contentJob, "teaser");
     assert.equal(brief.channelOwner, "la_mesa");
+    assert.equal(brief.productFrame, "la_mesa_dinners");
     assert.match(brief.pointOfView, /Nearshoring/);
     assert.ok(brief.problem.includes("Dîners"));
+    assert.equal(brief.contentProjectName, "LA MESA");
+  });
+
+  it("does not leak LA MESA editorial frame into an unrelated project brief", () => {
+    const ariesBrief =
+      "ARIES District is a mixed-use prestige real estate project in the mountain corridor of La Libertad near Nuevo Cuscatlán, El Salvador. ICP: global investors and B2B capital. Not a Guadalajara dinner club.";
+    const brief = buildPostBriefFromContentProject({
+      name: "ARIES District - El Salvador Project",
+      brief: ariesBrief,
+      channelOwner: "la_mesa",
+      productFrame: "la_mesa_dinners",
+      contentJob: "explain",
+      ideas: [],
+    });
+    assert.equal(brief.contentProjectName, "ARIES District - El Salvador Project");
+    assert.match(brief.problem, /ARIES District/);
+    assert.match(brief.problem, /El Salvador/);
+    assert.notEqual(brief.productFrame, "la_mesa_dinners");
+    assert.notEqual(brief.channelOwner, "la_mesa");
+    assert.doesNotMatch(brief.proof, /Persona/i);
   });
 });

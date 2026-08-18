@@ -8,6 +8,7 @@ import {
   isProjectFrameReady,
   parseLucyChatResponse,
   redirectDraftAwayFromChatReply,
+  resolveLucyChatLanguage,
 } from "@/lib/projects/content-project";
 import {
   buildLucyProjectChatSystemPrompt,
@@ -39,6 +40,7 @@ type Body = {
     | "preferredCtaStyle"
     | "includeSignaturePs"
     | "ideas"
+    | "chatLanguage"
   >;
   ideas?: ContentProjectIdeaHit[];
   siblings?: Pick<ContentProject, "id" | "name" | "brief">[];
@@ -83,7 +85,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const chatLanguage = normalizeChatLanguage(body.chatLanguage ?? body.contentLanguage);
+  const uiFallback = normalizeChatLanguage(body.chatLanguage ?? body.contentLanguage);
+  const chatLanguage = resolveLucyChatLanguage({
+    userMessage: body.userMessage,
+    history: body.history,
+    locked: body.project.chatLanguage ?? null,
+    fallback: uiFallback,
+  });
   const productionLanguage: ContentLanguage | null =
     body.project.contentLanguage ?? null;
   const profileReadyForNews = Boolean(body.profileReadyForNews);
@@ -280,6 +288,7 @@ export async function POST(request: Request) {
       framePatch,
       newProjectSeed: parsed.newProjectSeed ?? null,
       briefPatch,
+      chatLanguage,
       autoGenerate: Boolean(
         wantsGenerate &&
           pendingProposal?.field === "readyToGenerate" &&

@@ -39,6 +39,7 @@ export type ArticleGenerateCount = 1 | 2 | 4;
 function scopeMixInstruction(
  count: ArticleGenerateCount,
  forcedScope?: ArticleScope,
+ isolatedProject?: boolean,
 ): {
  systemLines: string;
  userMix: { generalist: number; niche: number };
@@ -50,9 +51,14 @@ function scopeMixInstruction(
  forcedScope === "niche"
  ? 'scope "niche" · deep vertical/ICP-specific angle from the content niche anchor'
  : 'scope "generalist" · broader within expertise, still credible in the author\'s domain';
+ const matchLine = isolatedProject
+  ? "- Single post: write only about the ACTIVE CONTENT PROJECT in the post brief. Ignore global Persona/audience niche if it names a different offer."
+  : `- Single post: ${scopeLine}. Return scope "${forcedScope}".
+- Match content to the CONTENT NICHE ANCHOR in the user message.`;
  return {
- systemLines: `- Single post: ${scopeLine}. Return scope "${forcedScope}".
-- Match content to the CONTENT NICHE ANCHOR in the user message.`,
+ systemLines: isolatedProject
+  ? `${matchLine}\n- Return scope "${forcedScope}".`
+  : matchLine,
  userMix: { generalist: forcedScope === "generalist" ? 1 : 0, niche: forcedScope === "niche" ? 1 : 0 },
  userInstruction: `Generate exactly 1 post now with scope "${forcedScope}".`,
  };
@@ -131,7 +137,8 @@ export function buildArticlesSystemPromptWithCount(
  : count === 2
  ? "1 generalist + 1 niche"
  : "2 generalist + 2 niche";
- const { systemLines } = scopeMixInstruction(count, targetScope);
+ const isolatedProject = Boolean(postBrief?.contentProjectName?.trim());
+ const { systemLines } = scopeMixInstruction(count, targetScope, isolatedProject);
 
  return `You are a senior LinkedIn B2B content strategist and ghostwriter. Follow the expert Persona system prompt provided by the user.
 
@@ -147,7 +154,7 @@ ${NO_LLM_SIGNATURE_PS_RULE}
 - Never paste https://www.linkedin.com/ or other generic LinkedIn platform URLs in hook, body, or PS (no homepage / feed links).
 - When objective is conversation: end body with a specific question for the target ICP (not engagement bait). Do not write a full signature CTA or duplicate conditional opener · a separate CTA block is added later; leave room for one clear next step.
 - Emoji rule (non-negotiable): ${emoji}
-- Match author voice and audience from the Persona strictly.
+- Match author voice from the Persona. When an ACTIVE CONTENT PROJECT is in the post brief, that project is the ONLY subject — Persona topic/niche/offers must not replace it.
 - If the Persona says "no emojis" but emojiLevel is light or heavy, follow emojiLevel · user choice overrides.
 - For each post, add exactly ${hashtagCount} LinkedIn hashtags in "hashtags" (strings without #): relevant to post content, author niche and audience from the Persona. Mix specific + broader tags. No generic spam.${pillarFieldRule}
 
@@ -170,7 +177,12 @@ export function buildArticlesUserPromptWithCount(
  targetScope: ArticleScope = "generalist",
 ): string {
  const emojiRule = emojiInstruction(emojiLevel, contentLanguage);
- const { userMix, userInstruction } = scopeMixInstruction(count, count === 1 ? targetScope : undefined);
+ const isolatedProject = Boolean(postBrief?.contentProjectName?.trim());
+ const { userMix, userInstruction } = scopeMixInstruction(
+   count,
+   count === 1 ? targetScope : undefined,
+   isolatedProject,
+ );
  const emojiSuffix =
  emojiLevel === "none"
  ? " No emojis."
@@ -185,9 +197,13 @@ export function buildArticlesUserPromptWithCount(
  ? buildPostBriefInstruction(postBrief, contentLanguage, briefContext)
  : undefined;
 
- const nicheLine = resolveContentNicheFromSteering(personaPromptText, authorSteering);
+ const nicheLine = isolatedProject
+   ? ""
+   : resolveContentNicheFromSteering(personaPromptText, authorSteering);
  const nicheBlock =
- count === 1 ? buildContentNichePromptBlock(nicheLine, targetScope) : undefined;
+   count === 1 && nicheLine
+     ? buildContentNichePromptBlock(nicheLine, targetScope)
+     : undefined;
  const contentArchetype = resolveContentArchetype({
  author: authorSteering?.author ?? null,
  profileEnrichment: profileEnrichment ?? authorSteering?.profileEnrichment ?? null,

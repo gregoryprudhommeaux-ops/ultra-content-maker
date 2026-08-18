@@ -240,6 +240,30 @@ export function slimAuthorSteeringForRevise(
  return hasSteeringContent(slim) ? slim : undefined;
 }
 
+/**
+ * Voice-only steering for Lucy project generation.
+ * Drops global niche, posts, bios, and strategy text so another product
+ * (e.g. LA MESA) cannot replace the active project's subject.
+ */
+export function slimAuthorSteeringForProject(
+ steering?: AuthorSteeringPayload | null,
+): AuthorSteeringPayload | undefined {
+ if (!steering) return undefined;
+ const slim: AuthorSteeringPayload = {};
+ if (steering.author) {
+  slim.author = {
+    roleTitle: steering.author.roleTitle,
+    positioningLine: steering.author.positioningLine,
+    contentArchetype: steering.author.contentArchetype,
+  };
+ }
+ const voiceRaw = steering.profileEnrichment?.voice_fingerprint;
+ if (typeof voiceRaw === "string" && voiceRaw.trim()) {
+  slim.profileEnrichment = { voice_fingerprint: voiceRaw };
+ }
+ return hasSteeringContent(slim) ? slim : undefined;
+}
+
 function hasSteeringContent(s: AuthorSteeringPayload): boolean {
  return !!(
  s.author?.creationStrategySteering ||
