@@ -352,5 +352,22 @@ describe("content-project helpers", () => {
       value: "plus punchy",
       label: "hook",
     }), /hook/i);
+    p = {
+      ...p,
+      ideas: [
+        {
+          id: "a1",
+          title: "Opportunité du Salvador via les infrastructures",
+          stars: 5,
+          reason: "Angle",
+          source: "lucy",
+        },
+      ],
+    };
+    const angleChip = buildValidatedChips(p).find((c) => c.field === "angle");
+    assert.equal(
+      angleChip?.label,
+      "Opportunité du Salvador via les infrastructures",
+    );
   });
 });

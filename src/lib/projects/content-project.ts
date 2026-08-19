@@ -808,7 +808,7 @@ export function buildValidatedChips(
   }
   const top = sortIdeasByStars(project.ideas ?? [])[0];
   if (top) {
-    chips.push({ field: "angle", label: top.title.slice(0, 40) });
+    chips.push({ field: "angle", label: top.title.trim() });
   }
   return chips;
 }

@@ -987,7 +987,7 @@ export function ProjectWorkspace({ projectId }: Props) {
                 key={`${chip.field}-${chip.label}`}
                 type="button"
                 onClick={() => reopenChip(chip.field, chip.label)}
-                className="rounded-full border border-ns-alternate bg-white px-2.5 py-1 text-[11px] font-semibold text-ns-tertiary hover:border-ns-primary/50"
+                className="max-w-full rounded-full border border-ns-alternate bg-white px-2.5 py-1 text-left text-[11px] font-semibold leading-snug text-ns-tertiary hover:border-ns-primary/50"
                 title={t("chipReopenHint")}
               >
                 {chip.label}
@@ -1026,7 +1026,7 @@ export function ProjectWorkspace({ projectId }: Props) {
                 type="button"
                 disabled={busy}
                 onClick={() => void sendMessage(choice)}
-                className="rounded-full border border-ns-primary/50 bg-ns-primary/10 px-3 py-1.5 text-xs font-semibold text-ns-tertiary transition-colors hover:bg-ns-primary/20 disabled:opacity-50"
+                className="max-w-full rounded-full border border-ns-primary/50 bg-ns-primary/10 px-3 py-1.5 text-left text-xs font-semibold leading-snug text-ns-tertiary transition-colors hover:bg-ns-primary/20 disabled:opacity-50"
               >
                 {choice}
               </button>
