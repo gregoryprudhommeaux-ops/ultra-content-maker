@@ -8,7 +8,10 @@ type NsMarkImageProps = {
   borderRadius: number;
 };
 
-/** NS mark for `next/og` ImageResponse (favicon & social previews). */
+/**
+ * UCM product mark for `next/og` ImageResponse (social previews).
+ * Letters = UC (Ultra Content) — distinct from suite NsMark "NS" in the UI chrome.
+ */
 export function NsMarkImage({ size, borderRadius }: NsMarkImageProps): ReactNode {
   return (
     <div
@@ -28,7 +31,7 @@ export function NsMarkImage({ size, borderRadius }: NsMarkImageProps): ReactNode
         letterSpacing: "-0.04em",
       }}
     >
-      NS
+      UC
     </div>
   );
 }

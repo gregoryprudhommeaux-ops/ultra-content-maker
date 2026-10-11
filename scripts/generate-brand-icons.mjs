@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Regenerate static brand icons (favicon, PNG sizes) from the NS mark design.
+ * Regenerate static brand icons (favicon, PNG sizes, apple-touch) for Ultra Content Maker.
+ * Home-screen mark = "UC" (not the suite "NS") so iOS shortcuts don't look like LA MESA / NS Suite.
  * Requires: python3 with Pillow (`pip install pillow`).
  */
 import { execFileSync } from "node:child_process";
@@ -16,28 +17,36 @@ from PIL import Image, ImageDraw, ImageFont
 
 GREEN = (0x9D, 0xC4, 0x1A, 255)
 BLACK = (0, 0, 0, 255)
+# Opaque green (no alpha) — iOS home-screen shortcuts look muddy with transparency.
+SOLID_GREEN = (0x9D, 0xC4, 0x1A, 255)
 
-def draw_mark(size, radius_ratio=0.1875):
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+def draw_mark(size, radius_ratio=0.1875, opaque=False):
+    bg = SOLID_GREEN if opaque else (0, 0, 0, 0)
+    img = Image.new("RGBA", (size, size), bg)
     draw = ImageDraw.Draw(img)
     r = max(2, int(size * radius_ratio))
-    draw.rounded_rectangle([0, 0, size - 1, size - 1], radius=r, fill=GREEN)
-    font_size = max(8, int(size * 0.38))
+    if not opaque:
+        draw.rounded_rectangle([0, 0, size - 1, size - 1], radius=r, fill=GREEN)
+    else:
+        # Full-bleed square for apple-touch (iOS adds its own mask / corner radius).
+        draw.rectangle([0, 0, size - 1, size - 1], fill=SOLID_GREEN)
+    font_size = max(8, int(size * (0.42 if size >= 180 else 0.38)))
     try:
         font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", font_size)
     except OSError:
         font = ImageFont.load_default()
-    text = "NS"
+    text = "UC"
     bbox = draw.textbbox((0, 0), text, font=font)
     tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    draw.text(((size - tw) / 2, (size - th) / 2 - 1), text, fill=BLACK, font=font)
+    draw.text(((size - tw) / 2, (size - th) / 2 - max(1, size // 64)), text, fill=BLACK, font=font)
     return img
 
 public_dir = ${JSON.stringify(publicDir)}
 app_dir = ${JSON.stringify(appDir)}
 
-for size in (16, 32, 48, 180, 512):
-    draw_mark(size).save(f"{public_dir}/icon-{size}.png")
+for size in (16, 32, 48, 180, 192, 512):
+    opaque = size >= 180
+    draw_mark(size, opaque=opaque).save(f"{public_dir}/icon-{size}.png")
 
 icons = [draw_mark(s) for s in (16, 32, 48)]
 icons[0].save(
@@ -46,7 +55,7 @@ icons[0].save(
     sizes=[(16, 16), (32, 32), (48, 48)],
     append_images=icons[1:],
 )
-draw_mark(180).save(f"{public_dir}/apple-touch-icon.png")
+draw_mark(180, opaque=True).save(f"{public_dir}/apple-touch-icon.png")
 
 # Open Graph / WhatsApp preview (1200x630) — compact mark + English tagline
 og_w, og_h = 1200, 630
@@ -93,7 +102,7 @@ import shutil
 shutil.copy(f"{public_dir}/favicon.ico", f"{app_dir}/favicon.ico")
 shutil.copy(f"{public_dir}/icon-32.png", f"{app_dir}/icon.png")
 shutil.copy(f"{public_dir}/apple-touch-icon.png", f"{app_dir}/apple-icon.png")
-print("Brand icons written to public/ and src/app/ (incl. og-image.png)")
+print("UCM brand icons written to public/ and src/app/ (UC mark · apple-touch · og-image)")
 `;
 
 execFileSync("python3", ["-c", script], { stdio: "inherit" });
